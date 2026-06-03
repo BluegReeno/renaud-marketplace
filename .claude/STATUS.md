@@ -1,22 +1,14 @@
 # renaud-marketplace — Current Status
 
 **Last Updated**: 2026-06-03
-**Current Phase**: Phase 1 — cv-generator migration + 5×5 matrix upgrade
-**Target**: First working build (all 30 CVs validated)
+**Current Phase**: Phase 1 COMPLETE — cv-generator v0.1.0 shipped
+**Target**: ✅ First working build — 30/30 CVs validated (1 page each)
 
 ---
 
 ## Current Focus
 
-**Task File**: `.claude/tasks/cv-generator-matrix-upgrade.md`
-
-### Priority Order
-
-1. **[P0]** Marketplace scaffold — plugin.json, marketplace.json, SKILL.md stub
-2. **[P1]** cv-master.json — add 15-cell matrix + 5 new competency items
-3. **[P2]** generate_cv.py — new `--profile / --company-type / --lang` API + rétro-compat
-4. **[P3]** SKILL.md rewrite — matrix detection logic + plugin resolver
-5. **[P4]** Profile .md files (p1–p5) + batch validation (30 CVs)
+**DONE** — Ready to commit. Next: visual review of priority CVs + delete legacy source.
 
 ---
 
@@ -28,6 +20,17 @@
 - [x] Marketplace field guide (docs/skill-marketplace-guide.md) — 2026-06-03
 - [x] PRD, STATUS, CLAUDE.md filled — 2026-06-03
 - [x] Marketplace skeleton (.claude-plugin/, plugins/cv-generator/) — 2026-06-03
+
+### Phase 1: cv-generator v0.1.0
+- [x] cv_template.html — migrated, emoji-free, 3 dynamic title placeholders — 2026-06-03
+- [x] cv-master.json — 15-cell matrix + 5 new competency items + 5-profile experiences — 2026-06-03
+- [x] generate_cv.py — new --profile/--company-type/--lang API + retro-compat + corporate-first — 2026-06-03
+- [x] batch_validate.py — generates all 30 CVs, asserts 1-page via pikepdf — 2026-06-03
+- [x] SKILL.md rewrite — matrix detection + PLUGIN_DIR resolver — 2026-06-03
+- [x] Profile files (p1–p5) — narrative rules + anti-patterns — 2026-06-03
+- [x] Batch validation: 30/30 CVs pass, 1 page each — 2026-06-03
+- [x] Retro-compat verified (--positioning ai_consulting/cto/business_dev) — 2026-06-03
+- [x] Versions consistent: plugin.json = marketplace.json = 0.1.0 — 2026-06-03
 
 ### Recent Commits
 | Feature | Commit | Date |
@@ -55,13 +58,16 @@ renaud-marketplace/ (private GitHub repo)
 
 ```bash
 # Dev test — single CV
+DYLD_LIBRARY_PATH=/opt/homebrew/lib \
 CV_GENERATOR_DIR=~/Projects/renaud-marketplace/plugins/cv-generator \
   uv run --with weasyprint \
   python3 plugins/cv-generator/scripts/generate_cv.py \
   --profile p1 --company-type t5 --lang en
 
 # Batch validation
-uv run --with weasyprint \
+DYLD_LIBRARY_PATH=/opt/homebrew/lib \
+CV_GENERATOR_DIR=~/Projects/renaud-marketplace/plugins/cv-generator \
+  uv run --with weasyprint --with pikepdf \
   python3 plugins/cv-generator/scripts/batch_validate.py
 ```
 
