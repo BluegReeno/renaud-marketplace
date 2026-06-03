@@ -98,10 +98,13 @@ fi
 ```bash
 DYLD_LIBRARY_PATH=/opt/homebrew/lib \
 uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
-  --profile {profile} --company-type {company_type} --lang {lang}
+  --profile {profile} --company-type {company_type} --lang {lang} \
+  --output-dir ~/SynologyDrive-MyAssistant/jobsearch/
 ```
 
 Replace `{profile}`, `{company_type}`, `{lang}` with the detected values.
+
+> **Photo**: not bundled in the public plugin. The script auto-fallbacks to `~/.claude/assets/photo.jpeg` — place `photo.jpeg` there after install and the photo appears automatically.
 
 ---
 
@@ -141,7 +144,8 @@ PYEOF
 
 DYLD_LIBRARY_PATH=/opt/homebrew/lib \
 uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
-  --profile p3 --company-type t1 --lang en
+  --profile p3 --company-type t1 --lang en \
+  --output-dir ~/SynologyDrive-MyAssistant/jobsearch/
 ```
 
 ---
