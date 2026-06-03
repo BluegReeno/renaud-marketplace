@@ -20,6 +20,15 @@ Thumbs.db
 *.swo
 *~
 
+# Plugin assets — personal data, not versioned
+plugins/*/assets/photo.jpeg
+plugins/*/assets/*.jpeg
+plugins/*/assets/*.jpg
+plugins/*/assets/*.png
+
+# Generated PDFs — output files
+*.pdf
+
 # Logs
 *.log
 npm-debug.log*
