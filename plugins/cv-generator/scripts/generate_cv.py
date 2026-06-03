@@ -170,11 +170,15 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
     work_dir.mkdir(exist_ok=True)
 
     photo_src = skill_dir / 'assets' / 'photo.jpeg'
+    # Fallback: user-managed location outside the (public) repo
+    if not photo_src.exists():
+        photo_src = Path.home() / '.claude' / 'assets' / 'photo.jpeg'
     photo_dest = work_dir / 'photo.jpeg'
     if photo_src.exists():
         shutil.copy(photo_src, photo_dest)
     else:
-        print(f"WARNING: Photo not found at {photo_src}")
+        print("INFO: No photo found — CV will render without photo.")
+        print("      To add: place photo.jpeg in ~/.claude/assets/photo.jpeg")
 
     cv_data = load_cv_data()
 
@@ -194,7 +198,10 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
 
     html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
 
-    shutil.rmtree(work_dir)
+    try:
+        shutil.rmtree(work_dir)
+    except Exception:
+        pass
 
     return output_pdf
 
