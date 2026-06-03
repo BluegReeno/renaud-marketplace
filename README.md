@@ -1,48 +1,62 @@
-# [Project Name]
+# renaud-marketplace
 
-[One sentence description of your project]
+Private Claude Code skill marketplace for Renaud Laborbe's personal skills — CV generation, job search tools, and productivity plugins too sensitive for public distribution.
 
-## Quick Start
+## Install (private repo via GitHub PAT)
+
+Add to `~/.claude/settings.json`:
+
+```json
+{
+  "plugins": {
+    "sources": [
+      {
+        "repo": "BluegReeno/renaud-marketplace",
+        "token": "ghp_xxxxxxxxxxxx"
+      }
+    ]
+  }
+}
+```
+
+Then install a plugin:
 
 ```bash
-# Install dependencies
-[your install command]
-
-# Run development server
-[your dev command]
-
-# Run tests
-[your test command]
+/plugin marketplace add BluegReeno/renaud-marketplace cv-generator
 ```
+
+## Plugins
+
+| Plugin | Status | Description |
+|--------|--------|-------------|
+| `cv-generator` | In development | 1-page PDF CV — 5 profiles × 5 company types, FR + EN |
 
 ## Project Structure
 
 ```
-src/
-├── ...
+renaud-marketplace/
+├── .claude-plugin/
+│   └── marketplace.json          # Registry entry point
+├── plugins/
+│   └── cv-generator/             # First plugin
+│       ├── .claude-plugin/
+│       │   └── plugin.json
+│       ├── skills/cv-generator/
+│       │   └── SKILL.md
+│       ├── scripts/
+│       │   └── generate_cv.py
+│       ├── data/
+│       │   └── cv-master.json
+│       ├── templates/
+│       │   └── cv_template.html
+│       └── CHANGELOG.md
+└── docs/
+    └── skill-marketplace-guide.md  # Architecture & conventions
 ```
-
-## Documentation
-
-- **[PRD](.claude/PRD.md)** - Product Requirements Document
-- **[Status](.claude/STATUS.md)** - Current sprint and priorities
-- **[Workflow Guide](docs/workflow-guide.md)** - Development methodology and commands
-
-## AI Context Architecture
-
-This project uses a **3-tier context system** for efficient AI-assisted development:
-
-| Tier | Location | Loaded | Purpose |
-|------|----------|--------|---------|
-| 1 | `CLAUDE.md` | Always | Global rules, tech stack, core principles |
-| 2 | `.claude/rules/` | Auto (by path) | Domain-specific conventions |
-| 3 | `.claude/docs/` | On-demand | Deep architecture guides |
-
-See `.claude/rules/README.md` and `.claude/docs/README.md` for details.
 
 ## Development
 
-This project uses Claude Code with a PRD-first methodology. See the [workflow guide](docs/workflow-guide.md) for details.
+This project uses Claude Code with a PRD-first methodology.
 
 ### Key Commands
 
@@ -50,10 +64,13 @@ This project uses Claude Code with a PRD-first methodology. See the [workflow gu
 /core_piv_loop:prime          # Load project context
 /core_piv_loop:plan-feature   # Plan a new feature
 /core_piv_loop:execute        # Execute with task tracking
-/handoff                      # Capture session state for continuation
-/commit                       # Create clean commit with context tracking
+/handoff                      # Capture session state
+/commit                       # Create clean commit
 ```
 
-## License
+## Conventions
 
-[Your license]
+- No `pip install` in skills — use `uv run --with <pkg>` (Cowork constraint)
+- `marketplace.json` version === `plugin.json` version — always in sync
+- Personal data (photo, contact info) stays gitignored
+- See [Marketplace Guide](docs/skill-marketplace-guide.md) for full conventions

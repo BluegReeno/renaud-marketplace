@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "name": "renaud-marketplace",
+  "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation and job search tools",
+  "plugins": [
+    {
+      "name": "cv-generator",
+      "version": "0.1.0",
+      "description": "Generate 1-page PDF CVs with a 5-profile × 5-company-type positioning matrix, in French and English",
+      "path": "plugins/cv-generator"
+    }
+  ]
+}
