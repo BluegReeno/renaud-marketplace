@@ -1,0 +1,1093 @@
+{
+  "personal": {
+    "name": "Renaud Laborbe",
+    "email": "rlaborbe@gmail.com",
+    "phone": "+33 (0)6 50 96 61 98",
+    "address": "Le Pecq, 78230, France",
+    "address_url": "https://maps.google.com/?q=34+Av.+de+la+République,+78230+Le+Pecq",
+    "linkedin": "linkedin.com/in/renaud-laborbe",
+    "languages": ["French (Native)", "English (Fluent)", "Portuguese (Fluent)"],
+    "international_experience": ["USA (San Diego)", "UK (London)", "Brazil (Rio)", "France (Paris)"]
+  },
+
+  "education": [
+    {
+      "degree": "MSc in Oceanography & Climatology",
+      "school": "Sorbonne University",
+      "location": "Paris, France",
+      "year": "2003"
+    },
+    {
+      "degree": "Bachelor of Engineering in Coastal Engineering",
+      "school": "San Diego State University",
+      "location": "California, USA",
+      "year": "2002"
+    }
+  ],
+
+  "competencies_pool": {
+    "ai_digital": [
+      "LLMs, RAG, AI Agents",
+      "Product Architecture",
+      "MCP servers",
+      "Backend & Cloud Systems",
+      "Workflow Automation",
+      "Process Automation",
+      "NoCode/LowCode Solutions",
+      "AI/ML Stack (LLMs, RAG)",
+      "Document Intelligence & Reporting",
+      "AI Evals & Observability",
+      "Solution Scoping & Proposals"
+    ],
+    "business_leadership": [
+      "Business Development",
+      "Product Development & Architecture",
+      "Team Leadership (12 people)",
+      "R&D Team Leadership (12 people)",
+      "Stakeholder & Client Engagement",
+      "Cross-functional Team Management",
+      "Agile Product Delivery",
+      "Full P&L responsibility",
+      "C-level negotiations",
+      "Investor Relations & Fundraising",
+      "Lab-to-Industrial Scale-up",
+      "Enterprise Sales",
+      "AI Awareness Training",
+      "Customer Onboarding & Adoption"
+    ],
+    "sector_expertise": [
+      "Renewable Energy (15+ yrs)",
+      "Engineering & Infrastructure",
+      "Offshore Wind Development",
+      "Climate Tech & Sustainability",
+      "Marine data intelligence",
+      "Marine & Environmental Data",
+      "Scale-up Operations"
+    ]
+  },
+
+  "matrix": {
+    "p1": {
+      "t1": {
+        "title": {
+          "en": "AI Product Architect — Industrial Data & GenAI",
+          "fr": "Architecte Produit IA — Données industrielles & GenAI"
+        },
+        "about": {
+          "en": [
+            "Engineer-entrepreneur, 15+ years turning industrial & environmental data into products.",
+            "Built a data platform from prototype to industrial scale (€2M raised, exit).",
+            "Now shipping production GenAI systems for the energy industry."
+          ],
+          "fr": [
+            "Ingénieur-entrepreneur, 15+ ans à transformer la donnée industrielle en produits.",
+            "A scalé une plateforme data du prototype au déploiement industriel (€2M levés, exit).",
+            "Livre aujourd'hui des systèmes GenAI en production pour l'énergie."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "AI Product Architecture",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "MCP servers", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "0→1 Execution",
+              "items": ["Lab-to-Industrial Scale-up", "Product Development & Architecture", "Agile Product Delivery"]
+            },
+            {
+              "title": "Industrial & Energy Data",
+              "items": ["Renewable Energy (15+ yrs)", "Marine & Environmental Data", "Engineering & Infrastructure"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Architecture Produit IA",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "MCP servers", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Exécution 0→1",
+              "items": ["Lab-to-Industrial Scale-up", "Product Development & Architecture", "Agile Product Delivery"]
+            },
+            {
+              "title": "Données industrielles & Énergie",
+              "items": ["Renewable Energy (15+ yrs)", "Marine & Environmental Data", "Engineering & Infrastructure"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "Renaud has done exactly what these companies need: turning complex industrial data into software products. Open Ocean = marine data platform built from scratch to industrial deployment (team of 12, €2M raised, exit). Today he architects production GenAI systems (BlueWind Companion: 22,800-chunk RAG, 5 agents). He natively speaks both languages: physical engineering AND AI product.",
+          "fr": "Renaud a fait exactement ce que ces boîtes cherchent : transformer de la donnée industrielle complexe en produit logiciel. Open Ocean = plateforme de données marines montée de zéro au déploiement industriel (équipe de 12, €2M levés, exit). Aujourd'hui il architecture des systèmes GenAI en production (BlueWind Companion : RAG 22 800 chunks, 5 agents). Il parle nativement les deux langues : l'ingénierie physique ET le produit IA."
+        }
+      },
+      "t2": {
+        "title": {
+          "en": "AI Architect — GenAI for Engineering Workflows",
+          "fr": "Architecte IA — GenAI pour les métiers de l'ingénierie"
+        },
+        "about": {
+          "en": [
+            "15+ years in engineering consultancies and offshore wind before going AI-first.",
+            "Ships GenAI tools used daily by engineering firms (automated diagnostics, tender analysis).",
+            "Fluent in both worlds: engineering deliverables and production AI systems."
+          ],
+          "fr": [
+            "15+ ans en ingénierie et éolien offshore avant de passer à l'IA.",
+            "Livre des outils GenAI utilisés au quotidien par des BET (diagnostics automatisés, analyse d'AO).",
+            "Bilingue livrables d'ingénierie / systèmes IA en production."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "GenAI for Engineering",
+              "items": ["LLMs, RAG, AI Agents", "Document Intelligence & Reporting", "Workflow Automation", "Process Automation"]
+            },
+            {
+              "title": "Change & Adoption",
+              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Cross-functional Team Management"]
+            },
+            {
+              "title": "Engineering & Infrastructure",
+              "items": ["Engineering & Infrastructure", "Offshore Wind Development", "Renewable Energy (15+ yrs)"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "GenAI pour l'ingénierie",
+              "items": ["LLMs, RAG, AI Agents", "Document Intelligence & Reporting", "Workflow Automation", "Process Automation"]
+            },
+            {
+              "title": "Conduite du changement",
+              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Cross-functional Team Management"]
+            },
+            {
+              "title": "Ingénierie & Infrastructure",
+              "items": ["Engineering & Infrastructure", "Offshore Wind Development", "Renewable Energy (15+ yrs)"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "Renaud IS an engineering-consultancy engineer who crossed over. 15 years in engineering (oceanography, offshore wind, Artelia), he knows the deliverables, tenders, margins and culture. Since 2023 he has done precisely what these firms want to internalise: automating report production, cross-referencing technical documentation, embedding GenAI in engineering workflows.",
+          "fr": "Renaud EST un ingénieur de BET passé de l'autre côté. 15 ans dans l'ingénierie (océano, offshore wind, Artelia), il connaît les livrables, les AO, les marges et la culture métier. Depuis 2023 il fait précisément ce que ces boîtes veulent internaliser : automatiser la production de rapports, croiser la doc technique, mettre la GenAI dans les workflows d'ingénierie."
+        }
+      },
+      "t3": {
+        "title": {
+          "en": "GenAI Solution Architect — Pre-Sales to Production",
+          "fr": "Architecte Solutions GenAI — De l'avant-vente à la production"
+        },
+        "about": {
+          "en": [
+            "Senior architect shipping production GenAI systems (RAG, multi-agent, MCP).",
+            "Comfortable across the full cycle: scoping, proposal, demo, delivery.",
+            "Differentiating vertical: 15+ years energy & infrastructure."
+          ],
+          "fr": [
+            "Architecte senior, systèmes GenAI en production (RAG, multi-agents, MCP).",
+            "À l'aise sur tout le cycle : cadrage, propale, démo, delivery.",
+            "Verticale différenciante : 15+ ans énergie & infrastructure."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "GenAI Architecture",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Product Architecture", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Consulting & Pre-Sales",
+              "items": ["Stakeholder & Client Engagement", "C-level negotiations", "Solution Scoping & Proposals"]
+            },
+            {
+              "title": "Energy & Infrastructure",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Architecture GenAI",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Product Architecture", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Conseil & Avant-vente",
+              "items": ["Stakeholder & Client Engagement", "C-level negotiations", "Solution Scoping & Proposals"]
+            },
+            {
+              "title": "Énergie & Infrastructure",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "The combo consultancies charge a premium for: a senior architect who ships (BWC, Edifice, WattCast in production) AND can run pre-sales — scoping, proposals, demos, C-level negotiation (Artelia, Open Ocean: owned 100% of sales cycles). He also brings a differentiating vertical (energy/infrastructure) where generalist consultancies lack legitimacy.",
+          "fr": "Le combo qu'une ESN vend cher : un architecte senior qui produit (BWC, Edifice, WattCast en prod) ET qui sait tenir un cycle avant-vente — cadrage, propale, démo, négociation C-level (Artelia, Open Ocean : 100% des cycles de vente). Il apporte aussi un secteur différenciant (énergie/infrastructure)."
+        }
+      },
+      "t4": {
+        "title": {
+          "en": "AI Solutions Architect — Energy & Industry",
+          "fr": "Architecte Solutions IA — Énergie & Industrie"
+        },
+        "about": {
+          "en": [
+            "15+ years in energy & engineering, including 3 years in an international engineering group (London).",
+            "Delivers production GenAI for energy majors (EnBW, Valorem).",
+            "Trilingual, has worked in France, UK, Brazil and the US."
+          ],
+          "fr": [
+            "15+ ans énergie & ingénierie, dont 3 ans dans un groupe international (Londres).",
+            "Livre de la GenAI en production pour des acteurs majeurs de l'énergie (EnBW, Valorem).",
+            "Trilingue, a travaillé en France, UK, Brésil, USA."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "GenAI Production Systems",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Process Automation", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Enterprise Delivery",
+              "items": ["Stakeholder & Client Engagement", "Cross-functional Team Management", "Full P&L responsibility"]
+            },
+            {
+              "title": "Energy & Industry",
+              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Systèmes GenAI en production",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Process Automation", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Delivery grands comptes",
+              "items": ["Stakeholder & Client Engagement", "Cross-functional Team Management", "Full P&L responsibility"]
+            },
+            {
+              "title": "Énergie & Industrie",
+              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "He knows both sides: inside an international engineering group (Artelia London, P&L, governance) and delivering AI in demanding environments (EnBW France — offshore wind tender analysis, sensitive data, French hosting). 15 years in energy = he talks business with operations, not just tech with IT.",
+          "fr": "Il connaît les deux faces : l'intérieur d'un groupe d'ingénierie international (Artelia Londres, P&L, gouvernance) et la livraison d'IA en environnement exigeant (EnBW France — analyse d'AO éolien offshore, données sensibles, hébergement France). 15 ans dans l'énergie = il parle métier avec les opérationnels."
+        }
+      },
+      "t5": {
+        "title": {
+          "en": "Applied AI Architect — Enterprise GenAI Deployments",
+          "fr": "Architecte Applied AI — Déploiements GenAI enterprise"
+        },
+        "about": {
+          "en": [
+            "Deploys frontier-model systems in production for enterprise clients (energy, engineering).",
+            "Hands-on: RAG, multi-agent, MCP servers, evals — shipped, not slideware.",
+            "Former founder-CTO: built a 12-person product team, raised €2M, exited."
+          ],
+          "fr": [
+            "Déploie des systèmes à base de modèles frontière en production chez des clients enterprise.",
+            "Hands-on : RAG, multi-agents, MCP, evals — livré, pas du slideware.",
+            "Ex founder-CTO : équipe produit de 12, €2M levés, exit."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Applied AI Engineering",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Customer-Facing Delivery",
+              "items": ["Stakeholder & Client Engagement", "Solution Scoping & Proposals", "C-level negotiations"]
+            },
+            {
+              "title": "Industry Verticals",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine data intelligence"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Ingénierie Applied AI",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability", "Backend & Cloud Systems"]
+            },
+            {
+              "title": "Delivery client",
+              "items": ["Stakeholder & Client Engagement", "Solution Scoping & Proposals", "C-level negotiations"]
+            },
+            {
+              "title": "Verticales industrie",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine data intelligence"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "The 'applied AI' profile labs look for: he deploys THEIR models with real enterprise customers. Modern stack in production (Claude, pgvector RAG, Pydantic AI, MCP, CopilotKit), and above all the ability to turn a fuzzy business need into an architecture that holds. His operator background (exit, P&L) makes him credible with customer CTOs.",
+          "fr": "Le profil 'applied AI' que cherchent les labos : il déploie LEURS modèles chez de vrais clients enterprise. Stack moderne maîtrisée en prod (Claude, RAG pgvector, Pydantic AI, MCP, CopilotKit), et surtout la capacité à traduire un besoin métier flou en architecture qui tient."
+        }
+      }
+    },
+    "p2": {
+      "t1": {
+        "title": {
+          "en": "AI Lead — Player-Coach for Industrial Scale-ups",
+          "fr": "AI Lead — Player-coach pour scale-ups industrielles"
+        },
+        "about": {
+          "en": [
+            "Founder-CTO experience: grew a product team to 12, raised €2M, exited.",
+            "Still hands-on: ships production GenAI (RAG, agents) today.",
+            "Deep industrial & energy domain knowledge."
+          ],
+          "fr": [
+            "Expérience founder-CTO : équipe de 12, €2M levés, exit.",
+            "Toujours hands-on : livre de la GenAI en prod aujourd'hui.",
+            "Connaissance profonde des secteurs industriels & énergie."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Hands-on AI Leadership",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Workflow Automation"]
+            },
+            {
+              "title": "Product & Delivery",
+              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Lab-to-Industrial Scale-up", "Investor Relations & Fundraising"]
+            },
+            {
+              "title": "Industrial Scale-up",
+              "items": ["Renewable Energy (15+ yrs)", "Scale-up Operations", "Engineering & Infrastructure"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Leadership IA hands-on",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Workflow Automation"]
+            },
+            {
+              "title": "Produit & Delivery",
+              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Lab-to-Industrial Scale-up", "Investor Relations & Fundraising"]
+            },
+            {
+              "title": "Scale-up industriel",
+              "items": ["Renewable Energy (15+ yrs)", "Scale-up Operations", "Engineering & Infrastructure"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "A lead who has lived scale-up from the inside, as a founder: hiring, roadmap, tech debt, investors. He knows how to trade speed vs quality when runway matters, and can still code/architect himself — exactly the player-coach an industrial startup needs.",
+          "fr": "Un lead qui a vécu le scale-up de l'intérieur, côté fondateur : recrutement, roadmap, dette technique, investisseurs. Il sait arbitrer vitesse/qualité dans un contexte où le runway compte, et reste capable de coder/architecturer lui-même."
+        }
+      },
+      "t3": {
+        "title": {
+          "en": "GenAI Practice Lead — Build, Sell, Deliver",
+          "fr": "Responsable Practice GenAI — Construire, vendre, livrer"
+        },
+        "about": {
+          "en": [
+            "Has built and led a 12-person multi-disciplinary tech team.",
+            "Sells and delivers GenAI end-to-end: scoping, proposal, production.",
+            "Differentiating vertical: energy & infrastructure."
+          ],
+          "fr": [
+            "A construit et dirigé une équipe tech pluridisciplinaire de 12.",
+            "Vend et livre la GenAI de bout en bout : cadrage, propale, production.",
+            "Verticale différenciante : énergie & infrastructure."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "GenAI Practice Building",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Awareness Training"]
+            },
+            {
+              "title": "Team & P&L Leadership",
+              "items": ["Team Leadership (12 people)", "Full P&L responsibility", "Enterprise Sales", "C-level negotiations"]
+            },
+            {
+              "title": "Energy & Infrastructure",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Construction de practice GenAI",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Awareness Training"]
+            },
+            {
+              "title": "Leadership équipe & P&L",
+              "items": ["Team Leadership (12 people)", "Full P&L responsibility", "Enterprise Sales", "C-level negotiations"]
+            },
+            {
+              "title": "Énergie & Infrastructure",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "Building a GenAI practice requires three things he has already done: sell (full C-level cycles), deliver (production systems for EnBW/Valorem/IC) and grow a team (12 at Open Ocean). He can be put in front of a client on day one with real technical credibility.",
+          "fr": "Monter une practice GenAI demande trois choses qu'il a déjà faites : vendre (cycles complets C-level), livrer (systèmes en prod chez EnBW/Valorem/IC) et faire grandir une équipe (12 chez Open Ocean)."
+        }
+      },
+      "t4": {
+        "title": {
+          "en": "AI Lead — Industrial AI Transformation",
+          "fr": "AI Lead — Transformation IA industrielle"
+        },
+        "about": {
+          "en": [
+            "15+ years in energy & engineering, incl. international group experience (London).",
+            "Took AI from strategy to production for energy players.",
+            "Led cross-functional teams and full P&L."
+          ],
+          "fr": [
+            "15+ ans énergie & ingénierie, dont groupe international (Londres).",
+            "A mené l'IA de la stratégie à la production chez des acteurs de l'énergie.",
+            "A dirigé des équipes transverses avec P&L complet."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "AI Strategy & Delivery",
+              "items": ["LLMs, RAG, AI Agents", "Process Automation", "Workflow Automation"]
+            },
+            {
+              "title": "Transformation Leadership",
+              "items": ["Cross-functional Team Management", "Stakeholder & Client Engagement", "Full P&L responsibility", "AI Awareness Training"]
+            },
+            {
+              "title": "Energy & Industry",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Stratégie & Delivery IA",
+              "items": ["LLMs, RAG, AI Agents", "Process Automation", "Workflow Automation"]
+            },
+            {
+              "title": "Leadership de transformation",
+              "items": ["Cross-functional Team Management", "Stakeholder & Client Engagement", "Full P&L responsibility", "AI Awareness Training"]
+            },
+            {
+              "title": "Énergie & Industrie",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "Leading AI transformation in an industrial group takes someone who understands operations (15 years in energy/engineering), can talk to business leadership (Artelia, C-level) and has put AI into production — not POCs. His entrepreneurial track is reframed as an asset: he does a lot with little and structures from scratch.",
+          "fr": "Pour piloter la transformation IA d'un groupe industriel, il faut quelqu'un qui comprenne les opérations (15 ans terrain énergie/ingénierie), sache parler aux directions métier (Artelia, C-level) et ait déjà mis de l'IA en production — pas en POC."
+        }
+      },
+      "t5": {
+        "title": {
+          "en": "AI Product Lead — From Prototype to Production",
+          "fr": "Lead Produit IA — Du prototype à la production"
+        },
+        "about": {
+          "en": [
+            "Scaled an AI/data SaaS product from prototype to industrial deployment.",
+            "Led a 12-person product team through agile delivery.",
+            "Ships modern GenAI today: RAG, agents, evals."
+          ],
+          "fr": [
+            "A scalé un produit SaaS data/IA du prototype au déploiement industriel.",
+            "A mené une équipe produit de 12 en delivery agile.",
+            "Livre de la GenAI moderne aujourd'hui : RAG, agents, evals."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "AI Product Delivery",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Evals & Observability"]
+            },
+            {
+              "title": "Cross-functional Leadership",
+              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Cross-functional Team Management"]
+            },
+            {
+              "title": "B2B SaaS & Verticals",
+              "items": ["Scale-up Operations", "Marine data intelligence", "Renewable Energy (15+ yrs)"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Delivery produit IA",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Evals & Observability"]
+            },
+            {
+              "title": "Leadership transverse",
+              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Cross-functional Team Management"]
+            },
+            {
+              "title": "SaaS B2B & verticales",
+              "items": ["Scale-up Operations", "Marine data intelligence", "Renewable Energy (15+ yrs)"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "He has done the job before: a data/AI SaaS product taken from prototype to industrial deployment, with roadmap, agile delivery and product trade-offs (Open Ocean, now BWC). He adds the enterprise-customer lens: he knows what large accounts expect from an AI product.",
+          "fr": "Il a déjà fait le métier : produit SaaS data/IA porté du prototype au déploiement industriel, avec roadmap, delivery agile et arbitrages produit (Open Ocean, puis BWC aujourd'hui). Il apporte en plus la vision client enterprise."
+        }
+      }
+    },
+    "p3": {
+      "t1": {
+        "title": {
+          "en": "CTO — Scaling AI-Powered Solutions for Climate & Industry",
+          "fr": "CTO — Scale-up de solutions IA pour le climat & l'industrie"
+        },
+        "about": {
+          "en": [
+            "15+ years scaling technology ventures from prototype to industrial deployment.",
+            "Proven: built a 12-person team, raised €2M, successful exit.",
+            "Hands-on today: production GenAI systems (RAG, agents, MCP)."
+          ],
+          "fr": [
+            "15+ ans à scaler des ventures tech du prototype au déploiement industriel.",
+            "Preuves : équipe de 12, €2M levés, exit réussi.",
+            "Hands-on aujourd'hui : systèmes GenAI en production."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Technology & Architecture",
+              "items": ["Product Architecture", "AI/ML Stack (LLMs, RAG)", "Backend & Cloud Systems", "Process Automation"]
+            },
+            {
+              "title": "Scale-up Leadership",
+              "items": ["R&D Team Leadership (12 people)", "Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "Full P&L responsibility"]
+            },
+            {
+              "title": "Climate & Industry",
+              "items": ["Climate Tech & Sustainability", "Renewable Energy (15+ yrs)", "Marine & Environmental Data"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Technologie & Architecture",
+              "items": ["Product Architecture", "AI/ML Stack (LLMs, RAG)", "Backend & Cloud Systems", "Process Automation"]
+            },
+            {
+              "title": "Leadership scale-up",
+              "items": ["R&D Team Leadership (12 people)", "Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "Full P&L responsibility"]
+            },
+            {
+              "title": "Climat & Industrie",
+              "items": ["Climate Tech & Sustainability", "Renewable Energy (15+ yrs)", "Marine & Environmental Data"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "He has already been exactly this CTO: Open Ocean, environmental-data platform for offshore industry, lab to industrial deployment, team of 12, €2M raised, successful exit. He knows investors, tech debt, hiring and the industrial field. Unlike many former CTOs, his stack is current: he ships production GenAI today.",
+          "fr": "Il a déjà été exactement ce CTO : Open Ocean, plateforme de données environnementales pour l'industrie offshore, du lab au déploiement industriel, équipe de 12, €2M levés, exit réussi. Et contrairement à beaucoup d'ex-CTO, sa stack est à jour."
+        }
+      },
+      "t5": {
+        "title": {
+          "en": "CTO — AI SaaS, from First Commit to Scale",
+          "fr": "CTO — SaaS IA, du premier commit au scale"
+        },
+        "about": {
+          "en": [
+            "Ships full-stack AI SaaS solo: Next.js, FastAPI, Pydantic AI, pgvector — live in production.",
+            "Has scaled before: 12-person team, €2M raised, exit.",
+            "Product-minded: talks to customers, owns the roadmap."
+          ],
+          "fr": [
+            "Livre un SaaS IA full-stack en solo : Next.js, FastAPI, Pydantic AI, pgvector — live en production.",
+            "A déjà scalé : équipe de 12, €2M levés, exit.",
+            "Esprit produit : parle aux clients, porte la roadmap."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "AI Platform Architecture",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Backend & Cloud Systems", "MCP servers"]
+            },
+            {
+              "title": "Fundraising & Scale",
+              "items": ["Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "R&D Team Leadership (12 people)"]
+            },
+            {
+              "title": "B2B SaaS",
+              "items": ["Scale-up Operations", "Enterprise Sales", "Marine data intelligence"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Architecture plateforme IA",
+              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Backend & Cloud Systems", "MCP servers"]
+            },
+            {
+              "title": "Levée & Scale",
+              "items": ["Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "R&D Team Leadership (12 people)"]
+            },
+            {
+              "title": "SaaS B2B",
+              "items": ["Scale-up Operations", "Enterprise Sales", "Marine data intelligence"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "For an early-stage vendor, the CTO risk is the paper architect. He brings the opposite proof: BWC v2.2 live (Next.js + FastAPI + Pydantic AI + Supabase pgvector, hosted in France), built solo at maximum velocity — after proving he can grow a team when the product takes off (Open Ocean).",
+          "fr": "Pour un éditeur early-stage, le risque CTO c'est l'architecte de papier. Lui apporte la preuve inverse : BWC v2.2 live, construit seul en mode produit — après avoir prouvé qu'il sait faire grandir une équipe quand le produit décolle (Open Ocean)."
+        }
+      }
+    },
+    "p4": {
+      "t1": {
+        "title": {
+          "en": "Forward Deployed Engineer — Industrial AI",
+          "fr": "Forward Deployed Engineer — IA industrielle"
+        },
+        "about": {
+          "en": [
+            "15+ years deploying technical solutions with industrial clients (energy, marine, infrastructure).",
+            "Hands-on AI integration: RAG, agents, workflow automation.",
+            "Trusted by operations: speaks engineering, not just software."
+          ],
+          "fr": [
+            "15+ ans à déployer des solutions techniques chez des industriels.",
+            "Intégration IA hands-on : RAG, agents, automatisation de workflows.",
+            "La confiance des opérationnels : il parle ingénierie, pas seulement logiciel."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Solution Deployment",
+              "items": ["LLMs, RAG, AI Agents", "Workflow Automation", "Process Automation"]
+            },
+            {
+              "title": "Client Engagement",
+              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Customer Onboarding & Adoption"]
+            },
+            {
+              "title": "Energy & Industry",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine & Environmental Data"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Déploiement de solutions",
+              "items": ["LLMs, RAG, AI Agents", "Workflow Automation", "Process Automation"]
+            },
+            {
+              "title": "Engagement client",
+              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Customer Onboarding & Adoption"]
+            },
+            {
+              "title": "Énergie & Industrie",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine & Environmental Data"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "The industrial FDE must win the trust of sceptical operations people and adapt the product to the field. Renaud has done this for 15 years: deployed data solutions at DCNS, SBM Offshore, RTE, then AI agents at EnBW and Valorem.",
+          "fr": "Le FDE industriel doit gagner la confiance d'opérationnels méfiants et adapter le produit au terrain. Renaud fait ça depuis 15 ans : il a vendu et déployé des solutions data chez DCNS, SBM Offshore, RTE, puis des agents IA chez EnBW et Valorem."
+        }
+      },
+      "t5": {
+        "title": {
+          "en": "AI Solutions Engineer — Enterprise GenAI Adoption",
+          "fr": "Solutions Engineer IA — Adoption GenAI enterprise"
+        },
+        "about": {
+          "en": [
+            "Builds production systems on frontier-model APIs (multi-agent, RAG, MCP).",
+            "Runs the full customer cycle: discovery, demo, POC, production.",
+            "15+ years of enterprise empathy from the customer side (energy, engineering)."
+          ],
+          "fr": [
+            "Construit des systèmes en production sur les API de modèles frontière.",
+            "Mène le cycle client complet : discovery, démo, POC, production.",
+            "15+ ans d'empathie enterprise, côté client (énergie, ingénierie)."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Forward Deployed Engineering",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability"]
+            },
+            {
+              "title": "Customer Success & Adoption",
+              "items": ["Customer Onboarding & Adoption", "Stakeholder & Client Engagement", "Enterprise Sales"]
+            },
+            {
+              "title": "Enterprise Verticals",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Climate Tech & Sustainability"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Forward Deployed Engineering",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability"]
+            },
+            {
+              "title": "Customer Success & Adoption",
+              "items": ["Customer Onboarding & Adoption", "Stakeholder & Client Engagement", "Enterprise Sales"]
+            },
+            {
+              "title": "Verticales enterprise",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Climate Tech & Sustainability"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "The ideal GenAI Solutions Engineer has three legs: technical (he builds with the API: BWC = Claude multi-agent in production), commercial (demos, POCs, closing — 100% of cycles at Open Ocean) and enterprise-customer empathy (15 years on the industrial-client side).",
+          "fr": "Le Solutions Engineer idéal d'un éditeur GenAI a trois jambes : technique (il construit avec l'API : BWC = multi-agents Claude en prod), commercial (démos, POC, closing — 100% des cycles chez Open Ocean) et empathie client enterprise (15 ans côté client industriel)."
+        }
+      }
+    },
+    "p5": {
+      "t3": {
+        "title": {
+          "en": "Senior Account Executive — AI Consulting & Services",
+          "fr": "Senior Account Executive — Conseil & services IA"
+        },
+        "about": {
+          "en": [
+            "20 years selling technical services and solutions to enterprise accounts.",
+            "Owns the full cycle: prospecting, demo, proposal, C-level closing.",
+            "Technical enough to scope GenAI projects credibly with CIOs."
+          ],
+          "fr": [
+            "20 ans de vente de services et solutions techniques aux grands comptes.",
+            "Porte le cycle complet : prospection, démo, propale, closing C-level.",
+            "Assez technique pour cadrer un projet GenAI face à une DSI."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "AI Solution Selling",
+              "items": ["LLMs, RAG, AI Agents", "Solution Scoping & Proposals", "Workflow Automation"]
+            },
+            {
+              "title": "Complex Sales Cycles",
+              "items": ["Enterprise Sales", "C-level negotiations", "Business Development", "Full P&L responsibility"]
+            },
+            {
+              "title": "Energy & Infrastructure Network",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Vente de solutions IA",
+              "items": ["LLMs, RAG, AI Agents", "Solution Scoping & Proposals", "Workflow Automation"]
+            },
+            {
+              "title": "Cycles de vente complexes",
+              "items": ["Enterprise Sales", "C-level negotiations", "Business Development", "Full P&L responsibility"]
+            },
+            {
+              "title": "Réseau Énergie & Infrastructure",
+              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "Selling GenAI consulting to CIOs takes a salesperson who understands what he sells. Renaud has owned full technical-services sales cycles: Open Ocean (prospecting → C-level closing, 8 years), Artelia (+15% YOY on the offshore portfolio, complex enterprise contracts). He runs demos himself.",
+          "fr": "Vendre du conseil GenAI à des DSI exige un commercial qui comprend ce qu'il vend. Renaud a porté des cycles complets de vente de services techniques : Open Ocean (prospection → closing C-level, 8 ans), Artelia (+15% YOY sur portefeuille offshore, contrats enterprise complexes)."
+        }
+      },
+      "t5": {
+        "title": {
+          "en": "Account Executive — GenAI for Energy & Industry",
+          "fr": "Account Executive — GenAI pour l'énergie & l'industrie"
+        },
+        "about": {
+          "en": [
+            "Grew an offshore-wind enterprise portfolio +15% YOY in an international group.",
+            "8 years owning full B2B sales cycles, prospecting to C-level closing.",
+            "Sells what he builds: daily production user of frontier-model APIs."
+          ],
+          "fr": [
+            "+15% YOY sur un portefeuille enterprise éolien offshore en groupe international.",
+            "8 ans de cycles de vente B2B complets, prospection → closing C-level.",
+            "Vend ce qu'il construit : utilisateur quotidien des API de modèles frontière en production."
+          ]
+        },
+        "containers": {
+          "en": [
+            {
+              "title": "Technical Fluency (GenAI)",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "NoCode/LowCode Solutions"]
+            },
+            {
+              "title": "Enterprise Sales",
+              "items": ["Enterprise Sales", "C-level negotiations", "Business Development"]
+            },
+            {
+              "title": "Energy & Industry Network",
+              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+            }
+          ],
+          "fr": [
+            {
+              "title": "Maîtrise technique GenAI",
+              "items": ["LLMs, RAG, AI Agents", "MCP servers", "NoCode/LowCode Solutions"]
+            },
+            {
+              "title": "Vente enterprise",
+              "items": ["Enterprise Sales", "C-level negotiations", "Business Development"]
+            },
+            {
+              "title": "Réseau Énergie & Industrie",
+              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+            }
+          ]
+        },
+        "credibility_note": {
+          "en": "An AE/BDM who has built with the product he sells: he uses Claude/Mistral in production daily and shows value in live demos, not slides. His energy/industry network (15 years, FR-UK-BR) opens verticals generalist sellers can't reach.",
+          "fr": "Un AE/BDM qui a construit avec le produit qu'il vend : il utilise Claude/Mistral en production tous les jours, et sait montrer la valeur en démo live plutôt qu'en slides. Son réseau énergie/industrie (15 ans, FR-UK-BR) ouvre des verticales que les sales généralistes n'atteignent pas."
+        }
+      }
+    }
+  },
+
+  "experiences": {
+    "blue_green": {
+      "company": "Blue Green",
+      "location": "Paris, France",
+      "period": "2023 – Present",
+      "titles": {
+        "p1": {"en": "AI Solutions Architect", "fr": "Architecte Solutions IA"},
+        "p2": {"en": "AI Lead", "fr": "AI Lead"},
+        "p3": {"en": "AI & Technology Director", "fr": "Directeur IA & Technologie"},
+        "p4": {"en": "AI Solutions Engineer", "fr": "Solutions Engineer IA"},
+        "p5": {"en": "AI Business Developer", "fr": "Business Developer IA"}
+      },
+      "bullets": {
+        "p1": {
+          "en": [
+            "Designed and deployed end-to-end AI solutions for EnBW France (offshore wind tender analysis) and Valorem (urban planning automation)",
+            "Architected production GenAI systems: RAG (22,800-chunk pgvector index), 5 Pydantic AI agents, MCP servers — BlueWind Companion v2.2 live",
+            "Technical stack: LLMs (Claude, Mistral), RAG, AI Agents, MCP servers, workflow automation"
+          ],
+          "fr": [
+            "Conçu et déployé des solutions IA bout-en-bout pour EnBW France (analyse d'AO éolien offshore) et Valorem (automatisation urbanisme)",
+            "Architecture de systèmes GenAI en production : RAG (22 800 chunks pgvector), 5 agents Pydantic AI, serveurs MCP — BlueWind Companion v2.2 live",
+            "Stack : LLMs (Claude, Mistral), RAG, Agents IA, serveurs MCP, automatisation de workflows"
+          ]
+        },
+        "p2": {
+          "en": [
+            "Led end-to-end AI delivery for enterprise clients (EnBW France, Valorem): scoping, architecture, production deployment",
+            "Architected multi-agent GenAI platform (BlueWind Companion v2.2): RAG, 5 AI agents, MCP servers — live in production",
+            "Conducted AI awareness workshops and facilitated cross-functional adoption"
+          ],
+          "fr": [
+            "Piloté le delivery IA bout-en-bout pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
+            "Architecture de plateforme GenAI multi-agents (BlueWind Companion v2.2) : RAG, 5 agents IA, serveurs MCP — live en production",
+            "Animé des ateliers de sensibilisation à l'IA et facilité l'adoption cross-fonctionnelle"
+          ]
+        },
+        "p3": {
+          "en": [
+            "Built and shipped full-stack AI SaaS platform (BlueWind Companion v2.2): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
+            "Architected and deployed production GenAI systems for enterprise clients (EnBW France, Valorem)",
+            "Defined technical roadmap, selected stack, and led end-to-end delivery solo at maximum velocity"
+          ],
+          "fr": [
+            "Construit et livré une plateforme SaaS IA full-stack (BlueWind Companion v2.2) : Next.js, FastAPI, Pydantic AI, pgvector — live en France",
+            "Architecture et déploiement de systèmes GenAI en production pour des clients enterprise (EnBW France, Valorem)",
+            "Défini la roadmap technique, choisi le stack, dirigé le delivery bout-en-bout en solo à vélocité maximale"
+          ]
+        },
+        "p4": {
+          "en": [
+            "Deployed AI solutions for industrial clients (EnBW France, Valorem): discovery, integration, production handover",
+            "Built RAG systems and AI agents adapted to client workflows (offshore wind analysis, urban planning automation)",
+            "Conducted AI awareness workshops and onboarded client teams to autonomous use"
+          ],
+          "fr": [
+            "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : discovery, intégration, mise en production",
+            "Construit des systèmes RAG et agents IA adaptés aux workflows clients (analyse d'AO éolien offshore, automatisation urbanisme)",
+            "Animé des ateliers de sensibilisation à l'IA et accompagné l'autonomisation des équipes clients"
+          ]
+        },
+        "p5": {
+          "en": [
+            "Developed and closed AI consulting engagements with enterprise clients (EnBW France, Valorem): full cycle from prospecting to signed contract",
+            "Ran discovery sessions, scoped GenAI solutions, and produced commercial proposals for C-level decision-makers",
+            "AI Awareness Training for renewable energy developers: positions Blue Green as the go-to GenAI partner"
+          ],
+          "fr": [
+            "Développé et closé des missions de conseil IA avec des clients enterprise (EnBW France, Valorem) : cycle complet de la prospection au contrat signé",
+            "Animé des sessions de discovery, cadré des solutions GenAI et rédigé des propales commerciales pour des décideurs C-level",
+            "Ateliers de sensibilisation à l'IA pour des développeurs d'énergie renouvelable : positionne Blue Green comme le partenaire GenAI de référence"
+          ]
+        }
+      }
+    },
+    "artelia": {
+      "company": "Artelia",
+      "location": "London, UK",
+      "period": "2019 – 2022",
+      "titles": {
+        "p1": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
+        "p2": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
+        "p3": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
+        "p4": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
+        "p5": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"}
+      },
+      "bullets": {
+        "p1": {
+          "en": [
+            "Drove product roadmap alignment with market requirements for offshore wind data services",
+            "Managed client portfolio generating 15% YOY revenue growth through C-level negotiations",
+            "Full P&L responsibility for the offshore wind business unit"
+          ],
+          "fr": [
+            "Aligné la roadmap produit avec les besoins du marché pour les services de données éolien offshore",
+            "Géré un portefeuille clients générant +15% de croissance annuelle via des négociations C-level",
+            "Responsabilité P&L complète de la business unit éolien offshore"
+          ]
+        },
+        "p2": {
+          "en": [
+            "Managed cross-functional teams delivering offshore wind data services to major European clients",
+            "Drove 15% YOY revenue growth through strategic client engagement and C-level negotiations",
+            "Full P&L responsibility for the offshore wind business unit in London"
+          ],
+          "fr": [
+            "Managé des équipes transverses livrant des services de données éolien offshore à de grands clients européens",
+            "+15% de croissance annuelle via engagement client stratégique et négociations C-level",
+            "Responsabilité P&L complète de la business unit éolien offshore à Londres"
+          ]
+        },
+        "p3": {
+          "en": [
+            "Led investor presentations and technical due diligence for offshore wind data services",
+            "Managed client portfolio generating 15% YOY revenue growth; Full P&L responsibility",
+            "Drove product development aligned with major European offshore wind developers"
+          ],
+          "fr": [
+            "Dirigé les présentations investisseurs et la due diligence technique pour les services de données éolien offshore",
+            "Géré un portefeuille clients avec +15% de croissance annuelle ; responsabilité P&L complète",
+            "Piloté le développement produit en alignement avec les grands développeurs éoliens offshore européens"
+          ]
+        },
+        "p4": {
+          "en": [
+            "Deployed offshore wind data services with major European developers (DCNS, SBM Offshore, RTE)",
+            "Managed client portfolio generating 15% YOY growth — discovery, proposal, delivery, adoption",
+            "Facilitated cross-functional collaboration between engineering teams and client operations"
+          ],
+          "fr": [
+            "Déployé des services de données éolien offshore avec de grands développeurs européens (DCNS, SBM Offshore, RTE)",
+            "Géré un portefeuille clients avec +15% de croissance — discovery, propale, delivery, adoption",
+            "Facilité la collaboration cross-fonctionnelle entre équipes ingénierie et opérations clients"
+          ]
+        },
+        "p5": {
+          "en": [
+            "Managed offshore wind enterprise portfolio generating 15% YOY revenue growth",
+            "Negotiated complex enterprise contracts with C-level executives across Europe",
+            "Created powerful presentations for Investor Days and C-Level meetings; Full P&L responsibility"
+          ],
+          "fr": [
+            "Géré un portefeuille enterprise éolien offshore générant +15% de croissance annuelle",
+            "Négocié des contrats enterprise complexes avec des dirigeants C-level à travers l'Europe",
+            "Créé des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; P&L complet"
+          ]
+        }
+      }
+    },
+    "open_ocean": {
+      "company": "Open Ocean",
+      "location": "Paris, France",
+      "period": "2011 – 2019",
+      "titles": {
+        "p1": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
+        "p2": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"},
+        "p3": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
+        "p4": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"},
+        "p5": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"}
+      },
+      "bullets": {
+        "p1": {
+          "en": [
+            "Architected and scaled marine data intelligence SaaS platform from prototype to industrial deployment (team of 12, €2M raised, exit)",
+            "Led product development: client requirements, technical roadmap, agile delivery — major clients: DCNS, SBM Offshore, RTE",
+            "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
+          ],
+          "fr": [
+            "Architecture et scale-up d'une plateforme SaaS de données marines du prototype au déploiement industriel (équipe 12, €2M levés, exit)",
+            "Pilotage du développement produit : besoins clients, roadmap technique, delivery agile — clients majeurs : DCNS, SBM Offshore, RTE",
+            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
+          ]
+        },
+        "p2": {
+          "en": [
+            "Built and led a 12-person multidisciplinary product team (engineers, data scientists, web specialists)",
+            "Scaled marine data intelligence SaaS platform from prototype to industrial deployment",
+            "Raised €2M — successful exit through acquisition by Artelia (2019)"
+          ],
+          "fr": [
+            "Construit et dirigé une équipe produit pluridisciplinaire de 12 (ingénieurs, data scientists, web)",
+            "Scale-up de la plateforme SaaS data marines du prototype au déploiement industriel",
+            "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
+          ]
+        },
+        "p3": {
+          "en": [
+            "Architected and scaled marine data intelligence SaaS from prototype to industrial deployment",
+            "Led product development with a 12-person team: roadmap, agile delivery, major clients (DCNS, SBM Offshore, RTE)",
+            "Raised €2M from Business Angels and VCs — successful exit by acquisition (Artelia, 2019)"
+          ],
+          "fr": [
+            "Architecture et scale-up d'un SaaS de données marines du prototype au déploiement industriel",
+            "Dirigé le développement produit avec une équipe de 12 : roadmap, delivery agile, clients majeurs (DCNS, SBM Offshore, RTE)",
+            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition (Artelia, 2019)"
+          ]
+        },
+        "p4": {
+          "en": [
+            "Deployed marine data intelligence SaaS with major industrial clients (DCNS, SBM Offshore, RTE)",
+            "Owned 100% of client-facing delivery: discovery, proposal, implementation, adoption",
+            "Raised €2M — successful exit through acquisition by Artelia (2019)"
+          ],
+          "fr": [
+            "Déployé le SaaS data marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
+            "Porté 100% du delivery client : discovery, propale, implémentation, adoption",
+            "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
+          ]
+        },
+        "p5": {
+          "en": [
+            "Owned 100% of sales cycles from prospecting to C-level closing (8 years)",
+            "Scaled marine data intelligence SaaS platform — major clients across Europe (DCNS, SBM Offshore, RTE)",
+            "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
+          ],
+          "fr": [
+            "Porté 100% des cycles de vente de la prospection au closing C-level (8 ans)",
+            "Scale-up de la plateforme SaaS data marines — clients majeurs en Europe (DCNS, SBM Offshore, RTE)",
+            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
+          ]
+        }
+      }
+    },
+    "earlier": {
+      "period": "2004 – 2010",
+      "items": [
+        {"title": "Product Developer", "company": "SAT OCEAN", "description": "marine metocean data services", "period": "2006-2010"},
+        {"title": "Data Analyst", "company": "CPTEC", "description": "extreme events data analysis", "location": "Brazil", "period": "2004-2005"}
+      ]
+    }
+  }
+}
