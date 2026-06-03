@@ -39,14 +39,21 @@ uv run --with weasyprint python3 $PLUGIN_DIR/scripts/generate_cv.py
 
 Prefer stdlib (`json`, `pathlib`, `urllib`, `re`). Only use `--with` for unavoidable packages.
 
-### Versioning — keep marketplace.json === plugin.json
-`marketplace.json` version must always equal `plugin.json` version for each plugin. Check before every commit. Drift breaks installs.
+### Versioning — bump on every functional change
+Cowork detects updates via version number. Without a bump, installed users never get the fix.
+
+**On every commit that changes plugin behaviour (scripts, templates, SKILL.md, data):**
+1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH (`0.x.Y+1`) for fixes, MINOR (`0.X+1.0`) for new behaviour
+2. Sync `plugins/<plugin>/skills/<skill>/SKILL.md` frontmatter `version:` to the same value
+3. Sync `.claude-plugin/marketplace.json` top-level `version` **and** the plugin entry `version` to the same value
+
+All three must be identical after the bump. Drift breaks Cowork updates.
 
 ### Plugin directory resolver in every SKILL.md
 Every SKILL.md that invokes a script must resolve `PLUGIN_DIR` via the standard priority-ordered resolver (env var → marketplace cache → Cowork sandbox → dev path). See `docs/skill-marketplace-guide.md` §7.
 
 ### Photo and personal data
-`assets/photo.jpeg` and any file with personal data must be gitignored. Add `.gitignore` at plugin level if needed.
+`assets/photo.jpeg` is committed (public repo, photo already on LinkedIn). Other personal data files (keys, tokens, private docs) must be gitignored.
 
 ---
 
