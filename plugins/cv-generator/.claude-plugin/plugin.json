@@ -1,6 +1,6 @@
 {
   "name": "cv-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate 1-page PDF CVs with a 5-profile × 5-company-type positioning matrix, in French and English",
   "author": {
     "name": "Renaud Laborbe",
