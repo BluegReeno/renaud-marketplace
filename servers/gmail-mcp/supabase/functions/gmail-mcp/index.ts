@@ -240,7 +240,10 @@ const fetchHandler = async (req: Request): Promise<Response> => {
 
   const { data: auth, error: authErr } = await supabaseServer.verifyAuth(req, {
     auth: ["user", "secret:gmail_api_key"],
-  });
+    env: {
+      secretKeys: { gmail_api_key: Deno.env.get("GMAIL_API_KEY")! },
+    },
+  } as any);
   if (authErr) {
     return Response.json(
       { error: authErr.message },
