@@ -38,7 +38,7 @@ renaud-marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json          # Registry entry point
 ├── plugins/
-│   └── cv-generator/             # First plugin
+│   └── cv-generator/             # Claude Code skill (Python/Markdown)
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       ├── skills/cv-generator/
@@ -50,8 +50,29 @@ renaud-marketplace/
 │       ├── templates/
 │       │   └── cv_template.html
 │       └── CHANGELOG.md
+├── servers/
+│   └── gmail-mcp/                # Supabase Edge Function (Deno/TypeScript)
+│       ├── scripts/setup_secrets.sh
+│       └── supabase/
+│           ├── config.toml
+│           └── functions/gmail-mcp/
+│               ├── deno.json
+│               └── index.ts
 └── docs/
     └── skill-marketplace-guide.md  # Architecture & conventions
+```
+
+## Servers
+
+| Server | Status | Description |
+|--------|--------|-------------|
+| `gmail-mcp` | v0.1.0 | Supabase Edge Function — 4 Gmail MCP tools |
+
+### Deploy gmail-mcp
+
+```bash
+bash servers/gmail-mcp/scripts/setup_secrets.sh
+supabase functions deploy --no-verify-jwt gmail-mcp --project-ref isdyvrwnxqcfalmlkzui
 ```
 
 ## Development
