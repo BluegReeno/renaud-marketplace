@@ -1,0 +1,4 @@
+project_id = "isdyvrwnxqcfalmlkzui"
+
+[functions.gmail-mcp]
+verify_jwt = false

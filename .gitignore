@@ -34,3 +34,6 @@ plugins/*/assets/*.png
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Supabase local env (gmail-mcp)
+servers/gmail-mcp/supabase/.env
