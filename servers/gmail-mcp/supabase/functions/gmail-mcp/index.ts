@@ -14,7 +14,12 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-async function refreshGmailToken(): Promise<string> {
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+// Token cached per isolate; cold starts refresh once, warm requests reuse until expiry.
+async function getOrRefreshGmailToken(): Promise<string> {
+  const now = Date.now();
+  if (cachedToken && now < cachedToken.expiresAt) return cachedToken.value;
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -26,11 +31,14 @@ async function refreshGmailToken(): Promise<string> {
     }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`Gmail token refresh failed: ${(err as any).error} — ${(err as any).error_description}`);
+    const body = await res.text().catch(() => "<unreadable>");
+    let parsed: any = {};
+    try { parsed = JSON.parse(body); } catch { /* not JSON */ }
+    throw new Error(`Gmail token refresh failed: ${parsed.error ?? res.status} — ${parsed.error_description ?? body}`);
   }
-  const data = await res.json();
-  return (data as any).access_token as string;
+  const data = await res.json() as any;
+  cachedToken = { value: data.access_token as string, expiresAt: now + (data.expires_in - 60) * 1000 };
+  return cachedToken.value;
 }
 
 function getGmailToken(extra: unknown): string {
@@ -51,10 +59,15 @@ function extractBody(payload: any): string {
   return "";
 }
 
+function sanitizeHeader(value: string, field: string): string {
+  if (/[\r\n]/.test(value)) throw new Error(`Header injection attempt in ${field}`);
+  return value;
+}
+
 function buildRfc2822(to: string, subject: string, body: string, replyToId?: string): string {
   const lines = [
-    `To: ${to}`,
-    `Subject: ${subject}`,
+    `To: ${sanitizeHeader(to, "to")}`,
+    `Subject: ${sanitizeHeader(subject, "subject")}`,
     "Content-Type: text/plain; charset=UTF-8",
     "MIME-Version: 1.0",
   ];
@@ -64,6 +77,13 @@ function buildRfc2822(to: string, subject: string, body: string, replyToId?: str
   }
   lines.push("", body);
   return lines.join("\r\n");
+}
+
+function toUrlSafeBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 const SearchEmailsInput = z.object({
@@ -104,7 +124,10 @@ server.tool("search_emails", SearchEmailsInput.shape, async (input, extra) => {
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=METADATA&metadataHeaders=Subject&metadataHeaders=From&metadataHeaders=Date`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      if (!metaRes.ok) return { id: m.id, threadId: m.threadId, subject: "", from: "", date: "", snippet: "" };
+      if (!metaRes.ok) {
+        console.error(`Gmail metadata fetch failed for message ${m.id}: ${metaRes.status}`);
+        return { id: m.id, threadId: m.threadId, subject: "", from: "", date: "", snippet: "", fetchError: true };
+      }
       const meta = await metaRes.json() as any;
       const hdrs: Record<string, string> = {};
       for (const h of meta.payload?.headers ?? []) hdrs[h.name] = h.value;
@@ -150,8 +173,7 @@ server.tool("read_email", ReadEmailInput.shape, async (input, extra) => {
 
 server.tool("draft_email", DraftEmailInput.shape, async (input, extra) => {
   const token = getGmailToken(extra);
-  const raw = btoa(buildRfc2822(input.to, input.subject, input.body, input.reply_to_message_id))
-    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const raw = toUrlSafeBase64(buildRfc2822(input.to, input.subject, input.body, input.reply_to_message_id));
   const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/drafts", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -207,7 +229,16 @@ Deno.serve(async (req) => {
     );
   }
 
-  const gmailToken = await refreshGmailToken();
+  let gmailToken: string;
+  try {
+    gmailToken = await getOrRefreshGmailToken();
+  } catch (err) {
+    return Response.json(
+      { error: `OAuth token refresh failed: ${(err as Error).message}` },
+      { status: 502, headers: corsHeaders },
+    );
+  }
+
   const transport = new WebStandardStreamableHTTPServerTransport();
   await server.connect(transport);
   return transport.handleRequest(req, {
