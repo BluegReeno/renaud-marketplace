@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.1.1
+version: 0.1.2
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -13,6 +13,37 @@ allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ## What this skill does
 
 Generate a 1-page A4 PDF CV for Renaud Laborbe. It selects the right profile × company-type cell from a 15-cell matrix, in the right language, and produces a PDF using WeasyPrint.
+
+---
+
+## Step 0 — Check if a job offer is present
+
+**Is there a concrete job offer or a described target role?**
+
+- **YES** → proceed to Step 1 (automatic detection from the offer)
+- **NO** (spontaneous application, "generic CV", no offer pasted) → **ask two questions before generating**:
+
+> "Quel type de poste vises-tu pour cette candidature spontanée ?"
+>
+> | # | Profil | Quand le choisir |
+> |---|--------|------------------|
+> | 1 | **Architecte / Expert technique** (P1) | Avant-vente, déploiement, cadrage technique |
+> | 2 | **Lead / Manager IA** (P2) | Encadrement d'équipe, pilotage practice |
+> | 3 | **CTO** (P3) | Direction technique, co-fondateur |
+> | 4 | **Customer Success / FDE** (P4) | Déploiement chez le client, onboarding |
+> | 5 | **Sales / BizDev** (P5) | Vente de solutions, AE |
+>
+> "Et quel type d'entreprise cibles-tu ?"
+>
+> | # | Type | Exemples |
+> |---|------|---------|
+> | 1 | **Startup industrielle** (T1) | deeptech, scale-up, énergie |
+> | 2 | **Bureau d'études / BET** (T2) | Artelia, Egis, Natural Power |
+> | 3 | **ESN / Cabinet de conseil** (T3) | SSII, consulting, ILLUIN |
+> | 4 | **Grand groupe énergie/industrie** (T4) | TotalEnergies, EDF, Thales |
+> | 5 | **Éditeur SaaS IA / Labo IA** (T5) | Anthropic, Mistral, Dust |
+
+Once Renaud answers, proceed with the chosen profile × company type. Do NOT default silently — always ask when there is no job offer.
 
 ---
 
