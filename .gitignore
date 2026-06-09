@@ -1,3 +1,6 @@
+# Google OAuth credentials — never commit
+client_secret_*.apps.googleusercontent.com.json
+
 # Claude Code local settings
 .claude/settings.local.json
 
