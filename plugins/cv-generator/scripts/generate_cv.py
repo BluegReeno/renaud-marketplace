@@ -14,6 +14,25 @@ import argparse
 from pathlib import Path
 
 
+LABELS = {
+    'en': {
+        'about': 'About',
+        'contact': 'Contact',
+        'competencies': 'Key Competencies',
+        'experience': 'Work Experience',
+        'earlier': 'Earlier Career',
+        'education': 'Education',
+    },
+    'fr': {
+        'about': 'À propos',
+        'contact': 'Contact',
+        'competencies': 'Compétences clés',
+        'experience': 'Expérience professionnelle',
+        'earlier': 'Carrière antérieure',
+        'education': 'Formation',
+    },
+}
+
 RETRO_COMPAT_MAP = {
     'ai_consulting': ('p1', 't4'),
     'cto':           ('p3', 't1'),
@@ -69,6 +88,15 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     cell = resolve_cell_content(cv_data, profile, company_type, lang)
 
+    # === LABELS ===
+    labels = LABELS[lang]
+    html = html.replace('{{LABEL_ABOUT}}', labels['about'])
+    html = html.replace('{{LABEL_CONTACT}}', labels['contact'])
+    html = html.replace('{{LABEL_COMPETENCIES}}', labels['competencies'])
+    html = html.replace('{{LABEL_EXPERIENCE}}', labels['experience'])
+    html = html.replace('{{LABEL_EARLIER}}', labels['earlier'])
+    html = html.replace('{{LABEL_EDUCATION}}', labels['education'])
+
     # === TITLE ===
     html = html.replace('{{TITLE}}', cell['title'])
 
@@ -113,8 +141,8 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     earlier = experiences['earlier']
     earlier_html = '\n'.join(
         '<div class="earlier-item">'
-        f'<span class="earlier-content">&#8226; {item["title"]} &#8212; {item["company"]}'
-        f' ({item.get("description", "")})</span>'
+        f'<span class="earlier-content">&#8226; {item.get("title_" + lang, item["title"])} &#8212; {item["company"]}'
+        f' ({item.get("description_" + lang, item.get("description", ""))})</span>'
         f'<span class="earlier-period">{item["period"]}</span></div>'
         for item in earlier['items']
     )
