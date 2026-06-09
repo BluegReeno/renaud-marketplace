@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false
+  },
+  "imports": {
+    "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@1.25.3",
+    "@supabase/server/core": "npm:@supabase/server@1.1.0/core",
+    "zod": "npm:zod@3.25.28",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.47.10"
+  }
+}

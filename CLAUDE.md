@@ -17,10 +17,12 @@
 
 ## Tech Stack
 
-- **Language**: Python 3 (scripts), Markdown (skills)
+- **Language (plugins)**: Python 3 (scripts), Markdown (skills)
+- **Language (servers)**: TypeScript / Deno (Supabase Edge Functions)
 - **PDF**: WeasyPrint via `uv run --with weasyprint`
 - **Data**: JSON (`cv-master.json`)
-- **Deploy**: Claude Code marketplace, installed via GitHub PAT
+- **Deploy (plugins)**: Claude Code marketplace, installed via GitHub PAT
+- **Deploy (servers)**: `supabase functions deploy --no-verify-jwt`
 
 ---
 
