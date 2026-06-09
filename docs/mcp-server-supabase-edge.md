@@ -80,7 +80,12 @@ const corsHeaders = {
 ```typescript
 const { data: auth, error: authErr } = await supabaseServer.verifyAuth(req, {
   auth: ["user", "secret:<key-name>"],
-});
+  // Required when your key is stored as a regular env var (e.g. GMAIL_API_KEY).
+  // See "SUPABASE_SECRET_KEYS gotcha" below.
+  env: {
+    secretKeys: { "<key-name>": Deno.env.get("MY_API_KEY")! },
+  },
+} as any);
 if (authErr) {
   return Response.json(
     { error: authErr.message },
@@ -94,7 +99,27 @@ if (authErr) {
 | `"user"` | `Authorization: Bearer <supabase-jwt>` | claude.ai mobile/web (OAuth 2.1 full flow) |
 | `"secret:<name>"` | `apikey: <secret-value>` header | Claude Code CLI, Desktop, OpenClaw, Dust, n8n |
 
-`<name>` = Supabase secret name (e.g. `gmail_api_key`). The secret is set via `supabase secrets set gmail_api_key="..."`.
+**SUPABASE_SECRET_KEYS gotcha** — `secret:<name>` does NOT read your env var directly.
+It reads from `SUPABASE_SECRET_KEYS` (a JSON env var: `{"<name>":"<value>"}`).
+But the Supabase CLI blocks setting any `SUPABASE_*`-prefixed secret:
+
+```
+Env name cannot start with SUPABASE_, skipping: SUPABASE_SECRET_KEYS
+```
+
+**Fix:** pass `env.secretKeys` override directly in the `verifyAuth` call (as shown above).
+The override reads your real env var (e.g. `GMAIL_API_KEY`) and passes it under the key name
+that `secret:<name>` expects — no `SUPABASE_SECRET_KEYS` needed.
+
+```typescript
+// Your Supabase secret:  supabase secrets set GMAIL_API_KEY="..."
+// Your verifyAuth call:
+env: { secretKeys: { gmail_api_key: Deno.env.get("GMAIL_API_KEY")! } }
+// Auth mode:            auth: ["user", "secret:gmail_api_key"]
+```
+
+Note: HAL (bluegreen project) sets `SUPABASE_SECRET_KEYS` via the dashboard (bypasses CLI restriction).
+For personal projects use the `env` override — it's cleaner and avoids the restriction entirely.
 
 **OAuth discovery endpoint (required for mobile):**
 
@@ -142,10 +167,10 @@ registerTool(
 
 ---
 
-## 6. Request handler (Deno.serve)
+## 6. Request handler
 
 ```typescript
-Deno.serve(async (req: Request): Promise<Response> => {
+const fetchHandler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const url = new URL(req.url);
@@ -155,7 +180,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const { data: auth, error: authErr } = await supabaseServer.verifyAuth(req, {
     auth: ["user", "secret:my_api_key"],
-  });
+    env: { secretKeys: { my_api_key: Deno.env.get("MY_API_KEY")! } },
+  } as any);
   if (authErr) { /* ... */ }
 
   // Inject any context your tools need into `extra`
@@ -171,11 +197,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
       extra: { myContext },   // ← available as extra.authInfo.extra.myContext in tools
     },
   });
-});
+};
+
+export default { fetch: fetchHandler };
 ```
 
-**Important:** `server.connect(transport)` is called per-request (new transport instance each time).
-`server` itself is a module-level singleton — it holds the tool registry only. This is the stateless pattern.
+**Important:**
+- Use `export default { fetch: fetchHandler }` — NOT `Deno.serve(...)`. HAL pattern, required for Supabase Edge.
+- `server.connect(transport)` is called per-request (new transport instance each time).
+  `server` itself is a module-level singleton — it holds the tool registry only. This is the stateless pattern.
 
 ---
 
@@ -199,13 +229,26 @@ they reach your function.
 ## 8. Secrets setup
 
 ```bash
+# Generate and push a random bearer key
 supabase secrets set \
   MY_API_KEY="$(openssl rand -hex 24)" \
   --project-ref <ref>
 ```
 
-The secret name in `supabase secrets set` must match `"secret:<name>"` in `verifyAuth`.
-Example: `supabase secrets set gmail_api_key="..."` → `auth: ["user", "secret:gmail_api_key"]`.
+The env var name (e.g. `MY_API_KEY`) is what you use in `Deno.env.get("MY_API_KEY")`.
+The key name in the `env.secretKeys` override (e.g. `my_api_key`) must match the `secret:<name>` in `auth:`.
+These two names are independent — the env var name and the key name don't have to match.
+
+```typescript
+// supabase secrets set GMAIL_API_KEY="..."   ← env var name (can be anything)
+env: { secretKeys: { gmail_api_key: Deno.env.get("GMAIL_API_KEY")! } }
+//                   ^^^^^^^^^^^^ key name     ^^^^^^^^^^^^^^^^^^^^^^ reads the env var
+auth: ["user", "secret:gmail_api_key"]
+//                     ^^^^^^^^^^^^ must match key name above
+```
+
+**Do NOT try to set `SUPABASE_SECRET_KEYS` via CLI** — it is blocked by design.
+Use the `env` override in `verifyAuth` instead (§4).
 
 ---
 
