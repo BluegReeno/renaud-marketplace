@@ -39,7 +39,6 @@ yarn-error.log*
 servers/gmail-mcp/supabase/.env
 servers/gmail-mcp/supabase/.temp/
 supabase/.temp/
-supabase/
 
 # Temp scripts with credentials
 tmp
