@@ -1,98 +1,32 @@
-# renaud-marketplace — Current Status
+# STATUS — renaud-marketplace
 
-**Last Updated**: 2026-06-03
-**Current Phase**: Phase 1 COMPLETE — cv-generator v0.1.0 shipped
-**Target**: ✅ First working build — 30/30 CVs validated (1 page each)
-
----
+Last updated: 2026-06-09
 
 ## Current Focus
 
-**DONE** — Ready to commit. Next: visual review of priority CVs + delete legacy source.
+gmail-mcp deployed and tested. Plugin renamed jobsearch v0.2.0. Ready for next feature.
 
----
+## In Progress
 
-## What's DONE
+(nothing)
 
-### Phase 0: Bootstrap
-- [x] Repo scaffold — 2026-06-03
-- [x] Content matrix brief: 5 profiles × 5 types, 15 cells, FR + EN — 2026-06-03
-- [x] Marketplace field guide (docs/skill-marketplace-guide.md) — 2026-06-03
-- [x] PRD, STATUS, CLAUDE.md filled — 2026-06-03
-- [x] Marketplace skeleton (.claude-plugin/, plugins/cv-generator/) — 2026-06-03
+## Done (current sprint)
 
-### Phase 1: cv-generator v0.1.0
-- [x] cv_template.html — migrated, emoji-free, 3 dynamic title placeholders — 2026-06-03
-- [x] cv-master.json — 15-cell matrix + 5 new competency items + 5-profile experiences — 2026-06-03
-- [x] generate_cv.py — new --profile/--company-type/--lang API + retro-compat + corporate-first — 2026-06-03
-- [x] batch_validate.py — generates all 30 CVs, asserts 1-page via pikepdf — 2026-06-03
-- [x] SKILL.md rewrite — matrix detection + PLUGIN_DIR resolver — 2026-06-03
-- [x] Profile files (p1–p5) — narrative rules + anti-patterns — 2026-06-03
-- [x] Batch validation: 30/30 CVs pass, 1 page each — 2026-06-03
-- [x] Retro-compat verified (--positioning ai_consulting/cto/business_dev) — 2026-06-03
-- [x] Versions consistent: plugin.json = marketplace.json = 0.1.0 — 2026-06-03
+- [x] cv-generator v0.1.0 — 30/30 CVs validated (1 page each) — 2026-06-03
+- [x] cv-generator v0.1.1 — fix FR language mixing — 2026-06-05
+- [x] cv-generator v0.1.2 — add spontaneous mode — 2026-06-05
+- [x] photo.jpeg bundled in plugin — 2026-06-05
+- [x] gmail-mcp Supabase Edge Function deployed — fixes: McpServer import, webStandardStreamableHttp, registerTool API, export default — 2026-06-09
+- [x] gmail-mcp auth fixed — SUPABASE_SECRET_KEYS env override workaround — 2026-06-09
+- [x] All 4 MCP tools tested live: list_labels, search_emails, read_email, draft_email — 2026-06-09
+- [x] Plugin renamed cv-generator → jobsearch, .mcp.json added for gmail-mcp server — 2026-06-09
+- [x] Bumped to v0.2.0 (all 4 files in sync) — 2026-06-09
+- [x] docs/mcp-server-supabase-edge.md — SUPABASE_SECRET_KEYS gotcha documented — 2026-06-09
+- [x] README — versioning rules + .mcp.json format + repo structure — 2026-06-09
+- [x] .gitignore — added tmp, breif-gmail.md, pycache, supabase temp dirs — 2026-06-09
 
-### Recent Commits
-| Feature | Commit | Date |
-|---------|--------|------|
-| Initial scaffold | 52084f2 | 2026-06-03 |
+## Backlog
 
----
-
-## Architecture
-
-```
-renaud-marketplace/ (private GitHub repo)
-└── plugins/
-    └── cv-generator/
-        ├── .claude-plugin/plugin.json   ← v0.1.0
-        ├── skills/cv-generator/SKILL.md ← skill instructions
-        ├── scripts/generate_cv.py       ← PDF generator
-        ├── data/cv-master.json          ← content + 5×5 matrix
-        └── templates/cv_template.html   ← HTML → PDF
-```
-
----
-
-## Quick Commands
-
-```bash
-# Dev test — single CV
-DYLD_LIBRARY_PATH=/opt/homebrew/lib \
-CV_GENERATOR_DIR=~/Projects/renaud-marketplace/plugins/cv-generator \
-  uv run --with weasyprint \
-  python3 plugins/cv-generator/scripts/generate_cv.py \
-  --profile p1 --company-type t5 --lang en
-
-# Batch validation
-DYLD_LIBRARY_PATH=/opt/homebrew/lib \
-CV_GENERATOR_DIR=~/Projects/renaud-marketplace/plugins/cv-generator \
-  uv run --with weasyprint --with pikepdf \
-  python3 plugins/cv-generator/scripts/batch_validate.py
-```
-
----
-
-## Key Files
-
-```
-.claude/tasks/cv-generator-matrix-upgrade.md       # Task brief → use for plan-feature
-.claude/PRD.md                                     # Project scope
-plugins/cv-generator/data/cv-master.json           # Source of truth for CV content
-plugins/cv-generator/skills/cv-generator/SKILL.md  # Skill instructions
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Skills | Markdown SKILL.md |
-| Scripts | Python 3 + uv run --with |
-| PDF | WeasyPrint |
-| Data | JSON |
-
----
-
-**Next Action**: `/core_piv_loop:plan-feature` — use `.claude/tasks/cv-generator-matrix-upgrade.md`
+- [ ] Visual review of priority CVs (p1×t4, p3×t1, p2×t5)
+- [ ] gmail-mcp: implement real Gmail API calls (currently stub responses)
+- [ ] Notion job search skill
