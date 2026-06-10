@@ -93,7 +93,7 @@ function okResult(data: unknown) {
 }
 
 // MCP server created once at module level — tools registered once per cold start
-const server = new McpServer({ name: "gmail-mcp", version: "0.1.0" });
+const server = new McpServer({ name: "gmail-mcp", version: "0.2.0" });
 
 // deno-lint-ignore no-explicit-any
 const registerTool: (...args: any[]) => void = server.registerTool.bind(server);
@@ -238,20 +238,32 @@ const fetchHandler = async (req: Request): Promise<Response> => {
     );
   }
 
-  const { data: auth, error: authErr } = await supabaseServer.verifyAuth(req, {
-    auth: ["user", "secret:gmail_api_key"],
-    env: {
-      secretKeys: { gmail_api_key: Deno.env.get("GMAIL_API_KEY")! },
-    },
-  } as any);
-  if (authErr) {
-    return Response.json(
-      { error: authErr.message },
-      {
-        status: authErr.status,
-        headers: { ...corsHeaders, "WWW-Authenticate": `Bearer resource_metadata="${RESOURCE_METADATA_URL}"` },
+  // claude.ai / Cowork custom connectors cannot send custom headers — accept the
+  // API key as a ?key= query param so those clients never hit the OAuth flow.
+  let authToken = "";
+  const queryKey = url.searchParams.get("key");
+  if (queryKey !== null) {
+    if (queryKey !== Deno.env.get("GMAIL_API_KEY")) {
+      // Plain 401 without WWW-Authenticate: a wrong key must fail fast, not trigger OAuth.
+      return Response.json({ error: "Invalid key" }, { status: 401, headers: corsHeaders });
+    }
+  } else {
+    const { data: auth, error: authErr } = await supabaseServer.verifyAuth(req, {
+      auth: ["user", "secret:gmail_api_key"],
+      env: {
+        secretKeys: { gmail_api_key: Deno.env.get("GMAIL_API_KEY")! },
       },
-    );
+    } as any);
+    if (authErr) {
+      return Response.json(
+        { error: authErr.message },
+        {
+          status: authErr.status,
+          headers: { ...corsHeaders, "WWW-Authenticate": `Bearer resource_metadata="${RESOURCE_METADATA_URL}"` },
+        },
+      );
+    }
+    authToken = auth.token ?? "";
   }
 
   let gmailToken: string;
@@ -267,7 +279,7 @@ const fetchHandler = async (req: Request): Promise<Response> => {
   const transport = new WebStandardStreamableHTTPServerTransport();
   await server.connect(transport);
   return transport.handleRequest(req, {
-    authInfo: { token: auth.token ?? "", clientId: "gmail-mcp", scopes: [], extra: { gmailToken } },
+    authInfo: { token: authToken, clientId: "gmail-mcp", scopes: [], extra: { gmailToken } },
   });
 };
 
