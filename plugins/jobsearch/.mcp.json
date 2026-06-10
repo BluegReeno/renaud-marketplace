@@ -3,7 +3,7 @@
     "gmail-mcp": {
       "type": "http",
       "url": "https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   }
 }

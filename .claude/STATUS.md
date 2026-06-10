@@ -4,11 +4,11 @@ Last updated: 2026-06-10
 
 ## Current Focus
 
-gmail-mcp OAuth via GitHub Pages: consent page créée, Edge Function oauth supprimée. Actions manuelles restantes : activer GitHub Pages, mettre à jour Supabase URL config, corriger Google Client ID, tester le flow.
+gmail-mcp OAuth flow opérationnel via GitHub Pages. Prochaine étape : implémenter les vrais appels Gmail API (actuellement stub responses).
 
 ## In Progress
 
-- [ ] gmail-mcp OAuth consent page — actions manuelles user (GitHub Pages + Supabase config) — task: `.claude/tasks/gmail-mcp-oauth-github-pages.md`
+(nothing)
 
 ## Done (current sprint)
 
@@ -28,9 +28,11 @@ gmail-mcp OAuth via GitHub Pages: consent page créée, Edge Function oauth supp
 - [x] docs/mcp-server-supabase-edge.md §10 — OAuth prerequisites (feature_disabled gotcha) + query-param fallback — 2026-06-10
 - [x] gmail-mcp OAuth consent page `oauth/consent/index.html` créée + Edge Function oauth supprimée — 2026-06-10
 - [x] docs/mcp-server-supabase-edge.md §10a — HTML limitation Edge Functions + solution GitHub Pages documentée — 2026-06-10
+- [x] gmail-mcp OAuth flow complet — consent page GitHub Pages + Google Auth + claude.ai connecteur validé — 2026-06-10
+- [x] gmail-mcp OAuth flow testé — vrais appels Gmail API confirmés (pas de stubs) — 2026-06-10
 
 ## Backlog
 
 - [ ] Visual review of priority CVs (p1×t4, p3×t1, p2×t5)
-- [ ] gmail-mcp: implement real Gmail API calls (currently stub responses)
+- [ ] gmail-mcp: test OAuth flow end-to-end from claude.ai (connector validated 2026-06-10)
 - [ ] Notion job search skill

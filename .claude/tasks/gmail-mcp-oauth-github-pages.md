@@ -18,11 +18,12 @@ Héberger la consent page OAuth sur GitHub Pages car les Edge Functions Supabase
 - [x] Créer `oauth/consent/index.html` (HTML standalone, SDK Supabase via CDN) ✓ 2026-06-10
 
 ### Phase 3: Actions manuelles (user)
-- [ ] Activer GitHub Pages (Settings → Pages → branch main, root)
-- [ ] Mettre à jour Supabase URL config (Site URL + redirect URLs)
-- [ ] Corriger Google Client ID dans Supabase Auth → Providers → Google
-- [ ] Tester la consent page directement sur GitHub Pages
-- [ ] Tester le flow complet depuis claude.ai
+- [x] Activer GitHub Pages (Settings → Pages → branch main, root) ✓ 2026-06-10
+- [x] Mettre à jour Supabase URL config (Site URL + redirect URLs, lowercase) ✓ 2026-06-10
+- [x] Corriger Google Client ID + Client Secret dans Supabase Auth → Providers → Google ✓ 2026-06-10
+- [x] Ajouter redirect URI Supabase dans Google Cloud Console ✓ 2026-06-10
+- [x] Tester la consent page directement sur GitHub Pages ✓ 2026-06-10
+- [x] Tester le flow complet depuis claude.ai ✓ 2026-06-10
 
 ### Phase 4: Docs
 - [x] Mettre à jour `docs/mcp-server-supabase-edge.md` §10 (limitation HTML + solution GitHub Pages) ✓ 2026-06-10
@@ -47,5 +48,5 @@ Héberger la consent page OAuth sur GitHub Pages car les Edge Functions Supabase
 
 ## Completion
 - **Started**: 2026-06-10
-- **Completed**: (fill when done)
-- **Commit**: (link to commit when done)
+- **Completed**: 2026-06-10
+- **Commit**: 7fca10e
