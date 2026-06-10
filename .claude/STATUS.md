@@ -1,14 +1,14 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-09
+Last updated: 2026-06-10
 
 ## Current Focus
 
-gmail-mcp deployed and tested. Plugin renamed jobsearch v0.2.0. Ready for next feature.
+gmail-mcp OAuth via GitHub Pages: consent page créée, Edge Function oauth supprimée. Actions manuelles restantes : activer GitHub Pages, mettre à jour Supabase URL config, corriger Google Client ID, tester le flow.
 
 ## In Progress
 
-(nothing)
+- [ ] gmail-mcp OAuth consent page — actions manuelles user (GitHub Pages + Supabase config) — task: `.claude/tasks/gmail-mcp-oauth-github-pages.md`
 
 ## Done (current sprint)
 
@@ -24,6 +24,10 @@ gmail-mcp deployed and tested. Plugin renamed jobsearch v0.2.0. Ready for next f
 - [x] docs/mcp-server-supabase-edge.md — SUPABASE_SECRET_KEYS gotcha documented — 2026-06-09
 - [x] README — versioning rules + .mcp.json format + repo structure — 2026-06-09
 - [x] .gitignore — added tmp, breif-gmail.md, pycache, supabase temp dirs — 2026-06-09
+- [x] gmail-mcp v0.2.0 — ?key= query-param auth for headerless connectors (Cowork/claude.ai), deployed + 401 behaviors verified — 2026-06-10
+- [x] docs/mcp-server-supabase-edge.md §10 — OAuth prerequisites (feature_disabled gotcha) + query-param fallback — 2026-06-10
+- [x] gmail-mcp OAuth consent page `oauth/consent/index.html` créée + Edge Function oauth supprimée — 2026-06-10
+- [x] docs/mcp-server-supabase-edge.md §10a — HTML limitation Edge Functions + solution GitHub Pages documentée — 2026-06-10
 
 ## Backlog
 

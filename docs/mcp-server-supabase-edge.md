@@ -265,10 +265,77 @@ Note: `apikey:` header (not `Authorization: Bearer`). The `secret` auth mode rea
 
 ## 10. claude.ai custom connector (mobile/web/desktop)
 
+### 10a. OAuth mode (requires Supabase OAuth 2.1 server)
+
 1. claude.ai → Settings → Connectors → Add custom connector
 2. Enter URL: `https://<ref>.supabase.co/functions/v1/<function>`
 3. No Client ID / Secret needed — OAuth discovery is automatic via `/.well-known/oauth-protected-resource`
 4. Connector syncs to mobile automatically after authorizing on web
+
+**Prerequisites on the Supabase project** (this is what HAL/bluegreen has and gmail-mcp-perso does NOT):
+- Dashboard → Authentication → OAuth Server → enable (beta) + dynamic client registration
+- A consent page hosted outside Supabase (see "HTML limitation" below)
+- Check: `curl https://<ref>.supabase.co/auth/v1/.well-known/oauth-authorization-server` —
+  `{"error_code":"feature_disabled"}` means the OAuth flow can never complete
+
+**Two gotchas in the Claude OAuth dance:**
+- The browser's claude.ai session must be logged in with the SAME account as the Claude app,
+  otherwise: "Account mismatch / Incompatibilité de compte". This check is Claude-side.
+- The "OAuth Client ID/Secret" fields in the connector dialog configure a pre-registered OAuth
+  client — they do NOT bypass the interactive browser flow. There is no headless option there.
+
+**HTML limitation of Edge Functions — use GitHub Pages for the consent page**
+
+Edge Functions cannot serve interactive HTML to browsers. Supabase/Cloudflare forces:
+- `Content-Type: text/plain` regardless of what you set
+- `CSP: default-src 'none'; sandbox` — no scripts, no external resources
+
+Any attempt to build a consent page as an Edge Function results in a blank or broken page.
+
+**Solution:** host the consent page on GitHub Pages (or any static host) and point Supabase
+`authorization_url_path` at it.
+
+Setup for `renaud-marketplace`:
+1. Consent page: `oauth/consent/index.html` at the repo root → `https://BluegReeno.github.io/renaud-marketplace/oauth/consent`
+2. GitHub → Settings → Pages → Source: branch `main`, folder `/ (root)`
+3. Supabase → Authentication → URL Configuration:
+   - Site URL: `https://BluegReeno.github.io/renaud-marketplace`
+   - Additional Redirect URLs: `https://BluegReeno.github.io/renaud-marketplace/**`
+4. Authentication → OAuth Server → Authorization Path: `/oauth/consent`
+5. The consent page calls `auth/v1/oauth/authorizations/{id}` and `…/consent` directly via `fetch` —
+   the `@supabase/supabase-js` SDK handles only `signInWithOAuth` and `getSession`;
+   authorization endpoints must be called as raw REST.
+
+Test the page alone first (should show "authorization_id manquant" error, not a blank page):
+```
+https://BluegReeno.github.io/renaud-marketplace/oauth/consent
+```
+
+### 10b. Query-param key mode (no OAuth — single-user servers)
+
+The claude.ai/Cowork connector UI cannot send custom headers, so `secret:<name>` mode is
+unusable there. Fallback: accept the API key as a `?key=` query param **before** `verifyAuth`:
+
+```typescript
+let authToken = "";
+const queryKey = url.searchParams.get("key");
+if (queryKey !== null) {
+  if (queryKey !== Deno.env.get("MY_API_KEY")) {
+    // Plain 401 WITHOUT WWW-Authenticate — a wrong key must fail fast, not trigger OAuth.
+    return Response.json({ error: "Invalid key" }, { status: 401, headers: corsHeaders });
+  }
+} else {
+  // ... verifyAuth path (§4) — header clients (Claude Code CLI) keep working
+  authToken = auth.token ?? "";
+}
+```
+
+Connector URL: `https://<ref>.supabase.co/functions/v1/<function>?key=<MY_API_KEY>`
+Since the server returns 200 on initialize, Claude never sees a 401 and never starts OAuth.
+
+**Never commit the keyed URL** (`.mcp.json` keeps the bare URL — the key is pasted manually
+in the connector dialog). Trade-off: the key lives in the connector config/URL — acceptable
+for a personal single-user server, not for multi-user.
 
 ---
 

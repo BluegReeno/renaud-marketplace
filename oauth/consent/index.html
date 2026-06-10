@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autorisation OAuth — Gmail MCP</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #111; }
+    .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .app-name { font-weight: 600; color: #111; }
+    .scopes { margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+    .scopes h3 { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .scope-item { font-size: 0.9rem; color: #333; padding: 0.2rem 0; }
+    .scope-item::before { content: "✓ "; color: #22c55e; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #1a73e8; color: white; margin-bottom: 0.75rem; }
+    .btn-secondary { background: #f1f3f4; color: #333; }
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: white;
+      color: #333;
+      border: 1px solid #dadce0;
+    }
+    .google-icon { width: 20px; height: 20px; }
+    .error { color: #dc2626; font-size: 0.9rem; margin-top: 1rem; padding: 0.75rem; background: #fef2f2; border-radius: 8px; }
+    .success { color: #16a34a; font-size: 0.9rem; margin-top: 1rem; padding: 0.75rem; background: #f0fdf4; border-radius: 8px; }
+    .loading { text-align: center; color: #666; padding: 2rem 0; }
+    .spinner {
+      display: inline-block;
+      width: 2rem; height: 2rem;
+      border: 3px solid #e5e7eb;
+      border-top-color: #1a73e8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 0.75rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Chargement…</div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://isdyvrwnxqcfalmlkzui.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_Mlh9cZMB0OTXZyizUexoLw_E512UMqU";
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const app = document.getElementById("app");
+
+    function getAuthorizationId() {
+      return new URLSearchParams(window.location.search).get("authorization_id");
+    }
+
+    function showError(msg) {
+      app.innerHTML = `
+        <h1>Autorisation OAuth</h1>
+        <div class="error">${msg}</div>
+      `;
+    }
+
+    function showSuccess(msg) {
+      app.innerHTML = `
+        <h1>Autorisation OAuth</h1>
+        <div class="success">${msg}</div>
+      `;
+    }
+
+    function showLoginForm(authorizationId) {
+      app.innerHTML = `
+        <h1>Connexion requise</h1>
+        <p class="subtitle">Connectez-vous pour autoriser l'accès.</p>
+        <button class="btn btn-google" id="btnGoogle">
+          <svg class="google-icon" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Connexion avec Google
+        </button>
+        <div id="loginError"></div>
+      `;
+      document.getElementById("btnGoogle").addEventListener("click", async () => {
+        const btn = document.getElementById("btnGoogle");
+        btn.disabled = true;
+        btn.textContent = "Redirection…";
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: window.location.href }
+        });
+        if (error) {
+          document.getElementById("loginError").innerHTML = `<div class="error">Erreur : ${error.message}</div>`;
+          btn.disabled = false;
+          btn.innerHTML = `Connexion avec Google`;
+        }
+      });
+    }
+
+    function showConsentForm(authorizationId, details) {
+      const appName = details.name || details.client_id || "Application";
+      const scopes = (details.scopes || []);
+      const scopeItems = scopes.map(s => `<div class="scope-item">${s}</div>`).join("") ||
+        "<div class='scope-item'>Accès standard</div>";
+
+      app.innerHTML = `
+        <h1>Autorisation demandée</h1>
+        <p class="subtitle"><span class="app-name">${appName}</span> souhaite accéder à votre compte.</p>
+        <div class="scopes">
+          <h3>Permissions demandées</h3>
+          ${scopeItems}
+        </div>
+        <button class="btn btn-primary" id="btnApprove">Autoriser</button>
+        <button class="btn btn-secondary" id="btnDeny">Refuser</button>
+        <div id="consentError"></div>
+      `;
+      document.getElementById("btnApprove").addEventListener("click", () => sendConsent(authorizationId, "approve"));
+      document.getElementById("btnDeny").addEventListener("click", () => sendConsent(authorizationId, "deny"));
+    }
+
+    async function sendConsent(authorizationId, action) {
+      const btnApprove = document.getElementById("btnApprove");
+      const btnDeny = document.getElementById("btnDeny");
+      if (btnApprove) btnApprove.disabled = true;
+      if (btnDeny) btnDeny.disabled = true;
+
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { showError("Session expirée. Rechargez la page."); return; }
+
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/oauth/authorizations/${authorizationId}/consent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ action })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        document.getElementById("consentError").innerHTML = `<div class="error">Erreur : ${err.message || res.status}</div>`;
+        if (btnApprove) btnApprove.disabled = false;
+        if (btnDeny) btnDeny.disabled = false;
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+      if (data.redirect_url) {
+        showSuccess(`${action === "approve" ? "Autorisé" : "Refusé"}. Redirection…`);
+        setTimeout(() => { window.location.href = data.redirect_url; }, 800);
+      } else {
+        showSuccess(action === "approve" ? "Autorisé avec succès." : "Accès refusé.");
+      }
+    }
+
+    async function init() {
+      const authorizationId = getAuthorizationId();
+      if (!authorizationId) {
+        showError("Paramètre <code>authorization_id</code> manquant.");
+        return;
+      }
+
+      const { data: { session } } = await sb.auth.getSession();
+
+      if (!session) {
+        showLoginForm(authorizationId);
+        return;
+      }
+
+      // Fetch authorization details
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/oauth/authorizations/${authorizationId}`, {
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+          "apikey": SUPABASE_ANON_KEY
+        }
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        // auto-approve might not need a UI — check for redirect_url
+        showError(`Impossible de charger les détails (${res.status}) : ${err.message || "erreur inconnue"}`);
+        return;
+      }
+
+      const details = await res.json();
+
+      // If backend already provided a redirect_url → auto-approve, redirect immediately
+      if (details.redirect_url) {
+        showSuccess("Redirection automatique…");
+        setTimeout(() => { window.location.href = details.redirect_url; }, 500);
+        return;
+      }
+
+      showConsentForm(authorizationId, details);
+    }
+
+    // Handle OAuth callback (Supabase redirects back here with tokens in hash/query)
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        init();
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
