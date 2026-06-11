@@ -1,6 +1,6 @@
 # renaud-marketplace
 
-Private Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, and job search tools.
+Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, and job search tools.
 
 ---
 
@@ -114,24 +114,9 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 ---
 
-## Install (dépôt privé via GitHub PAT)
+## Install
 
-Ajouter dans `~/.claude/settings.json` :
-
-```json
-{
-  "plugins": {
-    "sources": [
-      {
-        "repo": "BluegReeno/renaud-marketplace",
-        "token": "ghp_xxxxxxxxxxxx"
-      }
-    ]
-  }
-}
-```
-
-Installer le plugin :
+Dépôt public — pas de token requis. Ajouter le marketplace puis installer le plugin :
 
 ```bash
 /plugin marketplace add BluegReeno/renaud-marketplace jobsearch

@@ -12,11 +12,12 @@ expose sensitive data or break the client install flow.
 
 | Repo type | When to use | Examples |
 |-----------|-------------|---------|
-| **Public** | Client-installable plugins, tools you distribute to others | `bluegreen-marketplace` |
-| **Private** | Personal skills, job search tools, anything with personal data | `renaud-marketplace` |
+| **Public** | Client-installable plugins, tools you distribute to others | `bluegreen-marketplace`, `renaud-marketplace` |
+| **Private** | Skills bundling secrets or unpublished personal data that can't be gitignored | — |
 
-**Rule of thumb**: if a skill file references personal info (phone, address, strategy notes,
-financial data, active job pipelines), the repo must be private.
+**Rule of thumb**: if a skill file *bundles* personal info (phone, address, strategy notes,
+financial data, active job pipelines) that you can't keep out via gitignore, the repo must be
+private. `renaud-marketplace` is public because its sensitive data is gitignored, not committed.
 
 ### How clients install from a public marketplace
 
@@ -26,14 +27,15 @@ financial data, active job pipelines), the repo must be private.
 
 ### How you install from a private repo (yourself only)
 
-Add a GitHub PAT with `repo` read scope to `~/.claude/settings.json`:
+If a marketplace genuinely must stay private, add a GitHub PAT with `repo` read scope to
+`~/.claude/settings.json`:
 
 ```json
 {
   "plugins": {
     "sources": [
       {
-        "repo": "BluegReeno/renaud-marketplace",
+        "repo": "BluegReeno/your-private-marketplace",
         "token": "ghp_xxxxxxxxxxxx"
       }
     ]

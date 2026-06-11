@@ -9,7 +9,7 @@
 
 ## Project Overview
 
-**renaud-marketplace** — Private Claude Code skill marketplace for Renaud Laborbe's personal skills (CV generation, job search tools). Too sensitive for public distribution.
+**renaud-marketplace** — Public Claude Code skill marketplace for Renaud Laborbe's personal skills (CV generation, job search tools). Keep secrets (keys, tokens, private docs) out of the repo — see gitignore rules below.
 
 **Full specifications**: See `.claude/PRD.md`
 
@@ -21,7 +21,7 @@
 - **Language (servers)**: TypeScript / Deno (Supabase Edge Functions)
 - **PDF**: WeasyPrint via `uv run --with weasyprint`
 - **Data**: JSON (`cv-master.json`)
-- **Deploy (plugins)**: Claude Code marketplace, installed via GitHub PAT
+- **Deploy (plugins)**: Claude Code marketplace, installed via `/plugin marketplace add` (public repo)
 - **Deploy (servers)**: `supabase functions deploy --no-verify-jwt`
 
 ---
