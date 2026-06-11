@@ -1,14 +1,18 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-10
+Last updated: 2026-06-11
 
 ## Current Focus
 
-gmail-mcp OAuth flow opérationnel via GitHub Pages. Prochaine étape : implémenter les vrais appels Gmail API (actuellement stub responses).
+**➡️ LastDev Loop 3 — `morning-briefing`** (le dashboard quotidien pro + perso). La chaîne LastDev arrive ici depuis `bluegreen-marketplace` (Loop 2 / `/hal tasks` v0.7.0 mergé). hal-mcp **gelé v38** — on consomme, on ne touche pas. Amorçage : [`RESUME-LOOP3.md`](../RESUME-LOOP3.md) · brief [`docs/loop-3-morning-briefing.md`](../docs/loop-3-morning-briefing.md) · master plan `../hal/docs/lastdev-plan.md`.
+
+Loop 3 = **nouveau plugin `briefing`** : un skill qui agrège read-only les tâches hal (`blue-green` + `renaud`, sprint courant) + jobsearch Obsidian + 3 calendriers Google, en une vue. Décisions verrouillées au terrain-prep (repo, host plugin, hal-mcp déclaré + dédup) → voir RESUME. Loop 3 crée le squelette du plugin lui-même. Deadline Loops 3-4 : dim. 2026-06-14 → STOP.
+
+Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels Gmail API si encore en stub.
 
 ## In Progress
 
-(nothing)
+(nothing — Loop 3 not started, terrain prepared)
 
 ## Done (current sprint)
 
