@@ -135,7 +135,7 @@ uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
 
 Replace `{profile}`, `{company_type}`, `{lang}` with the detected values.
 
-> **Photo**: not bundled in the public plugin. The script auto-fallbacks to `~/.claude/assets/photo.jpeg` — place `photo.jpeg` there after install and the photo appears automatically.
+> **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
 ---
 

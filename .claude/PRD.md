@@ -8,7 +8,7 @@
 
 ## 1. Mission
 
-Private Claude Code skill marketplace for personal plugins that require sensitive personal data (CV content, job search strategy, contact info). One command turns a job offer into a perfectly positioned 1-page PDF CV.
+Public Claude Code skill marketplace for personal plugins (CV content, job search tools). One command turns a job offer into a perfectly positioned 1-page PDF CV. Secrets and private data are kept out of the repo via gitignore.
 
 ```
 User pastes job offer
@@ -20,7 +20,7 @@ generate_cv(profile, company_type, lang)
 CV_Renaud_Laborbe_{Profile}_{CompanyType}.pdf  (30 seconds)
 ```
 
-**Target Users**: Renaud Laborbe only (private repo, installed via GitHub PAT)
+**Target Users**: Renaud Laborbe (public repo, installed via `/plugin marketplace add`)
 
 **"Wow" Effect**: 15-cell positioning matrix — the skill picks the right narrative, title, about text, and competency containers for every profile × company type combination, in FR or EN.
 
@@ -152,7 +152,7 @@ MVP done when:
 
 ```
 # No env vars needed for cv-generator
-# Installed via GitHub PAT — add to ~/.claude/settings.json
-# Photo: gitignored — must be present locally at assets/photo.jpeg
+# Installed via /plugin marketplace add (public repo, no PAT needed)
+# Photo: committed at assets/photo.jpeg (already public, OK in public repo)
 # WeasyPrint: loaded via uv run --with, not pre-installed
 ```
