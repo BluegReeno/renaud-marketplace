@@ -91,8 +91,10 @@ my-marketplace/
 }
 ```
 
-**Critical rule**: `marketplace.json` version must always equal `plugin.json` version for
-each plugin. They are kept in sync manually at every release. Drift here breaks installs.
+**Critical rule**: for each plugin, the `marketplace.json` `plugins[].version` entry must
+equal that plugin's `plugin.json` `version`. They are kept in sync manually at every release.
+Drift on the per-plugin entry breaks installs. (The top-level `marketplace.json` `version`
+is a separate "what's new" marker — see §5.)
 
 ### plugin.json — the plugin manifest
 
@@ -189,7 +191,8 @@ signals when only one piece changes.
 **Per release:**
 1. Bump each component that changed → its own PATCH or MINOR
 2. Plugin → always PATCH+1 once per release (regardless of how many components changed)
-3. Marketplace version = plugin version (always in sync)
+3. Sync three fields per-plugin: `plugin.json` `version` === SKILL.md frontmatter `version:` === `marketplace.json` `plugins[].version` for that entry
+4. Top-level `marketplace.json` `version` tracks **the most-recently-released plugin** in the repo — it is a "what's new" marker, not a repo-wide synced field. When releasing a plugin whose version is lower than the previous top-level (e.g. shipping `briefing 0.1.0` after `jobsearch 0.2.0`), the top-level regresses on purpose; this is not drift.
 
 ---
 
@@ -214,6 +217,27 @@ automatically when the plugin is installed.
 **Lesson learned**: before `.mcp.json` bundling, clients had to manually configure the
 connector in their Claude Code settings — a friction point at onboarding that was
 eliminated by the bundle approach.
+
+### Sharing an MCP server across plugins (dedup convention)
+
+When the same MCP server is bundled by two plugins (e.g. `hal-mcp` declared in both
+`bluegreen-marketplace/plugins/hal/.mcp.json` and
+`renaud-marketplace/plugins/briefing/.mcp.json`), Claude Code dedupes the two
+declarations into a single connection **only if** the entries match on three fields:
+
+| Field | Must match across all declarations |
+|-------|-----------------------------------|
+| `mcpServers.<name>` key | Same string (e.g. `"hal-mcp"`) |
+| `url` | Byte-identical URL |
+| `version` | Identical version string |
+
+If any of the three drifts, the user gets two parallel sessions — double OAuth prompt,
+double tool listings, double quota.
+
+**The dedup `version` is not the upstream server version — it's a coordination token.**
+Pick the value once, document it in both `.mcp.json` files, and bump in both
+simultaneously. A reader who "corrects" `hal-mcp` dedup version `"0.1.0"` to the upstream
+`"38.0.0"` will silently break dedup.
 
 ---
 
@@ -278,16 +302,20 @@ For a solo developer with ~1-2 releases per month, CI adds infrastructure overhe
 ```bash
 # 1. Bump version in each modified component (see Versioning Policy)
 # 2. Bump plugin version in plugin.json
-# 3. Sync marketplace.json version to match plugin.json
-# 4. Commit and push
+# 3. Sync the per-plugin entry in marketplace.json (plugins[].version) to plugin.json
+# 4. Update the top-level marketplace.json version to track the plugin you're releasing
+# 5. Commit and push
 git add plugins/my-plugin/.claude-plugin/plugin.json
+git add plugins/my-plugin/skills/my-skill/SKILL.md
 git add .claude-plugin/marketplace.json
 git commit -m "chore(my-plugin): release vX.Y.Z"
 git push
 ```
 
-Before releasing: verify `marketplace.json` version === `plugin.json` version. This
-is the most common drift mistake.
+Before releasing: verify the per-plugin trio is identical — `plugin.json` `version`,
+SKILL.md frontmatter `version:`, and `marketplace.json` `plugins[].version` for that
+entry. The top-level `marketplace.json` `version` is a separate "what's new" marker
+(see §5) and tracks the plugin you're shipping; it may legitimately regress.
 
 ---
 
