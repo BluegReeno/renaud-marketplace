@@ -56,6 +56,8 @@ Set `target_profile` to one of the literal strings `"P1"`, `"P2"`, `"P3"`, `"P4"
 
 macOS APFS is case-insensitive; two candidatures with the same name will collide. Re-applying to the same role must not silently fail. Invoke `obsidian-crm` to search `CRM-JobSearch/Opportunites/` for a note matching `entreprise` + `poste`:
 
+**Match semantics** (binding): exact filename `"<Poste> — <Entreprise>.md"` (em-dash with spaces, case-insensitive — APFS-equivalent). Substring or fuzzy matches MUST NOT be treated as hits. If `obsidian-crm` returns >1 result for the exact filename (theoretically impossible but allow for upstream bugs), ASK the user which one — do NOT auto-pick.
+
 - **If found** → use `obsidian-crm`'s `update_frontmatter.py` to refresh `statut`, `source`, `target_profile`, `date_relance` (keep the original `date_candidature` from the existing note). Report to the user that an existing candidature was updated, not created.
 - **If not found** → use `obsidian-crm`'s `create_note.py` with the full payload below.
 
@@ -79,11 +81,24 @@ echo '{
 }' | python ~/.claude/skills/obsidian-crm/scripts/create_note.py
 ```
 
-`target_profile` is NOT in the global `opportunite-js` schema → `create_note.py` will print a non-blocking warning to stderr (per `obsidian-crm/SKILL.md:286`). Accept the warning; do NOT retry without the field. Adding `target_profile` to the global schema is out of scope for this skill — the warning is the agreed-upon escape hatch.
+`target_profile` is NOT in the global `opportunite-js` schema → `create_note.py` will print a non-blocking warning to stderr (per `obsidian-crm/SKILL.md:286`). The agreed contract is:
+
+- **Exit 0 + stderr contains `unknown field 'target_profile'`** → ACCEPT. The candidature was written. Do not retry.
+- **Exit 0 + any OTHER stderr warning** → SURFACE the warning to the user verbatim, then proceed. Do not silently swallow it (a future `obsidian-crm` schema change might surface here first).
+- **Non-zero exit** → FAIL HARD per the rule below. The candidature was NOT written.
+
+Adding `target_profile` to the global schema is out of scope for this skill — the warning is the agreed-upon escape hatch.
+
+**Check Step 3's exit code before proceeding.** `create_note.py` / `update_frontmatter.py` exit 0 on success (including the non-blocking `target_profile` warning above). Any non-zero exit means the candidature was NOT written: report `❌ Échec création candidature — <stderr>` to the user and **DO NOT proceed to Step 4 or fire the Step 5 success report.** This is the AC1 invariant — no half-states, no silent success.
 
 ## Step 4 — Create the relance task
 
-Invoke `obsidian-crm` again to create the 7-day relance `tache`:
+**Idempotency on re-apply**: mirror Step 3's search-before-create. Invoke `obsidian-crm` to search `Taches/` for a `tache` whose `opportunite` wikilink equals `"[[<Poste> — <Entreprise>]]"` AND whose `etiquettes` contains `"jobsearch"` AND whose `etat` is open (`Pas commencée` or `En cours`, NOT `Terminée` / `Annulée`).
+
+- **If found** → use `update_frontmatter.py` to refresh `echeance` to `date_candidature + 7d`. Do NOT create a duplicate. Reuse the existing task — `/briefing` will surface it tomorrow.
+- **If not found** → create the relance `tache` with the payload below.
+
+Invoke `obsidian-crm` to create the 7-day relance `tache`:
 
 ```bash
 echo '{
@@ -100,6 +115,19 @@ echo '{
   "body":"## Résumé\n\nRelance candidature envoyée le <YYYY-MM-DD> (<source>). Vérifier réponse, sinon LinkedIn message au recruteur.\n"
 }' | python ~/.claude/skills/obsidian-crm/scripts/create_note.py
 ```
+
+**Check Step 4's exit code.** If Step 3 succeeded but Step 4 failed (non-zero exit), the vault is in a **half-state**: the candidature exists, the relance task does not, `/briefing` will silently miss the relance. Report explicitly to the user with both recovery paths:
+
+```
+⚠️  Half-state — candidature loguée, relance NON créée.
+    Stderr Step 4 : <stderr>
+    Recovery A    : re-run /log-application (Step 3 idempotency short-circuits to Step 4)
+    Recovery B    : manually create a Taches/ note with
+                    type: tache · etiquettes: ["jobsearch"] · echeance: <YYYY-MM-DD +7d>
+                    · opportunite: "[[<Poste> — <Entreprise>]]"
+```
+
+Do NOT fire Step 5's success report on a half-state — its `/briefing` claim would be a lie, which is the exact AC1 regression Loop 4 closes.
 
 The morning-briefing's Step 1c resolves "relances due today or overdue" against (a) `tache` with `etiquettes` containing `"jobsearch"` and `echeance <= today`, OR (b) `opportunite-js` with `statut: "🔄 Relance à faire"`. Path (a) is the one this skill takes. Path (b) is reserved for the day the user actually starts the relance — out of scope here.
 

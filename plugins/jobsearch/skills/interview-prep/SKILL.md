@@ -34,7 +34,7 @@ Collect (and confirm) the following before doing anything else:
 
 1. **Candidature reference** (required) — free text like "the Relief CTO one" or "Anthropic Applied AI". The skill searches by `entreprise` + `poste` in `CRM-JobSearch/Opportunites/`.
 2. **Interview date** — default: tomorrow. Format `YYYY-MM-DD` for frontmatter; `DD-MM-YYYY` for the filename suffix.
-3. **`type_entretien`** — default `"RH"`. One of `RH` / `Technique` / `Manager` / `Final` (drives the question set in Step 3.5).
+3. **`type_entretien`** — default `"RH"`. One of `RH` / `Technique` / `Manager` / `Final` (drives the question set in Step 3, section 5).
 4. **`interlocuteurs`** — default `["TBD"]`. Free-text list of names.
 
 Do not proceed until the candidature is unambiguously identified.
@@ -61,28 +61,46 @@ These files live in the **plugin source tree**, NOT in the Obsidian vault — th
 
 ```bash
 PLUGIN_DIR=$(python3 - <<'PYEOF'
-import json, os, pathlib, sys, glob as _glob
+import os, pathlib, sys, glob as _glob
+def log(msg): print(msg, file=sys.stderr)
 home = pathlib.Path.home()
 env = os.environ.get('JOBSEARCH_PLUGIN_DIR', '')
-if env and pathlib.Path(env, 'profiles', 'p1_architecte.md').exists():
-    print(env); sys.exit(0)
+if env:
+    if pathlib.Path(env, 'profiles', 'p1_architecte.md').exists():
+        log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} ACCEPTED")
+        print(env); sys.exit(0)
+    log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} REJECTED (no profiles/p1_architecte.md) — falling through")
 cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/profiles/p1_architecte.md'), key=lambda p: p.stat().st_mtime, reverse=True)
     if candidates:
-        print(str(candidates[0].parent.parent)); sys.exit(0)
+        plug = str(candidates[0].parent.parent)
+        log(f"[plugin-dir] marketplace cache ACCEPTED {plug}")
+        print(plug); sys.exit(0)
+    log(f"[plugin-dir] marketplace cache {cache_root} exists but no profiles match — falling through")
+else:
+    log(f"[plugin-dir] marketplace cache {cache_root} missing — falling through")
 for pat in ['/sessions/*/mnt/.remote-plugins/*/profiles/p1_architecte.md']:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
-        print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
+        plug = os.path.dirname(os.path.dirname(matches[0]))
+        log(f"[plugin-dir] Cowork sandbox ACCEPTED {plug}")
+        print(plug); sys.exit(0)
+log("[plugin-dir] Cowork sandbox no match — falling through")
 dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
 if dev.joinpath('profiles', 'p1_architecte.md').exists():
+    log(f"[plugin-dir] dev path ACCEPTED {dev}")
     print(str(dev)); sys.exit(0)
+log(f"[plugin-dir] dev path {dev} no match — no resolver tier matched")
 print('PLUGIN_DIR_NOT_FOUND')
 PYEOF
 )
+if [ -z "$PLUGIN_DIR" ]; then
+  echo "ERROR: PLUGIN_DIR resolver returned empty output. Check 'which python3' — the heredoc may have failed to execute (missing interpreter or shell syntax error)." >&2
+  exit 1
+fi
 if [ "$PLUGIN_DIR" = "PLUGIN_DIR_NOT_FOUND" ]; then
-  echo "ERROR: jobsearch plugin not found. Set JOBSEARCH_PLUGIN_DIR=<path> or install from marketplace."
+  echo "ERROR: jobsearch plugin not found. Set JOBSEARCH_PLUGIN_DIR=<path> or install from marketplace." >&2
   exit 1
 fi
 ```
@@ -101,7 +119,9 @@ Pull from an `entreprise-js` note if `obsidian-crm` finds one linked to `frontma
 
 5 bullets distilled from the offer body, in this rough order: scope, stack, seniority, mission, success criteria.
 
-### 3. Pitch (positionné P<n>)
+### 3. Pitch (P<n>)
+
+(Positioned for the candidature's `target_profile` — the H2 heading written into the entretien note is the literal string `## 3. Pitch (P<n>)`, matching the Step 4 JSON payload and the Step 6 constraint. Do NOT write `## 3. Pitch (positionné P<n>)` — that drifts from the contract.)
 
 A 3-paragraph pitch grounded in the `profiles/p<n>_*.md` file just read in Step 2. The pitch MUST cite concrete proofs from the profile file, quoted (not paraphrased), not generic claims. Examples of load-bearing claims by profile:
 
