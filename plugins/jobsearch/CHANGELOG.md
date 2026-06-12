@@ -1,5 +1,17 @@
 # jobsearch — Changelog
 
+## [0.4.1] — 2026-06-12
+
+### Fixed (cv-generator — FR quality pass on the P4 Customer Success / Solutions Engineer CV)
+- **Open Ocean FR job titles** (p2/p4/p5): "Co-Fondateur & Directeur Général" → "Directeur Technique & Co-Fondateur" — leads with the technical/functional role, founder status second.
+- **Blue Green FR title** (p2): "AI Lead" → "Responsable Solutions IA — Consultant" (was an untranslated English label).
+- **Container titles** — removed residual English from the FR side across cells: P4×T5 (`Ingénierie IA terrain`, `Succès & adoption client`, `Secteurs d'expertise`), plus p2×t1, p2×t3, p2×t4, p2×t5, p3×t1, p3×t5 (`Leadership`/`Scale-up`/`hands-on` calques reworded).
+- **P4×T5 competency items** rewritten as transferable skills, not tasks: `Conduite du changement & formation IA`, `Gestion multi-niveaux (C-level → ops)`, `Vente de solution complexe B2B`.
+- **P4×T5 `about` + title** de-anglicised: title → "Solutions Engineer IA — Déploiement GenAI en environnement industriel"; the three FR sentences reworded from English calques into natural French.
+- **P4 experience bullets** cleaned of franglais (`discovery`/`delivery`/`workflows`/`cross-fonctionnelle`/`data marines` → French), keeping the +15% YoY retention/expansion proof.
+- **`generate_cv.py`**: FR periods now render "Aujourd'hui" instead of "Present".
+- cv-generator skill bumped 0.2.0 → 0.2.1.
+
 ## [0.4.0] — 2026-06-12
 
 ### Added

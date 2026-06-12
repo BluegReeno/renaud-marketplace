@@ -128,6 +128,8 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
         job = experiences[job_key]
         title = job['titles'][profile][lang]
         period = job['period']
+        if lang == 'fr':
+            period = period.replace('Present', "Aujourd'hui")
         company_str = f"{job['company']} — {job['location']}"
         bullets = job['bullets'][profile][lang]
 

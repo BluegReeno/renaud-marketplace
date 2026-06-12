@@ -18,6 +18,8 @@ Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels 
 
 ## Done (current sprint)
 
+- [x] **cv-generator FR quality pass (jobsearch 0.4.1 / cv-generator 0.2.1)** — applied Renaud's P4 (Customer Success / Solutions Engineer) feedback: de-anglicised FR titles (Open Ocean p2/p4/p5 → "Directeur Technique & Co-Fondateur", Blue Green p2 → "Responsable Solutions IA — Consultant"), container titles across P4×T5 + 6 p2/p3 cells, P4×T5 `about`/items reworded as skills-not-tasks, P4 bullets cleaned of franglais (discovery/delivery/workflows/data marines), `generate_cv.py` renders "Aujourd'hui" not "Present" in FR. CSM competencies researched + woven in (adoption, multi-level relationship, +15% retention proof). P4×T5 FR CV re-rendered live, 1 page, zero franglais. Umbrella version 0.4.0→0.4.1 (4-field sync). — 2026-06-12
+
 - [x] **`jobsearch-vault` skill** (all 5 phases) — filesystem-only skill (5 JS note types, REST backend stripped) + 3 consumers re-pointed (Option A) + versions bumped (jobsearch 0.4.0, briefing 0.2.0, marketplace top-level 0.4.0, 4-field sync) + CHANGELOGs. Schema self-test 30/30; AC1/AC2/AC3 re-validated live vs the real vault (Anthropic P1 + Yotta P4 intact); `obsidian-crm` untouched. Committed direct to main `3a2b138` — 2026-06-12
 
 - [x] Loop 4 — jobsearch v0.3.0 (`log-application` + `interview-prep`) — composition via `obsidian-crm`, P1–P5 reused, 5-section interview contract, idempotent relance; **AC1/AC2/AC3 smoke-tested live** + 4 findings fixed — PR #3 merged — 2026-06-12
