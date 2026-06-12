@@ -364,7 +364,7 @@
           ],
           "fr": [
             {
-              "title": "Leadership IA hands-on",
+              "title": "Leadership IA opérationnel",
               "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Automatisation de workflows"]
             },
             {
@@ -372,7 +372,7 @@
               "items": ["Direction équipe R&D (12 pers.)", "Delivery produit agile", "Scale-up labo → industriel", "Relations investisseurs & levée de fonds"]
             },
             {
-              "title": "Scale-up industriel",
+              "title": "Croissance industrielle",
               "items": ["Énergies renouvelables (15+ ans)", "Opérations scale-up", "Ingénierie & Infrastructure"]
             }
           ]
@@ -420,7 +420,7 @@
               "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Formation & sensibilisation à l'IA"]
             },
             {
-              "title": "Leadership équipe & P&L",
+              "title": "Direction équipe & P&L",
               "items": ["Leadership d'équipe (12 pers.)", "Responsabilité P&L complète", "Vente grands comptes", "Négociations C-level"]
             },
             {
@@ -472,7 +472,7 @@
               "items": ["LLMs, RAG, Agents IA", "Automatisation de processus", "Automatisation de workflows"]
             },
             {
-              "title": "Leadership de transformation",
+              "title": "Conduite de la transformation",
               "items": ["Management transverse", "Engagement clients & parties prenantes", "Responsabilité P&L complète", "Formation & sensibilisation à l'IA"]
             },
             {
@@ -524,11 +524,11 @@
               "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Évaluation IA & Observabilité"]
             },
             {
-              "title": "Leadership transverse",
+              "title": "Management transverse",
               "items": ["Direction équipe R&D (12 pers.)", "Delivery produit agile", "Management transverse"]
             },
             {
-              "title": "SaaS B2B & verticales",
+              "title": "SaaS B2B & secteurs",
               "items": ["Opérations scale-up", "Intelligence données marines", "Énergies renouvelables (15+ ans)"]
             }
           ]
@@ -578,7 +578,7 @@
               "items": ["Architecture produit", "Stack IA/ML (LLMs, RAG)", "Systèmes backend & cloud", "Automatisation de processus"]
             },
             {
-              "title": "Leadership scale-up",
+              "title": "Leadership & croissance",
               "items": ["Direction équipe R&D (12 pers.)", "Relations investisseurs & levée de fonds", "Scale-up labo → industriel", "Responsabilité P&L complète"]
             },
             {
@@ -630,11 +630,11 @@
               "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Systèmes backend & cloud", "Serveurs MCP"]
             },
             {
-              "title": "Levée & Scale",
+              "title": "Levée de fonds & croissance",
               "items": ["Relations investisseurs & levée de fonds", "Scale-up labo → industriel", "Direction équipe R&D (12 pers.)"]
             },
             {
-              "title": "SaaS B2B",
+              "title": "SaaS B2B industriel",
               "items": ["Opérations scale-up", "Vente grands comptes", "Intelligence données marines"]
             }
           ]
@@ -701,7 +701,7 @@
       "t5": {
         "title": {
           "en": "AI Solutions Engineer — Enterprise GenAI Adoption",
-          "fr": "Solutions Engineer IA — Adoption GenAI enterprise"
+          "fr": "Solutions Engineer IA — Déploiement GenAI en environnement industriel"
         },
         "about": {
           "en": [
@@ -710,9 +710,9 @@
             "15+ years of enterprise empathy from the customer side (energy, engineering)."
           ],
           "fr": [
-            "Construit des systèmes en production sur les API de modèles IA (multi-agents, RAG, MCP).",
-            "Mène le cycle client complet : discovery, démo, POC, production.",
-            "15+ ans d'empathie enterprise, côté client (énergie, ingénierie)."
+            "Conçoit et déploie des systèmes IA en production sur les API frontier (multi-agents, RAG, MCP).",
+            "Pilote le cycle client de bout en bout : qualification, démo, POC, mise en production.",
+            "15 ans en position client dans l'énergie et l'ingénierie industrielle — il connaît le problème de l'intérieur."
           ]
         },
         "containers": {
@@ -732,15 +732,15 @@
           ],
           "fr": [
             {
-              "title": "Forward Deployed Engineering",
+              "title": "Ingénierie IA terrain",
               "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Évaluation IA & Observabilité"]
             },
             {
-              "title": "Customer Success & Adoption",
-              "items": ["Onboarding & adoption client", "Engagement clients & parties prenantes", "Vente grands comptes"]
+              "title": "Succès & adoption client",
+              "items": ["Conduite du changement & formation IA", "Gestion multi-niveaux (C-level → ops)", "Vente de solution complexe B2B"]
             },
             {
-              "title": "Verticales enterprise",
+              "title": "Secteurs d'expertise",
               "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Tech climatique & développement durable"]
             }
           ]
@@ -866,7 +866,7 @@
       "period": "2023 – Present",
       "titles": {
         "p1": {"en": "AI Solutions Architect", "fr": "Architecte Solutions IA"},
-        "p2": {"en": "AI Lead", "fr": "AI Lead"},
+        "p2": {"en": "AI Lead", "fr": "Responsable Solutions IA — Consultant"},
         "p3": {"en": "AI & Technology Director", "fr": "Directeur IA & Technologie"},
         "p4": {"en": "AI Solutions Engineer", "fr": "Solutions Engineer IA"},
         "p5": {"en": "AI Business Developer", "fr": "Business Developer IA"}
@@ -915,9 +915,9 @@
             "Conducted AI awareness workshops and onboarded client teams to autonomous use"
           ],
           "fr": [
-            "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : discovery, intégration, mise en production",
-            "Construit des systèmes RAG et agents IA adaptés aux workflows clients (analyse d'AO éolien offshore, automatisation urbanisme)",
-            "Animé des ateliers de sensibilisation à l'IA et accompagné l'autonomisation des équipes clients"
+            "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : qualification du besoin, intégration, mise en production",
+            "Construit des systèmes RAG et agents IA adaptés aux processus métier des clients (analyse d'AO éolien offshore, automatisation urbanisme)",
+            "Animé des ateliers de sensibilisation à l'IA et accompagné les équipes clients vers une utilisation autonome"
           ]
         },
         "p5": {
@@ -990,8 +990,8 @@
           ],
           "fr": [
             "Déployé des services de données éolien offshore avec de grands développeurs européens (DCNS, SBM Offshore, RTE)",
-            "Géré un portefeuille clients avec +15% de croissance — discovery, propale, delivery, adoption",
-            "Facilité la collaboration cross-fonctionnelle entre équipes ingénierie et opérations clients"
+            "Géré un portefeuille clients avec +15% de croissance — qualification, propale, livraison, adoption",
+            "Facilité la collaboration transverse entre équipes ingénierie et opérations clients"
           ]
         },
         "p5": {
@@ -1014,10 +1014,10 @@
       "period": "2011 – 2019",
       "titles": {
         "p1": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
-        "p2": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"},
+        "p2": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"},
         "p3": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
-        "p4": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"},
-        "p5": {"en": "Co-Founder & Managing Director", "fr": "Co-Fondateur & Directeur Général"}
+        "p4": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"},
+        "p5": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"}
       },
       "bullets": {
         "p1": {
@@ -1063,8 +1063,8 @@
             "Raised €2M — successful exit through acquisition by Artelia (2019)"
           ],
           "fr": [
-            "Déployé le SaaS data marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
-            "Porté 100% du delivery client : discovery, propale, implémentation, adoption",
+            "Déployé le SaaS de données marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
+            "Porté 100% du cycle client : qualification, propale, implémentation, adoption",
             "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
           ]
         },
