@@ -4,18 +4,19 @@ Last updated: 2026-06-12
 
 ## Current Focus
 
-**➡️ LastDev Loop 4 — jobsearch systematization** (même repo, dernière boucle). `log-application` (annonce + source → note Obsidian + tâche de suivi) et `interview-prep` (structure fixe, câblée aux 5 profils CV). Le briefing *lit* ce que Loop 4 *écrit*. Brief : `../hal/docs/features/loop-4-jobsearch-systematization.md`. hal-mcp **gelé v38**. **Deadline dim. 2026-06-14 → la chaîne LastDev STOPPE.**
+**🏁 LastDev chain COMPLETE — development STOPS here.** All 4 loops shipped (backend frozen since Loop 1 at hal-mcp v38; skills done with Loop 4). Any new idea goes to the backlog and is weighed against the stopping rule: does it directly produce a job interview or Blue Green revenue? If not, it waits.
 
-Loop 3 livré : nouveau plugin `briefing` v0.1.0 (skill `morning-briefing`) mergé via PR #2. Agrège read-only tâches hal (`blue-green` + `renaud`) + jobsearch Obsidian + 3 calendriers Google, échecs bruyants (AC3). Décisions terrain-prep respectées (repo, host plugin, hal-mcp dédup).
+jobsearch v0.3.0 ships `log-application` + `interview-prep` (PR #3 merged). AC1/AC2/AC3 validated **live against the real Obsidian vault** (2 real applications logged: Anthropic P1, Yotta P4 — both kept). The live run found + fixed 4 real defects the static review missed (relance surfaces on its due date not "tomorrow"; lien_offre omitted when empty; idempotency enum corrected; entretien categorie/interlocuteurs warnings documented).
 
 Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels Gmail API si encore en stub.
 
 ## In Progress
 
-- [ ] LastDev Loop 4 — `log-application` + `interview-prep` skills
+(nothing — LastDev chain stopped)
 
 ## Done (current sprint)
 
+- [x] Loop 4 — jobsearch v0.3.0 (`log-application` + `interview-prep`) — composition via `obsidian-crm`, P1–P5 reused, 5-section interview contract, idempotent relance; **AC1/AC2/AC3 smoke-tested live** + 4 findings fixed — PR #3 merged — 2026-06-12
 - [x] Loop 3 — plugin `briefing` v0.1.0 (skill `morning-briefing`) — read-only daily dashboard (3 calendriers + hal tasks business/perso + Obsidian jobsearch), AC3 loud-failure, hal-mcp dedup — PR #2 merged — 2026-06-12
 
 - [x] cv-generator v0.1.0 — 30/30 CVs validated (1 page each) — 2026-06-03
