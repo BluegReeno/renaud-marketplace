@@ -101,7 +101,7 @@ renaud-marketplace/
 
 **Out of Scope** (future plugins):
 - [ ] notion-jobsearch plugin
-- [ ] morning-briefing plugin
+- [x] morning-briefing plugin — shipped 2026-06-12 as `briefing` v0.1.0
 
 ---
 
@@ -133,7 +133,7 @@ Claude:
 
 ### Phase 2: Future plugins
 - [ ] notion-jobsearch
-- [ ] morning-briefing (if migrated from personal setup)
+- [x] morning-briefing — shipped 2026-06-12 as `briefing` v0.1.0 (read-only daily dashboard)
 
 ---
 

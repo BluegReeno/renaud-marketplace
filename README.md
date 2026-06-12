@@ -1,6 +1,6 @@
 # renaud-marketplace
 
-Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, and job search tools.
+Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, job search, and daily briefing tools.
 
 ---
 
@@ -9,18 +9,23 @@ Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail
 **Cowork détecte les mises à jour exclusivement par numéro de version.**
 Sans bump de version, les utilisateurs installés ne reçoivent jamais le fix.
 
-### Les 4 fichiers à garder en sync
+### Les 3 champs à garder en sync (par plugin)
 
-Pour chaque plugin, **ces 4 fichiers doivent avoir exactement le même numéro de version** :
+Pour **chaque plugin**, ces 3 champs doivent être identiques :
 
-| Fichier | Champ | Exemple |
-|---------|-------|---------|
-| `.claude-plugin/marketplace.json` | `version` (top-level) | `"0.2.0"` |
-| `.claude-plugin/marketplace.json` | `plugins[].version` | `"0.2.0"` |
-| `plugins/<plugin>/.claude-plugin/plugin.json` | `version` | `"0.2.0"` |
-| `plugins/<plugin>/skills/<skill>/SKILL.md` | `version:` frontmatter | `0.2.0` |
+| Fichier | Champ | Exemple (`briefing`) |
+|---------|-------|----------------------|
+| `.claude-plugin/marketplace.json` | `plugins[].version` (entrée du plugin) | `"0.1.0"` |
+| `plugins/<plugin>/.claude-plugin/plugin.json` | `version` | `"0.1.0"` |
+| `plugins/<plugin>/skills/<skill>/SKILL.md` | `version:` frontmatter | `0.1.0` |
 
 Si un seul dérive → Cowork ne détecte plus les mises à jour ou refuse l'installation.
+
+### Top-level `marketplace.json` `version` — marqueur "what's new"
+
+Le `version` **top-level** de `.claude-plugin/marketplace.json` suit le plugin **le plus récemment publié** dans le repo. Ce n'est pas un champ synchronisé repo-wide : il sert de marqueur "what's new" pour signaler au marketplace qu'il y a eu une release.
+
+Conséquence attendue : quand on publie un nouveau plugin avec une version plus basse (ex. `briefing 0.1.0` après `jobsearch 0.2.0`), le top-level redescend à `0.1.0`. Ce n'est pas une drift à corriger.
 
 ### Quand bumper
 
@@ -36,13 +41,15 @@ Il NE force PAS un bump du plugin — sauf si l'interface MCP change.
 ### Checklist avant chaque commit
 
 ```
-□ Ai-je modifié scripts/, templates/, data/, ou SKILL.md ?
-  → Oui : bump PATCH dans les 4 fichiers ci-dessus
+□ Ai-je modifié scripts/, templates/, data/, ou SKILL.md d'un plugin ?
+  → Oui : bump PATCH dans les 3 champs du plugin concerné
 □ Ai-je ajouté un outil ou changé le comportement visible ?
-  → Oui : bump MINOR dans les 4 fichiers ci-dessus
-□ Les 4 versions sont-elles identiques ?
-  → grep -E '"version"' .claude-plugin/marketplace.json plugins/*/.*plugin/plugin.json
-  → grep "^version:" plugins/*/skills/*/SKILL.md
+  → Oui : bump MINOR dans les 3 champs du plugin concerné
+□ Les 3 versions du plugin sont-elles identiques ?
+  → grep -E '"version"' .claude-plugin/marketplace.json plugins/<plugin>/.claude-plugin/plugin.json
+  → grep "^version:" plugins/<plugin>/skills/*/SKILL.md
+□ Si c'est une release : ai-je aussi mis à jour le `version` top-level de marketplace.json
+  pour refléter le plugin qu'on vient de publier ?
 ```
 
 ---
@@ -52,18 +59,28 @@ Il NE force PAS un bump du plugin — sauf si l'interface MCP change.
 ```
 renaud-marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json          ← point d'entrée Cowork (VERSION ICI)
+│   └── marketplace.json          ← point d'entrée Cowork (top-level version = plugin le plus récemment publié)
 ├── plugins/
-│   └── jobsearch/                ← plugin umbrella job search
+│   ├── jobsearch/                ← plugin umbrella job search
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json       ← (VERSION ICI)
+│   │   ├── .mcp.json             ← déclaration serveur MCP (url + version MCP)
+│   │   ├── skills/
+│   │   │   └── cv-generator/
+│   │   │       └── SKILL.md      ← (VERSION ICI dans le frontmatter)
+│   │   ├── scripts/              ← Python — generate_cv.py, batch_validate.py
+│   │   ├── data/                 ← cv-master.json
+│   │   ├── templates/            ← cv_template.html
+│   │   └── CHANGELOG.md
+│   └── briefing/                 ← plugin briefing quotidien (read-only)
 │       ├── .claude-plugin/
 │       │   └── plugin.json       ← (VERSION ICI)
-│       ├── .mcp.json             ← déclaration serveur MCP (url + version MCP)
+│       ├── .mcp.json             ← hal-mcp dédupliqué avec bluegreen-marketplace/plugins/hal
 │       ├── skills/
-│       │   └── cv-generator/
+│       │   └── morning-briefing/
 │       │       └── SKILL.md      ← (VERSION ICI dans le frontmatter)
-│       ├── scripts/              ← Python — generate_cv.py, batch_validate.py
-│       ├── data/                 ← cv-master.json
-│       ├── templates/            ← cv_template.html
+│       ├── commands/
+│       │   └── briefing.md       ← slash command de déclenchement
 │       └── CHANGELOG.md
 ├── servers/
 │   └── gmail-mcp/               ← Supabase Edge Function (Deno/TypeScript)
@@ -82,7 +99,7 @@ renaud-marketplace/
 
 ```
 plugins/<plugin>/
-├── .claude-plugin/plugin.json   ← name + version (= marketplace.json)
+├── .claude-plugin/plugin.json   ← name + version (= entrée plugins[] de marketplace.json)
 ├── .mcp.json                    ← { "mcpServers": { "<name>": { "type":"http", "url":"...", "version":"..." } } }
 ├── skills/<skill>/SKILL.md      ← frontmatter: name, version, description
 └── scripts/                     ← invoqués par SKILL.md via uv run --with
@@ -111,15 +128,17 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
 | `jobsearch` | 0.2.0 | `cv-generator` | `gmail-mcp` | CV génération + accès Gmail |
+| `briefing` | 0.1.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + Obsidian jobsearch) |
 
 ---
 
 ## Install
 
-Dépôt public — pas de token requis. Ajouter le marketplace puis installer le plugin :
+Dépôt public — pas de token requis. Ajouter le marketplace puis installer les plugins voulus :
 
 ```bash
 /plugin marketplace add BluegReeno/renaud-marketplace jobsearch
+/plugin marketplace add BluegReeno/renaud-marketplace briefing
 ```
 
 ---
