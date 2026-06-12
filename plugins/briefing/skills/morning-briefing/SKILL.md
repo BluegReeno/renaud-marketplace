@@ -118,6 +118,7 @@ The "Source status" footer is mandatory and ALWAYS renders all three lines — e
 
 - **READ-ONLY everywhere.** Never call any `create_*`, `update_*`, or `delete_*` MCP tool — neither hal nor calendar. The `allowed-tools` frontmatter excludes them; do not work around it.
 - **Never silently omit a source.** Any probe failure in Step 0 MUST render as a `⚠️ <source> DOWN — <reason>` line in the corresponding section AND in the source-status footer.
+- **Failures after a passing probe count too.** If any Step 1 tool call throws or returns an error (e.g. `list_sprints` for one workspace, `list_events` for one calendar, an `obsidian-crm` sub-query), that section MUST render `⚠️ <source> DOWN — <reason>` and the footer line for that source MUST flip from `✅` to `⚠️ DOWN (<reason>)` — even if other calls to the same backend succeeded. When only a sub-source fails (one calendar of three, one workspace of two), render the healthy data and add a `⚠️ <sub-source> DOWN — <reason>` line for the failed one.
 - **Label every hal task.** `[business]` for `blue-green`, `[perso]` for `renaud`, every time.
 - **Local time.** All calendar windows are Europe/Paris, not UTC.
 - **Compose, do not reimplement.** This skill calls `obsidian-crm` and hal-mcp / calendar MCP tools. It never reads the Obsidian filesystem directly, never bypasses hal-mcp, never writes to any backend.
