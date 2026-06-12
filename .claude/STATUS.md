@@ -4,7 +4,7 @@ Last updated: 2026-06-12
 
 ## Current Focus
 
-**➡️ Next sprint (starts Mon 2026-06-15): `jobsearch-vault` skill.** Carve the job-search vault I/O out of the global `obsidian-crm` into a self-contained, filesystem-only skill in `plugins/jobsearch`, then re-point `log-application` + `interview-prep` + `morning-briefing` to it (Option A — invoke via `Skill` tool, no path resolver). Allowed under the stopping rule (skill evolution serving job search; backend stays frozen v38). **Brief (implementation-ready): [`.claude/tasks/jobsearch-vault-skill.md`](tasks/jobsearch-vault-skill.md).**
+**✅ `jobsearch-vault` skill built + 3 consumers re-pointed (Phases 1-4 done, verified live).** Job-search vault I/O is now owned by renaud-marketplace: self-contained, **filesystem-only** (no network, no API key), 5 JS note types, carved out of the global `obsidian-crm` (which is left byte-for-byte unchanged as legacy/fallback). `log-application` + `interview-prep` + `morning-briefing` re-pointed via Option A (`Skill(jobsearch-vault)`, no path resolver for vault I/O). Versions bumped (jobsearch 0.4.0, briefing 0.2.0, 4-field sync OK). AC1/AC2/AC3 re-validated **live against the real vault**. **Remaining: Phase 5 — commit + PR + merge (awaiting go).** Brief: [`.claude/tasks/jobsearch-vault-skill.md`](tasks/jobsearch-vault-skill.md).
 
 **🏁 LastDev chain COMPLETE.** All 4 loops shipped (backend frozen since Loop 1 at hal-mcp v38; skills done with Loop 4). New ideas weigh against the stopping rule: does it directly produce a job interview or Blue Green revenue? Confirmed split: **Blue Green CRM → `/hal`** (hal cloud) · **Job Search CRM → Obsidian vault** (soon via `jobsearch-vault`).
 
@@ -14,9 +14,11 @@ Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels 
 
 ## In Progress
 
-- [ ] **`jobsearch-vault` skill** (next sprint) — build (filesystem-only, 5 JS note types) → re-point 3 consumers (Option A) → bump jobsearch 0.3.0→0.4.0 + briefing 0.1.0→0.2.0 → re-run Loop 4 AC1-3 smoke. Brief: `.claude/tasks/jobsearch-vault-skill.md`.
+- [ ] **`jobsearch-vault` Phase 5** — commit + PR + merge (Phases 1-4 done; awaiting user go on the outward-facing steps).
 
 ## Done (current sprint)
+
+- [x] **`jobsearch-vault` skill** Phases 1-4 — filesystem-only skill (5 JS note types, REST backend stripped) + 3 consumers re-pointed (Option A) + versions bumped (jobsearch 0.4.0, briefing 0.2.0, marketplace top-level 0.4.0, 4-field sync) + CHANGELOGs. Schema self-test 30/30; AC1/AC2/AC3 re-validated live vs the real vault (Anthropic P1 + Yotta P4 intact); `obsidian-crm` untouched — 2026-06-12
 
 - [x] Loop 4 — jobsearch v0.3.0 (`log-application` + `interview-prep`) — composition via `obsidian-crm`, P1–P5 reused, 5-section interview contract, idempotent relance; **AC1/AC2/AC3 smoke-tested live** + 4 findings fixed — PR #3 merged — 2026-06-12
 - [x] Loop 3 — plugin `briefing` v0.1.0 (skill `morning-briefing`) — read-only daily dashboard (3 calendriers + hal tasks business/perso + Obsidian jobsearch), AC3 loud-failure, hal-mcp dedup — PR #2 merged — 2026-06-12
