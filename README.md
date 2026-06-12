@@ -1,6 +1,6 @@
 # renaud-marketplace
 
-Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, job search, and daily briefing tools.
+Public Claude Code skill marketplace for Renaud Laborbe — CV generation, Gmail MCP, job-search vault I/O, and daily briefing tools.
 
 ---
 
@@ -68,7 +68,8 @@ renaud-marketplace/
 │   │   ├── skills/
 │   │   │   ├── cv-generator/SKILL.md       ← (VERSION ICI dans le frontmatter)
 │   │   │   ├── log-application/SKILL.md    ← (VERSION ICI dans le frontmatter)
-│   │   │   └── interview-prep/SKILL.md     ← (VERSION ICI dans le frontmatter)
+│   │   │   ├── interview-prep/SKILL.md     ← (VERSION ICI dans le frontmatter)
+│   │   │   └── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (lib partagée)
 │   │   ├── commands/             ← slash commands (/log-application, /interview-prep)
 │   │   │   ├── log-application.md
 │   │   │   └── interview-prep.md
@@ -132,8 +133,8 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.3.0 | `cv-generator`, `log-application`, `interview-prep` | `gmail-mcp` | CV génération, log candidature (note + relance), prep d'entretien (5 sections), accès Gmail |
-| `briefing` | 0.1.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + Obsidian jobsearch) |
+| `jobsearch` | 0.4.0 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.2.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + jobsearch-vault) |
 
 ---
 
