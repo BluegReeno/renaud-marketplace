@@ -10,8 +10,8 @@ description: >
   every interview presents one coherent profile. Use when the user says
   "prépare l'entretien", "interview prep", "préparation entretien", "je passe un
   entretien avec", "prep <company>", "interview avec".
-version: 0.3.0
-allowed-tools: "Skill(obsidian-crm) Read"
+version: 0.4.0
+allowed-tools: "Skill(jobsearch-vault) Read"
 ---
 
 # Interview Prep — Skill Instructions
@@ -26,7 +26,7 @@ Given a candidature (resolved by company name + role title, or a free-text refer
 4. **Cas du parcours pertinents**
 5. **Questions probables de l'interlocuteur**
 
-The Pitch section is grounded in the matching `profiles/p<n>_*.md` narrative file — concrete proofs, not generic claims. All vault I/O goes through the global `obsidian-crm` skill; the profile narrative files (which live in this plugin's source tree, NOT in the Obsidian vault) are read with the standard `Read` tool.
+The Pitch section is grounded in the matching `profiles/p<n>_*.md` narrative file — concrete proofs, not generic claims. All vault I/O goes through the `jobsearch-vault` skill; the profile narrative files (which live in this plugin's source tree, NOT in the Obsidian vault) are read with the standard `Read` tool.
 
 ## Step 0 — Inputs you need from the user
 
@@ -39,9 +39,9 @@ Collect (and confirm) the following before doing anything else:
 
 Do not proceed until the candidature is unambiguously identified.
 
-## Step 1 — Locate the candidature (via `obsidian-crm`)
+## Step 1 — Locate the candidature (via `jobsearch-vault`)
 
-Invoke `obsidian-crm` to search `CRM-JobSearch/Opportunites/` by `entreprise` + `poste` text match, then read the matching note. Capture:
+Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise` + `poste` text match, then read the matching note. Capture:
 
 - `frontmatter.target_profile` — one of `"P1"` / `"P2"` / `"P3"` / `"P4"` / `"P5"`.
 - `frontmatter.entreprise` — the company wikilink.
@@ -49,7 +49,7 @@ Invoke `obsidian-crm` to search `CRM-JobSearch/Opportunites/` by `entreprise` + 
 - `frontmatter.source` — for context.
 - `body` — the pasted offer (used for the JD summary in section 2).
 
-**If `target_profile` is missing** (legacy candidature filed before `log-application` existed): ASK the user which P1–P5 to use. Show the P1–P5 short labels (Architect / Lead / CTO / CS-FDE / Sales). DO NOT silently default. Once chosen, optionally invoke `obsidian-crm`'s `update_frontmatter.py` to persist the answer back onto the candidature so the next prep finds it.
+**If `target_profile` is missing** (legacy candidature filed before `log-application` existed): ASK the user which P1–P5 to use. Show the P1–P5 short labels (Architect / Lead / CTO / CS-FDE / Sales). DO NOT silently default. Once chosen, optionally ask `jobsearch-vault` to update the candidature (`update_frontmatter`) to persist the answer back onto the candidature so the next prep finds it.
 
 **If the candidature does not exist** (search returns nothing): return a clear error pointing the user at `/log-application` first. Do NOT create the `entretien` note with a broken wikilink — that pollutes the vault.
 
@@ -57,7 +57,7 @@ Invoke `obsidian-crm` to search `CRM-JobSearch/Opportunites/` by `entreprise` + 
 
 Read the file `profiles/p<n>_*.md` from this plugin's source tree, where `<n>` is the digit from `target_profile` (e.g. `P3` → `profiles/p3_cto.md`).
 
-These files live in the **plugin source tree**, NOT in the Obsidian vault — that is why `Read` is allow-listed alongside `Skill(obsidian-crm)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (dev workstation, marketplace cache, Cowork sandbox):
+These files live in the **plugin source tree**, NOT in the Obsidian vault — that is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (dev workstation, marketplace cache, Cowork sandbox):
 
 ```bash
 PLUGIN_DIR=$(python3 - <<'PYEOF'
@@ -113,7 +113,7 @@ The body of the `entretien` note MUST contain these five H2 headings, in this ex
 
 ### 1. Société
 
-Pull from an `entreprise-js` note if `obsidian-crm` finds one linked to `frontmatter.entreprise`; otherwise summarize from the offer body. 3–5 bullets max: what they do, size/stage, why this role exists now, anything from the offer that signals culture.
+Pull from an `entreprise-js` note if `jobsearch-vault` finds one linked to `frontmatter.entreprise`; otherwise summarize from the offer body. 3–5 bullets max: what they do, size/stage, why this role exists now, anything from the offer that signals culture.
 
 ### 2. Résumé de la job description
 
@@ -145,12 +145,12 @@ If the profile file lists a Solopreneur neutralisation section, apply it: name e
 
 For each question, a 1-line answer hook (the bullet point to anchor the answer in — usually a concrete proof from a case).
 
-## Step 4 — Create the `entretien` note (via `obsidian-crm`)
+## Step 4 — Create the `entretien` note (via `jobsearch-vault`)
 
-Invoke `obsidian-crm`'s `create_note.py` with the JSON payload below. Naming: `Prep {Entreprise} — {Interlocuteurs join " "} — {DD-MM-YYYY}.md` (per `~/.claude/skills/obsidian-crm/references/schemas.md:76`, with em-dash separators):
+Invoke `jobsearch-vault` and ask it to **create a note** with exactly this structured request (it runs `create_note.py` internally). Naming: `Prep {Entreprise} — {Interlocuteurs join " "} — {DD-MM-YYYY}.md`, with em-dash separators (` — `, spaces around the em-dash):
 
-```bash
-echo '{
+```json
+{
   "name":"Prep <Entreprise> — <Interlocuteurs or TBD> — <DD-MM-YYYY>",
   "type":"entretien",
   "folder":"CRM-JobSearch/Entretiens",
@@ -161,13 +161,13 @@ echo '{
     "interlocuteurs":["<name-or-TBD>"],
     "type_entretien":"<RH|Technique|Manager|Final>"
   },
-  "body":"## 1. Société\n\n<...>\n\n## 2. Résumé de la job description\n\n<...>\n\n## 3. Pitch (P<n>)\n\n<...>\n\n## 4. Cas du parcours pertinents\n\n<...>\n\n## 5. Questions probables de l'\''interlocuteur\n\n<...>\n"
-}' | python ~/.claude/skills/obsidian-crm/scripts/create_note.py
+  "body":"## 1. Société\n\n<...>\n\n## 2. Résumé de la job description\n\n<...>\n\n## 3. Pitch (P<n>)\n\n<...>\n\n## 4. Cas du parcours pertinents\n\n<...>\n\n## 5. Questions probables de l'interlocuteur\n\n<...>\n"
+}
 ```
 
 The `entretien` note does NOT carry its own `target_profile` field — the profile is read transitively via `opportunite` → candidature → `target_profile`. Avoids duplicating state.
 
-**Expected non-blocking warnings.** `create_note.py` prints `unknown field "categorie"` and `unknown field "interlocuteurs"` to stderr. Both fields ARE documented for `entretien` in `obsidian-crm/references/schemas.md`, but the runtime validator (`note_schemas.py`) lags that doc — so the values are still written to frontmatter correctly. Treat these exactly like log-application's `target_profile` warning: **exit 0 + these two warnings → ACCEPT, do not retry.** Any OTHER stderr warning → surface it verbatim, then proceed. **Non-zero exit** → the note was NOT written: report `❌ Échec création prep — <stderr>` and do not fire the Step 5 success report. (Root cause is an `obsidian-crm` doc↔validator drift — out of scope for this skill.)
+**Result contract.** `jobsearch-vault`'s bundled `note_schemas` natively accepts `categorie` and `interlocuteurs`, so a fully-specified `entretien` create produces **zero** validation warnings. The rule is simply: **exit 0 → ACCEPT** (the note was written); **non-zero exit → the note was NOT written**: report `❌ Échec création prep — <stderr>` and do not fire the Step 5 success report. If any unexpected stderr warning does appear, surface it verbatim, then proceed.
 
 ## Step 5 — Report to the user (in French)
 
@@ -187,7 +187,7 @@ Render a concise summary, in French:
 - **Pitch MUST be profile-positioned.** Cite concrete proofs from `profiles/p<n>_*.md`. A pitch that doesn't quote the profile file is a failure — it means the skill regressed to free-form prep, which is exactly the bug Loop 4 closes.
 - **`target_profile` missing → ASK.** Never silently pick a profile. (Step 1.)
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
-- **All vault writes via `obsidian-crm`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content.
-- **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash, matching `~/.claude/skills/obsidian-crm/references/schemas.md:76` exactly. Hyphens or `--` will not match the schema's expected filename pattern.
+- **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content.
+- **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.
 - **`categorie` is `"Préparation"`** (verbatim, with accent). The other valid value is `"Compte-rendu"` for debriefs — out of scope for this skill.
 - **Compose, do not reimplement.** This skill is orchestration: locate, read, classify, compose, call. It does not re-implement vault writes or profile-narrative logic.

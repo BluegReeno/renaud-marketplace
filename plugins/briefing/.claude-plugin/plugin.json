@@ -1,6 +1,6 @@
 {
   "name": "briefing",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Morning briefing — one read-only daily dashboard merging hal tasks (business + perso), Obsidian jobsearch, and 3 Google Calendars",
   "author": {
     "name": "Renaud Laborbe",

@@ -2,7 +2,7 @@
 name: log-application
 description: >
   Log a job application end-to-end: classify the pasted offer against the P1–P5
-  profile taxonomy from `cv-generator`, then compose the global `obsidian-crm`
+  profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault`
   skill to create (or update) one `opportunite-js` candidature note with all
   fixed fields (`entreprise`, `statut`, `source`, `target_profile`,
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and one
@@ -11,15 +11,15 @@ description: >
   Use when the user says "log
   application", "j'ai postulé", "candidature envoyée", "je viens de candidater",
   "track application", "log apply", or pastes a job offer with intent to file it.
-version: 0.3.0
-allowed-tools: "Skill(obsidian-crm)"
+version: 0.4.0
+allowed-tools: "Skill(jobsearch-vault)"
 ---
 
 # Log Application — Skill Instructions
 
 ## What this skill does
 
-Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then compose the global `obsidian-crm` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated, and one `tache` relance in `Taches/` with `etiquettes: ["jobsearch"]` and an `echeance` 7 days out. The morning-briefing (Loop 3) already surfaces tasks shaped this way. This skill NEVER touches the vault directly — all reads and writes flow through `obsidian-crm`.
+Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated, and one `tache` relance in `Taches/` with `etiquettes: ["jobsearch"]` and an `echeance` 7 days out. The morning-briefing (Loop 3) already surfaces tasks shaped this way. This skill NEVER touches the vault directly — all reads and writes flow through `jobsearch-vault`.
 
 ## Step 0 — Inputs you need from the user
 
@@ -55,17 +55,19 @@ Set `target_profile` to one of the literal strings `"P1"`, `"P2"`, `"P3"`, `"P4"
 
 ## Step 3 — Check for existing candidature (idempotency)
 
-macOS APFS is case-insensitive; two candidatures with the same name will collide. Re-applying to the same role must not silently fail. Invoke `obsidian-crm` to search `CRM-JobSearch/Opportunites/` for a note matching `entreprise` + `poste`:
+macOS APFS is case-insensitive; two candidatures with the same name will collide. Re-applying to the same role must not silently fail. Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` for a note matching `entreprise` + `poste`:
 
-**Match semantics** (binding): exact filename `"<Poste> — <Entreprise>.md"` (em-dash with spaces, case-insensitive — APFS-equivalent). Substring or fuzzy matches MUST NOT be treated as hits. If `obsidian-crm` returns >1 result for the exact filename (theoretically impossible but allow for upstream bugs), ASK the user which one — do NOT auto-pick.
+**Match semantics** (binding): exact filename `"<Poste> — <Entreprise>.md"` (em-dash with spaces, case-insensitive — APFS-equivalent). Substring or fuzzy matches MUST NOT be treated as hits. If `jobsearch-vault` returns >1 result for the exact filename (theoretically impossible but allow for upstream bugs), ASK the user which one — do NOT auto-pick.
 
-- **If found** → use `obsidian-crm`'s `update_frontmatter.py` to refresh `statut`, `source`, `target_profile`, `date_relance` (keep the original `date_candidature` from the existing note). Report to the user that an existing candidature was updated, not created.
-- **If not found** → use `obsidian-crm`'s `create_note.py` with the full payload below.
+- **If found** → ask `jobsearch-vault` to update the candidature (`update_frontmatter`), refreshing `statut`, `source`, `target_profile`, `date_relance` (keep the original `date_candidature` from the existing note). Report to the user that an existing candidature was updated, not created.
+- **If not found** → ask `jobsearch-vault` to create the note with the full payload below.
 
 ### `opportunite-js` creation payload
 
-```bash
-echo '{
+Invoke `jobsearch-vault` and ask it to **create a note** with exactly this structured request (it runs `create_note.py` internally):
+
+```json
+{
   "name":"<Poste> — <Entreprise>",
   "type":"opportunite-js",
   "folder":"CRM-JobSearch/Opportunites",
@@ -79,13 +81,13 @@ echo '{
     "target_profile":"P<1-5>"
   },
   "body":"## Annonce\n\n<pasted offer text, verbatim>\n"
-}' | python ~/.claude/skills/obsidian-crm/scripts/create_note.py
+}
 ```
 
-`target_profile` is NOT in the global `opportunite-js` schema → `create_note.py` will print a non-blocking warning to stderr (per `obsidian-crm/SKILL.md:286`). The agreed contract is:
+`target_profile` is NOT in the `opportunite-js` schema → `jobsearch-vault` prints a non-blocking warning to stderr (the documented escape hatch — the field is still written). The agreed contract is:
 
 - **Exit 0 + stderr contains `unknown field 'target_profile'`** → ACCEPT. The candidature was written. Do not retry.
-- **Exit 0 + any OTHER stderr warning** → SURFACE the warning to the user verbatim, then proceed. Do not silently swallow it (a future `obsidian-crm` schema change might surface here first).
+- **Exit 0 + any OTHER stderr warning** → SURFACE the warning to the user verbatim, then proceed. Do not silently swallow it (a future `jobsearch-vault` schema change might surface here first).
 - **Non-zero exit** → FAIL HARD per the rule below. The candidature was NOT written.
 
 Adding `target_profile` to the global schema is out of scope for this skill — the warning is the agreed-upon escape hatch.
@@ -96,15 +98,15 @@ Adding `target_profile` to the global schema is out of scope for this skill — 
 
 ## Step 4 — Create the relance task
 
-**Idempotency on re-apply**: mirror Step 3's search-before-create. Invoke `obsidian-crm` to search `Taches/` for a `tache` whose `opportunite` wikilink equals `"[[<Poste> — <Entreprise>]]"` AND whose `etiquettes` contains `"jobsearch"` AND whose `etat` is open (`Pas commencée`, `Today`, or `En cours` — NOT `Terminé` / `Archivé`, the actual closed states in the `tache` schema enum).
+**Idempotency on re-apply**: mirror Step 3's search-before-create. Invoke `jobsearch-vault` to search `Taches/` for a `tache` whose `opportunite` wikilink equals `"[[<Poste> — <Entreprise>]]"` AND whose `etiquettes` contains `"jobsearch"` AND whose `etat` is open (`Pas commencée`, `Today`, or `En cours` — NOT `Terminé` / `Archivé`, the actual closed states in the `tache` schema enum).
 
-- **If found** → use `update_frontmatter.py` to refresh `echeance` to `date_candidature + 7d`. Do NOT create a duplicate. Reuse the existing task — `/briefing` will surface it on its due date (`echeance`).
+- **If found** → ask `jobsearch-vault` to update `echeance` to `date_candidature + 7d`. Do NOT create a duplicate. Reuse the existing task — `/briefing` will surface it on its due date (`echeance`).
 - **If not found** → create the relance `tache` with the payload below.
 
-Invoke `obsidian-crm` to create the 7-day relance `tache`:
+Invoke `jobsearch-vault` and ask it to **create a note** with this structured request:
 
-```bash
-echo '{
+```json
+{
   "name":"Relance — <Entreprise> — <YYYY-MM-DD candidature>",
   "type":"tache",
   "folder":"Taches",
@@ -116,7 +118,7 @@ echo '{
     "opportunite":"[[<Poste> — <Entreprise>]]"
   },
   "body":"## Résumé\n\nRelance candidature envoyée le <YYYY-MM-DD> (<source>). Vérifier réponse, sinon LinkedIn message au recruteur.\n"
-}' | python ~/.claude/skills/obsidian-crm/scripts/create_note.py
+}
 ```
 
 **Check Step 4's exit code.** If Step 3 succeeded but Step 4 failed (non-zero exit), the vault is in a **half-state**: the candidature exists, the relance task does not, `/briefing` will silently miss the relance. Report explicitly to the user with both recovery paths:
@@ -152,7 +154,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `obsidian-crm`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists only `Skill(obsidian-crm)` — do not work around it.
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists only `Skill(jobsearch-vault)` — do not work around it.
 - **First-apply `statut` is `✉️ Candidature envoyée`** (with emoji, verbatim — re-typing the emoji loses the variation selector). Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`. The user transitions the candidature's `statut` manually (or via a later skill) when they actually chase the relance.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
@@ -160,4 +162,4 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 - **`source` is mandatory.** If the user did not state one, the skill ASKS in Step 0 before proceeding. No silent default.
 - **Idempotency on re-apply.** Step 3 must search before creating, and switch to `update_frontmatter.py` when the note exists. Do not let `create_note.py` fail-then-retry-by-rename.
 - **No auto-apply, no email, no CV attach.** The skill files the trail; the user submits the application themselves. `cv-generator` handles the PDF — invoke it separately via `/cv-generator`.
-- **Compose, do not reimplement.** This skill is orchestration: classify, compose JSON payloads, and call `obsidian-crm`. It does not re-implement vault writes.
+- **Compose, do not reimplement.** This skill is orchestration: classify, compose JSON payloads, and call `jobsearch-vault`. It does not re-implement vault writes.

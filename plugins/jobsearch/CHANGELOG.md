@@ -1,5 +1,17 @@
 # jobsearch — Changelog
 
+## [0.4.0] — 2026-06-12
+
+### Added
+- `jobsearch-vault` skill — self-contained, **filesystem-only** (no network, no API key) read/write access to the Job-Search slice of the Obsidian vault. Owns 5 note types (`opportunite-js`, `entreprise-js`, `contact-js`, `entretien`, jobsearch `tache`) via plain-stdlib CLI scripts (`create_note.py`, `read_note.py`, `update_frontmatter.py`, `search_vault.py`, `list_notes.py`). Ported from the global `obsidian-crm` skill with the REST/Local-REST-API backend stripped out. Doubles as an invocable skill (triggers: "pipeline candidatures", "liste mes entretiens", "cherche dans mes candidatures", "mes relances jobsearch") and as the shared library the other jobsearch skills compose.
+- Bundled `note_schemas.py` ships the `entretien` `categorie`/`interlocuteurs` fix natively — creating a fully-specified interview note now raises **zero** validation warnings.
+- `jobsearch-vault` registered in `marketplace.json` `plugins.jobsearch.skills`.
+
+### Changed
+- **`log-application` + `interview-prep` re-pointed to `jobsearch-vault`** (Option A — invoke via the `Skill` tool, no script paths, no PLUGIN_DIR resolver for vault I/O). `allowed-tools` swapped `Skill(obsidian-crm)` → `Skill(jobsearch-vault)`. Same structured create/update/search payloads, same idempotency, same exit-code contract — only the addressee changed. `interview-prep` keeps `Read` for `profiles/`.
+- `interview-prep`: removed the "expected non-blocking `categorie`/`interlocuteurs` warnings" paragraph — the bundled schema accepts both fields, so a clean `entretien` create has zero warnings.
+- The global `obsidian-crm` skill is left byte-for-byte unchanged (legacy/fallback for non-jobsearch domains).
+
 ## [0.3.0] — 2026-06-12
 
 ### Added

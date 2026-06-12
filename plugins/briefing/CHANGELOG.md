@@ -1,5 +1,11 @@
 # briefing — Changelog
 
+## [0.2.0] — 2026-06-12
+
+### Changed
+- `morning-briefing` re-pointed from the global `obsidian-crm` skill to the new `jobsearch-vault` skill (Option A — invoke via the `Skill` tool). Step 0 probe + Step 1c now address `jobsearch-vault`; `allowed-tools` swapped `Skill(obsidian-crm)` → `Skill(jobsearch-vault)` (hal-mcp + Google Calendar tools unchanged). READ-ONLY.
+- AC3 loud-failure contract preserved: a `jobsearch-vault` failure renders `⚠️ Jobsearch DOWN — <reason>` in the jobsearch section and flips the `jobsearch-vault:` source-status footer line — never a silent empty.
+
 ## [0.1.0] — 2026-06-11
 
 ### Added
