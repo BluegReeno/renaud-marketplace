@@ -167,6 +167,8 @@ echo '{
 
 The `entretien` note does NOT carry its own `target_profile` field — the profile is read transitively via `opportunite` → candidature → `target_profile`. Avoids duplicating state.
 
+**Expected non-blocking warnings.** `create_note.py` prints `unknown field "categorie"` and `unknown field "interlocuteurs"` to stderr. Both fields ARE documented for `entretien` in `obsidian-crm/references/schemas.md`, but the runtime validator (`note_schemas.py`) lags that doc — so the values are still written to frontmatter correctly. Treat these exactly like log-application's `target_profile` warning: **exit 0 + these two warnings → ACCEPT, do not retry.** Any OTHER stderr warning → surface it verbatim, then proceed. **Non-zero exit** → the note was NOT written: report `❌ Échec création prep — <stderr>` and do not fire the Step 5 success report. (Root cause is an `obsidian-crm` doc↔validator drift — out of scope for this skill.)
+
 ## Step 5 — Report to the user (in French)
 
 Render a concise summary, in French:

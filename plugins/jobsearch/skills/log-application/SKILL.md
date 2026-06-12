@@ -7,7 +7,8 @@ description: >
   fixed fields (`entreprise`, `statut`, `source`, `target_profile`,
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and one
   `tache` relance with `etiquettes: ["jobsearch"]` and `echeance: today + 7d`
-  so it surfaces in tomorrow's `/briefing`. Use when the user says "log
+  so it surfaces in the `/briefing` on its due date (`date_relance`, today + 7d).
+  Use when the user says "log
   application", "j'ai postulé", "candidature envoyée", "je viens de candidater",
   "track application", "log apply", or pastes a job offer with intent to file it.
 version: 0.3.0
@@ -27,7 +28,7 @@ Collect (and confirm) the following before doing anything else:
 1. **Pasted offer text** (required) — the job description body. The skill will not fetch URLs; the user pastes the text.
 2. **Company name** and **role title** — extract from the offer body if obvious, otherwise ASK. They drive the candidature title `<Poste> — <Entreprise>` and the `entreprise` frontmatter.
 3. **`source`** (required, one of `LinkedIn` / `WTTJ` / `direct` / `referral` / other) — ASK if not stated. This field is mandatory.
-4. **`lien_offre`** (optional URL) — empty string if the user has no link (e.g. referral-only).
+4. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
 
 Do not proceed until `source` and `entreprise` + `poste` are settled.
 
@@ -74,7 +75,7 @@ echo '{
     "source":"<LinkedIn|WTTJ|direct|referral|other>",
     "date_candidature":"<YYYY-MM-DD>",
     "date_relance":"<YYYY-MM-DD +7d>",
-    "lien_offre":"<url-or-empty>",
+    "lien_offre":"<url>",
     "target_profile":"P<1-5>"
   },
   "body":"## Annonce\n\n<pasted offer text, verbatim>\n"
@@ -89,13 +90,15 @@ echo '{
 
 Adding `target_profile` to the global schema is out of scope for this skill — the warning is the agreed-upon escape hatch.
 
+`lien_offre` is a `url`-typed field: **include the `"lien_offre"` key ONLY when a real URL exists; omit it entirely otherwise** (referral / no-link cases). Passing an empty string `""` triggers a spurious `value "" does not look like a URL` warning that the contract above would force you to surface to the user on every link-less application — so drop the key instead of sending `""`.
+
 **Check Step 3's exit code before proceeding.** `create_note.py` / `update_frontmatter.py` exit 0 on success (including the non-blocking `target_profile` warning above). Any non-zero exit means the candidature was NOT written: report `❌ Échec création candidature — <stderr>` to the user and **DO NOT proceed to Step 4 or fire the Step 5 success report.** This is the AC1 invariant — no half-states, no silent success.
 
 ## Step 4 — Create the relance task
 
-**Idempotency on re-apply**: mirror Step 3's search-before-create. Invoke `obsidian-crm` to search `Taches/` for a `tache` whose `opportunite` wikilink equals `"[[<Poste> — <Entreprise>]]"` AND whose `etiquettes` contains `"jobsearch"` AND whose `etat` is open (`Pas commencée` or `En cours`, NOT `Terminée` / `Annulée`).
+**Idempotency on re-apply**: mirror Step 3's search-before-create. Invoke `obsidian-crm` to search `Taches/` for a `tache` whose `opportunite` wikilink equals `"[[<Poste> — <Entreprise>]]"` AND whose `etiquettes` contains `"jobsearch"` AND whose `etat` is open (`Pas commencée`, `Today`, or `En cours` — NOT `Terminé` / `Archivé`, the actual closed states in the `tache` schema enum).
 
-- **If found** → use `update_frontmatter.py` to refresh `echeance` to `date_candidature + 7d`. Do NOT create a duplicate. Reuse the existing task — `/briefing` will surface it tomorrow.
+- **If found** → use `update_frontmatter.py` to refresh `echeance` to `date_candidature + 7d`. Do NOT create a duplicate. Reuse the existing task — `/briefing` will surface it on its due date (`echeance`).
 - **If not found** → create the relance `tache` with the payload below.
 
 Invoke `obsidian-crm` to create the 7-day relance `tache`:
