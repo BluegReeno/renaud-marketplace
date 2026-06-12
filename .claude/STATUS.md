@@ -4,7 +4,9 @@ Last updated: 2026-06-12
 
 ## Current Focus
 
-**🏁 LastDev chain COMPLETE — development STOPS here.** All 4 loops shipped (backend frozen since Loop 1 at hal-mcp v38; skills done with Loop 4). Any new idea goes to the backlog and is weighed against the stopping rule: does it directly produce a job interview or Blue Green revenue? If not, it waits.
+**➡️ Next sprint (starts Mon 2026-06-15): `jobsearch-vault` skill.** Carve the job-search vault I/O out of the global `obsidian-crm` into a self-contained, filesystem-only skill in `plugins/jobsearch`, then re-point `log-application` + `interview-prep` + `morning-briefing` to it (Option A — invoke via `Skill` tool, no path resolver). Allowed under the stopping rule (skill evolution serving job search; backend stays frozen v38). **Brief (implementation-ready): [`.claude/tasks/jobsearch-vault-skill.md`](tasks/jobsearch-vault-skill.md).**
+
+**🏁 LastDev chain COMPLETE.** All 4 loops shipped (backend frozen since Loop 1 at hal-mcp v38; skills done with Loop 4). New ideas weigh against the stopping rule: does it directly produce a job interview or Blue Green revenue? Confirmed split: **Blue Green CRM → `/hal`** (hal cloud) · **Job Search CRM → Obsidian vault** (soon via `jobsearch-vault`).
 
 jobsearch v0.3.0 ships `log-application` + `interview-prep` (PR #3 merged). AC1/AC2/AC3 validated **live against the real Obsidian vault** (2 real applications logged: Anthropic P1, Yotta P4 — both kept). The live run found + fixed 4 real defects the static review missed (relance surfaces on its due date not "tomorrow"; lien_offre omitted when empty; idempotency enum corrected; entretien categorie/interlocuteurs warnings documented).
 
@@ -12,7 +14,7 @@ Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels 
 
 ## In Progress
 
-(nothing — LastDev chain stopped)
+- [ ] **`jobsearch-vault` skill** (next sprint) — build (filesystem-only, 5 JS note types) → re-point 3 consumers (Option A) → bump jobsearch 0.3.0→0.4.0 + briefing 0.1.0→0.2.0 → re-run Loop 4 AC1-3 smoke. Brief: `.claude/tasks/jobsearch-vault-skill.md`.
 
 ## Done (current sprint)
 
