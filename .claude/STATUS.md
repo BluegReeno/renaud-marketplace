@@ -1,20 +1,22 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-11
+Last updated: 2026-06-12
 
 ## Current Focus
 
-**➡️ LastDev Loop 3 — `morning-briefing`** (le dashboard quotidien pro + perso). La chaîne LastDev arrive ici depuis `bluegreen-marketplace` (Loop 2 / `/hal tasks` v0.7.0 mergé). hal-mcp **gelé v38** — on consomme, on ne touche pas. Amorçage : [`RESUME-LOOP3.md`](../RESUME-LOOP3.md) · brief [`docs/loop-3-morning-briefing.md`](../docs/loop-3-morning-briefing.md) · master plan `../hal/docs/lastdev-plan.md`.
+**➡️ LastDev Loop 4 — jobsearch systematization** (même repo, dernière boucle). `log-application` (annonce + source → note Obsidian + tâche de suivi) et `interview-prep` (structure fixe, câblée aux 5 profils CV). Le briefing *lit* ce que Loop 4 *écrit*. Brief : `../hal/docs/features/loop-4-jobsearch-systematization.md`. hal-mcp **gelé v38**. **Deadline dim. 2026-06-14 → la chaîne LastDev STOPPE.**
 
-Loop 3 = **nouveau plugin `briefing`** : un skill qui agrège read-only les tâches hal (`blue-green` + `renaud`, sprint courant) + jobsearch Obsidian + 3 calendriers Google, en une vue. Décisions verrouillées au terrain-prep (repo, host plugin, hal-mcp déclaré + dédup) → voir RESUME. Loop 3 crée le squelette du plugin lui-même. Deadline Loops 3-4 : dim. 2026-06-14 → STOP.
+Loop 3 livré : nouveau plugin `briefing` v0.1.0 (skill `morning-briefing`) mergé via PR #2. Agrège read-only tâches hal (`blue-green` + `renaud`) + jobsearch Obsidian + 3 calendriers Google, échecs bruyants (AC3). Décisions terrain-prep respectées (repo, host plugin, hal-mcp dédup).
 
 Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels Gmail API si encore en stub.
 
 ## In Progress
 
-(nothing — Loop 3 not started, terrain prepared)
+- [ ] LastDev Loop 4 — `log-application` + `interview-prep` skills
 
 ## Done (current sprint)
+
+- [x] Loop 3 — plugin `briefing` v0.1.0 (skill `morning-briefing`) — read-only daily dashboard (3 calendriers + hal tasks business/perso + Obsidian jobsearch), AC3 loud-failure, hal-mcp dedup — PR #2 merged — 2026-06-12
 
 - [x] cv-generator v0.1.0 — 30/30 CVs validated (1 page each) — 2026-06-03
 - [x] cv-generator v0.1.1 — fix FR language mixing — 2026-06-05
