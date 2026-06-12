@@ -66,8 +66,13 @@ renaud-marketplace/
 │   │   │   └── plugin.json       ← (VERSION ICI)
 │   │   ├── .mcp.json             ← déclaration serveur MCP (url + version MCP)
 │   │   ├── skills/
-│   │   │   └── cv-generator/
-│   │   │       └── SKILL.md      ← (VERSION ICI dans le frontmatter)
+│   │   │   ├── cv-generator/SKILL.md       ← (VERSION ICI dans le frontmatter)
+│   │   │   ├── log-application/SKILL.md    ← (VERSION ICI dans le frontmatter)
+│   │   │   └── interview-prep/SKILL.md     ← (VERSION ICI dans le frontmatter)
+│   │   ├── commands/             ← slash commands (/log-application, /interview-prep)
+│   │   │   ├── log-application.md
+│   │   │   └── interview-prep.md
+│   │   ├── profiles/             ← p1–p5 narrative files (lus par cv-generator + interview-prep)
 │   │   ├── scripts/              ← Python — generate_cv.py, batch_validate.py
 │   │   ├── data/                 ← cv-master.json
 │   │   ├── templates/            ← cv_template.html
@@ -127,7 +132,7 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.2.0 | `cv-generator` | `gmail-mcp` | CV génération + accès Gmail |
+| `jobsearch` | 0.3.0 | `cv-generator`, `log-application`, `interview-prep` | `gmail-mcp` | CV génération, log candidature (note + relance), prep d'entretien (5 sections), accès Gmail |
 | `briefing` | 0.1.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + Obsidian jobsearch) |
 
 ---

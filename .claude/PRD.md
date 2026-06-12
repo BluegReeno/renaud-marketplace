@@ -102,6 +102,7 @@ renaud-marketplace/
 **Out of Scope** (future plugins):
 - [ ] notion-jobsearch plugin
 - [x] morning-briefing plugin — shipped 2026-06-12 as `briefing` v0.1.0
+- [x] log-application + interview-prep — shipped 2026-06-12 in jobsearch v0.3.0 (Loop 4)
 
 ---
 
