@@ -147,6 +147,17 @@ Dépôt public — pas de token requis. Ajouter le marketplace puis installer le
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
 ```
 
+### Connecting from Claude, Gemini, or OpenAI
+
+The MCP servers (**connectors**) and the `SKILL.md` files (**skills**) install differently:
+a connector works on all three providers, but skills only run on the agent/CLI surfaces
+(Claude Code, Gemini CLI, Codex). Note also that `gmail-mcp` uses an API-key (`?key=`) auth —
+which limits it to Claude Code / claude.ai — while `briefing`'s `hal-mcp` uses OAuth and works
+everywhere.
+
+Full step-by-step per provider, the auth model, and the cross-client skills setup are in
+[`docs/connectors-and-skills.md`](docs/connectors-and-skills.md).
+
 ---
 
 ## Deploy gmail-mcp
