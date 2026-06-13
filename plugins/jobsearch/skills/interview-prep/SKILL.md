@@ -11,7 +11,7 @@ description: >
   "prépare l'entretien", "interview prep", "préparation entretien", "je passe un
   entretien avec", "prep <company>", "interview avec".
 version: 0.4.2
-allowed-tools: "Skill(jobsearch-vault) Read mcp__hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) Read mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 
 # Interview Prep — Skill Instructions
@@ -189,6 +189,10 @@ No `sprint_id` — interviews are sprint-less by design (tracked by tag, surface
 
 **Idempotency on re-prep.** Before creating, call `mcp__hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). Match on title equality, not substring. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
 
+**If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
+`⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
+Then apply the standard failure handling below if `create_task` also fails.
+
 **Failure handling.** If `mcp__hal-mcp__create_task` fails (non-zero / exception) but Step 4 succeeded, this is a **partial half-state**: the prep note is in Obsidian, the hal mirror is missing, `/briefing` will under-count the day's prep load. Report explicitly:
 
 ```
@@ -212,6 +216,7 @@ Render a concise summary, in French:
    📌 Pitch     : <one-line load-bearing claim from the profile file>
    🗓️ Date     : <YYYY-MM-DD> · type: <RH|Technique|Manager|Final>
    📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (renaud/jobsearch)
+                  (omettre cette ligne si Step 4b a échoué — voir ⚠️ ci-dessus)
 ```
 
 ## Step 6 — Constraints (load-bearing)

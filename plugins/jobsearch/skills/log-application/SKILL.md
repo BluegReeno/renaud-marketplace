@@ -12,7 +12,7 @@ description: >
   application", "j'ai postulé", "candidature envoyée", "je viens de candidater",
   "track application", "log apply", or pastes a job offer with intent to file it.
 version: 0.4.2
-allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 
 # Log Application — Skill Instructions
@@ -156,6 +156,10 @@ No `sprint_id` — the relance is sprint-less by design (jobsearch tasks track t
 
 **Idempotency on re-apply.** Before creating, call `mcp__hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-apply scenario — Step 4's Obsidian search already short-circuited; do the same here so we don't double the hal task either). Match on title equality, not substring.
 
+**If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
+`⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
+Then apply the standard failure handling below if `create_task` also fails.
+
 **Failure handling.** If `mcp__hal-mcp__create_task` fails (non-zero / exception) but Step 4 succeeded, this is a **partial half-state**: the Obsidian trail is complete, the hal mirror is missing, `/briefing`'s `renaud` section will under-count by one. Report explicitly:
 
 ```
@@ -177,6 +181,7 @@ Render a concise summary, in French:
    📁 Note     : CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
    🔄 Relance  : <YYYY-MM-DD +7d> — apparaîtra dans /briefing (Obsidian + hal renaud/jobsearch)
+                  (si Step 4b a échoué : Obsidian uniquement — hal non créé, voir ⚠️ ci-dessus)
    🔗 Source   : <source>
 ```
 
@@ -186,7 +191,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O and `mcp__hal-mcp__create_task` for the Step 4b hal mirror — do not work around it.
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__hal-mcp__list_tasks` for Step 4b idempotency, and `mcp__hal-mcp__create_task` for the Step 4b hal mirror — do not work around it.
 - **Dual relance write (Step 4 + Step 4b) is intentional.** Obsidian `tache` is the canonical jobsearch trail; the hal task is the unified-PM mirror that surfaces in `/briefing`'s tag-grouped `renaud` section. Both must carry the `jobsearch` tag/etiquette. If Step 4b fails after Step 4 succeeds, the candidature is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **First-apply `statut` is `✉️ Candidature envoyée`** (with emoji, verbatim — re-typing the emoji loses the variation selector). Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`. The user transitions the candidature's `statut` manually (or via a later skill) when they actually chase the relance.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
