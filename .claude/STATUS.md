@@ -4,13 +4,15 @@ Last updated: 2026-06-14
 
 ## Current Focus
 
-**cv-generator quality sprint COMPLETE.** All 30 CVs 1-page validated. P1/P2/P3 now have cell-specific bullets (T3/T4/T5 for P1+P2, T1+T5 for P3). Factual errors fixed. Repo pushed.
+**jobsearch v0.4.3 shipped.** Cover letter skill live (`/cover-letter`). CV methodology section added to cv-generator SKILL.md. All factual errors corrected across P1–P5 (DCNS, Business Angels, urban planning automation banned). 30/30 CVs 1-page validated.
 
 ## In Progress
 
 - (nothing active)
 
 ## Done (current sprint)
+
+- [x] **cover-letter skill + cv-generator methodology (jobsearch v0.4.3)** — New `/cover-letter` command: LLM-native 3-paragraph letter, 15-cell matrix, factual anchors, banned phrases, solopreneur counter. cv-generator SKILL.md v0.2.2: added narrative methodology section (experience order rules, T/P signals, factual anchors, banned phrases). — 2026-06-14
 
 - [x] **cv-generator quality sprint — cell-specific bullets P1/P2/P3 + factual fixes (30/30 CVs validated)** — Added T3/T4/T5 bullets for P2 (Lead/Manager) × all 3 companies; T1+T5 bullets for P3 (CTO) × all 3 companies; fixed Artelia P3 "investor presentations" lie (was Open Ocean), fixed "Business Angels" → institutional investors, fixed "DCNS" → Naval Group, fixed franglais "delivery" → "livraison" in FR bullets. All 30 CVs 1-page validated. — 2026-06-14
 
