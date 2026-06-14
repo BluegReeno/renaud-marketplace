@@ -1,5 +1,13 @@
 # briefing — Changelog
 
+## [0.4.1] — 2026-06-14
+
+### Changed (sprint-planner capacity calibration)
+- Job search blocs Mar–Ven : 08h30–10h30 → **09h30–11h30** (dépose Lalie à l'école 8h50)
+- Post LinkedIn : 30min → **2h** (rédaction + illustration + publication — toujours plus long que prévu)
+- Buffer : 30% → **40%** (marge pour les imprévus de la semaine)
+- Capacity formula updated : `(22 - X) × 0.6` dispo sprint (was `(23.5 - X) × 0.7`)
+
 ## [0.4.0] — 2026-06-14
 
 ### Added (sprint-review + sprint-planner skills)

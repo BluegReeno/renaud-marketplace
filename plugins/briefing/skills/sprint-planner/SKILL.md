@@ -12,7 +12,7 @@ description: >
   Utiliser quand Renaud dit "sprint planning", "planifier la semaine",
   "plan my week", "sprint de la semaine prochaine", "weekly planning",
   "priorités de la semaine", "organiser ma semaine" — ou en mode schedule.
-version: 0.4.0
+version: 0.4.1
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
 ---
 
@@ -29,8 +29,8 @@ Tu es le copilote de Renaud Laborbe. Ta mission : planifier le sprint de la sema
 - **Blocs fixes hebdomadaires** :
   - Lundi 10h–11h : Réunion IC Ingénieurs (récurrente)
   - Lundi 11h–13h : Bloc job search (décalé après meeting)
-  - Mar–Ven 08h30–10h30 : Bloc job search (priorité absolue)
-  - 1× dans la semaine : 30min rédaction + publication post LinkedIn
+  - Mar–Ven 09h30–11h30 : Bloc job search (priorité absolue — dépose Lalie à 8h50)
+  - 1× dans la semaine : 2h rédaction + illustration + publication post LinkedIn
 
 ## Mode scheduled vs conversationnel
 
@@ -240,13 +240,13 @@ Détecter les conflits avec les blocs fixes :
 
 ```
 Semaine brute : 35h (5j × 7h)
-Blocs job search : 10h (lun 11-13 + mar-ven 08:30-10:30 — ajustés selon étape 4)
+Blocs job search : 10h (lun 11-13 + mar-ven 09:30-11:30 — ajustés selon étape 4)
 IC meeting lundi : 1h
-Post LinkedIn : 0.5h
+Post LinkedIn : 2h (rédaction + illustration + publication)
 Meetings calendrier : Xh (depuis étape 4)
-Restant disponible : 35 - 10 - 1 - 0.5 - X = 23.5 - Xh
-Buffer 30% : (23.5 - X) × 0.3h
-= Dispo sprint : (23.5 - X) × 0.7h
+Restant disponible : 35 - 10 - 1 - 2 - X = 22 - Xh
+Buffer 40% : (22 - X) × 0.4h
+= Dispo sprint : (22 - X) × 0.6h
 ```
 
 ### Priorisation des tâches
@@ -275,24 +275,25 @@ Intégrer dans le sprint :
 - Brut : 35h
 - Blocs job search : Xh [ajustements si applicable]
 - IC meeting : 1h
+- Post LinkedIn : 2h
 - Meetings fixes : Yh
-- Buffer 30% : Zh
+- Buffer 40% : Zh
 - **Dispo sprint : Wh**
 
 ### Planning blocs job search
 | Jour | Bloc | Ajustement |
 |------|------|-----------|
 | Lun  | 11h00–13h00 | Après IC meeting |
-| Mar  | 08h30–10h30 | [Standard ou ajustement] |
-| Mer  | 08h30–10h30 | [Standard ou ajustement] |
-| Jeu  | 08h30–10h30 | Standard |
-| Ven  | 08h30–10h30 | Standard |
+| Mar  | 09h30–11h30 | [Standard ou ajustement] |
+| Mer  | 09h30–11h30 | [Standard ou ajustement] |
+| Jeu  | 09h30–11h30 | Standard |
+| Ven  | 09h30–11h30 | Standard |
 
 Objectif blocs : [X] relances + [Y] nouvelles candidatures 🔥
 
 ### Tâches sprint
 🔴 MUST
-- [ ] Post LinkedIn — sujet : "[proposition]" — 30min — [jour proposé]
+- [ ] Post LinkedIn — sujet : "[proposition]" — 2h (rédaction + illustration) — [jour proposé]
 - [ ] [Relance/candidature prioritaire] — [estimation]
 - [ ] [Tâche reportée si applicable]
 
