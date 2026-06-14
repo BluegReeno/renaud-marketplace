@@ -126,12 +126,16 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     for slot, job_key in enumerate(job_order, start=1):
         job = experiences[job_key]
-        title = job['titles'][profile][lang]
+        # Title: try cell-specific override (e.g. p1_t5) then fall back to profile default
+        title_key = f"{profile}_{company_type}"
+        title = job['titles'].get(title_key, job['titles'][profile])[lang]
         period = job['period']
         if lang == 'fr':
             period = period.replace('Present', "Aujourd'hui")
         company_str = f"{job['company']} — {job['location']}"
-        bullets = job['bullets'][profile][lang]
+        # Bullets: try company_type override then fall back to 'default'
+        profile_bullets = job['bullets'][profile]
+        bullets = profile_bullets.get(company_type, profile_bullets['default'])[lang]
 
         html = html.replace(f'{{{{JOB{slot}_TITLE}}}}', title)
         html = html.replace(f'{{{{JOB{slot}_PERIOD}}}}', period)
