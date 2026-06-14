@@ -6,10 +6,18 @@
     "address": "Le Pecq, 78230, France",
     "address_url": "https://maps.google.com/?q=34+Av.+de+la+République,+78230+Le+Pecq",
     "linkedin": "linkedin.com/in/renaud-laborbe",
-    "languages": ["French (Native)", "English (Fluent)", "Portuguese (Fluent)"],
-    "international_experience": ["USA (San Diego)", "UK (London)", "Brazil (Rio)", "France (Paris)"]
+    "languages": [
+      "French (Native)",
+      "English (Fluent)",
+      "Portuguese (Fluent)"
+    ],
+    "international_experience": [
+      "USA (San Diego)",
+      "UK (London)",
+      "Brazil (Rio)",
+      "France (Paris)"
+    ]
   },
-
   "education": [
     {
       "degree": "MSc in Oceanography & Climatology",
@@ -24,7 +32,6 @@
       "year": "2002"
     }
   ],
-
   "competencies_pool": {
     "ai_digital": [
       "LLMs, RAG, AI Agents",
@@ -65,7 +72,6 @@
       "Scale-up Operations"
     ]
   },
-
   "matrix": {
     "p1": {
       "t1": {
@@ -89,29 +95,55 @@
           "en": [
             {
               "title": "AI Product Architecture",
-              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "MCP servers", "Backend & Cloud Systems"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Product Architecture",
+                "MCP servers",
+                "Backend & Cloud Systems"
+              ]
             },
             {
               "title": "0→1 Execution",
-              "items": ["Lab-to-Industrial Scale-up", "Product Development & Architecture", "Agile Product Delivery"]
+              "items": [
+                "Lab-to-Industrial Scale-up",
+                "Product Development & Architecture",
+                "Agile Product Delivery"
+              ]
             },
             {
               "title": "Industrial & Energy Data",
-              "items": ["Renewable Energy (15+ yrs)", "Marine & Environmental Data", "Engineering & Infrastructure"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Marine & Environmental Data",
+                "Engineering & Infrastructure"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Architecture Produit IA",
-              "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Serveurs MCP", "Systèmes backend & cloud"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Architecture produit",
+                "Serveurs MCP",
+                "Systèmes backend & cloud"
+              ]
             },
             {
               "title": "Exécution 0→1",
-              "items": ["Scale-up labo → industriel", "Développement produit & Architecture", "Delivery produit agile"]
+              "items": [
+                "Scale-up labo → industriel",
+                "Développement produit & Architecture",
+                "Delivery produit agile"
+              ]
             },
             {
               "title": "Données industrielles & Énergie",
-              "items": ["Énergies renouvelables (15+ ans)", "Données marines & environnementales", "Ingénierie & Infrastructure"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Données marines & environnementales",
+                "Ingénierie & Infrastructure"
+              ]
             }
           ]
         },
@@ -141,29 +173,55 @@
           "en": [
             {
               "title": "GenAI for Engineering",
-              "items": ["LLMs, RAG, AI Agents", "Document Intelligence & Reporting", "Workflow Automation", "Process Automation"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Document Intelligence & Reporting",
+                "Workflow Automation",
+                "Process Automation"
+              ]
             },
             {
               "title": "Change & Adoption",
-              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Cross-functional Team Management"]
+              "items": [
+                "Stakeholder & Client Engagement",
+                "AI Awareness Training",
+                "Cross-functional Team Management"
+              ]
             },
             {
               "title": "Engineering & Infrastructure",
-              "items": ["Engineering & Infrastructure", "Offshore Wind Development", "Renewable Energy (15+ yrs)"]
+              "items": [
+                "Engineering & Infrastructure",
+                "Offshore Wind Development",
+                "Renewable Energy (15+ yrs)"
+              ]
             }
           ],
           "fr": [
             {
               "title": "GenAI pour l'ingénierie",
-              "items": ["LLMs, RAG, Agents IA", "Intelligence documentaire & Reporting", "Automatisation de workflows", "Automatisation de processus"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Intelligence documentaire & Reporting",
+                "Automatisation de workflows",
+                "Automatisation de processus"
+              ]
             },
             {
               "title": "Conduite du changement",
-              "items": ["Engagement clients & parties prenantes", "Formation & sensibilisation à l'IA", "Management transverse"]
+              "items": [
+                "Engagement clients & parties prenantes",
+                "Formation & sensibilisation à l'IA",
+                "Management transverse"
+              ]
             },
             {
               "title": "Ingénierie & Infrastructure",
-              "items": ["Ingénierie & Infrastructure", "Développement éolien offshore", "Énergies renouvelables (15+ ans)"]
+              "items": [
+                "Ingénierie & Infrastructure",
+                "Développement éolien offshore",
+                "Énergies renouvelables (15+ ans)"
+              ]
             }
           ]
         },
@@ -193,29 +251,55 @@
           "en": [
             {
               "title": "GenAI Architecture",
-              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Product Architecture", "Backend & Cloud Systems"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "MCP servers",
+                "Product Architecture",
+                "Backend & Cloud Systems"
+              ]
             },
             {
               "title": "Consulting & Pre-Sales",
-              "items": ["Stakeholder & Client Engagement", "C-level negotiations", "Solution Scoping & Proposals"]
+              "items": [
+                "Stakeholder & Client Engagement",
+                "C-level negotiations",
+                "Solution Scoping & Proposals"
+              ]
             },
             {
               "title": "Energy & Infrastructure",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Offshore Wind Development"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Architecture GenAI",
-              "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Architecture produit", "Systèmes backend & cloud"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Serveurs MCP",
+                "Architecture produit",
+                "Systèmes backend & cloud"
+              ]
             },
             {
               "title": "Conseil & Avant-vente",
-              "items": ["Engagement clients & parties prenantes", "Négociations C-level", "Cadrage de solutions & Propales"]
+              "items": [
+                "Engagement clients & parties prenantes",
+                "Négociations C-level",
+                "Cadrage de solutions & Propales"
+              ]
             },
             {
               "title": "Énergie & Infrastructure",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Développement éolien offshore"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Développement éolien offshore"
+              ]
             }
           ]
         },
@@ -245,29 +329,55 @@
           "en": [
             {
               "title": "GenAI Production Systems",
-              "items": ["LLMs, RAG, AI Agents", "MCP servers", "Process Automation", "Backend & Cloud Systems"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "MCP servers",
+                "Process Automation",
+                "Backend & Cloud Systems"
+              ]
             },
             {
               "title": "Enterprise Delivery",
-              "items": ["Stakeholder & Client Engagement", "Cross-functional Team Management", "Full P&L responsibility"]
+              "items": [
+                "Stakeholder & Client Engagement",
+                "Cross-functional Team Management",
+                "Full P&L responsibility"
+              ]
             },
             {
               "title": "Energy & Industry",
-              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Offshore Wind Development",
+                "Engineering & Infrastructure"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Systèmes GenAI en production",
-              "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Automatisation de processus", "Systèmes backend & cloud"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Serveurs MCP",
+                "Automatisation de processus",
+                "Systèmes backend & cloud"
+              ]
             },
             {
               "title": "Delivery grands comptes",
-              "items": ["Engagement clients & parties prenantes", "Management transverse", "Responsabilité P&L complète"]
+              "items": [
+                "Engagement clients & parties prenantes",
+                "Management transverse",
+                "Responsabilité P&L complète"
+              ]
             },
             {
               "title": "Énergie & Industrie",
-              "items": ["Énergies renouvelables (15+ ans)", "Développement éolien offshore", "Ingénierie & Infrastructure"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Développement éolien offshore",
+                "Ingénierie & Infrastructure"
+              ]
             }
           ]
         },
@@ -297,29 +407,55 @@
           "en": [
             {
               "title": "Applied AI Engineering",
-              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability", "Backend & Cloud Systems"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "MCP servers",
+                "AI Evals & Observability",
+                "Backend & Cloud Systems"
+              ]
             },
             {
               "title": "Customer-Facing Delivery",
-              "items": ["Stakeholder & Client Engagement", "Solution Scoping & Proposals", "C-level negotiations"]
+              "items": [
+                "Stakeholder & Client Engagement",
+                "Solution Scoping & Proposals",
+                "C-level negotiations"
+              ]
             },
             {
               "title": "Industry Verticals",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine data intelligence"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Marine data intelligence"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Ingénierie Applied AI",
-              "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Évaluation IA & Observabilité", "Systèmes backend & cloud"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Serveurs MCP",
+                "Évaluation IA & Observabilité",
+                "Systèmes backend & cloud"
+              ]
             },
             {
               "title": "Delivery client",
-              "items": ["Engagement clients & parties prenantes", "Cadrage de solutions & Propales", "Négociations C-level"]
+              "items": [
+                "Engagement clients & parties prenantes",
+                "Cadrage de solutions & Propales",
+                "Négociations C-level"
+              ]
             },
             {
               "title": "Verticales industrie",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Intelligence données marines"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Intelligence données marines"
+              ]
             }
           ]
         },
@@ -351,29 +487,55 @@
           "en": [
             {
               "title": "Hands-on AI Leadership",
-              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Workflow Automation"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Product Architecture",
+                "Workflow Automation"
+              ]
             },
             {
               "title": "Product & Delivery",
-              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Lab-to-Industrial Scale-up", "Investor Relations & Fundraising"]
+              "items": [
+                "R&D Team Leadership (12 people)",
+                "Agile Product Delivery",
+                "Lab-to-Industrial Scale-up",
+                "Investor Relations & Fundraising"
+              ]
             },
             {
               "title": "Industrial Scale-up",
-              "items": ["Renewable Energy (15+ yrs)", "Scale-up Operations", "Engineering & Infrastructure"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Scale-up Operations",
+                "Engineering & Infrastructure"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Leadership IA opérationnel",
-              "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Automatisation de workflows"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Architecture produit",
+                "Automatisation de workflows"
+              ]
             },
             {
               "title": "Produit & Delivery",
-              "items": ["Direction équipe R&D (12 pers.)", "Delivery produit agile", "Scale-up labo → industriel", "Relations investisseurs & levée de fonds"]
+              "items": [
+                "Direction équipe R&D (12 pers.)",
+                "Delivery produit agile",
+                "Scale-up labo → industriel",
+                "Relations investisseurs & levée de fonds"
+              ]
             },
             {
               "title": "Croissance industrielle",
-              "items": ["Énergies renouvelables (15+ ans)", "Opérations scale-up", "Ingénierie & Infrastructure"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Opérations scale-up",
+                "Ingénierie & Infrastructure"
+              ]
             }
           ]
         },
@@ -403,29 +565,55 @@
           "en": [
             {
               "title": "GenAI Practice Building",
-              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Awareness Training"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Product Architecture",
+                "AI Awareness Training"
+              ]
             },
             {
               "title": "Team & P&L Leadership",
-              "items": ["Team Leadership (12 people)", "Full P&L responsibility", "Enterprise Sales", "C-level negotiations"]
+              "items": [
+                "Team Leadership (12 people)",
+                "Full P&L responsibility",
+                "Enterprise Sales",
+                "C-level negotiations"
+              ]
             },
             {
               "title": "Energy & Infrastructure",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Offshore Wind Development"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Construction de practice GenAI",
-              "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Formation & sensibilisation à l'IA"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Architecture produit",
+                "Formation & sensibilisation à l'IA"
+              ]
             },
             {
               "title": "Direction équipe & P&L",
-              "items": ["Leadership d'équipe (12 pers.)", "Responsabilité P&L complète", "Vente grands comptes", "Négociations C-level"]
+              "items": [
+                "Leadership d'équipe (12 pers.)",
+                "Responsabilité P&L complète",
+                "Vente grands comptes",
+                "Négociations C-level"
+              ]
             },
             {
               "title": "Énergie & Infrastructure",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Développement éolien offshore"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Développement éolien offshore"
+              ]
             }
           ]
         },
@@ -455,29 +643,55 @@
           "en": [
             {
               "title": "AI Strategy & Delivery",
-              "items": ["LLMs, RAG, AI Agents", "Process Automation", "Workflow Automation"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Process Automation",
+                "Workflow Automation"
+              ]
             },
             {
               "title": "Transformation Leadership",
-              "items": ["Cross-functional Team Management", "Stakeholder & Client Engagement", "Full P&L responsibility", "AI Awareness Training"]
+              "items": [
+                "Cross-functional Team Management",
+                "Stakeholder & Client Engagement",
+                "Full P&L responsibility",
+                "AI Awareness Training"
+              ]
             },
             {
               "title": "Energy & Industry",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Offshore Wind Development"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Stratégie & Delivery IA",
-              "items": ["LLMs, RAG, Agents IA", "Automatisation de processus", "Automatisation de workflows"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Automatisation de processus",
+                "Automatisation de workflows"
+              ]
             },
             {
               "title": "Conduite de la transformation",
-              "items": ["Management transverse", "Engagement clients & parties prenantes", "Responsabilité P&L complète", "Formation & sensibilisation à l'IA"]
+              "items": [
+                "Management transverse",
+                "Engagement clients & parties prenantes",
+                "Responsabilité P&L complète",
+                "Formation & sensibilisation à l'IA"
+              ]
             },
             {
               "title": "Énergie & Industrie",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Développement éolien offshore"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Développement éolien offshore"
+              ]
             }
           ]
         },
@@ -507,29 +721,53 @@
           "en": [
             {
               "title": "AI Product Delivery",
-              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "AI Evals & Observability"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Product Architecture",
+                "AI Evals & Observability"
+              ]
             },
             {
               "title": "Cross-functional Leadership",
-              "items": ["R&D Team Leadership (12 people)", "Agile Product Delivery", "Cross-functional Team Management"]
+              "items": [
+                "R&D Team Leadership (12 people)",
+                "Agile Product Delivery",
+                "Cross-functional Team Management"
+              ]
             },
             {
               "title": "B2B SaaS & Verticals",
-              "items": ["Scale-up Operations", "Marine data intelligence", "Renewable Energy (15+ yrs)"]
+              "items": [
+                "Scale-up Operations",
+                "Marine data intelligence",
+                "Renewable Energy (15+ yrs)"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Delivery produit IA",
-              "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Évaluation IA & Observabilité"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Architecture produit",
+                "Évaluation IA & Observabilité"
+              ]
             },
             {
               "title": "Management transverse",
-              "items": ["Direction équipe R&D (12 pers.)", "Delivery produit agile", "Management transverse"]
+              "items": [
+                "Direction équipe R&D (12 pers.)",
+                "Delivery produit agile",
+                "Management transverse"
+              ]
             },
             {
               "title": "SaaS B2B & secteurs",
-              "items": ["Opérations scale-up", "Intelligence données marines", "Énergies renouvelables (15+ ans)"]
+              "items": [
+                "Opérations scale-up",
+                "Intelligence données marines",
+                "Énergies renouvelables (15+ ans)"
+              ]
             }
           ]
         },
@@ -561,29 +799,57 @@
           "en": [
             {
               "title": "Technology & Architecture",
-              "items": ["Product Architecture", "AI/ML Stack (LLMs, RAG)", "Backend & Cloud Systems", "Process Automation"]
+              "items": [
+                "Product Architecture",
+                "AI/ML Stack (LLMs, RAG)",
+                "Backend & Cloud Systems",
+                "Process Automation"
+              ]
             },
             {
               "title": "Scale-up Leadership",
-              "items": ["R&D Team Leadership (12 people)", "Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "Full P&L responsibility"]
+              "items": [
+                "R&D Team Leadership (12 people)",
+                "Investor Relations & Fundraising",
+                "Lab-to-Industrial Scale-up",
+                "Full P&L responsibility"
+              ]
             },
             {
               "title": "Climate & Industry",
-              "items": ["Climate Tech & Sustainability", "Renewable Energy (15+ yrs)", "Marine & Environmental Data"]
+              "items": [
+                "Climate Tech & Sustainability",
+                "Renewable Energy (15+ yrs)",
+                "Marine & Environmental Data"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Technologie & Architecture",
-              "items": ["Architecture produit", "Stack IA/ML (LLMs, RAG)", "Systèmes backend & cloud", "Automatisation de processus"]
+              "items": [
+                "Architecture produit",
+                "Stack IA/ML (LLMs, RAG)",
+                "Systèmes backend & cloud",
+                "Automatisation de processus"
+              ]
             },
             {
               "title": "Leadership & croissance",
-              "items": ["Direction équipe R&D (12 pers.)", "Relations investisseurs & levée de fonds", "Scale-up labo → industriel", "Responsabilité P&L complète"]
+              "items": [
+                "Direction équipe R&D (12 pers.)",
+                "Relations investisseurs & levée de fonds",
+                "Scale-up labo → industriel",
+                "Responsabilité P&L complète"
+              ]
             },
             {
               "title": "Climat & Industrie",
-              "items": ["Tech climatique & développement durable", "Énergies renouvelables (15+ ans)", "Données marines & environnementales"]
+              "items": [
+                "Tech climatique & développement durable",
+                "Énergies renouvelables (15+ ans)",
+                "Données marines & environnementales"
+              ]
             }
           ]
         },
@@ -613,29 +879,55 @@
           "en": [
             {
               "title": "AI Platform Architecture",
-              "items": ["LLMs, RAG, AI Agents", "Product Architecture", "Backend & Cloud Systems", "MCP servers"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Product Architecture",
+                "Backend & Cloud Systems",
+                "MCP servers"
+              ]
             },
             {
               "title": "Fundraising & Scale",
-              "items": ["Investor Relations & Fundraising", "Lab-to-Industrial Scale-up", "R&D Team Leadership (12 people)"]
+              "items": [
+                "Investor Relations & Fundraising",
+                "Lab-to-Industrial Scale-up",
+                "R&D Team Leadership (12 people)"
+              ]
             },
             {
               "title": "B2B SaaS",
-              "items": ["Scale-up Operations", "Enterprise Sales", "Marine data intelligence"]
+              "items": [
+                "Scale-up Operations",
+                "Enterprise Sales",
+                "Marine data intelligence"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Architecture plateforme IA",
-              "items": ["LLMs, RAG, Agents IA", "Architecture produit", "Systèmes backend & cloud", "Serveurs MCP"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Architecture produit",
+                "Systèmes backend & cloud",
+                "Serveurs MCP"
+              ]
             },
             {
               "title": "Levée de fonds & croissance",
-              "items": ["Relations investisseurs & levée de fonds", "Scale-up labo → industriel", "Direction équipe R&D (12 pers.)"]
+              "items": [
+                "Relations investisseurs & levée de fonds",
+                "Scale-up labo → industriel",
+                "Direction équipe R&D (12 pers.)"
+              ]
             },
             {
               "title": "SaaS B2B industriel",
-              "items": ["Opérations scale-up", "Vente grands comptes", "Intelligence données marines"]
+              "items": [
+                "Opérations scale-up",
+                "Vente grands comptes",
+                "Intelligence données marines"
+              ]
             }
           ]
         },
@@ -667,29 +959,53 @@
           "en": [
             {
               "title": "Solution Deployment",
-              "items": ["LLMs, RAG, AI Agents", "Workflow Automation", "Process Automation"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Workflow Automation",
+                "Process Automation"
+              ]
             },
             {
               "title": "Client Engagement",
-              "items": ["Stakeholder & Client Engagement", "AI Awareness Training", "Customer Onboarding & Adoption"]
+              "items": [
+                "Stakeholder & Client Engagement",
+                "AI Awareness Training",
+                "Customer Onboarding & Adoption"
+              ]
             },
             {
               "title": "Energy & Industry",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Marine & Environmental Data"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Marine & Environmental Data"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Déploiement de solutions",
-              "items": ["LLMs, RAG, Agents IA", "Automatisation de workflows", "Automatisation de processus"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Automatisation de workflows",
+                "Automatisation de processus"
+              ]
             },
             {
               "title": "Engagement client",
-              "items": ["Engagement clients & parties prenantes", "Formation & sensibilisation à l'IA", "Onboarding & adoption client"]
+              "items": [
+                "Engagement clients & parties prenantes",
+                "Formation & sensibilisation à l'IA",
+                "Onboarding & adoption client"
+              ]
             },
             {
               "title": "Énergie & Industrie",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Données marines & environnementales"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Données marines & environnementales"
+              ]
             }
           ]
         },
@@ -719,29 +1035,53 @@
           "en": [
             {
               "title": "Forward Deployed Engineering",
-              "items": ["LLMs, RAG, AI Agents", "MCP servers", "AI Evals & Observability"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "MCP servers",
+                "AI Evals & Observability"
+              ]
             },
             {
               "title": "Customer Success & Adoption",
-              "items": ["Customer Onboarding & Adoption", "Stakeholder & Client Engagement", "Enterprise Sales"]
+              "items": [
+                "Customer Onboarding & Adoption",
+                "Stakeholder & Client Engagement",
+                "Enterprise Sales"
+              ]
             },
             {
               "title": "Enterprise Verticals",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Climate Tech & Sustainability"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Climate Tech & Sustainability"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Ingénierie IA terrain",
-              "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Évaluation IA & Observabilité"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Serveurs MCP",
+                "Évaluation IA & Observabilité"
+              ]
             },
             {
               "title": "Succès & adoption client",
-              "items": ["Conduite du changement & formation IA", "Gestion multi-niveaux (C-level → ops)", "Vente de solution complexe B2B"]
+              "items": [
+                "Conduite du changement & formation IA",
+                "Gestion multi-niveaux (C-level → ops)",
+                "Vente de solution complexe B2B"
+              ]
             },
             {
               "title": "Secteurs d'expertise",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Tech climatique & développement durable"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Tech climatique & développement durable"
+              ]
             }
           ]
         },
@@ -773,29 +1113,55 @@
           "en": [
             {
               "title": "AI Solution Selling",
-              "items": ["LLMs, RAG, AI Agents", "Solution Scoping & Proposals", "Workflow Automation"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "Solution Scoping & Proposals",
+                "Workflow Automation"
+              ]
             },
             {
               "title": "Complex Sales Cycles",
-              "items": ["Enterprise Sales", "C-level negotiations", "Business Development", "Full P&L responsibility"]
+              "items": [
+                "Enterprise Sales",
+                "C-level negotiations",
+                "Business Development",
+                "Full P&L responsibility"
+              ]
             },
             {
               "title": "Energy & Infrastructure Network",
-              "items": ["Renewable Energy (15+ yrs)", "Engineering & Infrastructure", "Offshore Wind Development"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Engineering & Infrastructure",
+                "Offshore Wind Development"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Vente de solutions IA",
-              "items": ["LLMs, RAG, Agents IA", "Cadrage de solutions & Propales", "Automatisation de workflows"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Cadrage de solutions & Propales",
+                "Automatisation de workflows"
+              ]
             },
             {
               "title": "Cycles de vente complexes",
-              "items": ["Vente grands comptes", "Négociations C-level", "Business Development", "Responsabilité P&L complète"]
+              "items": [
+                "Vente grands comptes",
+                "Négociations C-level",
+                "Business Development",
+                "Responsabilité P&L complète"
+              ]
             },
             {
               "title": "Réseau Énergie & Infrastructure",
-              "items": ["Énergies renouvelables (15+ ans)", "Ingénierie & Infrastructure", "Développement éolien offshore"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Ingénierie & Infrastructure",
+                "Développement éolien offshore"
+              ]
             }
           ]
         },
@@ -825,29 +1191,53 @@
           "en": [
             {
               "title": "Technical Fluency (GenAI)",
-              "items": ["LLMs, RAG, AI Agents", "MCP servers", "NoCode/LowCode Solutions"]
+              "items": [
+                "LLMs, RAG, AI Agents",
+                "MCP servers",
+                "NoCode/LowCode Solutions"
+              ]
             },
             {
               "title": "Enterprise Sales",
-              "items": ["Enterprise Sales", "C-level negotiations", "Business Development"]
+              "items": [
+                "Enterprise Sales",
+                "C-level negotiations",
+                "Business Development"
+              ]
             },
             {
               "title": "Energy & Industry Network",
-              "items": ["Renewable Energy (15+ yrs)", "Offshore Wind Development", "Engineering & Infrastructure"]
+              "items": [
+                "Renewable Energy (15+ yrs)",
+                "Offshore Wind Development",
+                "Engineering & Infrastructure"
+              ]
             }
           ],
           "fr": [
             {
               "title": "Maîtrise technique GenAI",
-              "items": ["LLMs, RAG, Agents IA", "Serveurs MCP", "Solutions NoCode/LowCode"]
+              "items": [
+                "LLMs, RAG, Agents IA",
+                "Serveurs MCP",
+                "Solutions NoCode/LowCode"
+              ]
             },
             {
               "title": "Vente enterprise",
-              "items": ["Vente grands comptes", "Négociations C-level", "Business Development"]
+              "items": [
+                "Vente grands comptes",
+                "Négociations C-level",
+                "Business Development"
+              ]
             },
             {
               "title": "Réseau Énergie & Industrie",
-              "items": ["Énergies renouvelables (15+ ans)", "Développement éolien offshore", "Ingénierie & Infrastructure"]
+              "items": [
+                "Énergies renouvelables (15+ ans)",
+                "Développement éolien offshore",
+                "Ingénierie & Infrastructure"
+              ]
             }
           ]
         },
@@ -858,79 +1248,143 @@
       }
     }
   },
-
   "experiences": {
     "blue_green": {
       "company": "Blue Green",
       "location": "Paris, France",
       "period": "2023 – Present",
       "titles": {
-        "p1": {"en": "AI Solutions Architect", "fr": "Architecte Solutions IA"},
-        "p2": {"en": "AI Lead", "fr": "Responsable Solutions IA — Consultant"},
-        "p3": {"en": "AI & Technology Director", "fr": "Directeur IA & Technologie"},
-        "p4": {"en": "AI Solutions Engineer", "fr": "Solutions Engineer IA"},
-        "p5": {"en": "AI Business Developer", "fr": "Business Developer IA"}
+        "p1": {
+          "en": "AI Solutions Architect",
+          "fr": "Architecte Solutions IA"
+        },
+        "p2": {
+          "en": "AI Lead",
+          "fr": "Responsable Solutions IA — Consultant"
+        },
+        "p3": {
+          "en": "AI & Technology Director",
+          "fr": "Directeur IA & Technologie"
+        },
+        "p4": {
+          "en": "AI Solutions Engineer",
+          "fr": "Solutions Engineer IA"
+        },
+        "p5": {
+          "en": "AI Business Developer",
+          "fr": "Business Developer IA"
+        },
+        "p1_t5": {
+          "en": "Applied AI Architect",
+          "fr": "Architecte Applied AI"
+        }
       },
       "bullets": {
         "p1": {
-          "en": [
-            "Designed and deployed end-to-end AI solutions for EnBW France (offshore wind tender analysis) and Valorem (urban planning automation)",
-            "Architected production GenAI systems: RAG (22,800-chunk pgvector index), 5 Pydantic AI agents, MCP servers — BlueWind Companion v2.2 live",
-            "Technical stack: LLMs (Claude, Mistral), RAG, AI Agents, MCP servers, workflow automation"
-          ],
-          "fr": [
-            "Conçu et déployé des solutions IA bout-en-bout pour EnBW France (analyse d'AO éolien offshore) et Valorem (automatisation urbanisme)",
-            "Architecture de systèmes GenAI en production : RAG multi-sources, agents IA, serveurs MCP — BlueWind Companion v2.2 live",
-            "Clients : acteurs majeurs de l'énergie renouvelable (développeurs éoliens offshore, promoteurs)"
-          ]
+          "default": {
+            "en": [
+              "Designed and deployed end-to-end AI solutions for EnBW France (offshore wind tender analysis) and Valorem (urban planning automation)",
+              "Architected production GenAI systems: RAG (22,800-chunk pgvector index), 5 Pydantic AI agents, MCP servers — BlueWind Companion v2.2 live",
+              "Technical stack: LLMs (Claude, Mistral), RAG, AI Agents, MCP servers, workflow automation"
+            ],
+            "fr": [
+              "Conçu et déployé des solutions IA bout-en-bout pour EnBW France (analyse d'AO éolien offshore) et Valorem (automatisation urbanisme)",
+              "Architecture de systèmes GenAI en production : RAG multi-sources, agents IA, serveurs MCP — BlueWind Companion v2.2 live",
+              "Clients : acteurs majeurs de l'énergie renouvelable (développeurs éoliens offshore, promoteurs)"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Delivered GenAI in production for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis for wind siting)",
+              "Deployed Edifice for IC Ingénieurs Conseils — AI building diagnostics for 2 social housing projects (€25M + €35M)",
+              "Built BlueWind Companion v2.2 (MCP servers, pgvector) and WattCast (D+1 MAE 12.42 EUR/MWh); led GenAI workshops for energy developer teams"
+            ],
+            "fr": [
+              "GenAI en production pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents IA) et Valorem (analyse PLU éolien terrestre)",
+              "Déployé Edifice pour IC Ingénieurs Conseils — diagnostics bâtiment IA, 2 rénovations logement social (€25M + €35M)",
+              "BlueWind Companion v2.2 (MCP, pgvector) + WattCast (MAE J+1 : 12,42 €/MWh) ; ateliers GenAI pour développeurs de projets EnR"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Deployed agentic AI in production for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis)",
+              "Deployed Edifice for IC Ingénieurs Conseils — AI diagnostic reports for 2 social housing projects (€25M + €35M)",
+              "Architected BlueWind Companion v2.2 (FastAPI + pgvector, MCP servers, multi-agent, France-hosted) and WattCast"
+            ],
+            "fr": [
+              "IA agentique en production pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents) et Valorem (analyse réglementaire PLU éolien terrestre)",
+              "Déployé Edifice pour IC Ingénieurs Conseils — rapports diagnostics IA pour 2 rénovations logement social (€25M + €35M)",
+              "Architecturé BlueWind Companion v2.2 (FastAPI + pgvector, serveurs MCP, multi-agents, hébergement France) et WattCast"
+            ]
+          },
+          "t3": {
+            "en": [
+              "Delivered GenAI end-to-end for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis for wind siting)",
+              "Deployed Edifice for IC Ingénieurs Conseils — AI diagnostic reports for 2 renovation projects (€25M + €35M)",
+              "Architected BlueWind Companion v2.2 (RAG, MCP servers, agentic) and led GenAI workshops for energy developer teams"
+            ],
+            "fr": [
+              "GenAI bout en bout pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents IA) et Valorem (analyse PLU pour l'éolien terrestre)",
+              "Déployé Edifice pour IC Ingénieurs Conseils — diagnostics IA automatisés pour 2 rénovations (€25M + €35M)",
+              "Conçu BlueWind Companion v2.2 (RAG, serveurs MCP, agentique) et animé des ateliers GenAI pour développeurs de projets EnR"
+            ]
+          }
         },
         "p2": {
-          "en": [
-            "Led end-to-end AI delivery for enterprise clients (EnBW France, Valorem): scoping, architecture, production deployment",
-            "Architected multi-agent GenAI platform (BlueWind Companion v2.2): RAG, 5 AI agents, MCP servers — live in production",
-            "Conducted AI awareness workshops and facilitated cross-functional adoption"
-          ],
-          "fr": [
-            "Piloté le delivery IA bout-en-bout pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
-            "Architecture de plateforme GenAI multi-agents (BlueWind Companion v2.2) : RAG, agents IA, serveurs MCP — live en production",
-            "Animé des ateliers de sensibilisation à l'IA et facilité l'adoption cross-fonctionnelle"
-          ]
+          "default": {
+            "en": [
+              "Led end-to-end AI delivery for enterprise clients (EnBW France, Valorem): scoping, architecture, production deployment",
+              "Architected multi-agent GenAI platform (BlueWind Companion v2.2): RAG, 5 AI agents, MCP servers — live in production",
+              "Conducted AI awareness workshops and facilitated cross-functional adoption"
+            ],
+            "fr": [
+              "Piloté le delivery IA bout-en-bout pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
+              "Architecture de plateforme GenAI multi-agents (BlueWind Companion v2.2) : RAG, agents IA, serveurs MCP — live en production",
+              "Animé des ateliers de sensibilisation à l'IA et facilité l'adoption cross-fonctionnelle"
+            ]
+          }
         },
         "p3": {
-          "en": [
-            "Built and shipped full-stack AI SaaS platform (BlueWind Companion v2.2): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
-            "Architected and deployed production GenAI systems for enterprise clients (EnBW France, Valorem)",
-            "Defined technical roadmap, selected stack, and led end-to-end delivery solo at maximum velocity"
-          ],
-          "fr": [
-            "Construit et livré une plateforme SaaS IA full-stack (BlueWind Companion v2.2) — live en France",
-            "Architecture et déploiement de systèmes GenAI en production pour des clients enterprise (EnBW France, Valorem)",
-            "Défini la roadmap technique, choisi le stack, dirigé le delivery bout-en-bout en solo à vélocité maximale"
-          ]
+          "default": {
+            "en": [
+              "Built and shipped full-stack AI SaaS platform (BlueWind Companion v2.2): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
+              "Architected and deployed production GenAI systems for enterprise clients (EnBW France, Valorem)",
+              "Defined technical roadmap, selected stack, and led end-to-end delivery solo at maximum velocity"
+            ],
+            "fr": [
+              "Construit et livré une plateforme SaaS IA full-stack (BlueWind Companion v2.2) — live en France",
+              "Architecture et déploiement de systèmes GenAI en production pour des clients enterprise (EnBW France, Valorem)",
+              "Défini la roadmap technique, choisi le stack, dirigé le delivery bout-en-bout en solo à vélocité maximale"
+            ]
+          }
         },
         "p4": {
-          "en": [
-            "Deployed AI solutions for industrial clients (EnBW France, Valorem): discovery, integration, production handover",
-            "Built RAG systems and AI agents adapted to client workflows (offshore wind analysis, urban planning automation)",
-            "Conducted AI awareness workshops and onboarded client teams to autonomous use"
-          ],
-          "fr": [
-            "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : qualification du besoin, intégration, mise en production",
-            "Construit des systèmes RAG et agents IA adaptés aux processus métier des clients (analyse d'AO éolien offshore, automatisation urbanisme)",
-            "Animé des ateliers de sensibilisation à l'IA et accompagné les équipes clients vers une utilisation autonome"
-          ]
+          "default": {
+            "en": [
+              "Deployed AI solutions for industrial clients (EnBW France, Valorem): discovery, integration, production handover",
+              "Built RAG systems and AI agents adapted to client workflows (offshore wind analysis, urban planning automation)",
+              "Conducted AI awareness workshops and onboarded client teams to autonomous use"
+            ],
+            "fr": [
+              "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : qualification du besoin, intégration, mise en production",
+              "Construit des systèmes RAG et agents IA adaptés aux processus métier des clients (analyse d'AO éolien offshore, automatisation urbanisme)",
+              "Animé des ateliers de sensibilisation à l'IA et accompagné les équipes clients vers une utilisation autonome"
+            ]
+          }
         },
         "p5": {
-          "en": [
-            "Developed and closed AI consulting engagements with enterprise clients (EnBW France, Valorem): full cycle from prospecting to signed contract",
-            "Ran discovery sessions, scoped GenAI solutions, and produced commercial proposals for C-level decision-makers",
-            "AI Awareness Training for renewable energy developers: positions Blue Green as the go-to GenAI partner"
-          ],
-          "fr": [
-            "Développé et closé des missions de conseil IA avec des clients enterprise (EnBW France, Valorem) : cycle complet de la prospection au contrat signé",
-            "Animé des sessions de discovery, cadré des solutions GenAI et rédigé des propales commerciales pour des décideurs C-level",
-            "Ateliers de sensibilisation à l'IA pour des développeurs d'énergie renouvelable : positionne Blue Green comme le partenaire GenAI de référence"
-          ]
+          "default": {
+            "en": [
+              "Developed and closed AI consulting engagements with enterprise clients (EnBW France, Valorem): full cycle from prospecting to signed contract",
+              "Ran discovery sessions, scoped GenAI solutions, and produced commercial proposals for C-level decision-makers",
+              "AI Awareness Training for renewable energy developers: positions Blue Green as the go-to GenAI partner"
+            ],
+            "fr": [
+              "Développé et closé des missions de conseil IA avec des clients enterprise (EnBW France, Valorem) : cycle complet de la prospection au contrat signé",
+              "Animé des sessions de discovery, cadré des solutions GenAI et rédigé des propales commerciales pour des décideurs C-level",
+              "Ateliers de sensibilisation à l'IA pour des développeurs d'énergie renouvelable : positionne Blue Green comme le partenaire GenAI de référence"
+            ]
+          }
         }
       }
     },
@@ -939,72 +1393,133 @@
       "location": "London, UK",
       "period": "2019 – 2022",
       "titles": {
-        "p1": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
-        "p2": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
-        "p3": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
-        "p4": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"},
-        "p5": {"en": "Business Development & Project Director", "fr": "Directeur Développement & Projets"}
+        "p1": {
+          "en": "Business Development & Project Director",
+          "fr": "Directeur Développement & Projets"
+        },
+        "p2": {
+          "en": "Business Development & Project Director",
+          "fr": "Directeur Développement & Projets"
+        },
+        "p3": {
+          "en": "Business Development & Project Director",
+          "fr": "Directeur Développement & Projets"
+        },
+        "p4": {
+          "en": "Business Development & Project Director",
+          "fr": "Directeur Développement & Projets"
+        },
+        "p5": {
+          "en": "Business Development & Project Director",
+          "fr": "Directeur Développement & Projets"
+        }
       },
       "bullets": {
         "p1": {
-          "en": [
-            "Drove product roadmap alignment with market requirements for offshore wind data services",
-            "Managed client portfolio generating 15% YOY revenue growth through C-level negotiations",
-            "Full P&L responsibility for the offshore wind business unit"
-          ],
-          "fr": [
-            "Aligné la roadmap produit avec les besoins du marché pour les services de données éolien offshore",
-            "Géré un portefeuille clients générant +15% de croissance annuelle via des négociations C-level",
-            "Responsabilité P&L complète de la business unit éolien offshore"
-          ]
+          "default": {
+            "en": [
+              "Drove product roadmap alignment with market requirements for offshore wind data services",
+              "Managed client portfolio generating 15% YOY revenue growth through C-level negotiations",
+              "Full P&L responsibility for the offshore wind business unit"
+            ],
+            "fr": [
+              "Aligné la roadmap produit avec les besoins du marché pour les services de données éolien offshore",
+              "Géré un portefeuille clients générant +15% de croissance annuelle via des négociations C-level",
+              "Responsabilité P&L complète de la business unit éolien offshore"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Grew renewable energy client portfolio 15% YOY — SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
+              "Full P&L for the renewables & energy business unit in a 6,000-person international engineering group (London)",
+              "Contributed to offshore wind marine data platform roadmap — enterprise client needs into engineering specs"
+            ],
+            "fr": [
+              "Croissance du portefeuille EnR de +15% par an — SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
+              "Responsabilité P&L de la BU énergie & renouvelables dans un groupe international de 6 000 personnes (Londres)",
+              "Contribution à la feuille de route d'une plateforme données marines éolien offshore — besoins clients en specs engineering"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Full P&L for the renewables & energy BU; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
+              "Directed offshore wind and marine infrastructure projects from scoping to delivery — technical and commercial governance",
+              "Led product roadmap adaptation for offshore wind data platform — aligned engineering priorities with enterprise needs"
+            ],
+            "fr": [
+              "Responsabilité P&L de la BU énergie & renouvelables ; croissance portefeuille +15%/an — SBM Offshore, Nexans, ASN, Cadeler",
+              "Direction de projets éolien offshore et infrastructures marines de l'avant-projet à la livraison — gouvernance technique et commerciale",
+              "Pilotage de l'adaptation de la feuille de route d'une plateforme de données marines — priorités engineering alignées aux besoins clients"
+            ]
+          },
+          "t3": {
+            "en": [
+              "C-level client management and framework contracts — SBM Offshore, Nexans, ASN, Cadeler — +15% YOY revenue growth",
+              "Contributed to offshore wind data platform roadmap — enterprise client requirements into prioritised engineering specs",
+              "Full P&L ownership of the renewables & energy business unit within a 6,000-person international engineering group"
+            ],
+            "fr": [
+              "Relations C-level et contrats-cadres — SBM Offshore, Nexans, ASN, Cadeler — +15% de croissance annuelle",
+              "Contribution à la feuille de route des services de données éolien offshore — besoins clients grands comptes en specs engineering priorisées",
+              "Responsabilité P&L de la business unit énergie & renouvelables dans un groupe international de 6 000 personnes"
+            ]
+          }
         },
         "p2": {
-          "en": [
-            "Managed cross-functional teams delivering offshore wind data services to major European clients",
-            "Drove 15% YOY revenue growth through strategic client engagement and C-level negotiations",
-            "Full P&L responsibility for the offshore wind business unit in London"
-          ],
-          "fr": [
-            "Managé des équipes transverses livrant des services de données éolien offshore à de grands clients européens",
-            "+15% de croissance annuelle via engagement client stratégique et négociations C-level",
-            "Responsabilité P&L complète de la business unit éolien offshore à Londres"
-          ]
+          "default": {
+            "en": [
+              "Managed cross-functional teams delivering offshore wind data services to major European clients",
+              "Drove 15% YOY revenue growth through strategic client engagement and C-level negotiations",
+              "Full P&L responsibility for the offshore wind business unit in London"
+            ],
+            "fr": [
+              "Managé des équipes transverses livrant des services de données éolien offshore à de grands clients européens",
+              "+15% de croissance annuelle via engagement client stratégique et négociations C-level",
+              "Responsabilité P&L complète de la business unit éolien offshore à Londres"
+            ]
+          }
         },
         "p3": {
-          "en": [
-            "Led investor presentations and technical due diligence for offshore wind data services",
-            "Managed client portfolio generating 15% YOY revenue growth; Full P&L responsibility",
-            "Drove product development aligned with major European offshore wind developers"
-          ],
-          "fr": [
-            "Dirigé les présentations investisseurs et la due diligence technique pour les services de données éolien offshore",
-            "Géré un portefeuille clients avec +15% de croissance annuelle ; responsabilité P&L complète",
-            "Piloté le développement produit en alignement avec les grands développeurs éoliens offshore européens"
-          ]
+          "default": {
+            "en": [
+              "Led investor presentations and technical due diligence for offshore wind data services",
+              "Managed client portfolio generating 15% YOY revenue growth; Full P&L responsibility",
+              "Drove product development aligned with major European offshore wind developers"
+            ],
+            "fr": [
+              "Dirigé les présentations investisseurs et la due diligence technique pour les services de données éolien offshore",
+              "Géré un portefeuille clients avec +15% de croissance annuelle ; responsabilité P&L complète",
+              "Piloté le développement produit en alignement avec les grands développeurs éoliens offshore européens"
+            ]
+          }
         },
         "p4": {
-          "en": [
-            "Deployed offshore wind data services with major European developers (DCNS, SBM Offshore, RTE)",
-            "Managed client portfolio generating 15% YOY growth — discovery, proposal, delivery, adoption",
-            "Facilitated cross-functional collaboration between engineering teams and client operations"
-          ],
-          "fr": [
-            "Déployé des services de données éolien offshore avec de grands développeurs européens (DCNS, SBM Offshore, RTE)",
-            "Géré un portefeuille clients avec +15% de croissance — qualification, propale, livraison, adoption",
-            "Facilité la collaboration transverse entre équipes ingénierie et opérations clients"
-          ]
+          "default": {
+            "en": [
+              "Deployed offshore wind data services with major European developers (DCNS, SBM Offshore, RTE)",
+              "Managed client portfolio generating 15% YOY growth — discovery, proposal, delivery, adoption",
+              "Facilitated cross-functional collaboration between engineering teams and client operations"
+            ],
+            "fr": [
+              "Déployé des services de données éolien offshore avec de grands développeurs européens (DCNS, SBM Offshore, RTE)",
+              "Géré un portefeuille clients avec +15% de croissance — qualification, propale, livraison, adoption",
+              "Facilité la collaboration transverse entre équipes ingénierie et opérations clients"
+            ]
+          }
         },
         "p5": {
-          "en": [
-            "Managed offshore wind enterprise portfolio generating 15% YOY revenue growth",
-            "Negotiated complex enterprise contracts with C-level executives across Europe",
-            "Created powerful presentations for Investor Days and C-Level meetings; Full P&L responsibility"
-          ],
-          "fr": [
-            "Géré un portefeuille enterprise éolien offshore générant +15% de croissance annuelle",
-            "Négocié des contrats enterprise complexes avec des dirigeants C-level à travers l'Europe",
-            "Créé des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; P&L complet"
-          ]
+          "default": {
+            "en": [
+              "Managed offshore wind enterprise portfolio generating 15% YOY revenue growth",
+              "Negotiated complex enterprise contracts with C-level executives across Europe",
+              "Created powerful presentations for Investor Days and C-Level meetings; Full P&L responsibility"
+            ],
+            "fr": [
+              "Géré un portefeuille enterprise éolien offshore générant +15% de croissance annuelle",
+              "Négocié des contrats enterprise complexes avec des dirigeants C-level à travers l'Europe",
+              "Créé des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; P&L complet"
+            ]
+          }
         }
       }
     },
@@ -1013,80 +1528,156 @@
       "location": "Paris, France",
       "period": "2011 – 2019",
       "titles": {
-        "p1": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
-        "p2": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"},
-        "p3": {"en": "Co-Founder & CTO", "fr": "Co-Fondateur & CTO"},
-        "p4": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"},
-        "p5": {"en": "Co-Founder & Managing Director", "fr": "Directeur Technique & Co-Fondateur"}
+        "p1": {
+          "en": "Co-Founder & CTO",
+          "fr": "Co-Fondateur & CTO"
+        },
+        "p2": {
+          "en": "Co-Founder & Managing Director",
+          "fr": "Directeur Technique & Co-Fondateur"
+        },
+        "p3": {
+          "en": "Co-Founder & CTO",
+          "fr": "Co-Fondateur & CTO"
+        },
+        "p4": {
+          "en": "Co-Founder & Managing Director",
+          "fr": "Directeur Technique & Co-Fondateur"
+        },
+        "p5": {
+          "en": "Co-Founder & Managing Director",
+          "fr": "Directeur Technique & Co-Fondateur"
+        }
       },
       "bullets": {
         "p1": {
-          "en": [
-            "Architected and scaled marine data intelligence SaaS platform from prototype to industrial deployment (team of 12, €2M raised, exit)",
-            "Led product development: client requirements, technical roadmap, agile delivery — major clients: DCNS, SBM Offshore, RTE",
-            "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
-          ],
-          "fr": [
-            "Architecture et scale-up d'une plateforme SaaS de données marines du prototype au déploiement industriel (équipe 12, €2M levés, exit)",
-            "Pilotage du développement produit : besoins clients, roadmap technique, delivery agile — clients majeurs : DCNS, SBM Offshore, RTE",
-            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
-          ]
+          "default": {
+            "en": [
+              "Architected and scaled marine data intelligence SaaS platform from prototype to industrial deployment (team of 12, €2M raised, exit)",
+              "Led product development: client requirements, technical roadmap, agile delivery — major clients: DCNS, SBM Offshore, RTE",
+              "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
+            ],
+            "fr": [
+              "Architecture et scale-up d'une plateforme SaaS de données marines du prototype au déploiement industriel (équipe 12, €2M levés, exit)",
+              "Pilotage du développement produit : besoins clients, roadmap technique, delivery agile — clients majeurs : DCNS, SBM Offshore, RTE",
+              "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Co-founded and led a 12-person team — raised €2M from Seventure Partners & Cap Décisif/FNA; exit via acquisition by Artelia (2019)",
+              "Owned full technical roadmap: architecture, agile delivery and client requirements — Naval Group, SBM Offshore, RTE (framework contract)",
+              "Scaled platform to handle real-time metocean data at industrial volume; data architecture underpinned the acquisition thesis"
+            ],
+            "fr": [
+              "Co-fondé et dirigé une équipe de 12 — levée de 2 M€ (Seventure Partners, Cap Décisif/FNA) ; exit par acquisition par Artelia (2019)",
+              "Pilotage de la feuille de route : architecture, delivery agile, besoins clients — Naval Group, SBM Offshore, RTE (contrat-cadre)",
+              "Montée en charge de la plateforme données marines à volume industriel — architecture et API ayant fondé la thèse d'acquisition"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Architected a marine data SaaS from prototype to industrial scale — led 12-person team (Naval Group, SBM Offshore, RTE); raised €2M; exit via Artelia (2019)",
+              "Defined data architecture and API design for real-time metocean services; drove technical roadmap and agile delivery",
+              "Built C-level commercial relationships from prospecting to signature — Naval Group, SBM Offshore, RTE, Doris Engineering"
+            ],
+            "fr": [
+              "Architecture SaaS de données marines du prototype à l'échelle industrielle — équipe 12, clients Naval Group, SBM Offshore, RTE ; levée 2 M€ ; exit Artelia (2019)",
+              "Défini l'architecture données et conception API pour services météo-océaniques temps réel ; roadmap technique et livraison agile",
+              "Relations C-level de la prospection à la signature — Naval Group, SBM Offshore, RTE, Doris Engineering"
+            ]
+          },
+          "t3": {
+            "en": [
+              "Co-founded and led a 12-person team — raised €2M from Seventure Partners & Cap Décisif/FNA; exit via acquisition by Artelia (2019)",
+              "Directed full product lifecycle — requirements, roadmap, agile delivery — Naval Group, SBM Offshore, RTE (framework contract)",
+              "Scaled platform architecture for real-time marine data ingestion and multi-client industrial deployment"
+            ],
+            "fr": [
+              "Co-fondé et dirigé une équipe de 12 — levée de 2 M€ (Seventure Partners, Cap Décisif/FNA) ; exit par acquisition par Artelia (2019)",
+              "Direction du cycle produit complet — besoins clients, roadmap, livraison agile — Naval Group, SBM Offshore, RTE (contrat-cadre)",
+              "Architecture de la plateforme pour l'ingestion de données marines en temps réel et le déploiement multi-clients à échelle industrielle"
+            ]
+          }
         },
         "p2": {
-          "en": [
-            "Built and led a 12-person multidisciplinary product team (engineers, data scientists, web specialists)",
-            "Scaled marine data intelligence SaaS platform from prototype to industrial deployment",
-            "Raised €2M — successful exit through acquisition by Artelia (2019)"
-          ],
-          "fr": [
-            "Construit et dirigé une équipe produit pluridisciplinaire de 12 (ingénieurs, data scientists, web)",
-            "Scale-up de la plateforme SaaS data marines du prototype au déploiement industriel",
-            "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
-          ]
+          "default": {
+            "en": [
+              "Built and led a 12-person multidisciplinary product team (engineers, data scientists, web specialists)",
+              "Scaled marine data intelligence SaaS platform from prototype to industrial deployment",
+              "Raised €2M — successful exit through acquisition by Artelia (2019)"
+            ],
+            "fr": [
+              "Construit et dirigé une équipe produit pluridisciplinaire de 12 (ingénieurs, data scientists, web)",
+              "Scale-up de la plateforme SaaS data marines du prototype au déploiement industriel",
+              "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
+            ]
+          }
         },
         "p3": {
-          "en": [
-            "Architected and scaled marine data intelligence SaaS from prototype to industrial deployment",
-            "Led product development with a 12-person team: roadmap, agile delivery, major clients (DCNS, SBM Offshore, RTE)",
-            "Raised €2M from Business Angels and VCs — successful exit by acquisition (Artelia, 2019)"
-          ],
-          "fr": [
-            "Architecture et scale-up d'un SaaS de données marines du prototype au déploiement industriel",
-            "Dirigé le développement produit avec une équipe de 12 : roadmap, delivery agile, clients majeurs (DCNS, SBM Offshore, RTE)",
-            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition (Artelia, 2019)"
-          ]
+          "default": {
+            "en": [
+              "Architected and scaled marine data intelligence SaaS from prototype to industrial deployment",
+              "Led product development with a 12-person team: roadmap, agile delivery, major clients (DCNS, SBM Offshore, RTE)",
+              "Raised €2M from Business Angels and VCs — successful exit by acquisition (Artelia, 2019)"
+            ],
+            "fr": [
+              "Architecture et scale-up d'un SaaS de données marines du prototype au déploiement industriel",
+              "Dirigé le développement produit avec une équipe de 12 : roadmap, delivery agile, clients majeurs (DCNS, SBM Offshore, RTE)",
+              "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition (Artelia, 2019)"
+            ]
+          }
         },
         "p4": {
-          "en": [
-            "Deployed marine data intelligence SaaS with major industrial clients (DCNS, SBM Offshore, RTE)",
-            "Owned 100% of client-facing delivery: discovery, proposal, implementation, adoption",
-            "Raised €2M — successful exit through acquisition by Artelia (2019)"
-          ],
-          "fr": [
-            "Déployé le SaaS de données marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
-            "Porté 100% du cycle client : qualification, propale, implémentation, adoption",
-            "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
-          ]
+          "default": {
+            "en": [
+              "Deployed marine data intelligence SaaS with major industrial clients (DCNS, SBM Offshore, RTE)",
+              "Owned 100% of client-facing delivery: discovery, proposal, implementation, adoption",
+              "Raised €2M — successful exit through acquisition by Artelia (2019)"
+            ],
+            "fr": [
+              "Déployé le SaaS de données marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
+              "Porté 100% du cycle client : qualification, propale, implémentation, adoption",
+              "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
+            ]
+          }
         },
         "p5": {
-          "en": [
-            "Owned 100% of sales cycles from prospecting to C-level closing (8 years)",
-            "Scaled marine data intelligence SaaS platform — major clients across Europe (DCNS, SBM Offshore, RTE)",
-            "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
-          ],
-          "fr": [
-            "Porté 100% des cycles de vente de la prospection au closing C-level (8 ans)",
-            "Scale-up de la plateforme SaaS data marines — clients majeurs en Europe (DCNS, SBM Offshore, RTE)",
-            "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
-          ]
+          "default": {
+            "en": [
+              "Owned 100% of sales cycles from prospecting to C-level closing (8 years)",
+              "Scaled marine data intelligence SaaS platform — major clients across Europe (DCNS, SBM Offshore, RTE)",
+              "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
+            ],
+            "fr": [
+              "Porté 100% des cycles de vente de la prospection au closing C-level (8 ans)",
+              "Scale-up de la plateforme SaaS data marines — clients majeurs en Europe (DCNS, SBM Offshore, RTE)",
+              "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
+            ]
+          }
         }
       }
     },
     "earlier": {
       "period": "2004 – 2010",
       "items": [
-        {"title": "Product Developer", "title_fr": "Développeur Produit", "company": "SAT OCEAN", "description": "marine metocean data services", "description_fr": "services de données océanométéo marines", "period": "2006-2010"},
-        {"title": "Data Analyst", "title_fr": "Analyste Données", "company": "CPTEC", "description": "extreme events data analysis", "description_fr": "analyse de données événements extrêmes", "location": "Brazil", "period": "2004-2005"}
+        {
+          "title": "Product Developer",
+          "title_fr": "Développeur Produit",
+          "company": "SAT OCEAN",
+          "description": "marine metocean data services",
+          "description_fr": "services de données océanométéo marines",
+          "period": "2006-2010"
+        },
+        {
+          "title": "Data Analyst",
+          "title_fr": "Analyste Données",
+          "company": "CPTEC",
+          "description": "extreme events data analysis",
+          "description_fr": "analyse de données événements extrêmes",
+          "location": "Brazil",
+          "period": "2004-2005"
+        }
       ]
     }
   }
