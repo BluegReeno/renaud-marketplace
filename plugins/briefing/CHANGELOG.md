@@ -1,5 +1,17 @@
 # briefing — Changelog
 
+## [0.4.0] — 2026-06-14
+
+### Added (sprint-review + sprint-planner skills)
+- `sprint-review` skill: full weekly sprint bilan — hal task completion rate across `blue-green` and `renaud` workspaces, jobsearch metrics (candidatures/week, conversion by profile, refus patterns, relances due next week), Blue Green active projects, prioritised shortlist for next sprint. Clôtures sprint in hal only after explicit user validation. Includes scheduled-mode support (fully autonomous steps 0–4, gate on step 5).
+- `sprint-planner` skill: next-sprint builder — report/abandon decisions for unfinished tasks, jobsearch vault metrics + vault relances, LinkedIn job alert scan via gmail-mcp (rlaborbe@gmail.com), 3-calendar conflict detection with automatic bloc adjustment in schedule mode, capacity calculation (35h brute, 10h job-search blocs, IC meeting, 30% buffer), 4-tier MUST/SHOULD/COULD/BACKLOG plan, hal sprint creation with sprint_number auto-increment and idempotency check. Creates sprint + assigns tasks only after explicit user validation.
+- `/sprint-review` and `/sprint-planner` slash commands.
+
+### Notes
+- Both skills are scheduled-mode-friendly (run autonomously on Friday afternoon, present output, gate writes on explicit validation).
+- `sprint-planner` Step 3 (LinkedIn scan) requires the `jobsearch` plugin to be co-installed (uses `mcp__claude_ai_gmail-mcp__search_emails`). Degrades gracefully with `gmail:DOWN` if unavailable.
+- `sprint_number` for `create_sprint` is auto-computed: `list_sprints(status="actuel").sprint_number + 1`, with idempotency check via `list_sprints(status="suivant")`.
+
 ## [0.3.0] — 2026-06-13
 
 ### Added (WP-D — tag-aware renaud section)
