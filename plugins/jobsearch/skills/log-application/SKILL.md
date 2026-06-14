@@ -138,7 +138,7 @@ The morning-briefing's Step 1c resolves "relances due today or overdue" against 
 
 ## Step 4b — Mirror the relance into hal (tagged `jobsearch`)
 
-The Obsidian `tache` from Step 4 surfaces in `/briefing`'s jobsearch section (path (a) above). Independently, also create a hal task in the `renaud` workspace so the relance shows up under the `🎯 jobsearch` subsection of `/briefing`'s `## 🏠 Sprint en cours — Renaud [perso]` block (WP-D — tag-grouped renaud section). The two writes are complementary: the Obsidian `tache` is the canonical jobsearch trail, the hal task is the unified-PM surface.
+The Obsidian `tache` from Step 4 surfaces in `/briefing`'s jobsearch section (path (a) above). Independently, also create a hal task in the `renaud` workspace so the relance shows up in the `jobsearch` section of `/briefing`. The two writes are complementary: the Obsidian `tache` is the canonical jobsearch trail, the hal task is the unified-PM surface.
 
 Invoke `mcp__hal-mcp__create_task` exactly once with:
 
@@ -192,7 +192,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 ## Step 6 — Constraints (load-bearing)
 
 - **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__hal-mcp__list_tasks` for Step 4b idempotency, and `mcp__hal-mcp__create_task` for the Step 4b hal mirror — do not work around it.
-- **Dual relance write (Step 4 + Step 4b) is intentional.** Obsidian `tache` is the canonical jobsearch trail; the hal task is the unified-PM mirror that surfaces in `/briefing`'s tag-grouped `renaud` section. Both must carry the `jobsearch` tag/etiquette. If Step 4b fails after Step 4 succeeds, the candidature is still safe — degrade gracefully and continue (see Step 4b's failure block).
+- **Dual relance write (Step 4 + Step 4b) is intentional.** Obsidian `tache` is the canonical jobsearch trail; the hal task is the unified-PM mirror that surfaces in `/briefing`'s `jobsearch` section. Both must carry the `jobsearch` tag/etiquette. If Step 4b fails after Step 4 succeeds, the candidature is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **First-apply `statut` is `✉️ Candidature envoyée`** (with emoji, verbatim — re-typing the emoji loses the variation selector). Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`. The user transitions the candidature's `statut` manually (or via a later skill) when they actually chase the relance.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
