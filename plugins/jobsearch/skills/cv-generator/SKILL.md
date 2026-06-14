@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.2.2
+version: 0.2.3
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -124,6 +124,26 @@ fi
 
 ---
 
+## Step 3b — Personalize bullets to the job offer (LLM step, no script)
+
+> Only applies when a concrete job offer is available. Skip for spontaneous CVs.
+
+After selecting the cell, read the job offer and adapt the pre-written bullets **before** calling `generate_cv.py`:
+
+1. **Identify 2–3 key signals** from the offer — specific tech, sector challenge, company framing (e.g. "prototyper rapidement en environnement réel", "logique ARR", "briques réutilisables")
+2. **Rewrite 1–2 bullets per company** to mirror those signals — rephrase emphasis, reorder, surface a relevant factual anchor
+3. **Optionally adjust the `about` section** to echo the job's specific framing (keep same infinitive structure)
+4. **Validate before generating** — every rewritten bullet must: start with an infinitive verb, keep all factual anchors intact, pass the pre-generation checklist
+
+**Rules — never violate:**
+- Only rewrite bullets — never invent new facts, metrics, client names, or dates
+- Keep all verifiable anchors: client names (EnBW, Valorem, Naval Group, SBM Offshore, RTE), metrics (22 800 chunks, ÷10, +15%), dates, team sizes
+- If the offer mentions a specific tech (n8n, LangChain, Pydantic AI), surface it **only if it exists** in the factual anchors — do not add if it doesn't
+- Limit: **max 2 bullets changed per company** — don't rewrite everything
+- Banned phrases (DCNS, Business Angels, "urban planning automation", etc.) still apply
+
+---
+
 ## Step 4 — Generate the CV
 
 ```bash
@@ -143,7 +163,31 @@ Replace `{profile}`, `{company_type}`, `{lang}` with the detected values.
 
 After generation, report:
 1. The path to the generated PDF
-2. One sentence summarising the positioning: e.g. "CV généré pour le profil **CTO** (P3) chez une **startup industrielle** (T1) — _CTO — Scaling AI-Powered Solutions for Climate & Industry_"
+2. One sentence with a **human-readable cell label** — no P/T codes in the output. Use the `label` field from `cv-master.json matrix` for the selected cell:
+
+**Cell labels (FR → EN):**
+
+| Cell | Label FR | Label EN |
+|------|----------|---------|
+| P1×T1 | Architecte IA — startup industrielle deeptech | AI Architect — Industrial Deeptech Startup |
+| P1×T2 | Architecte IA — bureau d'études / ingénierie | AI Architect — Engineering Consultancy / BET |
+| P1×T3 | Architecte IA — ESN / cabinet de conseil | AI Architect — Consulting Firm |
+| P1×T4 | Architecte IA — grand groupe industriel | AI Architect — Large Industrial Group |
+| P1×T5 | Architecte IA — éditeur SaaS IA | AI Architect — AI SaaS / Lab |
+| P2×T1 | Lead IA — startup industrielle | AI Lead — Industrial Startup |
+| P2×T3 | Lead IA — ESN / conseil | AI Lead — Consulting Firm |
+| P2×T4 | Lead IA — grand groupe | AI Lead — Large Industrial Group |
+| P2×T5 | Lead IA — éditeur SaaS IA | AI Lead — AI SaaS / Lab |
+| P3×T1 | CTO — startup industrielle | CTO — Industrial Startup |
+| P3×T5 | CTO — éditeur SaaS IA | CTO — AI SaaS / Lab |
+| P4×T1 | Solutions Engineer — startup industrielle | Forward Deployed Engineer — Industrial Startup |
+| P4×T5 | Solutions Engineer — éditeur SaaS IA | Forward Deployed Engineer — AI SaaS / Lab |
+| P5×T3 | Business Developer — ESN / conseil | Sales / BizDev — Consulting Firm |
+| P5×T5 | Business Developer — éditeur SaaS IA | Sales / BizDev — AI SaaS / Lab |
+
+Example output sentences:
+- ✅ "CV généré — **Solutions Engineer — éditeur SaaS IA** (P4×T5 FR) — _Solutions Engineer IA — Déploiement GenAI en environnement industriel_"
+- ✅ "CV généré — **CTO — startup industrielle** (P3×T1 EN) — _CTO — Scaling AI-Powered Solutions for Climate & Industry_"
 
 ---
 
@@ -205,6 +249,47 @@ uv run --with weasyprint --with pikepdf \
 ```
 
 Expected output: `All 30 CVs validated — 1 page each.`
+
+---
+
+## Editorial rules — CV content checklist
+
+Apply these rules when reviewing or editing any content in `cv-master.json`.
+
+### Person and tense
+- **No explicit subject** — never "je", "il", "elle", "vous", "Renaud"
+- All roles (current and past) → **infinitive, no subject**: "Déployer", "Construire", "Lever", "Piloter", "Maîtriser"
+- ❌ Never past participle: "Déployé", "Construit", "Piloté" — ❌ Never conjugated present: "Conçoit", "Livre", "Pilote"
+- No English calques: "parle ingénierie" ❌ → "Maîtriser les contraintes terrain" ✅; "speaks X" → restructure in French
+
+### Bullets — STAR compressed
+- Format: `[Strong verb] + [what + precise context] → [measurable or strong qualitative result]`
+- Max 4 bullets per role — pick the most impactful
+- **Banned verbs**: "participé", "contribué", "impliqué dans", "aidé à", "en charge de", "facilité", "animé", "géré" (without a result)
+- Every role must have ≥1 measurable result (% growth, client name, timeline, scale)
+
+### About section (3 bullets max)
+1. What you **do** concretely (tech or domain, with tool or sector named)
+2. What you **bring** to the client (measurable business value)
+3. What **differentiates** you (true for Renaud, false for most candidates)
+- No third person, no "passionné", "dynamique", "orienté résultats"
+
+### Competency containers
+- Items anchored with context or proof — not bare keyword lists
+- ✅ "Multi-agents LLM en production (Claude, pgvector, n8n)" not ❌ "LLMs, RAG, Agents IA"
+
+### Pre-generation checklist
+- [ ] No "je / il / elle / vous / Renaud" in any text block
+- [ ] All FR bullets start with an **infinitive** verb (Déployer / Concevoir / Piloter / Lever / etc.)
+- [ ] No past participle starts: "Déployé", "Construit", "Piloté" ❌
+- [ ] No conjugated present starts: "Conçoit", "Livre", "Pilote" ❌
+- [ ] No bullet starts with a banned/weak verb
+- [ ] Every role has ≥1 chiffre ou résultat qualitatif fort
+- [ ] Container items have proof/context, not bare keywords
+- [ ] "urban planning automation" → "PLU analysis for wind farm siting"
+- [ ] "Business Angels" → "institutional investors (Seventure Partners, Cap Décisif/FNA)"
+- [ ] "DCNS" → "Naval Group (ex-DCNS)"
+- [ ] "delivery" (FR bullets) → "livraison"
 
 ---
 
