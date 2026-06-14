@@ -7,7 +7,7 @@ description: >
   interviews, relances due, active candidatures). Use when the user asks "what's up
   for today", "ma journée", "briefing du jour", "quel est mon planning", or any
   similar daily-overview trigger.
-version: 0.2.0
+version: 0.3.0
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault)"
 ---
 
@@ -46,6 +46,20 @@ Label every task returned `[business]`.
 ### 1b — hal tasks for `renaud` workspace
 
 Identical flow with `workspace_slug="renaud"`. Label every task returned `[perso]`. Sprint resolution and open-tasks fallback are independent from 1a — one workspace having an active sprint does not imply the other does.
+
+**Tag grouping (renaud only).** The `renaud` workspace tasks carry a `tags` field (array of strings, drawn from the workspace's `allowed_tags` vocabulary: `jobsearch`, `rosaslaborbe`, `laborbe`, `personal`, `finance`, `hr`, `other`). Group the returned tasks by their **first** tag — a task with multiple tags lands under its first tag only (no duplication across sections). Tasks with an empty/missing `tags` array land under `other` (the catch-all bucket).
+
+Group ordering for the render in Step 3 (fixed, do NOT reorder):
+
+1. `jobsearch` (always first — job + revenue priority per `~/.claude/CLAUDE.md`)
+2. `rosaslaborbe`
+3. `personal`
+4. `finance`
+5. `hr`
+6. `laborbe`
+7. `other` (untagged + any tag not in the list above — defensive against future vocabulary growth)
+
+Skip any group with zero tasks — empty subsections clutter the brief. The `[perso]` label still applies to every task regardless of tag.
 
 ### 1c — Obsidian jobsearch (via the `jobsearch-vault` skill)
 
@@ -101,10 +115,38 @@ Prochain à venir : HH:MM <date> — <title> [<cal>]
 (or, if no active sprint: "(aucun sprint actif — tâches ouvertes)" + the open-tasks list)
 
 ## 🏠 Sprint en cours — Renaud [perso]
+
+### 🎯 jobsearch
 - [<status>] <title> · échéance <date>
 ...
+
+### 🏡 rosaslaborbe
+- [<status>] <title> · échéance <date>
+...
+
+### 🧍 personal
+- [<status>] <title> · échéance <date>
+...
+
+### 💶 finance
+- [<status>] <title> · échéance <date>
+...
+
+### 📋 hr
+- [<status>] <title> · échéance <date>
+...
+
+### 👨‍👩‍👧 laborbe
+- [<status>] <title> · échéance <date>
+...
+
+### 📌 other
+- [<status>] <title> · échéance <date>
+...
+
+(only render subsections that have at least one task — skip empty groups)
 (or, if hal:DOWN: ⚠️ hal DOWN — <reason>)
-(or, if no active sprint: "(aucun sprint actif — tâches ouvertes)" + the open-tasks list)
+(or, if no active sprint: "(aucun sprint actif — tâches ouvertes)" + the open-tasks list grouped by tag as above)
 
 ## Source status
 hal-mcp: ✅  | ⚠️ DOWN (<reason>)
