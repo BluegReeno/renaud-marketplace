@@ -4,15 +4,17 @@ Last updated: 2026-06-14
 
 ## Current Focus
 
-**WP-D MERGED (PR #5) — hal tags wired into renaud skills.** `morning-briefing` groups `renaud` tasks by tag (jobsearch first), `log-application` + `interview-prep` auto-tag hal tasks with `jobsearch`. Requires hal-mcp v39 deployed (done 2026-06-13). briefing v0.3.0 · jobsearch v0.4.2.
-
-**🏁 LastDev chain COMPLETE.** All 4 loops shipped (backend hal-mcp v39 since PR #46; skills done with WP-D). New ideas weigh against the stopping rule: does it directly produce a job interview or Blue Green revenue?
+**cv-generator quality sprint COMPLETE.** All 30 CVs 1-page validated. P1/P2/P3 now have cell-specific bullets (T3/T4/T5 for P1+P2, T1+T5 for P3). Factual errors fixed. Repo pushed.
 
 ## In Progress
 
 - (nothing active)
 
 ## Done (current sprint)
+
+- [x] **cv-generator quality sprint — cell-specific bullets P1/P2/P3 + factual fixes (30/30 CVs validated)** — Added T3/T4/T5 bullets for P2 (Lead/Manager) × all 3 companies; T1+T5 bullets for P3 (CTO) × all 3 companies; fixed Artelia P3 "investor presentations" lie (was Open Ocean), fixed "Business Angels" → institutional investors, fixed "DCNS" → Naval Group, fixed franglais "delivery" → "livraison" in FR bullets. All 30 CVs 1-page validated. — 2026-06-14
+
+- [x] **cv-generator multi-company-type differentiation — P1×T3/T4/T5 (30/30 CVs, commit 6162a0c)** — Restructured cv-master.json: bullets[profile] now has `default` + per-cell overrides. P1×T5 counters solopreneur (Open Ocean first, institutional VCs), P1×T4 frontloads Artelia (corporate credibility), P1×T3 technical delivery emphasis. "urban planning automation" banned → replaced with accurate PLU analysis. Real client names + verifiable metrics throughout. generate_cv.py updated for cell-specific title overrides + bullet fallback. — 2026-06-14
 
 - [x] **WP-D — hal tags wired into renaud skills (briefing v0.3.0 · jobsearch v0.4.2 · PR #5 merged)** — `morning-briefing` groups `renaud` tasks by unified tag (jobsearch → rosaslaborbe → personal → finance → hr → laborbe → other); `log-application` + `interview-prep` create hal mirror task tagged `jobsearch` (best-effort, Obsidian stays canonical). `mcp__hal-mcp__create_task` + `list_tasks` added to `allowed-tools`. Requires hal-mcp v39. AC validated by static inspection + review fixes (H1 list_tasks allowed-tool, H2 README versions, M1/M2 Step 4b/5 failure semantics). 4-field version sync clean — 2026-06-14
 
