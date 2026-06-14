@@ -171,7 +171,7 @@ The `entretien` note does NOT carry its own `target_profile` field — the profi
 
 ## Step 4b — Mirror the interview into hal (tagged `jobsearch`)
 
-Create a hal task in the `renaud` workspace so the upcoming interview surfaces under the `🎯 jobsearch` subsection of `/briefing`'s `## 🏠 Sprint en cours — Renaud [perso]` block (WP-D — tag-grouped renaud section). The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
+Create a hal task in the `renaud` workspace so the upcoming interview surfaces in the `jobsearch` section of `/briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
 
 Invoke `mcp__hal-mcp__create_task` exactly once with:
 
@@ -226,7 +226,7 @@ Render a concise summary, in French:
 - **`target_profile` missing → ASK.** Never silently pick a profile. (Step 1.)
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
 - **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__hal-mcp__create_task` is allow-listed exclusively for the Step 4b hal mirror.
-- **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/briefing`'s tag-grouped `renaud` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
+- **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.
 - **`categorie` is `"Préparation"`** (verbatim, with accent). The other valid value is `"Compte-rendu"` for debriefs — out of scope for this skill.
 - **Compose, do not reimplement.** This skill is orchestration: locate, read, classify, compose, call. It does not re-implement vault writes or profile-narrative logic.

@@ -1,22 +1,20 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-12
+Last updated: 2026-06-14
 
 ## Current Focus
 
-**🏁 `jobsearch-vault` SHIPPED (all 5 phases done, committed to main `3a2b138`).** Job-search vault I/O is now owned by renaud-marketplace: self-contained, **filesystem-only** (no network, no API key), 5 JS note types, carved out of the global `obsidian-crm` (left byte-for-byte unchanged as legacy/fallback). `log-application` + `interview-prep` + `morning-briefing` re-pointed via Option A (`Skill(jobsearch-vault)`, no path resolver for vault I/O). Versions bumped (jobsearch 0.4.0, briefing 0.2.0, marketplace 0.4.0, 4-field sync). AC1/AC2/AC3 re-validated **live against the real vault**; `obsidian-crm` untouched. Brief: [`.claude/tasks/jobsearch-vault-skill.md`](tasks/jobsearch-vault-skill.md).
+**WP-D MERGED (PR #5) — hal tags wired into renaud skills.** `morning-briefing` groups `renaud` tasks by tag (jobsearch first), `log-application` + `interview-prep` auto-tag hal tasks with `jobsearch`. Requires hal-mcp v39 deployed (done 2026-06-13). briefing v0.3.0 · jobsearch v0.4.2.
 
-**🏁 LastDev chain COMPLETE.** All 4 loops shipped (backend frozen since Loop 1 at hal-mcp v38; skills done with Loop 4). New ideas weigh against the stopping rule: does it directly produce a job interview or Blue Green revenue? Confirmed split: **Blue Green CRM → `/hal`** (hal cloud) · **Job Search CRM → Obsidian vault** (soon via `jobsearch-vault`).
-
-jobsearch v0.3.0 ships `log-application` + `interview-prep` (PR #3 merged). AC1/AC2/AC3 validated **live against the real Obsidian vault** (2 real applications logged: Anthropic P1, Yotta P4 — both kept). The live run found + fixed 4 real defects the static review missed (relance surfaces on its due date not "tomorrow"; lien_offre omitted when empty; idempotency enum corrected; entretien categorie/interlocuteurs warnings documented).
-
-Reste de l'ancien focus (backlog, non bloquant) : implémenter les vrais appels Gmail API si encore en stub.
+**🏁 LastDev chain COMPLETE.** All 4 loops shipped (backend hal-mcp v39 since PR #46; skills done with WP-D). New ideas weigh against the stopping rule: does it directly produce a job interview or Blue Green revenue?
 
 ## In Progress
 
 - (nothing active)
 
 ## Done (current sprint)
+
+- [x] **WP-D — hal tags wired into renaud skills (briefing v0.3.0 · jobsearch v0.4.2 · PR #5 merged)** — `morning-briefing` groups `renaud` tasks by unified tag (jobsearch → rosaslaborbe → personal → finance → hr → laborbe → other); `log-application` + `interview-prep` create hal mirror task tagged `jobsearch` (best-effort, Obsidian stays canonical). `mcp__hal-mcp__create_task` + `list_tasks` added to `allowed-tools`. Requires hal-mcp v39. AC validated by static inspection + review fixes (H1 list_tasks allowed-tool, H2 README versions, M1/M2 Step 4b/5 failure semantics). 4-field version sync clean — 2026-06-14
 
 - [x] **cv-generator FR quality pass (jobsearch 0.4.1 / cv-generator 0.2.1)** — applied Renaud's P4 (Customer Success / Solutions Engineer) feedback: de-anglicised FR titles (Open Ocean p2/p4/p5 → "Directeur Technique & Co-Fondateur", Blue Green p2 → "Responsable Solutions IA — Consultant"), container titles across P4×T5 + 6 p2/p3 cells, P4×T5 `about`/items reworded as skills-not-tasks, P4 bullets cleaned of franglais (discovery/delivery/workflows/data marines), `generate_cv.py` renders "Aujourd'hui" not "Present" in FR. CSM competencies researched + woven in (adoption, multi-level relationship, +15% retention proof). P4×T5 FR CV re-rendered live, 1 page, zero franglais. Umbrella version 0.4.0→0.4.1 (4-field sync). — 2026-06-12
 
