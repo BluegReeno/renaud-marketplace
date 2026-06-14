@@ -1,5 +1,22 @@
 # jobsearch — Changelog
 
+## [0.4.5] — 2026-06-14
+
+### Changed (cv-generator SKILL.md v0.2.3 → v0.2.4 / generate_cv.py)
+
+- **`--company` + `--job-title`** — output filename auto-built: `CV_Renaud_Laborbe_{job_slug}_{company_slug}_{LANG}.pdf`. Falls back to `P{n}_T{n}_{LANG}` if omitted.
+- **`--data-dir`** — load `cv-master.json` from a custom path (workaround for read-only plugin dir in Cowork).
+- **`--container-titles`** — JSON array of 3 strings, overrides competency block titles for this generation only. Cell defaults apply when omitted. Agent can propose better titles if the offer signals a stronger angle.
+- **`--bullet-overrides`** — JSON dict `{"company.profile.lang.index": "new bullet"}`, injects personalised bullets without touching cv-master.json. Wired into Step 3b of SKILL.md.
+- **Auto 1-page check** — if `pikepdf` is available (`--with pikepdf`), script checks page count post-render and retries with compact CSS layout if overflow. Warns explicitly if still >1 page after compact.
+- **P4×T5 FR container title defaults** updated: "Ingénierie IA terrain" → "Architecture & agents IA", "Succès & adoption client" → "Cycle client & déploiement".
+- **SKILL.md Step 3b** updated to document `--bullet-overrides` key format + example.
+- **SKILL.md Step 4** updated with all new flags, output filename format, and compact-layout note.
+
+### Validated
+
+All 30 CVs — 1 page each.
+
 ## [0.4.4] — 2026-06-14
 
 ### Changed (cv-generator SKILL.md v0.2.2 → v0.2.3)

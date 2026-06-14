@@ -1112,7 +1112,7 @@
           ],
           "fr": [
             {
-              "title": "Ingénierie IA terrain",
+              "title": "Architecture & agents IA",
               "items": [
                 "Multi-agents LLM en production (Claude, pgvector, n8n)",
                 "Intégration SI client via MCP et APIs",
@@ -1120,7 +1120,7 @@
               ]
             },
             {
-              "title": "Succès & adoption client",
+              "title": "Cycle client & déploiement",
               "items": [
                 "Onboarding IA : démo → POC → autonomie client",
                 "Gestion multi-niveaux (C-level → ops)",

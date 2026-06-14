@@ -4,7 +4,7 @@ Last updated: 2026-06-14
 
 ## Current Focus
 
-**jobsearch v0.4.4 shipped.** cv-generator editorial upgrade: FR infinitif exclusivement (tous les bullets + about.fr P1–P5), cell labels (15 cellules), Step 3b personnalisation LLM. 30/30 CVs 1-page re-validés.
+**jobsearch v0.4.5 shipped.** cv-generator tooling upgrade: `--company`/`--job-title` filename, `--data-dir`, `--container-titles`, `--bullet-overrides`, auto 1-page compact layout. P4×T5 FR titles updated. 30/30 validés.
 
 ## In Progress
 
@@ -12,7 +12,8 @@ Last updated: 2026-06-14
 
 ## Done (current sprint)
 
-- [x] **cv-generator editorial upgrade — FR infinitif + labels + Step 3b personnalisation (jobsearch v0.4.4 / cv-generator v0.2.3)** — Tous les bullets FR réécrits à l'infinitif (P1–P5 × BG/Artelia/OO, ~80 bullets + 15 about.fr). Labels human-readable ajoutés aux 15 cellules. Step 3b : personnalisation LLM (1–2 bullets/entreprise adaptés aux signaux de l'offre, ancres factuelles toujours intactes). SKILL.md v0.2.3, plugin v0.4.4. 30/30 CVs 1-page validés. — 2026-06-14
+- [x] **cv-generator tooling upgrade (jobsearch v0.4.5 / cv-generator v0.2.4)** — `--company`+`--job-title` → filename lisible (ex: `CV_Renaud_Laborbe_forward_deployed_engineer_yotta_FR.pdf`). `--data-dir` pour Cowork read-only. `--container-titles` JSON array pour override sans toucher le JSON. `--bullet-overrides` pour injecter les bullets Step 3b. Auto 1-page check (pikepdf) + compact layout fallback. P4×T5 FR defaults: "Architecture & agents IA" + "Cycle client & déploiement". 30/30 validés. — 2026-06-14
+- [x] **cv-generator editorial upgrade — FR infinitif + labels + Step 3b personnalisation (jobsearch v0.4.4 / cv-generator v0.2.3)** — Tous les bullets FR réécrits à l'infinitif (P1–P5 × BG/Artelia/OO, ~80 bullets + 15 about.fr). Labels human-readable ajoutés aux 15 cellules. Step 3b : personnalisation LLM (1–2 bullets/entreprise adaptés aux signaux de l'offre, ancres factuelles toujours intactes). 30/30 CVs 1-page validés. — 2026-06-14
 
 - [x] **cover-letter skill + cv-generator methodology (jobsearch v0.4.3)** — New `/cover-letter` command: LLM-native 3-paragraph letter, 15-cell matrix, factual anchors, banned phrases, solopreneur counter. cv-generator SKILL.md v0.2.2: added narrative methodology section (experience order rules, T/P signals, factual anchors, banned phrases). — 2026-06-14
 

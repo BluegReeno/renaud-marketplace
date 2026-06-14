@@ -4,11 +4,17 @@ CV Generator — generates 1-page PDF CVs from a 5-profile × 5-company-type mat
 
 Usage:
     python generate_cv.py --profile p1 --company-type t5 --lang en
+    python generate_cv.py --profile p3 --company-type t1 --lang fr
+    python generate_cv.py --profile p4 --company-type t5 --lang fr \
+        --company "Yotta" --job-title "Forward Deployed Engineer" \
+        --container-titles '["Architecture & agents IA", "Cycle client & deploiement", "Secteurs"]' \
+        --bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet personnalise"}'
     python generate_cv.py --positioning cto   # retro-compat
 """
 
 import json
 import os
+import re
 import shutil
 import argparse
 from pathlib import Path
@@ -41,14 +47,48 @@ RETRO_COMPAT_MAP = {
 
 CORPORATE_FIRST_CELLS = {('p1', 't4'), ('p2', 't4'), ('p5', 't5')}
 
+# Injected before </head> when compact=True to tighten spacing
+COMPACT_CSS = """<style>
+.header { padding: 15px 25px; }
+.content { padding: 15px 20px; }
+.about-contact-row { margin-bottom: 12px; }
+.about-item { margin-bottom: 4px; }
+.competencies-section { margin-bottom: 12px; }
+.competency-block { padding: 10px; }
+.experience-section { margin-bottom: 10px; }
+.job { margin-bottom: 8px; }
+</style>
+</head>"""
+
 
 def get_skill_dir():
     """Return the plugin root (parent of scripts/)."""
     return Path(__file__).parent.parent
 
 
-def load_cv_data():
-    cv_master_path = get_skill_dir() / 'data' / 'cv-master.json'
+def slugify(text):
+    """Convert text to a filename-safe ASCII slug (lowercase, underscores)."""
+    text = text.lower()
+    # Replace accented chars with ascii equivalents
+    replacements = [
+        ('é', 'e'), ('è', 'e'), ('ê', 'e'), ('ë', 'e'),
+        ('à', 'a'), ('â', 'a'), ('ä', 'a'),
+        ('î', 'i'), ('ï', 'i'),
+        ('ô', 'o'), ('ö', 'o'),
+        ('ù', 'u'), ('û', 'u'), ('ü', 'u'),
+        ('ç', 'c'), ('ñ', 'n'),
+    ]
+    for src, dst in replacements:
+        text = text.replace(src, dst)
+    text = re.sub(r'[^\w\s-]', '', text)
+    return re.sub(r'[\s-]+', '_', text).strip('_')
+
+
+def load_cv_data(data_dir=None):
+    if data_dir:
+        cv_master_path = Path(data_dir) / 'cv-master.json'
+    else:
+        cv_master_path = get_skill_dir() / 'data' / 'cv-master.json'
     with open(cv_master_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -78,13 +118,27 @@ def get_job_order(profile, company_type):
     return ['blue_green', 'artelia', 'open_ocean']
 
 
+def count_pdf_pages(pdf_path):
+    """Return page count, or None if pikepdf is unavailable."""
+    try:
+        import pikepdf
+        with pikepdf.open(pdf_path) as pdf:
+            return len(pdf.pages)
+    except ImportError:
+        return None
+
+
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
-                     output_dir=None):
+                     output_dir=None, container_titles=None, bullet_overrides=None,
+                     compact=False):
     """Generate customised HTML from template for the given profile×company_type cell."""
 
     template_path = get_skill_dir() / 'templates' / 'cv_template.html'
     with open(template_path, 'r', encoding='utf-8') as f:
         html = f.read()
+
+    if compact:
+        html = html.replace('</head>', COMPACT_CSS)
 
     cell = resolve_cell_content(cv_data, profile, company_type, lang)
 
@@ -108,9 +162,13 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     # === COMPETENCY CONTAINER TITLES ===
     containers = cell['containers']
-    html = html.replace('{{COMP_AI_TITLE}}', containers[0]['title'])
-    html = html.replace('{{COMP_BUSINESS_TITLE}}', containers[1]['title'])
-    html = html.replace('{{COMP_SECTOR_TITLE}}', containers[2]['title'])
+    titles = [c['title'] for c in containers]
+    if container_titles:
+        for i, t in enumerate(container_titles[:3]):
+            titles[i] = t
+    html = html.replace('{{COMP_AI_TITLE}}', titles[0])
+    html = html.replace('{{COMP_BUSINESS_TITLE}}', titles[1])
+    html = html.replace('{{COMP_SECTOR_TITLE}}', titles[2])
 
     # === COMPETENCY ITEMS ===
     html = html.replace('{{COMP_AI}}',
@@ -126,16 +184,25 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     for slot, job_key in enumerate(job_order, start=1):
         job = experiences[job_key]
-        # Title: try cell-specific override (e.g. p1_t5) then fall back to profile default
         title_key = f"{profile}_{company_type}"
         title = job['titles'].get(title_key, job['titles'][profile])[lang]
         period = job['period']
         if lang == 'fr':
             period = period.replace('Present', "Aujourd'hui")
         company_str = f"{job['company']} — {job['location']}"
-        # Bullets: try company_type override then fall back to 'default'
         profile_bullets = job['bullets'][profile]
-        bullets = profile_bullets.get(company_type, profile_bullets['default'])[lang]
+        bullets = list(profile_bullets.get(company_type, profile_bullets['default'])[lang])
+
+        # Apply bullet overrides — key: "{company}.{profile}.{lang}.{index}"
+        if bullet_overrides:
+            for key, new_text in bullet_overrides.items():
+                parts = key.split('.')
+                if len(parts) == 4:
+                    b_company, b_profile, b_lang, b_index = parts
+                    if b_company == job_key and b_profile == profile and b_lang == lang:
+                        idx = int(b_index)
+                        if 0 <= idx < len(bullets):
+                            bullets[idx] = new_text
 
         html = html.replace(f'{{{{JOB{slot}_TITLE}}}}', title)
         html = html.replace(f'{{{{JOB{slot}_PERIOD}}}}', period)
@@ -189,7 +256,9 @@ def html_to_pdf(html_path, pdf_path, base_url=None):
 
 
 def generate_cv(profile='p1', company_type='t4', lang='en',
-                output_filename=None, output_dir=None):
+                output_filename=None, output_dir=None, data_dir=None,
+                company=None, job_title=None,
+                container_titles=None, bullet_overrides=None):
     """Generate a CV PDF for the given profile × company_type cell."""
 
     skill_dir = get_skill_dir()
@@ -214,23 +283,57 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         print("INFO: No photo found — CV will render without photo.")
         print("      To add: place photo.jpeg in ~/.claude/assets/photo.jpeg")
 
-    cv_data = load_cv_data()
+    cv_data = load_cv_data(data_dir)
 
+    # Build output filename
+    if output_filename is None:
+        if company or job_title:
+            parts = ['CV', 'Renaud', 'Laborbe']
+            if job_title:
+                parts.append(slugify(job_title))
+            if company:
+                parts.append(slugify(company))
+            parts.append(lang.upper())
+            output_filename = '_'.join(parts) + '.pdf'
+        else:
+            output_filename = f"CV_Renaud_Laborbe_{profile.upper()}_{company_type.upper()}_{lang.upper()}.pdf"
+
+    output_pdf = output_dir / output_filename
     output_html = work_dir / 'cv_generated.html'
+
     generate_cv_html(
         output_html_path=output_html,
         cv_data=cv_data,
         profile=profile,
         company_type=company_type,
         lang=lang,
-        output_dir=output_dir,
+        container_titles=container_titles,
+        bullet_overrides=bullet_overrides,
+        compact=False,
     )
 
-    if output_filename is None:
-        output_filename = f"CV_Renaud_Laborbe_{profile.upper()}_{company_type.upper()}_{lang.upper()}.pdf"
-    output_pdf = output_dir / output_filename
-
     html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
+
+    # Check page count; retry with compact layout if overflow detected
+    pages = count_pdf_pages(output_pdf)
+    if pages is not None and pages > 1:
+        print(f"WARNING: CV rendered to {pages} pages — retrying with compact layout...")
+        generate_cv_html(
+            output_html_path=output_html,
+            cv_data=cv_data,
+            profile=profile,
+            company_type=company_type,
+            lang=lang,
+            container_titles=container_titles,
+            bullet_overrides=bullet_overrides,
+            compact=True,
+        )
+        html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
+        pages = count_pdf_pages(output_pdf)
+        if pages is not None and pages > 1:
+            print(f"WARNING: CV still {pages} pages after compact layout — content may need trimming.")
+        else:
+            print("OK Compact layout applied — CV fits 1 page.")
 
     try:
         shutil.rmtree(work_dir)
@@ -242,12 +345,14 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate professional 1-page PDF CVs from a 5×5 matrix',
+        description='Generate professional 1-page PDF CVs from a 5x5 matrix',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   python generate_cv.py --profile p1 --company-type t5 --lang en
-  python generate_cv.py --profile p3 --company-type t1 --lang fr
+  python generate_cv.py --profile p4 --company-type t5 --lang fr \\
+      --company "Yotta" --job-title "Forward Deployed Engineer" \\
+      --container-titles '["Architecture & agents IA", "Cycle client & deploiement", "Secteurs"]'
   python generate_cv.py --positioning cto   # retro-compat
         """
     )
@@ -259,9 +364,22 @@ Examples:
     parser.add_argument('--lang', '-l',
                         choices=['en', 'fr'], default='en')
     parser.add_argument('--output', '-o',
-                        help='Output PDF filename')
+                        help='Output PDF filename (overrides auto-generated name)')
     parser.add_argument('--output-dir', '-d',
                         help='Output directory (default: current directory)')
+    parser.add_argument('--data-dir',
+                        help='Directory containing cv-master.json (overrides plugin default)')
+    parser.add_argument('--company',
+                        help='Target company name — used in output filename')
+    parser.add_argument('--job-title',
+                        help='Job title — used in output filename (slugified)')
+    parser.add_argument('--container-titles',
+                        help='JSON array of 3 competency container titles '
+                             '(overrides cell defaults), e.g. \'["AI Eng", "Business", "Sectors"]\'')
+    parser.add_argument('--bullet-overrides',
+                        help='JSON dict of bullet overrides. '
+                             'Key format: "{company}.{profile}.{lang}.{index}" '
+                             '(e.g. \'{"blue_green.p4.fr.0": "New bullet"}\')')
     # Hidden retro-compat flag
     parser.add_argument('--positioning',
                         help=argparse.SUPPRESS)
@@ -282,6 +400,24 @@ Examples:
             parser.error(f"Unknown --positioning value: {args.positioning}. "
                          f"Valid: {list(RETRO_COMPAT_MAP.keys())}")
 
+    container_titles = None
+    if args.container_titles:
+        try:
+            container_titles = json.loads(args.container_titles)
+            if not isinstance(container_titles, list) or len(container_titles) != 3:
+                parser.error("--container-titles must be a JSON array of exactly 3 strings")
+        except json.JSONDecodeError as e:
+            parser.error(f"--container-titles is not valid JSON: {e}")
+
+    bullet_overrides = None
+    if args.bullet_overrides:
+        try:
+            bullet_overrides = json.loads(args.bullet_overrides)
+            if not isinstance(bullet_overrides, dict):
+                parser.error("--bullet-overrides must be a JSON object")
+        except json.JSONDecodeError as e:
+            parser.error(f"--bullet-overrides is not valid JSON: {e}")
+
     print(f"Generating CV: profile={profile}, company-type={company_type}, lang={lang}")
 
     pdf_path = generate_cv(
@@ -290,6 +426,11 @@ Examples:
         lang=lang,
         output_filename=output_filename,
         output_dir=args.output_dir,
+        data_dir=args.data_dir,
+        company=args.company,
+        job_title=args.job_title,
+        container_titles=container_titles,
+        bullet_overrides=bullet_overrides,
     )
 
     print(f"\nCV ready: {pdf_path}")
