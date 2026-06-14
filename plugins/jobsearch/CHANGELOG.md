@@ -1,5 +1,18 @@
 # jobsearch — Changelog
 
+## [0.4.2] — 2026-06-13
+
+### Added (WP-D — hal mirror tagged `jobsearch`)
+- `log-application` Step 4b: after the canonical Obsidian `tache` write, also create a hal task in the `renaud` workspace with `tags=["jobsearch"]` and `due_date = date_candidature + 7d`. Mirrors the relance into hal so it surfaces under `/briefing`'s tag-grouped `🎯 jobsearch` subsection of the Renaud section (WP-D — see `briefing` 0.3.0). Sprint-less by design. Idempotent on re-apply (skips if a non-closed hal task with the exact title already exists). Partial-failure mode: Obsidian-OK + hal-fail is degraded-but-safe — reported explicitly, Step 5 still fires.
+- `interview-prep` Step 4b: after the canonical `entretien` prep note write, also create a hal task in the `renaud` workspace titled `Entretien <type> — <Entreprise> — <DD-MM-YYYY>` with `tags=["jobsearch"]` and `due_date = interview_date`. Same idempotency + degraded-but-safe failure semantics as `log-application`. The Obsidian prep note stays the canonical document; the hal task is a thin pointer.
+- `allowed-tools` for both skills now includes `mcp__hal-mcp__create_task` alongside `Skill(jobsearch-vault)` (`interview-prep` also keeps `Read`).
+- Both skills' Step 5 success report now mentions the hal mirror.
+
+### Notes
+- Frontmatter version of `log-application` and `interview-prep` jumps 0.4.0 → 0.4.2 to re-sync with the plugin `plugin.json` (which advanced to 0.4.1 in the cv-generator FR pass without touching these two skills).
+- `cv-generator` SKILL.md unchanged at 0.2.1 — its frontmatter version is independent of the plugin-level bump (only the 3 skills that change behaviour need to track the plugin version per the 4-field sync rule).
+- No CV/PDF, no schema, no `jobsearch-vault` change.
+
 ## [0.4.1] — 2026-06-12
 
 ### Fixed (cv-generator — FR quality pass on the P4 Customer Success / Solutions Engineer CV)
