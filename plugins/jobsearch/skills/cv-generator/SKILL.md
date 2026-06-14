@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.2.1
+version: 0.2.2
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -205,3 +205,80 @@ uv run --with weasyprint --with pikepdf \
 ```
 
 Expected output: `All 30 CVs validated — 1 page each.`
+
+---
+
+## Narrative methodology — what each cell emphasizes
+
+The `cv-master.json` experience bullets are cell-specific. Each cell tells a different story with the same three companies (Blue Green → Artelia → Open Ocean, or Artelia-first for corporate cells).
+
+### Experience order rules
+
+| Cell | Job order | Reason |
+|------|-----------|--------|
+| P1×T4, P2×T4, P5×T5 | Artelia → BG → OO | Corporate credibility first; "founder" framing is a red flag for large groups |
+| All other cells | BG → Artelia → OO | Blue Green as current work, most relevant GenAI signal |
+
+### Signal per company type (T)
+
+**T3 — ESN / Consulting (ILLUIN, Capgemini)**
+- Emphasise: delivery management, full project lifecycle (scoping → production handover), client advisory, technical depth proven in client context
+- Blue Green: "managed client projects end to end, can lead delivery squads"
+- Artelia: "cross-functional delivery teams for enterprise clients"
+- Open Ocean: "built 12-person product team, shipped SaaS to industrial clients"
+
+**T4 — Grand groupe / Corporate (TotalEnergies, ASN, EDF)**
+- Emphasise: P&L, governance, compliance-ready outputs, C-level stakeholder management, enterprise procurement
+- Blue Green: "production-grade, compliance-ready, auditability built-in"
+- Artelia: **appears FIRST** — P&L, team, 6000-person group, London base
+- Open Ocean: "Naval Group, RTE framework contract" — enterprise client names, not startup story
+
+**T5 — AI Lab / SaaS startup (Anthropic, Mistral, Dust)**
+- Emphasise: velocity, LLM-native architecture, team building, fundraising, exit
+- Blue Green: "zero to production in under 3 months", "LLM-native (MCP, pgvector, Pydantic AI)"
+- Artelia: secondary role — shows corporate-scale credibility
+- Open Ocean: strongest card — "12-person team, €2M institutional VCs, acquired by Artelia (2019)"
+- **Solopreneur counter**: never hide Open Ocean; it proves team leadership, not solo work
+
+**T1 — Industrial startup / scale-up**
+- Emphasise: 0→1 architecture, technical ownership, product roadmap at scale, industrial deployment
+- Blue Green: production AI stack details (FastAPI, pgvector, Pydantic AI), product suite (Edifice, WattCast, EnerCast)
+- Open Ocean: CTO-who-scaled narrative — prototype → industrial deployment → exit
+
+**T2 — BET / Engineering consultancy**
+- Emphasise: industry credibility (15+ years in energy/offshore), technical integration, speaking the engineer's language
+- Use default bullets (T2-specific overrides not required; energy domain knowledge is the differentiator)
+
+### Signal per profile (P)
+
+**P1 — AI Architect**: Technical depth + delivery. Never just slides — always a system in production (BWC v2.2).
+
+**P2 — Lead/Manager**: Management proof = Open Ocean (12-person team, 8 years). Blue Green shows technical currency (still ships). For T5: counter solopreneur via OO team story.
+
+**P3 — CTO**: Open Ocean IS the proof (start to exit). Must show current stack is live (BWC v2.2). For T5: velocity + team-building combo. For T1: scaling experience, fundraising, technical maturity.
+
+**P4 — CS/FDE**: "Was the customer before being the FDE" — 15 years on the industrial-client side. Full cycle: discovery → demo → POC → production handover → autonomous use.
+
+**P5 — Sales/BizDev**: Technical enough to run live demos and scope with engineering teams. For T5: builds with the product he sells (uses Claude/Mistral daily in production).
+
+### Factual anchors (never invent — always use these)
+
+| Company | Key verifiable facts |
+|---------|---------------------|
+| Blue Green — EnBW France | RAG 22,800 chunks, 5 Pydantic AI agents, offshore wind tender analysis |
+| Blue Green — Valorem | RAG-based PLU analysis for onshore wind farm siting |
+| Blue Green — IC Ingénieurs Conseils | AI-assisted building diagnostics, Aulnay (€25M) + La Ferme du Temple (€35M) |
+| Blue Green — WattCast | D+1 MAE 12.42 EUR/MWh, LEAR + XGBoost, EPEX SPOT France |
+| Blue Green — BlueWind Companion v2.2 | 91 regulatory docs, 22,800 RAG chunks, 5 agents, Next.js + FastAPI + Supabase pgvector |
+| Artelia | P&L confirmed, clients: SBM Offshore, Nexans, Alcatel Submarine Networks (ASN), Cadeler |
+| Open Ocean | Team of 12, €2M from Seventure Partners + Cap Décisif/FNA (institutional VCs), acquired by Artelia (2019) |
+| Open Ocean clients | Naval Group (ex-DCNS), RTE (framework contract), Doris Engineering |
+
+### Banned phrases (never use these)
+
+- "urban planning automation" → use "PLU analysis for wind farm siting"
+- "end-to-end" (FR bullets) → use "bout en bout" or "de A à Z"
+- "delivery" (FR bullets) → use "livraison"
+- "Business Angels" → use "institutional investors (Seventure Partners, Cap Décisif/FNA)"
+- "DCNS" → use "Naval Group (ex-DCNS)"
+- "en solo à vélocité maximale" → always counter solopreneur framing
