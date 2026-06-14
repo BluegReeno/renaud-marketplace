@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.2.3
+version: 0.2.4
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -133,7 +133,15 @@ After selecting the cell, read the job offer and adapt the pre-written bullets *
 1. **Identify 2–3 key signals** from the offer — specific tech, sector challenge, company framing (e.g. "prototyper rapidement en environnement réel", "logique ARR", "briques réutilisables")
 2. **Rewrite 1–2 bullets per company** to mirror those signals — rephrase emphasis, reorder, surface a relevant factual anchor
 3. **Optionally adjust the `about` section** to echo the job's specific framing (keep same infinitive structure)
-4. **Validate before generating** — every rewritten bullet must: start with an infinitive verb, keep all factual anchors intact, pass the pre-generation checklist
+4. **Optionally adjust container titles** if the cell defaults don't match the role framing (see `--container-titles` in Step 4)
+5. **Validate before generating** — every rewritten bullet must: start with an infinitive verb, keep all factual anchors intact, pass the pre-generation checklist
+
+Build the `--bullet-overrides` JSON dict from personalised bullets. Key format: `"{company}.{profile}.{lang}.{index}"`. Companies: `blue_green`, `artelia`, `open_ocean`. Index is 0-based.
+
+Example:
+```json
+{"blue_green.p4.fr.0": "Analyser les workflows clients et identifier les opportunités d'automatisation IA — 5 agents déployés chez EnBW France, temps de traitement ÷10"}
+```
 
 **Rules — never violate:**
 - Only rewrite bullets — never invent new facts, metrics, client names, or dates
@@ -150,10 +158,25 @@ After selecting the cell, read the job offer and adapt the pre-written bullets *
 DYLD_LIBRARY_PATH=/opt/homebrew/lib \
 uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
   --profile {profile} --company-type {company_type} --lang {lang} \
+  --company "{company_name}" \
+  --job-title "{job_title}" \
   --output-dir ~/SynologyDrive-MyAssistant/jobsearch/
 ```
 
-Replace `{profile}`, `{company_type}`, `{lang}` with the detected values.
+Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}` with the detected values. Output filename is auto-built: `CV_Renaud_Laborbe_{job_slug}_{company_slug}_{LANG}.pdf`.
+
+**Optional flags:**
+
+`--container-titles '["Title 1", "Title 2", "Title 3"]'`
+Override the 3 competency block titles. Use when cell defaults don't fit the offer framing. The agent can propose better titles if it sees a stronger angle — defaults from cv-master.json are a starting point, not a constraint. P4×T5 defaults: `["Architecture & agents IA", "Cycle client & déploiement", "Secteurs d'expertise"]`.
+
+`--bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet..."}'`
+Inject personalised bullets without modifying cv-master.json. Built from Step 3b personalization. Key: `"{company}.{profile}.{lang}.{index}"`.
+
+`--data-dir ~/path/to/dir/`
+Load cv-master.json from a custom directory (useful if the plugin dir is read-only in Cowork).
+
+> **1-page auto-check**: if `pikepdf` is available (add `--with pikepdf` to the uv command), the script auto-detects overflow and retries with a compact CSS layout. If still >1 page, it warns explicitly.
 
 > **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
