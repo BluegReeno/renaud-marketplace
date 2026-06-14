@@ -1426,8 +1426,8 @@
               "Conducted AI awareness workshops and onboarded client teams to autonomous use"
             ],
             "fr": [
-              "Déployé des solutions IA chez des clients industriels (EnBW France, Valorem) : qualification du besoin, intégration, mise en production",
-              "Construit des systèmes RAG et agents IA adaptés aux processus métier des clients (analyse d'AO éolien offshore, automatisation urbanisme)",
+              "Déployé des solutions IA chez EnBW France et Valorem : qualification du besoin, intégration, mise en production",
+              "Systèmes RAG et agents IA adaptés aux processus clients (analyse AO éolien offshore, analyse PLU éolien terrestre)",
               "Animé des ateliers de sensibilisation à l'IA et accompagné les équipes clients vers une utilisation autonome"
             ]
           }
@@ -1435,14 +1435,14 @@
         "p5": {
           "default": {
             "en": [
-              "Developed and closed AI consulting engagements with enterprise clients (EnBW France, Valorem): full cycle from prospecting to signed contract",
+              "Developed and closed AI consulting engagements (EnBW France, Valorem): full cycle from prospecting to signed contract",
               "Ran discovery sessions, scoped GenAI solutions, and produced commercial proposals for C-level decision-makers",
               "AI Awareness Training for renewable energy developers: positions Blue Green as the go-to GenAI partner"
             ],
             "fr": [
-              "Développé et closé des missions de conseil IA avec des clients enterprise (EnBW France, Valorem) : cycle complet de la prospection au contrat signé",
-              "Animé des sessions de discovery, cadré des solutions GenAI et rédigé des propales commerciales pour des décideurs C-level",
-              "Ateliers de sensibilisation à l'IA pour des développeurs d'énergie renouvelable : positionne Blue Green comme le partenaire GenAI de référence"
+              "Closé des missions de conseil IA avec EnBW France et Valorem : cycle complet de la prospection au contrat signé",
+              "Animé des sessions discovery, cadré des solutions GenAI et produit des propales commerciales pour des décideurs C-level",
+              "Ateliers IA pour développeurs d'EnR : Blue Green positionné comme partenaire GenAI de référence dans l'éolien"
             ]
           }
         }
@@ -1616,12 +1616,12 @@
         "p4": {
           "default": {
             "en": [
-              "Deployed offshore wind data services with major European developers (DCNS, SBM Offshore, RTE)",
+              "Deployed offshore wind data services with major European developers (SBM Offshore, Naval Group, RTE)",
               "Managed client portfolio generating 15% YOY growth — discovery, proposal, delivery, adoption",
               "Facilitated cross-functional collaboration between engineering teams and client operations"
             ],
             "fr": [
-              "Déployé des services de données éolien offshore avec de grands développeurs européens (DCNS, SBM Offshore, RTE)",
+              "Déployé des services de données éolien offshore avec de grands développeurs européens (SBM Offshore, Naval Group, RTE)",
               "Géré un portefeuille clients avec +15% de croissance — qualification, propale, livraison, adoption",
               "Facilité la collaboration transverse entre équipes ingénierie et opérations clients"
             ]
@@ -1811,12 +1811,12 @@
         "p4": {
           "default": {
             "en": [
-              "Deployed marine data intelligence SaaS with major industrial clients (DCNS, SBM Offshore, RTE)",
+              "Deployed marine data intelligence SaaS with major industrial clients (Naval Group, SBM Offshore, RTE)",
               "Owned 100% of client-facing delivery: discovery, proposal, implementation, adoption",
               "Raised €2M — successful exit through acquisition by Artelia (2019)"
             ],
             "fr": [
-              "Déployé le SaaS de données marines chez des clients industriels majeurs (DCNS, SBM Offshore, RTE)",
+              "Déployé le SaaS de données marines chez des clients industriels majeurs (Naval Group, SBM Offshore, RTE)",
               "Porté 100% du cycle client : qualification, propale, implémentation, adoption",
               "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
             ]
@@ -1826,13 +1826,13 @@
           "default": {
             "en": [
               "Owned 100% of sales cycles from prospecting to C-level closing (8 years)",
-              "Scaled marine data intelligence SaaS platform — major clients across Europe (DCNS, SBM Offshore, RTE)",
-              "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
+              "Scaled marine data intelligence SaaS — major clients across Europe (Naval Group, SBM Offshore, RTE)",
+              "Raised €2M from institutional investors (Seventure Partners, Cap Décisif/FNA) — acquired by Artelia (2019)"
             ],
             "fr": [
               "Porté 100% des cycles de vente de la prospection au closing C-level (8 ans)",
-              "Scale-up de la plateforme SaaS data marines — clients majeurs en Europe (DCNS, SBM Offshore, RTE)",
-              "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition par Artelia (2019)"
+              "Scale-up de la plateforme SaaS data marines — clients majeurs en Europe (Naval Group, SBM Offshore, RTE)",
+              "Levée de 2 M€ auprès d'institutionnels (Seventure Partners, Cap Décisif/FNA) — cédé à Artelia (2019)"
             ]
           }
         }
