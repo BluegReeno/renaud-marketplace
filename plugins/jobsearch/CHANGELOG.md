@@ -1,5 +1,30 @@
 # jobsearch — Changelog
 
+## [0.4.3] — 2026-06-14
+
+### Added
+
+- **`cover-letter` skill** (`skills/cover-letter/SKILL.md` v0.1.0) — LLM-native cover letter generator using the same 15-cell profile × company-type matrix as the CV generator. Produces 3-paragraph letters (~300 words EN / ~330 FR) anchored in real verifiable facts. No HR boilerplate — opens with a hook, closes with confidence. Applies the same cell-specific narrative rules (T3: delivery advisory, T4: P&L/governance, T5: velocity + solopreneur counter). Registered in `marketplace.json`.
+- **`/cover-letter` command** (`commands/cover-letter.md`) — slash command routing to the cover letter skill.
+
+### Changed
+
+- **`cv-generator` SKILL.md v0.2.1 → v0.2.2** — Added "Narrative methodology" section documenting: experience order rules per cell (CORPORATE_FIRST for T4, default BG-first otherwise), the signal to emphasise per company type (T3/T4/T5/T1/T2), the signal per profile (P1–P5), complete factual anchors table (real metrics, verified client names), and banned phrases list ("urban planning automation", "DCNS", "Business Angels", "delivery" in FR, "en solo à vélocité maximale").
+
+### Fixed (cv-master.json — P2/P3/P4/P5 defaults)
+
+- Added cell-specific bullets (T3/T4/T5) for P2 (Lead/Manager) across all 3 companies
+- Added cell-specific bullets (T1/T5) for P3 (CTO) across all 3 companies
+- Artelia P3 default: removed factually wrong "Led investor presentations" bullet (that was Open Ocean, not Artelia)
+- "DCNS" → "Naval Group (ex-DCNS)" everywhere (P2/P3/P4/P5, EN+FR)
+- "Business Angels" → "institutional investors (Seventure Partners, Cap Décisif/FNA)"
+- P4 Blue Green FR: "automatisation urbanisme" (banned) → "analyse PLU pour l'éolien terrestre"
+- Blue Green P2 FR: "delivery" → "livraison"
+- Blue Green P3 FR/EN: removed "en solo à vélocité maximale" / "solo at maximum velocity"
+- P5 Blue Green: trim over-limit bullets (141→116 EN, 147→111 + 121→119 + 142→113 FR)
+
+All 30 CVs validated — 1 page each.
+
 ## [0.4.2] — 2026-06-13
 
 ### Added (WP-D — hal mirror tagged `jobsearch`)
