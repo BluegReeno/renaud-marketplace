@@ -1,5 +1,19 @@
 # jobsearch — Changelog
 
+## [0.4.4] — 2026-06-14
+
+### Changed (cv-generator SKILL.md v0.2.2 → v0.2.3)
+
+- **FR verb convention — infinitif exclusivement** — All FR bullets and `about.fr` across P1–P5 × BG/Artelia/OO rewritten to start with an infinitive verb ("Déployer", "Piloter", "Construire"). Removes all past participles ("Déployé", "Construit") and conjugated present forms ("Conçoit", "Pilote"). Research-backed: CV Creator, JobImpact, TopCV, Zety all confirm infinitive as the only correct form for French CVs.
+- **Cell labels** — Added `label.fr` + `label.en` to all 15 matrix cells in `cv-master.json`. SKILL.md Step 5 now outputs the cell label (e.g. "Solutions Engineer — éditeur SaaS IA") instead of the P/T code.
+- **Step 3b — LLM personalization** — New step in SKILL.md between cell selection and PDF generation: the LLM reads the job offer, identifies 2–3 key signals, rewrites 1–2 bullets per company to mirror those signals — factual anchors always intact. Max 2 bullets changed per company.
+- **Editorial rules updated** — Removed "past participle for past roles" and "present tense for current role" rules. Replaced with "infinitive for all roles, current and past".
+- **Open Ocean P1 default FR** — Also fixed residual "Business Angels" → "Seventure Partners, Cap Décisif/FNA" and "DCNS" → "Naval Group (ex-DCNS)" in the default (P1×T1/T2) cell.
+
+### Validated
+
+All 30 CVs — 1 page each.
+
 ## [0.4.3] — 2026-06-14
 
 ### Added
