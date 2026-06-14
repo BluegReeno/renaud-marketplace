@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.4.5",
+  "version": "0.4.0",
   "name": "renaud-marketplace",
-  "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation and job search tools",
+  "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
     "name": "Renaud Laborbe",
     "email": "renaud@bluegreen.ai"
@@ -29,11 +29,13 @@
     },
     {
       "name": "briefing",
-      "version": "0.3.0",
-      "description": "Morning briefing — one read-only daily dashboard merging hal tasks (business + perso), Obsidian jobsearch, and 3 Google Calendars",
+      "version": "0.4.0",
+      "description": "Morning briefing + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, 3 Google Calendars) + weekly sprint review and planner",
       "source": "./plugins/briefing",
       "skills": [
-        "./plugins/briefing/skills/morning-briefing"
+        "./plugins/briefing/skills/morning-briefing",
+        "./plugins/briefing/skills/sprint-review",
+        "./plugins/briefing/skills/sprint-planner"
       ],
       "author": {
         "name": "Renaud Laborbe",
