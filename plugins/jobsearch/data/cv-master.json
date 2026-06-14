@@ -1338,9 +1338,45 @@
               "Conducted AI awareness workshops and facilitated cross-functional adoption"
             ],
             "fr": [
-              "Piloté le delivery IA bout-en-bout pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
+              "Piloté la livraison IA complète pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
               "Architecture de plateforme GenAI multi-agents (BlueWind Companion v2.2) : RAG, agents IA, serveurs MCP — live en production",
               "Animé des ateliers de sensibilisation à l'IA et facilité l'adoption cross-fonctionnelle"
+            ]
+          },
+          "t3": {
+            "en": [
+              "Delivered GenAI solutions for EnBW France and Valorem: from scoping to production handover, on time",
+              "Designed BlueWind v2.2 architecture (RAG, 5 Pydantic AI agents, MCP) — live in production, reused across clients",
+              "Trained renewable energy developers on GenAI adoption: workshops, tooling, and ongoing advisory"
+            ],
+            "fr": [
+              "Livraison de solutions GenAI pour EnBW France et Valorem : cycle complet, de la conception à la mise en production",
+              "Architecture BlueWind Companion v2.2 (RAG, 5 agents Pydantic AI, MCP) — en production, réutilisé multi-clients",
+              "Formation de développeurs de projets EnR à la GenAI : ateliers, outillage, accompagnement continu"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Delivered production-grade AI for EnBW France and Valorem: compliance-ready, full auditability",
+              "Architected BlueWind Companion v2.2 for regulated energy environments: France-hosted, full traceability, pgvector",
+              "Ran GenAI adoption programs for senior stakeholders and project development teams across energy sector"
+            ],
+            "fr": [
+              "Systèmes IA production pour EnBW France et Valorem : conformité réglementaire, traçabilité, hébergement France",
+              "Architecture BlueWind v2.2 en environnement réglementé : hébergement France, auditabilité, pipeline RAG maîtrisé",
+              "Programmes d'adoption IA pour cadres dirigeants et équipes développement de projets d'énergies renouvelables"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Shipped production GenAI systems for enterprise clients (EnBW France, Valorem) — zero to production in under 3 months",
+              "Built BlueWind Companion v2.2: LLM-native architecture (MCP, pgvector, Pydantic AI agents) — live and battle-tested",
+              "Delivered GenAI literacy programs and adoption workshops for energy sector development teams"
+            ],
+            "fr": [
+              "Déployé des systèmes GenAI en production pour EnBW France et Valorem — zéro à prod en moins de 3 mois",
+              "BlueWind Companion v2.2 : architecture LLM-native (MCP, pgvector, agents Pydantic AI) — live et éprouvé",
+              "Programmes GenAI et ateliers d'adoption pour équipes de développement de projets d'énergies renouvelables"
             ]
           }
         },
@@ -1349,12 +1385,36 @@
             "en": [
               "Built and shipped full-stack AI SaaS platform (BlueWind Companion v2.2): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
               "Architected and deployed production GenAI systems for enterprise clients (EnBW France, Valorem)",
-              "Defined technical roadmap, selected stack, and led end-to-end delivery solo at maximum velocity"
+              "Defined technical roadmap, selected the full stack, and shipped production systems end to end"
             ],
             "fr": [
               "Construit et livré une plateforme SaaS IA full-stack (BlueWind Companion v2.2) — live en France",
               "Architecture et déploiement de systèmes GenAI en production pour des clients enterprise (EnBW France, Valorem)",
-              "Défini la roadmap technique, choisi le stack, dirigé le delivery bout-en-bout en solo à vélocité maximale"
+              "Défini la roadmap technique, choisi le stack, livré des systèmes en production de bout en bout"
+            ]
+          },
+          "t1": {
+            "en": [
+              "Architected production AI stack for energy: Next.js, FastAPI, Supabase pgvector, Pydantic AI agents",
+              "Shipped BlueWind Companion v2.2 (22,800-chunk RAG, 5 specialized AI agents) — full technical ownership, live in France",
+              "Designed technical roadmap for AI product suite: Edifice (building diagnostics), WattCast (price forecasting), EnerCast"
+            ],
+            "fr": [
+              "Stack IA production pour l'énergie : Next.js, FastAPI, Supabase pgvector, agents Pydantic AI",
+              "Livré BlueWind Companion v2.2 (RAG 22 800 chunks, 5 agents IA) — propriété technique complète, live en France",
+              "Roadmap produit IA : Edifice (diagnostics bâtiment), WattCast (prévision prix), EnerCast (ML énergie)"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Built and shipped production LLM systems (BlueWind v2.2) in under 3 months: RAG, MCP, Pydantic AI — battle-tested",
+              "Full-stack technical ownership: architecture, stack selection, core development, production deployment — end to end",
+              "Running WattCast (ML price forecasting), EnerCast (ML framework), Edifice (AI diagnostics) simultaneously in production"
+            ],
+            "fr": [
+              "Systèmes LLM en production livrés en moins de 3 mois (BlueWind v2.2) : RAG, MCP, agents Pydantic AI — éprouvés",
+              "Propriété technique complète : architecture, stack, développement cœur, déploiement prod — de bout en bout",
+              "WattCast (prévision prix ML), EnerCast (framework ML), Edifice (diagnostics IA) en production simultanément"
             ]
           }
         },
@@ -1477,19 +1537,79 @@
               "+15% de croissance annuelle via engagement client stratégique et négociations C-level",
               "Responsabilité P&L complète de la business unit éolien offshore à Londres"
             ]
+          },
+          "t3": {
+            "en": [
+              "Led delivery teams for offshore wind data services: SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
+              "Client advisory on digital transformation: technology selection to deployment in operational engineering workflows",
+              "Drove 15% YOY portfolio growth through structured account management and framework contract renewals"
+            ],
+            "fr": [
+              "Pilotage d'équipes pluridisciplinaires pour les services data éolien offshore : SBM Offshore, Nexans, ASN, Cadeler",
+              "Conseil client transformation numérique : sélection technologique jusqu'au déploiement en workflow opérationnel",
+              "Croissance portefeuille +15%/an par gestion de comptes structurée et renouvellements de contrats cadres"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Full P&L responsibility for the offshore wind business unit: budget, team, client portfolio — London-based",
+              "Grew client portfolio 15% YOY: C-level negotiations, framework renewals with SBM Offshore, Nexans, ASN, Cadeler",
+              "Led digital product strategy — adapted marine data platform to enterprise maritime clients across Europe"
+            ],
+            "fr": [
+              "Responsabilité P&L complète de la BU éolien offshore : budget, équipe, portefeuille clients — base Londres",
+              "Croissance portefeuille +15%/an : négociations C-level, renouvellements cadres (SBM Offshore, Nexans, ASN, Cadeler)",
+              "Stratégie produit numérique — adaptation de la plateforme data marine aux clients maritime enterprise Europe"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Business Development & Project Director — grew offshore wind data portfolio 15% YOY at Artelia (6,000-person group)",
+              "Full P&L responsibility: enterprise procurement, C-level client engagement, long-term framework contracts",
+              "Contributed to marine data platform product roadmap: engineering strategy at group level"
+            ],
+            "fr": [
+              "Directeur BD & Projets — portefeuille éolien offshore +15%/an chez Artelia (groupe 6 000 personnes)",
+              "Responsabilité P&L complète : procurement enterprise, C-level, contrats cadres long terme",
+              "Contribution à la feuille de route produit data marine : stratégie technique au niveau groupe"
+            ]
           }
         },
         "p3": {
           "default": {
             "en": [
-              "Led investor presentations and technical due diligence for offshore wind data services",
-              "Managed client portfolio generating 15% YOY revenue growth; Full P&L responsibility",
-              "Drove product development aligned with major European offshore wind developers"
+              "Directed product strategy for marine data intelligence platform within Artelia (6,000-person engineering group)",
+              "Full P&L responsibility — renewables & energy BU: budget, team management, C-level client portfolio in London",
+              "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
             ],
             "fr": [
-              "Dirigé les présentations investisseurs et la due diligence technique pour les services de données éolien offshore",
-              "Géré un portefeuille clients avec +15% de croissance annuelle ; responsabilité P&L complète",
-              "Piloté le développement produit en alignement avec les grands développeurs éoliens offshore européens"
+              "Direction stratégie produit de la plateforme data marine au sein du groupe Artelia (6 000 personnes)",
+              "Responsabilité P&L complète, BU renouvelables & énergie : budget, équipe, portefeuille clients C-level à Londres",
+              "Livraison pour SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — clients en contrat cadre long terme"
+            ]
+          },
+          "t1": {
+            "en": [
+              "Directed marine data intelligence product strategy within Artelia (6,000-person engineering group) — London-based",
+              "Full P&L ownership for renewables & energy BU: revenue targets, team management, C-level client engagement",
+              "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
+            ],
+            "fr": [
+              "Direction stratégie produit data marine au sein du groupe Artelia (6 000 personnes) — base Londres",
+              "Responsabilité P&L, BU renouvelables & énergie : objectifs revenus, management équipe, engagement C-level",
+              "Livraison pour SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — clients en contrat cadre long terme"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Led product direction for marine data intelligence platform within Artelia (6,000-person engineering group)",
+              "Full P&L ownership, renewables & energy BU: revenue targets, team management, C-level client engagement",
+              "Drove SaaS adaptation strategy for maritime industry: coordinated R&D, product, and commercial functions"
+            ],
+            "fr": [
+              "Direction produit de la plateforme data marine chez Artelia — groupe ingénierie 6 000 personnes",
+              "Responsabilité P&L, BU renouvelables & énergie : objectifs revenus, management équipe, engagement C-level",
+              "Stratégie d'adaptation SaaS pour l'industrie maritime : coordination R&D, produit et commercial"
             ]
           }
         },
@@ -1612,19 +1732,79 @@
               "Scale-up de la plateforme SaaS data marines du prototype au déploiement industriel",
               "Levée de €2M — exit réussi par acquisition par Artelia (2019)"
             ]
+          },
+          "t3": {
+            "en": [
+              "Built and led a 12-person product team (engineers, data scientists, web devs) delivering SaaS to offshore wind clients",
+              "Scaled marine data intelligence platform from MVP to multi-client industrial deployment",
+              "Raised €2M from institutional investors (Seventure Partners, Cap Décisif) — acquired by Artelia (2019)"
+            ],
+            "fr": [
+              "Construit et dirigé une équipe de 12 personnes (ingénieurs, data scientists, web) pour un SaaS offshore wind",
+              "Scale de la plateforme data marine du MVP au déploiement multi-clients en environnement industriel",
+              "Levée de 2 M€ auprès d'institutionnels (Seventure Partners, Cap Décisif) — cession à Artelia (2019)"
+            ]
+          },
+          "t4": {
+            "en": [
+              "Led 12-person product team (engineers, data scientists, web devs) serving Naval Group, RTE, Doris Engineering",
+              "Grew SaaS revenue through enterprise framework contracts; delivered to offshore wind and maritime clients",
+              "Raised €2M from institutional investors — successful acquisition by Artelia (2019)"
+            ],
+            "fr": [
+              "Dirigé une équipe de 12 personnes livrant à Naval Group, RTE (contrat cadre) et Doris Engineering",
+              "Croissance SaaS via contrats cadres enterprise ; livraison éolien offshore et industrie maritime",
+              "Levée 2 M€ institutionnels — cession à Artelia (2019)"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Co-founded and led a 12-person team — built a SaaS data platform, raised €2M from institutional VCs, achieved exit",
+              "Clients: Naval Group (ex-DCNS), RTE (framework contract), Doris Engineering — maritime and energy industries",
+              "Scaled from prototype to industrial deployment; acquired by Artelia (2019) — successful entrepreneurial exit"
+            ],
+            "fr": [
+              "Co-fondé et dirigé une équipe de 12 — plateforme SaaS, 2 M€ levés auprès d'institutionnels, exit réalisé",
+              "Clients : Naval Group (ex-DCNS), RTE (contrat cadre), Doris Engineering — secteurs maritime et énergie",
+              "Scale prototype → déploiement industriel ; cédé à Artelia (2019) — exit entrepreneurial réussi"
+            ]
           }
         },
         "p3": {
           "default": {
             "en": [
               "Architected and scaled marine data intelligence SaaS from prototype to industrial deployment",
-              "Led product development with a 12-person team: roadmap, agile delivery, major clients (DCNS, SBM Offshore, RTE)",
-              "Raised €2M from Business Angels and VCs — successful exit by acquisition (Artelia, 2019)"
+              "Led product development with a 12-person team: roadmap, agile delivery, clients Naval Group, SBM Offshore, RTE",
+              "Raised €2M from institutional investors (Seventure Partners, Cap Décisif/FNA) — acquired by Artelia (2019)"
             ],
             "fr": [
               "Architecture et scale-up d'un SaaS de données marines du prototype au déploiement industriel",
-              "Dirigé le développement produit avec une équipe de 12 : roadmap, delivery agile, clients majeurs (DCNS, SBM Offshore, RTE)",
-              "Levée de €2M (Business Angels et VCs) — exit réussi par acquisition (Artelia, 2019)"
+              "Développement produit avec une équipe de 12 : roadmap, delivery agile, clients Naval Group, SBM Offshore, RTE",
+              "Levée de 2 M€ auprès d'institutionnels (Seventure Partners, Cap Décisif/FNA) — cédé à Artelia (2019)"
+            ]
+          },
+          "t1": {
+            "en": [
+              "CTO & Co-founder: architected and scaled marine data SaaS from prototype to multi-client industrial deployment",
+              "Led 12-person product team: roadmap, agile delivery, clients Naval Group, SBM Offshore, RTE (framework contract)",
+              "Raised €2M from institutional investors (Seventure Partners, Cap Décisif/FNA) — acquired by Artelia (2019)"
+            ],
+            "fr": [
+              "CTO & Co-fondateur : architecture et scale du SaaS data marine du prototype au déploiement industriel multi-clients",
+              "Équipe de 12 personnes : roadmap produit, delivery agile, clients Naval Group, SBM Offshore, RTE (cadre)",
+              "Levée 2 M€ institutionnels (Seventure Partners, Cap Décisif) — cession à Artelia (2019)"
+            ]
+          },
+          "t5": {
+            "en": [
+              "Co-founded and scaled a 12-person team: hired engineers, data scientists, web devs — SaaS from zero to multi-client",
+              "Raised €2M from institutional VCs (Seventure Partners, Cap Décisif/FNA) — profitable, acquired by Artelia (2019)",
+              "Clients Naval Group (ex-DCNS), RTE (framework contract), Doris Engineering — full commercial + technical ownership"
+            ],
+            "fr": [
+              "Co-fondé et scalé une équipe de 12 : ingénieurs, data scientists, web — SaaS de zéro à multi-clients",
+              "Levée 2 M€ auprès d'institutionnels (Seventure Partners, Cap Décisif/FNA) — rentable, cédé à Artelia (2019)",
+              "Clients Naval Group (ex-DCNS), RTE (contrat cadre), Doris Engineering — propriété commerciale + technique complète"
             ]
           }
         },
