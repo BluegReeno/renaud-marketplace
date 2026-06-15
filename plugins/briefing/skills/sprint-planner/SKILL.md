@@ -12,8 +12,8 @@ description: >
   Utiliser quand Renaud dit "sprint planning", "planifier la semaine",
   "plan my week", "sprint de la semaine prochaine", "weekly planning",
   "priorités de la semaine", "organiser ma semaine" — ou en mode schedule.
-version: 0.4.2
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
+version: 0.4.3
+allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__update_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
 ---
 
 # Sprint Planner — Renaud Laborbe
@@ -329,6 +329,18 @@ mcp__hal-mcp__list_sprints(workspace_slug="renaud", status=<SPRINT_STATUS>)
 ```
 
 Si un sprint avec le statut cible existe déjà dans un workspace → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number_actuel + 1`.
+
+Si un sprint existe avec le **mauvais statut** (ex : `status="suivant"` alors que `SPRINT_STATUS="actuel"`), corriger via :
+
+```
+mcp__hal-mcp__update_sprint(
+  workspace_slug=<workspace>,
+  sprint_id=<sprint_id_existant>,
+  status=<SPRINT_STATUS>
+)
+```
+
+Ne recréer le sprint que si aucun sprint n'est trouvé avec le statut cible ni avec un statut corrigeable.
 
 ### 6b. Créer les sprints
 
