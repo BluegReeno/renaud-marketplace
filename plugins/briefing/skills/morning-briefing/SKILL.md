@@ -7,7 +7,7 @@ description: >
   interviews, relances due, active candidatures). Use when the user asks "what's up
   for today", "ma journée", "briefing du jour", "quel est mon planning", or any
   similar daily-overview trigger.
-version: 0.4.2
+version: 0.4.3
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault)"
 ---
 

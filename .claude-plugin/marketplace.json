@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -29,7 +29,7 @@
     },
     {
       "name": "briefing",
-      "version": "0.4.2",
+      "version": "0.4.3",
       "description": "Morning briefing + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, 3 Google Calendars) + weekly sprint review and planner",
       "source": "./plugins/briefing",
       "skills": [
