@@ -1,16 +1,20 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
 ## Current Focus
 
-**briefing v0.4.0 shipped.** `sprint-review` + `sprint-planner` skills ajoutés au plugin `briefing`. Mode schedule-friendly (vendredi après-midi autonome, validation explicite avant création sprint hal).
+**update_sprint MCP tool livré (hal + marketplaces).** sprint-planner v0.4.2 : statut dynamique à la création. v0.4.3 : wiring `update_sprint` pour corrections post-création.
 
 ## In Progress
 
 - (nothing active)
 
 ## Done (current sprint)
+
+- [x] **update_sprint wiring — briefing v0.4.3** — `mcp__hal-mcp__update_sprint` ajouté aux `allowed-tools` de sprint-planner + sprint-review. Section "6a bis" dans sprint-planner ÉTAPE 6 : correction statut post-création via `update_sprint` avant de recréer. 4-field version sync : briefing 0.4.2 → 0.4.3. — 2026-06-15
+
+- [x] **fix(sprint-planner): SPRINT_STATUS dynamique — briefing v0.4.2** — `SPRINT_STATUS = "actuel"` si `NEXT_MON <= TODAY` (planning lundi matin / rattrapage), `"suivant"` sinon. Corrige `list_sprints` idempotence (ÉTAPE 6a) et `create_sprint status=` (ÉTAPE 6b). Sprint-review drift 0.4.0 → 0.4.2 corrigé au passage. — 2026-06-15
 
 - [x] **sprint-review + sprint-planner skills (briefing v0.4.0)** — `sprint-review` : bilan sprint hal (blue-green + renaud), métriques jobsearch, projets BG, shortlist semaine suivante, clôture hal après validation explicite. `sprint-planner` : report/abandon décisions, métriques vault, scan LinkedIn gmail-mcp, conflit calendriers, calcul capacité 35h, plan MUST/SHOULD/COULD/BACKLOG, création sprint hal avec sprint_number auto-incrémenté + idempotence. Mode schedule : autonome pour étapes 0-4/0-5, gate sur création. — 2026-06-14
 
