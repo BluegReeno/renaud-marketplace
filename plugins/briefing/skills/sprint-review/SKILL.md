@@ -9,7 +9,7 @@ description: >
   Utiliser quand Renaud dit "sprint review", "bilan du sprint", "bilan de la
   semaine", "weekly review", "rétrospective", "fin de sprint" — ou en mode
   schedule (vendredi après-midi automatique).
-version: 0.4.0
+version: 0.4.2
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__list_projects mcp__hal-mcp__update_task_status mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault) Bash"
 ---
 

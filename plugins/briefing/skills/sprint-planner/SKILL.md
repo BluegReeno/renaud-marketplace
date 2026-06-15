@@ -12,7 +12,7 @@ description: >
   Utiliser quand Renaud dit "sprint planning", "planifier la semaine",
   "plan my week", "sprint de la semaine prochaine", "weekly planning",
   "priorités de la semaine", "organiser ma semaine" — ou en mode schedule.
-version: 0.4.1
+version: 0.4.2
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
 ---
 
@@ -129,6 +129,9 @@ WEEK_START=$(date -d "last monday" +%Y-%m-%d 2>/dev/null || date -v-1w -v+monday
 TODAY=$(date +%Y-%m-%d)
 NEXT_MON=$(date -d "next monday" +%Y-%m-%d 2>/dev/null || date -v+1w -v+monday +%Y-%m-%d 2>/dev/null)
 NEXT_FRI=$(date -d "next friday" +%Y-%m-%d 2>/dev/null || date -v+1w -v+friday +%Y-%m-%d 2>/dev/null)
+
+if [ "$NEXT_MON" \<= "$TODAY" ]; then SPRINT_STATUS="actuel"; else SPRINT_STATUS="suivant"; fi
+echo "SPRINT_STATUS=$SPRINT_STATUS"
 
 echo "WEEK_START=$WEEK_START"
 echo "NEXT_MON=$NEXT_MON"
@@ -321,20 +324,22 @@ Terminer par :
 ### 6a. Vérifier si un sprint suivant existe déjà (idempotence)
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="suivant")
-mcp__hal-mcp__list_sprints(workspace_slug="renaud", status="suivant")
+mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status=<SPRINT_STATUS>)
+mcp__hal-mcp__list_sprints(workspace_slug="renaud", status=<SPRINT_STATUS>)
 ```
 
-Si un sprint suivant existe déjà dans un workspace → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number_actuel + 1`.
+Si un sprint avec le statut cible existe déjà dans un workspace → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number_actuel + 1`.
 
 ### 6b. Créer les sprints
 
 ```
+# SPRINT_STATUS = "actuel" si NEXT_MON <= TODAY (lundi matin / rattrapage), sinon "suivant"
+
 mcp__hal-mcp__create_sprint(
   workspace_slug="blue-green",
   name="Sprint [N] — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
   sprint_number=<sprint_number_bg_actuel + 1>,
-  status="suivant",
+  status=<SPRINT_STATUS>,
   starts_at="[NEXT_MON]",
   ends_at="[NEXT_FRI]"
 )
@@ -343,7 +348,7 @@ mcp__hal-mcp__create_sprint(
   workspace_slug="renaud",
   name="Perso — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
   sprint_number=<sprint_number_rn_actuel + 1>,
-  status="suivant",
+  status=<SPRINT_STATUS>,
   starts_at="[NEXT_MON]",
   ends_at="[NEXT_FRI]"
 )
