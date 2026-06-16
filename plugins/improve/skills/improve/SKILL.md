@@ -123,7 +123,7 @@ Une seule passe `Bash` :
   factuel, en français ou anglais selon la langue de Renaud :
 
    ```bash
-   gh issue create \
+   ISSUE_URL=$(gh issue create \
      --repo "BluegReeno/${REPO}" \
      --title "fix(skill:${SKILL_NAME}): <comportement attendu en <8 mots>" \
      --label "ai-improvable" \
@@ -150,7 +150,9 @@ Une seule passe `Bash` :
    - [ ] Bumper la version dans les 3 endroits (plugin.json / SKILL.md frontmatter / marketplace.json)
    - [ ] Ouvrir une PR avec \`closes #<this-issue-number>\`
    EOF
-   )"
+   )") || { echo "❌ gh issue create failed — check: gh auth status && echo \$REPO"; exit 1; }
+
+   ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
    ```
 
 **Gotchas Bash** :
@@ -159,17 +161,19 @@ Une seule passe `Bash` :
 - Pas d'espace après la virgule si tu passes plusieurs labels dans un seul
   `--label "a,b"` ; ici on utilise plusieurs flags `--label` séparés (plus
   sûr).
-- Le HEREDOC doit utiliser `EOF` non-quoté pour laisser
-  `${SKILL_NAME}` etc. s'interpoler — les backticks dans le body sont
-  échappés (`\``).
+- Le HEREDOC doit utiliser `EOF` non-quoté. Les backticks dans le body sont
+  échappés (`\``). Note : le body utilise des placeholders `<texte>` que le
+  modèle remplace textuellement — pas des variables shell `${VAR}`.
+  L'`EOF` non-quoté est nécessaire pour le script preamble (`${SKILL_NAME}`,
+  `${REPO}`, `${PRIORITY}` hors HEREDOC) et pour l'échappement backtick.
 
 ## Step 4 — One-line confirmation
 
-Imprime exactement (remplace `<n>`, `<repo>`, `<url>`) :
+Imprime exactement (en utilisant les variables capturées `$ISSUE_NUMBER`, `$REPO`, `$ISSUE_URL`) :
 
 ```
-✅ Issue #<n> créée dans <repo> — <url>
-Pour fixer : archon workflow run skill-improve "#<n>" (depuis le repo concerné)
+✅ Issue #${ISSUE_NUMBER} créée dans ${REPO} — ${ISSUE_URL}
+Pour fixer : archon workflow run skill-improve "#${ISSUE_NUMBER}" (depuis renaud-marketplace)
 ```
 
 Rien d'autre — pas de récap, pas de "voilà ce que j'ai fait". L'objectif

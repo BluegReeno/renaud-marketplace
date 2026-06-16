@@ -30,7 +30,7 @@ nodes:
       2. `.claude-plugin/marketplace.json` — current plugin versions
       3. `plugins/` directory listing — know what plugins exist
 
-      Write `$ARTIFACTS_DIR/skill-context.md` with:
+      Output the following in your response (will be captured as node output):
       - The three-file version sync rule (verbatim from CLAUDE.md)
       - Current plugin versions from marketplace.json
       - List of existing plugins and their skills
@@ -43,6 +43,9 @@ nodes:
     command: archon-fix-github-issue-experimental
     depends_on: [read-skill-context]
     context: fresh
+    additional_context: |
+      Skill conventions to apply during this fix:
+      $read-skill-context.output
 
   # ───────────────────────────────────────────────────────────────
   # Node 3 — verify version bump (the most common mistake in this repo)
@@ -62,7 +65,7 @@ nodes:
       3. `.claude-plugin/marketplace.json` → plugin entry `version`
 
       Steps:
-      1. Identify which plugin was modified (from the fix diff: `git diff HEAD~1`)
+      1. Identify which plugin was modified (from the fix diff: `git diff origin/main...HEAD -- plugins/`)
       2. Read the three version values for that plugin
       3. If all three match → output "✅ Version sync OK: <version>"
       4. If any mismatch → fix the diverging files to match the highest version,

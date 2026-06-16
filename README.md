@@ -135,6 +135,7 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 |--------|---------|--------|-------------|-------------|
 | `jobsearch` | 0.4.2 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
 | `briefing` | 0.3.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + jobsearch-vault) — tag-grouping renaud (WP-D) |
+| `improve` | 0.1.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
 
 ---
 
@@ -145,6 +146,7 @@ Dépôt public — pas de token requis. Ajouter le marketplace puis installer le
 ```bash
 /plugin marketplace add BluegReeno/renaud-marketplace jobsearch
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
+/plugin marketplace add BluegReeno/renaud-marketplace improve
 ```
 
 ---
