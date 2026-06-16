@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.2.6
+version: 0.2.7
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -297,6 +297,14 @@ Apply these rules when reviewing or editing any content in `cv-master.json`.
 3. What **differentiates** you (true for Renaud, false for most candidates)
 - No third person, no "passionné", "dynamique", "orienté résultats"
 
+### About section — FR style rule (mandatory)
+- **Forme nominale uniquement** : phrase complète, sujet implicite, verbe conjugué ou participé passé
+- ✅ `"Architecte IA issu du terrain…"` / `"Systèmes GenAI déployés en production…"` / `"15 ans de vente…"`
+- ❌ Infinitif nu : `"Livrer de la GenAI…"`, `"Maîtriser le cycle…"`, `"Apporter une verticale…"`
+- ❌ Fragment sans verbe : `"Fort de 15 ans…"` sans suite
+- ❌ Calque anglais : `"Travailler en trilingue"` → `"Trilingue opérationnel"`
+- Chaque bullet = claim complet avec preuve embarquée (chiffre, client nommé, ou différenciateur vérifiable)
+
 ### Competency containers
 - Items anchored with context or proof — not bare keyword lists
 - ✅ "Multi-agents LLM en production (Claude, pgvector, n8n)" not ❌ "LLMs, RAG, Agents IA"
@@ -318,14 +326,11 @@ Apply these rules when reviewing or editing any content in `cv-master.json`.
 
 ## Narrative methodology — what each cell emphasizes
 
-The `cv-master.json` experience bullets are cell-specific. Each cell tells a different story with the same three companies (Blue Green → Artelia → Open Ocean, or Artelia-first for corporate cells).
+The `cv-master.json` experience bullets are cell-specific. Each cell tells a different story with the same three companies.
 
-### Experience order rules
-
-| Cell | Job order | Reason |
-|------|-----------|--------|
-| P1×T4, P2×T4, P5×T5 | Artelia → BG → OO | Corporate credibility first; "founder" framing is a red flag for large groups |
-| All other cells | BG → Artelia → OO | Blue Green as current work, most relevant GenAI signal |
+### Experience order
+Always chronological reverse: Blue Green (2023–present) → Artelia (2019–2023) → Open Ocean (2011–2019).
+No exceptions.
 
 ### Signal per company type (T)
 

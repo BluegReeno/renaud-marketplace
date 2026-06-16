@@ -45,8 +45,6 @@ RETRO_COMPAT_MAP = {
     'business_dev':  ('p5', 't3'),
 }
 
-CORPORATE_FIRST_CELLS = {('p1', 't4'), ('p2', 't4'), ('p5', 't5')}
-
 # Injected before </head> when compact=True to tighten spacing
 COMPACT_CSS = """<style>
 .header { padding: 15px 25px; }
@@ -113,8 +111,6 @@ def resolve_cell_content(cv_data, profile, company_type, lang):
 
 
 def get_job_order(profile, company_type):
-    if (profile, company_type) in CORPORATE_FIRST_CELLS:
-        return ['artelia', 'blue_green', 'open_ocean']
     return ['blue_green', 'artelia', 'open_ocean']
 
 

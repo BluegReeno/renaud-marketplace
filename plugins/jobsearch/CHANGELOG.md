@@ -1,5 +1,34 @@
 # jobsearch — Changelog
 
+## [0.4.8] — 2026-06-16
+
+### Changed (cv-generator SKILL.md v0.2.6 → v0.2.7 / generate_cv.py / cv-master.json)
+
+- **Experience order — fixed, no exceptions** : removed `CORPORATE_FIRST_CELLS` logic (Artelia-first for T4/T5). All cells now output Blue Green → Artelia → Open Ocean (chronological reverse). Updated SKILL.md accordingly.
+- **About FR — forme nominale** : all 15 `about.fr` sections rewritten to nominal form. No more bare infinitives (`"Livrer…"`, `"Maîtriser…"`, `"Apporter…"`). Added mandatory FR style rule in SKILL.md.
+- **SKILL.md** : added "About section — FR style rule" block; replaced "Experience order rules" table with single fixed-order rule.
+- **cv-master.json bullets** :
+  - `open_ocean.p1.default.en[2]` : "Business Angels and VCs" → "institutional investors (Seventure Partners, Cap Décisif/FNA)"
+  - `blue_green.p1.default.en[2]` : generic stack line → Edifice/IC Ingénieurs Conseils (€25M + €35M projects)
+  - `artelia.p1.default` (en + fr) : replaced 3 vague bullets with specific P&L/portfolio/roadmap bullets (SBM Offshore, Nexans, ASN, Cadeler)
+
+## [0.4.7] — 2026-06-16
+
+### Fixed (cv-master.json / cv-generator v0.2.6)
+
+- CPTEC title FR : "Analyste Données Climatiques" → "Analyste Climatique — Événements Extrêmes"
+- CPTEC title EN : "Climate Data Analyst" → "Climate Data Analyst — Extreme Events"
+- Open Ocean P1 title : added "Marine Data Intelligence" branding
+- Artelia bullets : stripped P&L BU scope across all FR + EN bullets
+- P1×T2 : trimmed about[0] + BG t2 bullet[0] for 1-page fit
+
+## [0.4.6] — 2026-06-16
+
+### Fixed (cv-master.json / cv-generator SKILL.md v0.2.5)
+
+- FR quality pass — 14 corrections across P1–P5 : openers "Cumuler"/"Fort de" → nominal forms, infinitif passé P2×T1, "Manager" → "Diriger", "ventures" → "startups", bullet vague BG P1 → Edifice/IC Ingénieurs, "delivery agile" → "livraison agile", P5 20 ans → 15 ans (factuel), Artelia period 2019–2022 → 2019–2023 (factuel), CPTEC "Analyste Données" → "Analyste Climatique — Événements Extrêmes"
+- P1×T2 about rewrite + BG t2 bullets override
+
 ## [0.4.5] — 2026-06-14
 
 ### Changed (cv-generator SKILL.md v0.2.3 → v0.2.4 / generate_cv.py)
