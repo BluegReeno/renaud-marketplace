@@ -172,9 +172,9 @@
             "Fluent in both worlds: engineering deliverables and production AI systems."
           ],
           "fr": [
-            "Fort de 15+ ans en ingénierie et éolien offshore, pivoter vers l'IA.",
-            "Livrer des outils GenAI utilisés au quotidien par des BET (diagnostics automatisés, analyse d'AO).",
-            "Maîtriser les deux langages : livrables d'ingénierie et systèmes IA en production."
+            "Conjuguer 15 ans de data science / ML dans les métiers de l'ingénierie (énergie & bâtiment) avec une maîtrise des agents GenAI en production depuis 2023.",
+            "Développer et déployer des outils GenAI utilisés au quotidien par des bureaux d'études : diagnostics automatisés, analyse d'appels d'offres.",
+            "Faire le pont entre les métiers de l'ingénierie et les systèmes d'IA en production."
           ]
         },
         "containers": {
@@ -1387,6 +1387,18 @@
               "Livrer de la GenAI bout en bout pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents IA) et Valorem (analyse PLU pour l'éolien terrestre)",
               "Déployer Edifice pour IC Ingénieurs Conseils — diagnostics IA automatisés pour 2 rénovations (€25M + €35M)",
               "Concevoir BlueWind Companion v2.2 (RAG, serveurs MCP, agentique) et animer des ateliers GenAI pour développeurs de projets EnR"
+            ]
+          },
+          "t2": {
+            "en": [
+              "Designed and deployed end-to-end AI solutions for regulatory document analysis: offshore wind tenders (EnBW France) and local urban planning documents — PLU (Valorem)",
+              "Architected production GenAI systems for engineering firms: multi-source RAG pipeline (22,800 documents), specialised AI agents, MCP servers",
+              "Deployed a purpose-built AI assistant for engineering consultancies, designed around field-to-office continuity — live on 2 social housing renovation projects (€25M + €35M)"
+            ],
+            "fr": [
+              "Concevoir et déployer de bout en bout des solutions IA d'analyse de documents réglementaires : appels d'offres éolien offshore (EnBW France) et plans locaux d'urbanisme (Valorem)",
+              "Architecturer des systèmes GenAI en production pour les BET : pipeline RAG multi-sources (22 800 documents), agents IA spécialisés, serveurs MCP",
+              "Déployer un assistant IA métier dédié aux BET, avec continuité terrain/bureau — en production sur 2 rénovations de logements sociaux (25 M€ + 35 M€)"
             ]
           }
         },
