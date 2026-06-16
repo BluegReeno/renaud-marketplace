@@ -12,7 +12,7 @@ Last updated: 2026-06-16
 
 ## Done (current sprint)
 
-- [x] **cv-generator FR quality pass (jobsearch v0.4.6 / cv-generator v0.2.5)** — 13 corrections sur P1–P5 : openers "Cumuler" → "Fort de", infinitif passé P2×T1, "Manager" verbe → "Diriger", "ventures" → "startups", bullet vague BG P1 → Edifice/IC Ingénieurs, "delivery agile" → "livraison agile", P5 20 ans → 15 ans (factuel), Artelia period 2019–2022 → 2019–2023 (factuel). — 2026-06-16
+- [x] **cv-generator FR quality pass (jobsearch v0.4.7 / cv-generator v0.2.6)** — 14 corrections sur P1–P5 : openers "Cumuler" → "Fort de", infinitif passé P2×T1, "Manager" verbe → "Diriger", "ventures" → "startups", bullet vague BG P1 → Edifice/IC Ingénieurs, "delivery agile" → "livraison agile", P5 20 ans → 15 ans (factuel), Artelia period 2019–2022 → 2019–2023 (factuel), CPTEC "Analyste Données" → "Analyste Climatique — Événements Extrêmes". — 2026-06-16
 
 - [x] **update_sprint wiring — briefing v0.4.3** — `mcp__hal-mcp__update_sprint` ajouté aux `allowed-tools` de sprint-planner + sprint-review. Section "6a bis" dans sprint-planner ÉTAPE 6 : correction statut post-création via `update_sprint` avant de recréer. 4-field version sync : briefing 0.4.2 → 0.4.3. — 2026-06-15
 
