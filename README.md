@@ -133,8 +133,8 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.4.2 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.3.0 | `morning-briefing` | `hal-mcp` (dédupliqué) | Briefing quotidien read-only (calendriers + hal tasks + jobsearch-vault) — tag-grouping renaud (WP-D) |
+| `jobsearch` | 0.4.8 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.4.3 | `morning-briefing`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
 | `improve` | 0.1.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
 
 ---

@@ -161,11 +161,11 @@ Une seule passe `Bash` :
 - Pas d'espace après la virgule si tu passes plusieurs labels dans un seul
   `--label "a,b"` ; ici on utilise plusieurs flags `--label` séparés (plus
   sûr).
-- Le HEREDOC doit utiliser `EOF` non-quoté. Les backticks dans le body sont
-  échappés (`\``). Note : le body utilise des placeholders `<texte>` que le
-  modèle remplace textuellement — pas des variables shell `${VAR}`.
-  L'`EOF` non-quoté est nécessaire pour le script preamble (`${SKILL_NAME}`,
-  `${REPO}`, `${PRIORITY}` hors HEREDOC) et pour l'échappement backtick.
+- Le HEREDOC utilise `EOF` non-quoté pour que les variables shell hors
+  HEREDOC (`${SKILL_NAME}`, `${REPO}`, `${PRIORITY}`) s'expandent. À
+  l'intérieur du HEREDOC, les `<placeholders>` sont remplacés textuellement
+  par le modèle — pas par le shell. Les backticks dans le body sont échappés
+  (`\``).
 
 ## Step 4 — One-line confirmation
 
