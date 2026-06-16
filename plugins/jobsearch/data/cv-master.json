@@ -172,7 +172,7 @@
             "Fluent in both worlds: engineering deliverables and production AI systems."
           ],
           "fr": [
-            "Conjuguer 15 ans de data science / ML dans les métiers de l'ingénierie (énergie & bâtiment) avec une maîtrise des agents GenAI en production depuis 2023.",
+            "Conjuguer 15 ans de data science / ML en ingénierie (énergie & bâtiment) avec une maîtrise des agents GenAI en production depuis 2023.",
             "Développer et déployer des outils GenAI utilisés au quotidien par des bureaux d'études : diagnostics automatisés, analyse d'appels d'offres.",
             "Faire le pont entre les métiers de l'ingénierie et les systèmes d'IA en production."
           ]
@@ -1396,7 +1396,7 @@
               "Deployed a purpose-built AI assistant for engineering consultancies, designed around field-to-office continuity — live on 2 social housing renovation projects (€25M + €35M)"
             ],
             "fr": [
-              "Concevoir et déployer de bout en bout des solutions IA d'analyse de documents réglementaires : appels d'offres éolien offshore (EnBW France) et plans locaux d'urbanisme (Valorem)",
+              "Concevoir et déployer de bout en bout des solutions IA d'analyse documentaire réglementaire : appels d'offres éolien offshore (EnBW France) et PLU (Valorem)",
               "Architecturer des systèmes GenAI en production pour les BET : pipeline RAG multi-sources (22 800 documents), agents IA spécialisés, serveurs MCP",
               "Déployer un assistant IA métier dédié aux BET, avec continuité terrain/bureau — en production sur 2 rénovations de logements sociaux (25 M€ + 35 M€)"
             ]
