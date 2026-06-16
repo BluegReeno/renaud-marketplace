@@ -1,0 +1,9 @@
+{
+  "name": "workflow",
+  "version": "0.1.0",
+  "description": "Meta-workflow skills for Renaud — skill improvement capture (bloc ① of the automated improvement loop)",
+  "author": {
+    "name": "Renaud Laborbe",
+    "email": "renaud@bluegreen.ai"
+  }
+}
