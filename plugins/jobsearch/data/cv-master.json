@@ -1722,7 +1722,7 @@
       "titles": {
         "p1": {
           "en": "Co-Founder & CTO",
-          "fr": "Co-Fondateur & CTO"
+          "fr": "Directeur Technique & Co-Fondateur"
         },
         "p2": {
           "en": "Co-Founder & Managing Director",
@@ -1745,12 +1745,12 @@
         "p1": {
           "default": {
             "en": [
-              "Architected and scaled marine data intelligence SaaS platform from prototype to industrial deployment (team of 12, €2M raised, exit)",
+              "Architected and scaled a Marine Data Intelligence startup from prototype to industrial deployment (team of 12, €2M raised, exit)",
               "Led product development: client requirements, technical roadmap, agile delivery — major clients: DCNS, SBM Offshore, RTE",
               "Raised €2M from Business Angels and VCs — successful exit through acquisition by Artelia (2019)"
             ],
             "fr": [
-              "Architecturer et scaler une plateforme SaaS de données marines du prototype au déploiement industriel (équipe de 12, €2M levés, exit)",
+              "Architecturer et scaler une startup de Marine Data Intelligence du prototype au déploiement industriel (équipe de 12, €2M levés, exit)",
               "Piloter le développement produit : besoins clients, roadmap technique, livraison agile — clients majeurs : Naval Group (ex-DCNS), SBM Offshore, RTE",
               "Lever €2M (Seventure Partners, Cap Décisif/FNA — institutionnels) — exit réussi par acquisition par Artelia (2019)"
             ]
