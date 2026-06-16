@@ -1922,11 +1922,11 @@
           "period": "2006-2010"
         },
         {
-          "title": "Data Analyst",
-          "title_fr": "Analyste Données",
+          "title": "Climate Data Analyst",
+          "title_fr": "Analyste Climatique — Événements Extrêmes",
           "company": "CPTEC",
-          "description": "extreme events data analysis",
-          "description_fr": "analyse de données événements extrêmes",
+          "description": "statistical analysis of extreme climate events",
+          "description_fr": "analyse statistique d'événements climatiques extrêmes",
           "location": "Brazil",
           "period": "2004-2005"
         }
