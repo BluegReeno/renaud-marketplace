@@ -172,7 +172,7 @@
             "Fluent in both worlds: engineering deliverables and production AI systems."
           ],
           "fr": [
-            "Cumuler 15+ ans en ingénierie et éolien offshore avant de pivoter vers l'IA.",
+            "Fort de 15+ ans en ingénierie et éolien offshore, pivoter vers l'IA.",
             "Livrer des outils GenAI utilisés au quotidien par des BET (diagnostics automatisés, analyse d'AO).",
             "Maîtriser les deux langages : livrables d'ingénierie et systèmes IA en production."
           ]
@@ -336,7 +336,7 @@
             "Trilingual, has worked in France, UK, Brazil and the US."
           ],
           "fr": [
-            "Cumuler 15+ ans en énergie & ingénierie, dont 3 ans dans un groupe international (Londres).",
+            "Fort de 15+ ans en énergie & ingénierie, dont 3 ans dans un groupe international (Londres).",
             "Livrer de la GenAI en production pour des acteurs majeurs de l'énergie (EnBW, Valorem).",
             "Travailler en trilingue — France, UK, Brésil, USA."
           ]
@@ -502,7 +502,7 @@
             "Deep industrial & energy domain knowledge."
           ],
           "fr": [
-            "Avoir fondé et scalé une startup tech jusqu'à l'exit : équipe de 12, €2M levés.",
+            "Créer et scaler une startup tech jusqu'à l'exit : équipe de 12, €2M levés.",
             "Livrer de la GenAI en production aujourd'hui : RAG, agents, MCP.",
             "Maîtriser les secteurs industriels & énergie depuis 15 ans."
           ]
@@ -666,7 +666,7 @@
             "Led cross-functional teams and full P&L."
           ],
           "fr": [
-            "Cumuler 15+ ans en énergie & ingénierie, dont 3 ans en groupe international (Londres).",
+            "Fort de 15+ ans en énergie & ingénierie, dont 3 ans en groupe international (Londres).",
             "Mener l'IA de la stratégie à la production chez des acteurs de l'énergie.",
             "Diriger des équipes transverses avec P&L complet."
           ]
@@ -830,7 +830,7 @@
             "Hands-on today: production GenAI systems (RAG, agents, MCP)."
           ],
           "fr": [
-            "Scaler des ventures tech du prototype au déploiement industriel depuis 15 ans.",
+            "Amener des startups tech du prototype au déploiement industriel depuis 15 ans.",
             "Prouver par les faits : équipe de 12, €2M levés, exit réussi.",
             "Rester hands-on : systèmes GenAI en production aujourd'hui."
           ]
@@ -1155,12 +1155,12 @@
         },
         "about": {
           "en": [
-            "20 years selling technical services and solutions to enterprise accounts.",
+            "15 years selling technical services and solutions to enterprise accounts.",
             "Owns the full cycle: prospecting, demo, proposal, C-level closing.",
             "Technical enough to scope GenAI projects credibly with CIOs."
           ],
           "fr": [
-            "Vendre des services et solutions techniques aux grands comptes depuis 20 ans.",
+            "Vendre des services et solutions techniques aux grands comptes depuis 15 ans.",
             "Porter le cycle complet : prospection, démo, propale, closing C-level.",
             "Cadrer un projet GenAI face à une DSI — maîtrise technique réelle."
           ]
@@ -1244,7 +1244,7 @@
           "fr": [
             "Développer un portefeuille enterprise éolien offshore à +15% YOY en groupe international.",
             "Porter des cycles de vente B2B complets depuis 8 ans, prospection → closing C-level.",
-            "Vendre ce que l'on construit : utiliser les API LLM frontier en production au quotidien."
+            "Vendre ce que l'on maîtrise de l'intérieur : déploiement quotidien d'agents LLM frontier en production."
           ]
         },
         "containers": {
@@ -1350,7 +1350,7 @@
             "fr": [
               "Concevoir et déployer des solutions IA bout en bout pour EnBW France (analyse d'AO éolien offshore) et Valorem (analyse PLU éolien terrestre)",
               "Architecturer des systèmes GenAI en production : RAG multi-sources, agents IA, serveurs MCP — BlueWind Companion v2.2 live",
-              "Intervenir chez des acteurs majeurs de l'énergie renouvelable (développeurs éoliens offshore, promoteurs)"
+              "Déployer Edifice pour IC Ingénieurs Conseils — diagnostics bâtiment IA pour 2 rénovations de logements sociaux (25 M€ + 35 M€)"
             ]
           },
           "t5": {
@@ -1511,7 +1511,7 @@
     "artelia": {
       "company": "Artelia",
       "location": "London, UK",
-      "period": "2019 – 2022",
+      "period": "2019 – 2023",
       "titles": {
         "p1": {
           "en": "Business Development & Project Director",
@@ -1593,7 +1593,7 @@
               "Full P&L responsibility for the offshore wind business unit in London"
             ],
             "fr": [
-              "Manager des équipes transverses livrant des services de données éolien offshore à de grands clients européens",
+              "Diriger des équipes transverses livrant des services data éolien offshore à de grands clients européens",
               "Générer +15% de croissance annuelle via engagement client stratégique et négociations C-level",
               "Assurer la responsabilité P&L complète de la business unit éolien offshore à Londres"
             ]
@@ -1739,7 +1739,7 @@
             ],
             "fr": [
               "Architecturer et scaler une plateforme SaaS de données marines du prototype au déploiement industriel (équipe de 12, €2M levés, exit)",
-              "Piloter le développement produit : besoins clients, roadmap technique, delivery agile — clients majeurs : Naval Group (ex-DCNS), SBM Offshore, RTE",
+              "Piloter le développement produit : besoins clients, roadmap technique, livraison agile — clients majeurs : Naval Group (ex-DCNS), SBM Offshore, RTE",
               "Lever €2M (Seventure Partners, Cap Décisif/FNA — institutionnels) — exit réussi par acquisition par Artelia (2019)"
             ]
           },

@@ -42,4 +42,4 @@ Experience order: Artelia → Blue Green → Open Ocean (corporate-first)
 
 - Technical enough to run live demos and scope solutions with engineering teams
 - Energy/industry vertical network — opens accounts generalist AEs can't
-- 20 years of sales experience in technical services (not just AI)
+- 15 years of sales experience in technical services (not just AI)
