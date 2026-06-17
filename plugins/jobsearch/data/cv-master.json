@@ -1073,66 +1073,72 @@
         },
         "about": {
           "en": [
-            "Builds production systems on frontier-model APIs (multi-agent, RAG, MCP).",
-            "Runs the full customer cycle: discovery, demo, POC, production.",
-            "15+ years of enterprise empathy from the customer side (energy, engineering)."
+            "Run complex B2B enterprise sales autonomously at Artelia (SBM Offshore, Naval Group, RTE) — long cycles, multi-stakeholder, framework contracts with legal.",
+            "Four years embedded in the IT division of a 6,000-person group: cloud selection committees (AWS/GCP/Azure), internal IS projects — enterprise adoption friction understood from the inside.",
+            "GenAI systems deployed in production (BlueWind Companion: 91 regulatory docs, 5 specialized agents, benchmarks 8.6/10) — real engineering, not presales."
           ],
           "fr": [
-            "Solutions Engineer IA avec 15 ans d'expérience côté client industriel — la crédibilité terrain est native, pas simulée.",
-            "Cycle client complet piloté de bout en bout : qualification du besoin, POC facturé, intégration SI, formation et mise en production autonome.",
-            "Architecte et déployeur de systèmes IA en production (multi-agents Claude, pgvector, MCP) — technique réelle, pas seulement de l'avant-vente."
+            "Vente B2B complexe à des grands comptes industriels menée en autonomie chez Artelia (SBM Offshore, Naval Group, RTE) — cycles longs, multi-interlocuteurs, contrats cadres avec le juridique.",
+            "Quatre ans intégré dans la DSI d'un groupe de 6 000 personnes : comités de sélection cloud (AWS/GCP/Azure), projets IS internes — la compréhension des freins adoption dans un grand groupe est native.",
+            "Systèmes GenAI déployés en production (BlueWind Companion : 91 docs réglementaires, 5 agents spécialisés, benchmarks 8.6/10) — technique réelle, pas d'avant-vente."
           ]
         },
         "containers": {
           "en": [
             {
-              "title": "Forward Deployed Engineering",
+              "title": "AI Deployment & Integration",
               "items": [
-                "Multi-agent LLM systems in production (Claude, pgvector, n8n)",
-                "MCP integration — client SI connectivity",
-                "AI evals & production observability"
+                "Hybrid RAG in production (pgvector, RRF)",
+                "Specialized LLM agents (Pydantic AI + Claude)",
+                "Client SI integration (MCP, APIs)",
+                "Stack: FastAPI, Next.js, Supabase"
               ]
             },
             {
-              "title": "Customer Success & Adoption",
+              "title": "B2B Enterprise Sales Cycle",
               "items": [
-                "Onboarding: demo → POC → autonomous use",
-                "Multi-level stakeholder management (C-level to ops)",
-                "B2B enterprise sales — full ownership (EnBW, Valorem)"
+                "Complex long-cycle sales (qualification → closing)",
+                "Upsell & expansion (premium, framework contracts)",
+                "Legal coordination (T&Cs, multi-BU tenders)",
+                "Industrial SaaS onboarding"
               ]
             },
             {
-              "title": "Enterprise Verticals",
+              "title": "Enterprise-Insider Knowledge",
               "items": [
-                "Renewable energy — 15 yrs (offshore wind, French tenders)",
-                "Engineering & Infrastructure",
-                "Climate Tech & Sustainability"
+                "IT division selection processes (cloud, software vendors)",
+                "Adoption friction & IT governance",
+                "Internal digital transformation",
+                "Sectors: offshore energy, infrastructure, marine"
               ]
             }
           ],
           "fr": [
             {
-              "title": "Architecture & agents IA",
+              "title": "Déploiement & intégration IA",
               "items": [
-                "Multi-agents LLM en production (Claude, pgvector, n8n)",
-                "Intégration SI client via MCP et APIs",
-                "Évaluation IA & observabilité en prod"
+                "RAG hybride en production (pgvector, RRF)",
+                "Agents LLM spécialisés (Pydantic AI + Claude)",
+                "Intégration SI client (MCP, APIs)",
+                "Stack : FastAPI, Next.js, Supabase"
               ]
             },
             {
-              "title": "Cycle client & déploiement",
+              "title": "Cycle client B2B grands comptes",
               "items": [
-                "Onboarding IA : démo → POC → autonomie client",
-                "Gestion multi-niveaux (C-level → ops)",
-                "Cycle B2B : qualification, POC facturé (EnBW, Valorem)"
+                "Vente complexe cycles longs (qualification → closing)",
+                "Upsell & expansion (premium, contrats cadres)",
+                "Coordination juridique (CGVs, AO multi-BU)",
+                "Onboarding SaaS industriels"
               ]
             },
             {
-              "title": "Secteurs d'expertise",
+              "title": "Connaissance grands groupes de l'intérieur",
               "items": [
-                "Énergies renouvelables — 15 ans (offshore, AO français)",
-                "Ingénierie & Infrastructure",
-                "Tech climatique & développement durable"
+                "Sélection DSI (cloud, éditeurs)",
+                "Freins adoption & gouvernance IT",
+                "Transformation digitale interne",
+                "Secteurs : énergie offshore, infrastructure, marine"
               ]
             }
           ]
@@ -1493,14 +1499,12 @@
         "p4": {
           "default": {
             "en": [
-              "Deployed AI solutions for industrial clients (EnBW France, Valorem): discovery, integration, production handover",
-              "Built RAG systems and AI agents for client workflows (offshore wind tender analysis, PLU analysis for wind farm siting)",
-              "Led client teams from first demo to autonomous production use (EnBW France, Valorem)"
+              "Build and deploy BlueWind Companion v4.0 — AI regulatory intelligence platform for offshore wind (91 FR+UK docs, 5 specialized agents, LLM-judged benchmarks 8.6/10) — live in production, client EnBW France",
+              "Lead the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous production handover"
             ],
             "fr": [
-              "Déployer 5 agents IA chez EnBW France (22 800 documents, analyse AO offshore) — temps d'analyse divisé par 10",
-              "Concevoir et intégrer un système RAG pour l'analyse de PLU chez Valorem — de la qualification du besoin à la mise en production",
-              "Former les équipes clients jusqu'à l'usage autonome en production (EnBW France, Valorem)"
+              "Construire et déployer BlueWind Companion v4.0 — plateforme IA d'intelligence réglementaire offshore wind (91 docs FR+UK, 5 agents spécialisés, benchmarks LLM-judged 8.6/10) — live en production, client EnBW France",
+              "Piloter le cycle complet chez IC Ingénieurs Conseils (Edifice, diagnostics bâtiment 25 M€ + 35 M€) et Valorem — de la qualification du besoin à la mise en production autonome"
             ]
           }
         },
@@ -1688,14 +1692,12 @@
         "p4": {
           "default": {
             "en": [
-              "Deployed offshore wind data services with major European developers (SBM Offshore, Naval Group, RTE)",
-              "Grew client portfolio 15% YOY — owned full cycle from discovery to adoption across SBM Offshore, Naval Group, RTE",
-              "Coordinated engineering and commercial teams to deliver on time for offshore projects"
+              "Take over the enterprise sales pipeline autonomously after the commercial director's departure — mid-market focus, SBM Offshore moved to premium subscription, framework contracts coordinated with legal (T&Cs, multi-department tenders)",
+              "Participate from the inside in Artelia IT committees (6,000 people): cloud selection (AWS/GCP/Azure), Géoportail project — native understanding of technology adoption friction in a large enterprise"
             ],
             "fr": [
-              "Déployer des services de données éolien offshore auprès de grands développeurs européens (SBM Offshore, Naval Group, RTE)",
-              "Développer un portefeuille clients en croissance de +15 % par an — de la qualification à l'adoption",
-              "Coordonner les équipes pluridisciplinaires (ingénierie + ops) pour tenir les engagements clients sur projets offshore"
+              "Reprendre le pipeline commercial grands comptes en autonomie après le départ du directeur commercial — focus panier moyen, SBM Offshore passé en abonnement premium, contrats cadres avec le juridique (CGVs, AO multi-départements)",
+              "Participer de l'intérieur aux comités DSI Artelia (6 000 personnes) : sélection cloud (AWS/GCP/Azure), projet Géoportail — connaissance native des freins à l'adoption technologique dans un grand groupe"
             ]
           }
         },
@@ -1883,14 +1885,12 @@
         "p4": {
           "default": {
             "en": [
-              "Deployed marine data intelligence SaaS with major industrial clients (Naval Group, SBM Offshore, RTE)",
-              "Owned 100% of client-facing delivery: discovery, proposal, implementation, adoption",
-              "Raised €2M — successful exit through acquisition by Artelia (2019)"
+              "Co-found and architect the marine data SaaS — translate client needs into product roadmap, lead the R&D program, manage the team (12 people)",
+              "Onboard industrial clients on the SaaS (Naval Group, RTE, SBM Offshore) and raise €2M (Seventure Partners + Cap Décisif/FNA) — exit via Artelia acquisition 2019"
             ],
             "fr": [
-              "Déployer le SaaS de données marines chez des clients industriels majeurs (Naval Group, SBM Offshore, RTE)",
-              "Porter 100 % du cycle client : qualification, proposition, intégration, adoption",
-              "Lever €2M — exit réussi par acquisition par Artelia (2019)"
+              "Co-fonder et architecturer le SaaS de données marines — traduire les besoins clients en roadmap produit, piloter le programme R&D, manager l'équipe (12 personnes)",
+              "Onboarder les clients industriels sur le SaaS (Naval Group, RTE, SBM Offshore) et lever 2 M€ (Seventure Partners + Cap Décisif/FNA) — exit acquisition Artelia 2019"
             ]
           }
         },
