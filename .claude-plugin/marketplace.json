@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.4.8",
+  "version": "0.5.0",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -36,6 +36,21 @@
         "./plugins/briefing/skills/morning-briefing",
         "./plugins/briefing/skills/sprint-review",
         "./plugins/briefing/skills/sprint-planner"
+      ],
+      "author": {
+        "name": "Renaud Laborbe",
+        "email": "renaud@bluegreen.ai"
+      },
+      "homepage": "https://github.com/BluegReeno/renaud-marketplace",
+      "repository": "https://github.com/BluegReeno/renaud-marketplace"
+    },
+    {
+      "name": "improve",
+      "version": "0.1.1",
+      "description": "Skill improvement capture — formalise une observation en GitHub Issue en ≤30s depuis Cowork",
+      "source": "./plugins/improve",
+      "skills": [
+        "./plugins/improve/skills/improve"
       ],
       "author": {
         "name": "Renaud Laborbe",

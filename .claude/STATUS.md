@@ -12,6 +12,8 @@ CV generator — about FR + order fixe (jobsearch v0.4.8)
 
 ## Done (current sprint)
 
+- [x] **improve plugin + skill-improve Archon workflow (improve v0.1.0 / marketplace v0.5.0)** — New `/improve` Cowork skill: 2 questions → infer skill/plugin/priority → `gh issue create` with `ai-improvable` + `skill:<n>` + `priority:<l>` labels in ≤30s. `skill-improve.yaml` Archon workflow: reads CLAUDE.md conventions → wraps `archon-fix-github-issue-experimental` → verifies 3-file version sync post-fix. — 2026-06-16
+
 - [x] **cv-generator about FR + experience order (jobsearch v0.4.8 / cv-generator v0.2.7)** — 15 about.fr réécrits en forme nominale, ordre fixe BG→Artelia→OO (suppression CORPORATE_FIRST_CELLS), 3 bullets corrigés (OO Business Angels→institutionnels, BG stack→Edifice/IC, Artelia default→P&L spécifique). Règle style FR ajoutée SKILL.md. — 2026-06-16
 
 - [x] **cv-generator FR quality pass (jobsearch v0.4.7 / cv-generator v0.2.6)** — 14 corrections sur P1–P5 : openers "Cumuler" → "Fort de", infinitif passé P2×T1, "Manager" verbe → "Diriger", "ventures" → "startups", bullet vague BG P1 → Edifice/IC Ingénieurs, "delivery agile" → "livraison agile", P5 20 ans → 15 ans (factuel), Artelia period 2019–2022 → 2019–2023 (factuel), CPTEC "Analyste Données" → "Analyste Climatique — Événements Extrêmes". — 2026-06-16
