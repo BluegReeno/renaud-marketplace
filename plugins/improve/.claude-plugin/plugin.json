@@ -1,0 +1,9 @@
+{
+  "name": "improve",
+  "version": "0.1.1",
+  "description": "Skill improvement capture — formalise une observation en GitHub Issue en ≤30s depuis Cowork",
+  "author": {
+    "name": "Renaud Laborbe",
+    "email": "renaud@bluegreen.ai"
+  }
+}
