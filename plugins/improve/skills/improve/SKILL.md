@@ -10,8 +10,8 @@ description: >
   "problème avec le skill X", "ce skill ne fait pas Y", "ajoute ça au skill",
   or spots a bug in any skill (morning-briefing, cv-generator, sprint-planner,
   hal, edifice, blue-green-proposal-generator, etc.) during a Cowork session.
-version: 0.1.1
-allowed-tools: "AskUserQuestion Bash"
+version: 0.1.2
+allowed-tools: "AskUserQuestion ToolSearch mcp__github__issue_write"
 ---
 
 # Improve — Skill Instructions
@@ -28,7 +28,7 @@ Le flux est :
 
 1. Deux questions à Renaud via `AskUserQuestion`
 2. Inférence automatique du contexte (skill → plugin → repo + priorité)
-3. Création de l'issue via `gh issue create`
+3. Création de l'issue via `mcp__github__issue_write`
 4. Confirmation sur une ligne avec l'URL et la commande Archon pour fixer
 
 ## Step 1 — Identifier le skill + le delta
@@ -102,96 +102,78 @@ Déduis la priorité **sans poser de question** :
 - `priority:low` — cosmétique, wording, nice-to-have.
 - `priority:medium` — défaut (le skill marche mais est incomplet).
 
-## Step 3 — Create the GitHub issue via Bash
+## Step 3 — Create the GitHub issue via MCP
 
-Une seule passe `Bash` :
+Use `mcp__github__issue_write` — outil GitHub MCP natif Cowork.
+Ne jamais utiliser `Bash` / `gh` — `gh` n'est pas installé dans le workspace Cowork.
 
-1. Pré-créer les labels dynamiques (idempotent — le `|| true` couvre le cas
-  "label déjà existant"). `ai-improvable` existe déjà dans
-  `renaud-marketplace`, mais on protège pareil pour
-  `bluegreen-marketplace` :
+Si le tool est listé comme différé dans ton contexte, charge son schéma d'abord :
+`ToolSearch { query: "select:mcp__github__issue_write" }`
 
-   ```bash
-   REPO="<repo>"            # renaud-marketplace ou bluegreen-marketplace
-   SKILL_NAME="<skill>"     # ex: morning-briefing
-   PRIORITY="<level>"       # high | medium | low
+### Appel `mcp__github__issue_write`
 
-   gh label create "ai-improvable"           --color "5319e7" --repo "BluegReeno/${REPO}" 2>/dev/null || true
-   gh label create "skill:${SKILL_NAME}"     --color "0075ca" --repo "BluegReeno/${REPO}" 2>/dev/null || true
-   gh label create "priority:${PRIORITY}"    --color "e4e669" --repo "BluegReeno/${REPO}" 2>/dev/null || true
-   ```
+Paramètres :
+- `method`: `"create"`
+- `owner`: `"BluegReeno"`
+- `repo`: `<REPO>` (renaud-marketplace ou bluegreen-marketplace)
+- `title`: `"fix(skill:<skill-name>): <comportement attendu en <8 mots>"`
+- `labels`: `["ai-improvable"]` — seul label garanti existant dans les deux repos
+- `body`: voir template ci-dessous
 
-2. Créer l'issue. Le titre doit être court (`<8 mots` après le préfixe),
-  factuel, en français ou anglais selon la langue de Renaud :
+Template du body (remplacer tous les `<placeholders>`) :
 
-   ```bash
-   ISSUE_URL=$(gh issue create \
-     --repo "BluegReeno/${REPO}" \
-     --title "fix(skill:${SKILL_NAME}): <comportement attendu en <8 mots>" \
-     --label "ai-improvable" \
-     --label "skill:${SKILL_NAME}" \
-     --label "priority:${PRIORITY}" \
-     --body "$(cat <<EOF
-   ## Skill concerné
-   - Plugin : \`<plugin>\` (<repo>)
-   - Fichier : \`plugins/<plugin>/skills/<skill>/SKILL.md\`
+```
+## Skill concerné
+- Plugin : `<plugin>` (<repo>)
+- Fichier : `plugins/<plugin>/skills/<skill>/SKILL.md`
+- Skill : `<skill-name>`
+- Priorité : <high|medium|low>
 
-   ## Comportement observé
-   <verbatim depuis la phrase de Renaud — ce qui s'est passé>
+## Comportement observé
+<verbatim depuis la phrase de Renaud — ce qui s'est passé>
 
-   ## Comportement attendu
-   <verbatim depuis la phrase de Renaud — ce qui aurait dû se passer>
+## Comportement attendu
+<verbatim depuis la phrase de Renaud — ce qui aurait dû se passer>
 
-   ## Suggestion de fix
-   <inféré depuis le delta observé/attendu — 1-2 lignes, à valider par Archon>
+## Suggestion de fix
+<inféré depuis le delta observé/attendu — 1-2 lignes, à valider par Archon>
 
-   ## Pour fixer (Archon)
-   \`\`\`bash
-   archon workflow run skill-improve "#<ISSUE_NUMBER>"
-   \`\`\`
-   > Lancer depuis le répertoire local de \`<repo>\`
+## Pour fixer (Archon)
+```bash
+archon workflow run skill-improve "#<ISSUE_NUMBER>"
+```
+> Lancer depuis le répertoire local de `<repo>`
 
-   - [ ] Lire \`plugins/<plugin>/skills/<skill>/SKILL.md\`
-   - [ ] Identifier la section à modifier
-   - [ ] Corriger selon le comportement attendu
-   - [ ] Bumper la version dans les 3 endroits (plugin.json / SKILL.md frontmatter / marketplace.json)
-   - [ ] Ouvrir une PR avec \`closes #<ISSUE_NUMBER>\`
-   EOF
-   )") || { echo "❌ gh issue create failed — check: gh auth status && echo \$REPO"; exit 1; }
+- [ ] Lire `plugins/<plugin>/skills/<skill>/SKILL.md`
+- [ ] Identifier la section à modifier
+- [ ] Corriger selon le comportement attendu
+- [ ] Bumper la version dans les 3 endroits (plugin.json / SKILL.md frontmatter / marketplace.json)
+- [ ] Ouvrir une PR avec `closes #<ISSUE_NUMBER>`
+```
 
-   ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-   ```
-
-**Gotchas Bash** :
-- Les labels passés à `--label` doivent exister AVANT le `gh issue create`
-  (sinon `could not add label: ... not found` — d'où l'étape de pré-création).
-- Pas d'espace après la virgule si tu passes plusieurs labels dans un seul
-  `--label "a,b"` ; ici on utilise plusieurs flags `--label` séparés (plus
-  sûr).
-- Le HEREDOC utilise `EOF` non-quoté pour que les variables shell hors
-  HEREDOC (`${SKILL_NAME}`, `${REPO}`, `${PRIORITY}`) s'expandent. À
-  l'intérieur du HEREDOC, les `<placeholders>` sont remplacés textuellement
-  par le modèle — pas par le shell. Les backticks dans le body sont échappés
-  (`\``).
+**Récupérer l'URL et le numéro** depuis la réponse du tool :
+- `html_url` ou `url` → URL complète de l'issue
+- `number` → numéro de l'issue
 
 ## Step 4 — One-line confirmation
 
-Imprime exactement (en utilisant les variables capturées `$ISSUE_NUMBER`, `$REPO`, `$ISSUE_URL`) :
+Affiche exactement (avec les valeurs réelles de `<N>`, `<REPO>`, `<URL>`) :
 
 ```
-✅ Issue #${ISSUE_NUMBER} créée dans ${REPO} — ${ISSUE_URL}
-Pour fixer : archon workflow run skill-improve "#${ISSUE_NUMBER}" (depuis renaud-marketplace)
+✅ Issue #<N> créée dans <REPO> — <URL>
+Pour fixer : archon workflow run skill-improve "#<N>" (depuis <REPO>)
 ```
 
 Rien d'autre — pas de récap, pas de "voilà ce que j'ai fait". L'objectif
 ≤30 s impose une sortie minimale.
 
-## IMPORTANT — tools that do NOT exist (never use them)
+## IMPORTANT — disponibilité des outils dans Cowork
 
-- `mcp__github__issue_write` — N'EXISTE PAS dans Cowork.
-- `mcp__session_info__read_transcript` — N'EXISTE PAS dans Cowork.
+- `mcp__github__issue_write` — **EXISTE dans Cowork**. Méthode principale pour créer des issues.
+- `gh` (GitHub CLI) — **N'EST PAS disponible** dans le workspace Cowork. Ne jamais utiliser `Bash` pour des opérations GitHub.
+- `mcp__session_info__read_transcript` — N'existe pas dans Cowork.
 
-Toutes les opérations GitHub passent par `gh` via `Bash`. Pas d'exception.
+Toutes les opérations GitHub passent par `mcp__github__issue_write`. Pas d'exception.
 
 ## NOT in scope (ne pas faire)
 
