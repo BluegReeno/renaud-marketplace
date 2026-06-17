@@ -1,10 +1,10 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 ## Current Focus
 
-CV generator — about FR + order fixe (jobsearch v0.4.8)
+Plugin `improve` — skill improvement capture loop (PR #9 merged)
 
 ## In Progress
 
@@ -12,7 +12,7 @@ CV generator — about FR + order fixe (jobsearch v0.4.8)
 
 ## Done (current sprint)
 
-- [x] **improve plugin + skill-improve Archon workflow (improve v0.1.0 / marketplace v0.5.0)** — New `/improve` Cowork skill: 2 questions → infer skill/plugin/priority → `gh issue create` with `ai-improvable` + `skill:<n>` + `priority:<l>` labels in ≤30s. `skill-improve.yaml` Archon workflow: reads CLAUDE.md conventions → wraps `archon-fix-github-issue-experimental` → verifies 3-file version sync post-fix. — 2026-06-16
+- [x] **plugin `improve` v0.1.1 + workflow `skill-improve.yaml` (marketplace v0.5.0 / PR #9)** — Un skill Cowork générique `/improve <skill-name>` : auto-détecte le repo depuis le nom du skill, 1 seule question (delta observé/attendu), crée l'issue GitHub avec la commande Archon dedans. Archon workflow `skill-improve.yaml` wrape `archon-fix-github-issue-experimental` + verify-version-bump. Remplace PR #7 (bg-improve + renaud-improve dupliqués). Follow-up P2 : copier `skill-improve.yaml` dans `bluegreen-marketplace`. — 2026-06-17
 
 - [x] **cv-generator about FR + experience order (jobsearch v0.4.8 / cv-generator v0.2.7)** — 15 about.fr réécrits en forme nominale, ordre fixe BG→Artelia→OO (suppression CORPORATE_FIRST_CELLS), 3 bullets corrigés (OO Business Angels→institutionnels, BG stack→Edifice/IC, Artelia default→P&L spécifique). Règle style FR ajoutée SKILL.md. — 2026-06-16
 
