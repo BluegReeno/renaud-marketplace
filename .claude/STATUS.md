@@ -1,16 +1,20 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-17
+Last updated: 2026-06-18
 
 ## Current Focus
 
-Plugin `improve` — skill improvement capture loop (PR #9 merged)
+Workflow `skill-improve` opérationnel end-to-end (PR #13 merged)
 
 ## In Progress
 
 - (nothing active)
 
 ## Done (current sprint)
+
+- [x] **cv-generator P4 fix (jobsearch v0.4.9 / PR #13)** — Refonte complète profil P4 (FDE/Solutions Engineer) : about P4×T5 triangle différenciateur (vendeur B2B Artelia / DSI insider / constructeur IA), containers restructurés, bullets BG (BlueWind 91 docs 5 agents 8.6/10), bullets Artelia créés (pipeline grands comptes + comités DSI), bullets OO créés (co-fondateur/CTO, pas Sales). Fix généré par `archon workflow run skill-improve "#12"` — premier run end-to-end réussi. — 2026-06-18
+
+- [x] **fix(improve): mcp__github__issue_write + workflow self-contained (v0.1.2)** — 2 bugs : (1) SKILL.md utilisait `gh` (non dispo Cowork) → remplacé par `mcp__github__issue_write`, `allowed-tools` et section IMPORTANT corrigés ; (2) `skill-improve.yaml` node 2 référençait `archon-fix-github-issue-experimental` (commande inexistante) → remplacé par prompt self-contained en 6 étapes. Closes #11. — 2026-06-18
 
 - [x] **plugin `improve` v0.1.1 + workflow `skill-improve.yaml` (marketplace v0.5.0 / PR #9)** — Un skill Cowork générique `/improve <skill-name>` : auto-détecte le repo depuis le nom du skill, 1 seule question (delta observé/attendu), crée l'issue GitHub avec la commande Archon dedans. Archon workflow `skill-improve.yaml` wrape `archon-fix-github-issue-experimental` + verify-version-bump. Remplace PR #7 (bg-improve + renaud-improve dupliqués). Follow-up P2 : copier `skill-improve.yaml` dans `bluegreen-marketplace`. — 2026-06-17
 
