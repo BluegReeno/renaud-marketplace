@@ -1078,9 +1078,9 @@
             "GenAI systems deployed in production (BlueWind Companion: 91 regulatory docs, 5 specialized agents, benchmarks 8.6/10) — real engineering, not presales."
           ],
           "fr": [
-            "Vente B2B complexe à des grands comptes industriels menée en autonomie chez Artelia (SBM Offshore, Naval Group, RTE) — cycles longs, multi-interlocuteurs, contrats cadres avec le juridique.",
-            "Quatre ans intégré dans la DSI d'un groupe de 6 000 personnes : comités de sélection cloud (AWS/GCP/Azure), projets IS internes — la compréhension des freins adoption dans un grand groupe est native.",
-            "Systèmes GenAI déployés en production (BlueWind Companion : 91 docs réglementaires, 5 agents spécialisés, benchmarks 8.6/10) — technique réelle, pas d'avant-vente."
+            "Concevoir, construire et déployer des solutions IA pour les acteurs de l'énergie, du maritime et du bâtiment.",
+            "De l'assistant documentaire RAG hybride aux modèles ML prédictifs — solutions IA en production.",
+            "Cycle client maîtrisé : comprendre les contraintes métier et réglementaires, cadrer le cas d'usage, déployer et former."
           ]
         },
         "containers": {
@@ -1115,30 +1115,28 @@
           ],
           "fr": [
             {
-              "title": "Déploiement & intégration IA",
+              "title": "Briques IA",
               "items": [
-                "RAG hybride en production (pgvector, RRF)",
-                "Agents LLM spécialisés (Pydantic AI + Claude)",
-                "Intégration SI client (MCP, APIs)",
-                "Stack : FastAPI, Next.js, Supabase"
+                "Orchestration multi-agents spécialisés (Pydantic AI, Claude)",
+                "RAG hybride — ingestion, chunking sémantique, embedding, retrieval hybride",
+                "Serveurs MCP & intégrations SI"
               ]
             },
             {
-              "title": "Cycle client B2B grands comptes",
+              "title": "Cycle client",
               "items": [
-                "Vente complexe cycles longs (qualification → closing)",
-                "Upsell & expansion (premium, contrats cadres)",
-                "Coordination juridique (CGVs, AO multi-BU)",
-                "Onboarding SaaS industriels"
+                "Vente B2B grands comptes",
+                "Discovery métier & data",
+                "Onboarding & formation client",
+                "Contrats cadres, coordination DSI"
               ]
             },
             {
-              "title": "Connaissance grands groupes de l'intérieur",
+              "title": "Secteurs",
               "items": [
-                "Sélection DSI (cloud, éditeurs)",
-                "Freins adoption & gouvernance IT",
-                "Transformation digitale interne",
-                "Secteurs : énergie offshore, infrastructure, marine"
+                "Énergies renouvelables en mer",
+                "Infrastructures marines & réseaux",
+                "Bâtiment & rénovation"
               ]
             }
           ]
@@ -1503,8 +1501,8 @@
               "Lead the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous production handover"
             ],
             "fr": [
-              "Construire et déployer BlueWind Companion v4.0 — plateforme IA d'intelligence réglementaire offshore wind (91 docs FR+UK, 5 agents spécialisés, benchmarks LLM-judged 8.6/10) — live en production, client EnBW France",
-              "Piloter le cycle complet chez IC Ingénieurs Conseils (Edifice, diagnostics bâtiment 25 M€ + 35 M€) et Valorem — de la qualification du besoin à la mise en production autonome"
+              "Concevoir et déployer des solutions IA en production : assistant réglementaire offshore wind (EnBW France) · assistant diagnostic bâtiment terrain (IC Ingénieurs Conseils) · framework ML prévision renouvelable (Weathernews)",
+              "Piloter le cycle complet FDE : discovery métier, cadrage cas d'usage, intégration données, déploiement et formation jusqu'à l'adoption autonome en production"
             ]
           }
         },
@@ -1696,8 +1694,8 @@
               "Participate from the inside in Artelia IT committees (6,000 people): cloud selection (AWS/GCP/Azure), Géoportail project — native understanding of technology adoption friction in a large enterprise"
             ],
             "fr": [
-              "Reprendre le pipeline commercial grands comptes en autonomie après le départ du directeur commercial — focus panier moyen, SBM Offshore passé en abonnement premium, contrats cadres avec le juridique (CGVs, AO multi-départements)",
-              "Participer de l'intérieur aux comités DSI Artelia (6 000 personnes) : sélection cloud (AWS/GCP/Azure), projet Géoportail — connaissance native des freins à l'adoption technologique dans un grand groupe"
+              "Développer le pipeline commercial grands comptes en autonomie — nouveaux comptes, renouvellements et onboarding clients (SBM Offshore, Nexans, ASN), contrats cadres, coordination juridique",
+              "Intégrer la DSI d'un groupe de 6 000 personnes après acquisition — participation aux comités de sélection cloud, projets SI internes : compréhension native des freins adoption côté client"
             ]
           }
         },
@@ -1889,8 +1887,8 @@
               "Onboard industrial clients on the SaaS (Naval Group, RTE, SBM Offshore) and raise €2M (Seventure Partners + Cap Décisif/FNA) — exit via Artelia acquisition 2019"
             ],
             "fr": [
-              "Co-fonder et architecturer le SaaS de données marines — traduire les besoins clients en roadmap produit, piloter le programme R&D, manager l'équipe (12 personnes)",
-              "Onboarder les clients industriels sur le SaaS (Naval Group, RTE, SBM Offshore) et lever 2 M€ (Seventure Partners + Cap Décisif/FNA) — exit acquisition Artelia 2019"
+              "Co-fonder le SaaS de données marines et traduire les besoins clients industriels en roadmap produit — équipe de 12, clients Naval Group (ex-DCNS), RTE",
+              "Onboarder les clients sur un SaaS complexe jusqu'à l'adoption autonome — 2 M€ levés (Seventure Partners + Cap Décisif/FNA), exit acquisition Artelia 2019"
             ]
           }
         },
@@ -1932,5 +1930,13 @@
         }
       ]
     }
-  }
+  },
+  "earlier_career": [
+    {
+      "title_fr": "Analyste Climatique — Événements Extrêmes",
+      "company": "CPTEC",
+      "description_fr": "Centre de Prévision du Temps et d'Études Climatiques, Brésil",
+      "period": "2004-2005"
+    }
+  ]
 }
