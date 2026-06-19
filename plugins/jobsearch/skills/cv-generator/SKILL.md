@@ -173,6 +173,12 @@ Override the 3 competency block titles. Use when cell defaults don't fit the off
 `--bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet..."}'`
 Inject personalised bullets without modifying cv-master.json. Built from Step 3b personalization. Key: `"{company}.{profile}.{lang}.{index}"`.
 
+`--about-override '["Line 1", "Line 2", "Line 3"]'`
+Override all 3 about lines. Use for killer CVs tailored to a specific company. JSON array of exactly 3 strings. See EN readability rules below before writing.
+
+`--title-override "Applied AI Engineer — Enterprise GenAI Deployment"`
+Override the headline title under the candidate name. Use when the job title wording differs significantly from the cell default.
+
 `--data-dir ~/path/to/dir/`
 Load cv-master.json from a custom directory (useful if the plugin dir is read-only in Cowork).
 
@@ -296,6 +302,45 @@ Apply these rules when reviewing or editing any content in `cv-master.json`.
 2. What you **bring** to the client (measurable business value)
 3. What **differentiates** you (true for Renaud, false for most candidates)
 - No third person, no "passionné", "dynamique", "orienté résultats"
+
+### English about & bullets — readability rules (critical)
+
+**The first reader is HR, not an engineer.** Every sentence must pass the non-specialist test: a smart person with no AI background must understand it immediately.
+
+#### About (EN) — narrative, not a list
+
+| | Rule |
+|---|---|
+| **Line 1** | What you do — plain English, domain + end-to-end ownership. No acronyms. |
+| **Line 2** | What you've built — describe the *problem solved*, not the stack. Avoid unknown company names; describe the sector instead ("offshore wind developers", not "EnBW France"). |
+| **Line 3** | Why you're different — the angle no other candidate has. Factual, human, specific. |
+
+❌ **Never in the about:**
+- Technical acronyms without explanation (RAG, RRF, LEAR, MAE, pgvector, chunking…)
+- Metrics that require domain knowledge ("MAE J+1 = 12.4 €/MWh", "22,812 chunks", "8.65/10 LLM-judged vs expert ground truth")
+- Lists disguised as sentences ("Three live deployments: X, Y, Z" → no)
+- Unknown company names (EnBW France, IC Ingénieurs Conseils, Weathernews → describe the sector instead)
+
+✅ **Always in the about:**
+- Plain-English problems ("turns weeks of document analysis into minutes")
+- Self-explanatory results ("scored 8.6/10 against expert-validated ground truth", "€2M raised")
+- Well-known client names only if they add credibility (Naval Group, RTE, SBM Offshore → OK)
+
+#### Bullets (EN) — problem → action → readable result
+
+Format: `[Action verb] + [what you built / for whom] — [result in plain English]`
+
+❌ **Never:**
+- Unexplained acronyms as the main message ("Hybrid RAG pipeline (pgvector, RRF, chunking…)")
+- Metrics without context that a non-specialist can't interpret ("LEAR + XGBoost daily-recalibrated ensemble, MAE J+1 = 12.4 €/MWh")
+- Jargon pileups ("5 specialized agents, 22,812 chunks, hybrid semantic+keyword retrieval (RRF)…")
+
+✅ **Always:**
+- The business problem in plain English ("reads hundreds of regulatory documents and generates reports in minutes")
+- The result stated simply ("live in production, used daily" / "accurate within target threshold" / "+15% ACV")
+- Named clients when recognizable (Naval Group, RTE, EnBW France are OK; obscure names → describe sector)
+
+---
 
 ### About section — FR style rule (mandatory)
 - **Forme nominale uniquement** : phrase complète, sujet implicite, verbe conjugué ou participé passé

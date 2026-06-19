@@ -126,6 +126,7 @@ def count_pdf_pages(pdf_path):
 
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
                      output_dir=None, container_titles=None, bullet_overrides=None,
+                     about_override=None, title_override=None,
                      compact=False):
     """Generate customised HTML from template for the given profile×company_type cell."""
 
@@ -148,10 +149,10 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     html = html.replace('{{LABEL_EDUCATION}}', labels['education'])
 
     # === TITLE ===
-    html = html.replace('{{TITLE}}', cell['title'])
+    html = html.replace('{{TITLE}}', title_override if title_override else cell['title'])
 
     # === ABOUT ===
-    about = cell['about']
+    about = about_override if about_override else cell['about']
     html = html.replace('{{ABOUT_1}}', about[0])
     html = html.replace('{{ABOUT_2}}', about[1])
     html = html.replace('{{ABOUT_3}}', about[2])
@@ -254,7 +255,8 @@ def html_to_pdf(html_path, pdf_path, base_url=None):
 def generate_cv(profile='p1', company_type='t4', lang='en',
                 output_filename=None, output_dir=None, data_dir=None,
                 company=None, job_title=None,
-                container_titles=None, bullet_overrides=None):
+                container_titles=None, bullet_overrides=None,
+                about_override=None, title_override=None):
     """Generate a CV PDF for the given profile × company_type cell."""
 
     skill_dir = get_skill_dir()
@@ -305,6 +307,8 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         lang=lang,
         container_titles=container_titles,
         bullet_overrides=bullet_overrides,
+        about_override=about_override,
+        title_override=title_override,
         compact=False,
     )
 
@@ -322,6 +326,8 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
             lang=lang,
             container_titles=container_titles,
             bullet_overrides=bullet_overrides,
+            about_override=about_override,
+            title_override=title_override,
             compact=True,
         )
         html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
@@ -376,6 +382,10 @@ Examples:
                         help='JSON dict of bullet overrides. '
                              'Key format: "{company}.{profile}.{lang}.{index}" '
                              '(e.g. \'{"blue_green.p4.fr.0": "New bullet"}\')')
+    parser.add_argument('--about-override',
+                        help='JSON array of exactly 3 strings — replaces the about section')
+    parser.add_argument('--title-override',
+                        help='Plain string — replaces the job title line on the CV')
     # Hidden retro-compat flag
     parser.add_argument('--positioning',
                         help=argparse.SUPPRESS)
@@ -414,6 +424,15 @@ Examples:
         except json.JSONDecodeError as e:
             parser.error(f"--bullet-overrides is not valid JSON: {e}")
 
+    about_override = None
+    if args.about_override:
+        try:
+            about_override = json.loads(args.about_override)
+            if not isinstance(about_override, list) or len(about_override) != 3:
+                parser.error("--about-override must be a JSON array of exactly 3 strings")
+        except json.JSONDecodeError as e:
+            parser.error(f"--about-override is not valid JSON: {e}")
+
     print(f"Generating CV: profile={profile}, company-type={company_type}, lang={lang}")
 
     pdf_path = generate_cv(
@@ -427,6 +446,8 @@ Examples:
         job_title=args.job_title,
         container_titles=container_titles,
         bullet_overrides=bullet_overrides,
+        about_override=about_override,
+        title_override=args.title_override,
     )
 
     print(f"\nCV ready: {pdf_path}")
