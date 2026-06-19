@@ -8,7 +8,7 @@ Refonte qualité CV — nouvelle démarche structurée par profil (recherches ma
 
 ## In Progress
 
-- [ ] **P4 Solutions Engineer** — draft fait (about.fr triangle, containers FR, bullets BG/OO T5), PDF généré → **review visuelle + ajustements session suivante** (LinkedIn scrape Bright Data dispo après restart)
+- [ ] **P4 Solutions Engineer** — ✅ refonte complète v0.5.0 (titre, about, containers, bullets BG/Artelia/OO) → **review visuelle finale + version EN à aligner**
 - [ ] **P6 Digital Innovation — Bureau d'ingénierie ENR** — session dédiée
 - [ ] **P1 Architecte IA** — session dédiée
 - [ ] **P3 Late CTO** — session dédiée
