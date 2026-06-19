@@ -1086,21 +1086,19 @@
         "containers": {
           "en": [
             {
-              "title": "AI Deployment & Integration",
+              "title": "AI Solutions",
               "items": [
-                "Hybrid RAG in production (pgvector, RRF)",
-                "Specialized LLM agents (Pydantic AI + Claude)",
-                "Client SI integration (MCP, APIs)",
-                "Stack: FastAPI, Next.js, Supabase"
+                "Hybrid RAG (document ingestion, chunking, hybrid retrieval)",
+                "Specialized LLM agents (AI frameworks, telemetry)",
+                "MCP servers, skills, APIs"
               ]
             },
             {
               "title": "B2B Enterprise Sales Cycle",
               "items": [
-                "Complex long-cycle sales (qualification → closing)",
+                "Complex long-cycle sales",
                 "Upsell & expansion (premium, framework contracts)",
-                "Legal coordination (T&Cs, multi-BU tenders)",
-                "Industrial SaaS onboarding"
+                "Legal coordination (T&Cs, multi-BU tenders)"
               ]
             },
             {
@@ -1108,7 +1106,6 @@
               "items": [
                 "IT division selection processes (cloud, software vendors)",
                 "Adoption friction & IT governance",
-                "Internal digital transformation",
                 "Sectors: offshore energy, infrastructure, marine"
               ]
             }
@@ -1905,8 +1902,7 @@
           },
           "t5": {
             "en": [
-              "Own 100% of B2B sales cycles from cold prospecting to C-level closing — 8 years, Naval Group, RTE (framework contract), SBM Offshore, Doris Engineering",
-              "Onboard complex industrial clients on a technical SaaS (metocean data platform) — from live demo to enterprise-wide autonomous adoption"
+              "Co-founded and built a marine data SaaS — deployed at Naval Group, RTE (national grid, framework contract), SBM Offshore. Personally led every commercial cycle for 8 years: from first contact to enterprise production onboarding. Exit via Artelia acquisition 2019."
             ],
             "fr": [
               "Co-fonder et construire une plateforme SaaS de données marines — de l'architecture au déploiement industriel chez Naval Group (ex-DCNS), RTE (contrat cadre), SBM Offshore",
