@@ -29,6 +29,8 @@ Refonte qualité CV — nouvelle démarche structurée par profil (recherches ma
 
 ## Done (current sprint)
 
+- [x] **Mistral AI — CVs killer P4×T5 EN (jobsearch v0.5.1)** — 2 CVs générés et validés (FDE + Prototyping). Nouveaux params `--about-override` / `--title-override` ajoutés au générateur. Règles éditoriales EN gravées dans SKILL.md (premier lecteur = RH, pas ingénieur). P4×T5 EN containers mis à jour (AI Solutions 3 items, Open Ocean 1 bullet). — 2026-06-20
+
 - [x] **cv-generator P4 fix (jobsearch v0.4.9 / PR #13)** — Refonte complète profil P4 (FDE/Solutions Engineer) : about P4×T5 triangle différenciateur (vendeur B2B Artelia / DSI insider / constructeur IA), containers restructurés, bullets BG (BlueWind 91 docs 5 agents 8.6/10), bullets Artelia créés (pipeline grands comptes + comités DSI), bullets OO créés (co-fondateur/CTO, pas Sales). Fix généré par `archon workflow run skill-improve "#12"` — premier run end-to-end réussi. — 2026-06-18
 
 - [x] **fix(improve): mcp__github__issue_write + workflow self-contained (v0.1.2)** — 2 bugs : (1) SKILL.md utilisait `gh` (non dispo Cowork) → remplacé par `mcp__github__issue_write`, `allowed-tools` et section IMPORTANT corrigés ; (2) `skill-improve.yaml` node 2 référençait `archon-fix-github-issue-experimental` (commande inexistante) → remplacé par prompt self-contained en 6 étapes. Closes #11. — 2026-06-18
