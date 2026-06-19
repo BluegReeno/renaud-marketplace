@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.4.9
+version: 0.5.0
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -160,7 +160,7 @@ uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
   --profile {profile} --company-type {company_type} --lang {lang} \
   --company "{company_name}" \
   --job-title "{job_title}" \
-  --output-dir ~/SynologyDrive-MyAssistant/jobsearch/
+  --output-dir ~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/
 ```
 
 Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}` with the detected values. Output filename is auto-built: `CV_Renaud_Laborbe_{job_slug}_{company_slug}_{LANG}.pdf`.
@@ -243,7 +243,7 @@ PYEOF
 DYLD_LIBRARY_PATH=/opt/homebrew/lib \
 uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
   --profile p3 --company-type t1 --lang en \
-  --output-dir ~/SynologyDrive-MyAssistant/jobsearch/
+  --output-dir ~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/
 ```
 
 ---
