@@ -182,7 +182,12 @@ Override the headline title under the candidate name. Use when the job title wor
 `--data-dir ~/path/to/dir/`
 Load cv-master.json from a custom directory (useful if the plugin dir is read-only in Cowork).
 
-> **1-page auto-check**: if `pikepdf` is available (add `--with pikepdf` to the uv command), the script auto-detects overflow and retries with a compact CSS layout. If still >1 page, it warns explicitly.
+> **1-page auto-check**: add `--with pikepdf` to the uv command. The script detects overflow and retries with up to 3 progressively tighter compact CSS levels (gentle → moderate → ultra-compact). If still >1 page after all levels, it warns explicitly — content needs trimming.
+
+> **Cold start**: the first run in a fresh environment downloads WeasyPrint + pikepdf (~20 MB, 10–30 s). Subsequent runs use the UV package cache — steady-state is under 1 s. To pre-warm once per machine:
+> ```bash
+> uv run --with weasyprint --with pikepdf python3 -c "import weasyprint, pikepdf; print('warm')"
+> ```
 
 > **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
