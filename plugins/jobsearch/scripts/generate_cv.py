@@ -45,8 +45,10 @@ RETRO_COMPAT_MAP = {
     'business_dev':  ('p5', 't3'),
 }
 
-# Injected before </head> when compact=True to tighten spacing
-COMPACT_CSS = """<style>
+# Progressive compact CSS levels — injected before </head>, tried in sequence until 1-page fits
+COMPACT_CSS_LEVELS = [
+    # Level 1 — gentle: tighten padding/margins
+    """<style>
 .header { padding: 15px 25px; }
 .content { padding: 15px 20px; }
 .about-contact-row { margin-bottom: 12px; }
@@ -56,7 +58,40 @@ COMPACT_CSS = """<style>
 .experience-section { margin-bottom: 10px; }
 .job { margin-bottom: 8px; }
 </style>
-</head>"""
+</head>""",
+    # Level 2 — moderate: reduce font-size + tighten further
+    """<style>
+body { font-size: 8.8pt; }
+.header { padding: 10px 20px; }
+.content { padding: 12px 18px; }
+.about-contact-row { margin-bottom: 8px; }
+.about-item { margin-bottom: 3px; font-size: 8.8pt; }
+.competencies-section { margin-bottom: 8px; }
+.competency-block { padding: 8px; }
+.experience-section { margin-bottom: 8px; }
+.job { margin-bottom: 6px; }
+.section-title { margin-bottom: 4px; padding-bottom: 2px; }
+li { margin-bottom: 2px; }
+</style>
+</head>""",
+    # Level 3 — ultra-compact: smallest readable size + minimal spacing
+    """<style>
+body { font-size: 8.5pt; }
+.header { padding: 8px 18px; }
+.name { font-size: 20pt; }
+.content { padding: 10px 15px; }
+.about-contact-row { margin-bottom: 6px; }
+.about-item { margin-bottom: 2px; font-size: 8.5pt; }
+.competencies-section { margin-bottom: 6px; }
+.competency-block { padding: 6px; }
+.experience-section { margin-bottom: 6px; }
+.job { margin-bottom: 4px; }
+.section-title { margin-bottom: 3px; padding-bottom: 1px; font-size: 9pt; }
+.job-header { margin-bottom: 2px; }
+li { margin-bottom: 1px; }
+</style>
+</head>""",
+]
 
 
 def get_skill_dir():
@@ -127,15 +162,15 @@ def count_pdf_pages(pdf_path):
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
                      output_dir=None, container_titles=None, bullet_overrides=None,
                      about_override=None, title_override=None,
-                     compact=False):
+                     compact_level=0):
     """Generate customised HTML from template for the given profile×company_type cell."""
 
     template_path = get_skill_dir() / 'templates' / 'cv_template.html'
     with open(template_path, 'r', encoding='utf-8') as f:
         html = f.read()
 
-    if compact:
-        html = html.replace('</head>', COMPACT_CSS)
+    if compact_level > 0 and compact_level <= len(COMPACT_CSS_LEVELS):
+        html = html.replace('</head>', COMPACT_CSS_LEVELS[compact_level - 1])
 
     cell = resolve_cell_content(cv_data, profile, company_type, lang)
 
@@ -309,33 +344,35 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=title_override,
-        compact=False,
+        compact_level=0,
     )
 
     html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
 
-    # Check page count; retry with compact layout if overflow detected
+    # Iterative compact retry — try up to 3 progressively tighter CSS levels
     pages = count_pdf_pages(output_pdf)
     if pages is not None and pages > 1:
-        print(f"WARNING: CV rendered to {pages} pages — retrying with compact layout...")
-        generate_cv_html(
-            output_html_path=output_html,
-            cv_data=cv_data,
-            profile=profile,
-            company_type=company_type,
-            lang=lang,
-            container_titles=container_titles,
-            bullet_overrides=bullet_overrides,
-            about_override=about_override,
-            title_override=title_override,
-            compact=True,
-        )
-        html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
-        pages = count_pdf_pages(output_pdf)
-        if pages is not None and pages > 1:
-            print(f"WARNING: CV still {pages} pages after compact layout — content may need trimming.")
+        for level in range(1, len(COMPACT_CSS_LEVELS) + 1):
+            print(f"WARNING: CV is {pages} pages — retrying with compact layout level {level}/{len(COMPACT_CSS_LEVELS)}...")
+            generate_cv_html(
+                output_html_path=output_html,
+                cv_data=cv_data,
+                profile=profile,
+                company_type=company_type,
+                lang=lang,
+                container_titles=container_titles,
+                bullet_overrides=bullet_overrides,
+                about_override=about_override,
+                title_override=title_override,
+                compact_level=level,
+            )
+            html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
+            pages = count_pdf_pages(output_pdf)
+            if pages is None or pages <= 1:
+                print(f"OK Compact level {level} applied — CV fits 1 page.")
+                break
         else:
-            print("OK Compact layout applied — CV fits 1 page.")
+            print(f"WARNING: CV still {pages} pages after all compact levels — content needs trimming.")
 
     try:
         shutil.rmtree(work_dir)
