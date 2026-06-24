@@ -12,7 +12,7 @@ description: >
   Utiliser quand Renaud dit "sprint planning", "planifier la semaine",
   "plan my week", "sprint de la semaine prochaine", "weekly planning",
   "priorités de la semaine", "organiser ma semaine" — ou en mode schedule.
-version: 0.4.3
+version: 0.4.4
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__update_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
 ---
 
@@ -342,7 +342,35 @@ mcp__hal-mcp__update_sprint(
 
 Ne recréer le sprint que si aucun sprint n'est trouvé avec le statut cible ni avec un statut corrigeable.
 
-### 6b. Créer les sprints
+### 6b. Clôturer les sprints actuel existants (si SPRINT_STATUS = "actuel")
+
+Si `SPRINT_STATUS = "actuel"` uniquement : avant de créer le nouveau sprint, clôturer tous les sprints encore en "actuel" pour éviter les doublons.
+
+En parallèle :
+
+```
+mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
+  → sprints_a_clore_bg (liste)
+
+mcp__hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
+  → sprints_a_clore_rn (liste)
+```
+
+Pour chaque sprint retourné (les deux workspaces) :
+
+```
+mcp__hal-mcp__update_sprint(
+  workspace_slug=<workspace>,
+  sprint_id=<sprint_id>,
+  status="passes"
+)
+```
+
+Si la liste est vide pour un workspace → rien à faire, continuer.
+
+---
+
+### 6c. Créer les sprints
 
 ```
 # SPRINT_STATUS = "actuel" si NEXT_MON <= TODAY (lundi matin / rattrapage), sinon "suivant"
@@ -366,7 +394,7 @@ mcp__hal-mcp__create_sprint(
 )
 ```
 
-### 6c. Assigner les tâches reportées au nouveau sprint
+### 6d. Assigner les tâches reportées au nouveau sprint
 
 Pour chaque tâche non terminée reportée depuis l'étape 1c :
 
@@ -378,7 +406,7 @@ mcp__hal-mcp__assign_task_to_sprint(
 )
 ```
 
-### 6d. Créer les nouvelles tâches
+### 6e. Créer les nouvelles tâches
 
 Pour les offres LinkedIn 🔥, relances à créer, post LinkedIn si pas encore dans hal :
 
@@ -405,7 +433,7 @@ mcp__hal-mcp__create_task(
 )
 ```
 
-### 6e. Confirmer
+### 6f. Confirmer
 
 ```
 ✅ Sprint créé.
