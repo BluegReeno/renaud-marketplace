@@ -1,12 +1,13 @@
 ---
 name: morning-briefing
 description: >
-  Produce one read-only morning briefing covering today's calendars (Pro Blue Green,
+  Produce one morning briefing covering today's calendars (Pro Blue Green,
   perso, family), current-sprint hal tasks across the `blue-green` and `renaud`
   workspaces (labelled business vs perso), and Obsidian jobsearch state (upcoming
-  interviews, relances due, active candidatures). Use when the user asks "what's up
-  for today", "ma journée", "briefing du jour", "quel est mon planning", or any
-  similar daily-overview trigger.
+  interviews, relances due, active candidatures) — then writes one daily-log entry
+  per HAL workspace as a persistent cross-session snapshot. Use when the user asks
+  "what's up for today", "ma journée", "briefing du jour", "quel est mon planning",
+  or any similar daily-overview trigger.
 version: 0.5.0
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault)"
 ---
@@ -256,10 +257,10 @@ Fall back to the `renaud` shape (tag-grouped sprint + today's events) using what
 
 ## Step 5 — Constraints (load-bearing)
 
-- **Two writes allowed, no more.** `mcp__hal-mcp__save_document` for the `blue-green` daily log and `mcp__hal-mcp__save_document` for the `renaud` daily log (or as many workspaces as `whoami` returns — one write each). This is the only exception to the read-only principle. No other `create_*`, `update_*`, or `delete_*` MCP tool — neither hal, calendar, nor vault.
+- **One `save_document` write per workspace — no other writes.** For each workspace returned by `whoami` (currently `blue-green` and `renaud`), one `mcp__hal-mcp__save_document` call is allowed (daily log). This is the only exception to the read-only principle. No other `create_*`, `update_*`, or `delete_*` MCP tool — neither hal, calendar, nor vault.
 - **Never write if `hal:DOWN`.** Step 4 is conditional on a passing Step 0 hal probe. A failed probe means no daily log writes that run, period.
 - **Never silently omit a source.** Any probe failure in Step 0 MUST render as a `⚠️ <source> DOWN — <reason>` line in the corresponding section AND in the source-status footer.
 - **Failures after a passing probe count too.** If any Step 1 tool call throws or returns an error (e.g. `list_sprints` for one workspace, `list_events` for one calendar, a `jobsearch-vault` sub-query), that section MUST render `⚠️ <source> DOWN — <reason>` and the footer line for that source MUST flip from `✅` to `⚠️ DOWN (<reason>)` — even if other calls to the same backend succeeded. When only a sub-source fails (one calendar of three, one workspace of two), render the healthy data and add a `⚠️ <sub-source> DOWN — <reason>` line for the failed one.
 - **Label every hal task.** `[business]` for `blue-green`, `[perso]` for `renaud`, every time.
 - **Local time.** All calendar windows are Europe/Paris, not UTC. Daily log slugs (`daily-log-YYYY-MM-DD`) also use Europe/Paris dates.
-- **Compose, do not reimplement.** This skill calls `jobsearch-vault` and hal-mcp / calendar MCP tools. It never reads the Obsidian filesystem directly, never bypasses hal-mcp, never writes to any backend other than the two `save_document` calls in Step 4.
+- **Compose, do not reimplement.** This skill calls `jobsearch-vault` and hal-mcp / calendar MCP tools. It never reads the Obsidian filesystem directly, never bypasses hal-mcp, never writes to any backend other than the per-workspace `save_document` calls in Step 4.
