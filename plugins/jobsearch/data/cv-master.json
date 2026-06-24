@@ -1073,9 +1073,9 @@
         },
         "about": {
           "en": [
-            "Run complex B2B enterprise sales autonomously at Artelia (SBM Offshore, Naval Group, RTE) — long cycles, multi-stakeholder, framework contracts with legal.",
-            "Four years embedded in the IT division of a 6,000-person group: cloud selection committees (AWS/GCP/Azure), internal IS projects — enterprise adoption friction understood from the inside.",
-            "GenAI systems deployed in production (BlueWind Companion: 5 specialized agents across FR+UK offshore wind regulatory corpus, benchmarks 8.6/10) — real engineering, not presales."
+            "AI systems shipped in production: HAL (27-tool MCP platform, Claude Code marketplace install), BlueWind Companion (5 specialized agents across FR+UK offshore wind regulatory corpus, 91 docs → 22,812 chunks, benchmarks 8.6/10) — real engineering, not presales.",
+            "Full FDE delivery cycles with industrial clients: discovery → POC → production handover → user autonomy. Named accounts: EnBW France, Valorem, IC Ingénieurs Conseils (DCNS, SBM Offshore, RTE at Open Ocean).",
+            "Four years embedded in the IT division of a 6,000-person group: cloud selection committees (AWS/GCP/Azure), IS governance — AI adoption friction understood from the inside, not from vendor pitch decks."
           ],
           "fr": [
             "15 ans dans le secteur énergie — conception, développement et déploiement de solutions digitales pour répondre aux besoins métier.",
@@ -1088,8 +1088,9 @@
             {
               "title": "AI Solutions",
               "items": [
+                "HAL: 27-tool MCP platform (Claude Code marketplace install)",
                 "Hybrid RAG (document ingestion, chunking, hybrid retrieval)",
-                "Specialized LLM agents (AI frameworks, telemetry)",
+                "Multi-LLM agents (Pydantic AI, Claude, telemetry)",
                 "MCP servers, skills, APIs"
               ]
             },
@@ -1140,8 +1141,8 @@
           ]
         },
         "credibility_note": {
-          "en": "The ideal GenAI Solutions Engineer has three legs: technical (he builds with the API: BWC = Claude multi-agent in production), commercial (demos, POCs, closing — 100% of cycles at Open Ocean) and enterprise-customer empathy (15 years on the industrial-client side).",
-          "fr": "Le Solutions Engineer idéal d'un éditeur GenAI a trois jambes : technique (il construit avec l'API : BWC = multi-agents Claude en prod), commercial (démos, POC, closing — 100% des cycles chez Open Ocean) et empathie client enterprise (15 ans côté client industriel)."
+          "en": "The ideal AI Solutions Engineer has three legs: technical (builds and ships — HAL MCP platform live with 27 tools, BlueWind Companion multi-agent system benchmarked 8.6/10 in production), delivery (demos, POCs, handover — full cycles at Open Ocean and Blue Green with named industrial clients) and enterprise-insider empathy (4 years inside Artelia's IT division: cloud selection committees, IS governance, adoption friction seen from the inside).",
+          "fr": "Le Solutions Engineer IA idéal a trois jambes : technique (il construit et livre — plateforme MCP HAL live avec 27 outils, BlueWind Companion multi-agents benchmarké 8,6/10 en production), delivery (démos, POC, transfert — cycles complets chez Open Ocean et Blue Green avec clients industriels nommés) et empathie enterprise insider (4 ans dans la DSI d'Artelia : comités de sélection cloud, gouvernance SI, freins d'adoption vus de l'intérieur)."
         }
       }
     },
@@ -1496,7 +1497,8 @@
           "default": {
             "en": [
               "Build and deploy BlueWind Companion v4.0 — AI regulatory intelligence platform for offshore wind (5 specialized agents across FR+UK regulatory corpus, LLM-judged benchmarks 8.6/10) — live in production, client EnBW France",
-              "Lead the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous production handover"
+              "Lead the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous production handover",
+              "Built HAL — 27-tool MCP platform (Claude Code marketplace install) and BlueWind ingestion pipeline (91 docs → 22,812 pgvector chunks): core production infrastructure reused across all client deliveries"
             ],
             "fr": [
               "Concevoir et déployer des solutions IA en production : assistant réglementaire offshore wind (EnBW France) · assistant diagnostic bâtiment terrain (IC Ingénieurs Conseils) · framework ML prévision renouvelable (Weathernews)",
@@ -1506,7 +1508,8 @@
           "t5": {
             "en": [
               "Lead discovery-to-production cycles for EnBW France (offshore wind regulatory AI: 5 specialized agents across FR+UK regulatory corpus, LLM-judged 8.6/10) and Valorem — scoping, POC, deployment, user adoption",
-              "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery to autonomous daily production use"
+              "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery to autonomous daily production use",
+              "Built HAL — 27-tool MCP platform (Claude Code marketplace install) and BlueWind ingestion pipeline (91 docs → 22,812 pgvector chunks): production infrastructure that underpins every client engagement"
             ],
             "fr": [
               "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,6/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
