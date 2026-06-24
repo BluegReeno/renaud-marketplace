@@ -10,7 +10,7 @@ description: >
   "ma journée", "briefing du jour", "quel est mon planning", or any similar
   daily-overview trigger.
 version: 0.6.0
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
+allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault)"
 ---
 
 # Morning Briefing — Skill Instructions
@@ -115,6 +115,8 @@ Issue up to three parallel searches:
    ```
    For each matching email, call `mcp__claude_ai_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
 
+   **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer for use in Step 1g.
+
 2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
    For each active candidature, search:
    ```
@@ -172,12 +174,21 @@ Skip if `linkedin_offers[]` is empty.
 
 Aspiration axis: prefer **builder AI-native** over COMEX direction.
 
-**BrightData enrichment** (🔥/🟡 only — pending issue #22): When the BrightData connector is available, fetch the full job description for 🔥 and 🟡 offers to refine the score. Until issue #22 is resolved, skip this sub-step and annotate every scored offer:
-```
-[score basé sur titre uniquement — JD complète non disponible, voir #22]
-```
+**BrightData enrichment** (🔥/🟡 only — max 5 calls per run):
 
-Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a specific aspiration-axis criterion.
+For each 🔥 and 🟡 offer that has a `job_id` (extracted in Step 1e), call:
+```
+mcp__brightdata__web_data_linkedin_job_listings(
+  url="https://www.linkedin.com/jobs/view/<job_id>"
+)
+```
+Extract the `job_summary` field from the JSON response. Use this full JD text (inline, no external model call) to refine the score and write the "pourquoi" line.
+
+**Cap at 5 BrightData calls per run** — if there are more than 5 🔥/🟡 offers, prioritise 🔥 first, then 🟡 by closest location match. Offers beyond the cap are scored from title+snippet only (no annotation needed — just surface fewer offers).
+
+If `web_data_linkedin_job_listings` returns an error for a specific offer, skip that offer silently and move to the next — do not fail the whole pipeline.
+
+Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or title+snippet if BrightData failed for that offer).
 
 ---
 
@@ -223,10 +234,10 @@ HH:MM–HH:MM — <event title> [pro|perso|famille]
 ## 🎯 Jobsearch — Nouvelles offres
 🔥 <title> — <company> — <location>
    → <pourquoi — one line referencing aspiration axis>
-   [score basé sur titre uniquement — JD complète non disponible, voir #22]
+   → <pourquoi — one line referencing a concrete JD signal or aspiration-axis criterion>
 🟡 <title> — <company>
    → <pourquoi>
-   [score basé sur titre uniquement — JD complète non disponible, voir #22]
+   → <pourquoi — one line referencing a concrete JD signal or aspiration-axis criterion>
 ...
 (aucune nouvelle offre aujourd'hui)
 (or: ⚠️ Gmail perso DOWN — <reason>)
@@ -365,7 +376,7 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 - **Never silently omit a source** — any probe or Step 1 call failure renders `⚠️` in the section AND in the source-status footer.
 - **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
 - **Dedup offers against vault** — never surface an offer already logged as an active candidature.
-- **Score from title+snippet until BrightData is resolved** — annotate every scored offer with `[score basé sur titre uniquement — JD complète non disponible, voir #22]`.
+- **BrightData cap** — max 5 `web_data_linkedin_job_listings` calls per run. Prioritise 🔥 then 🟡 by location. Per-offer errors are silent — skip and continue.
 - **Label every hal task** — `[business]` for `blue-green`, `[perso]` for `renaud`, every time.
 - **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
 - **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
