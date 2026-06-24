@@ -21,11 +21,11 @@ Pour **chaque plugin**, ces 3 champs doivent être identiques :
 
 Si un seul dérive → Cowork ne détecte plus les mises à jour ou refuse l'installation.
 
-### Top-level `marketplace.json` `version` — marqueur "what's new"
+### Top-level `marketplace.json` `version` — compteur monotone
 
-Le `version` **top-level** de `.claude-plugin/marketplace.json` suit le plugin **le plus récemment publié** dans le repo. Ce n'est pas un champ synchronisé repo-wide : il sert de marqueur "what's new" pour signaler au marketplace qu'il y a eu une release.
+Le `version` **top-level** de `.claude-plugin/marketplace.json` est un **compteur monotone** indépendant des versions de plugins. Il s'incrémente d'un PATCH (`+0.0.1`) à chaque fois qu'un plugin quelconque est modifié — il sert de signal à Cowork qu'une nouvelle release existe.
 
-Conséquence attendue : quand on publie un nouveau plugin avec une version plus basse (ex. `briefing 0.1.0` après `jobsearch 0.2.0`), le top-level redescend à `0.1.0`. Ce n'est pas une drift à corriger.
+Exemple : top-level à `0.5.3`, on bumpe `briefing` de `0.4.4` → `0.5.0` → le top-level passe à `0.5.4` (pas à `0.5.0`).
 
 ### Quand bumper
 
@@ -48,8 +48,8 @@ Il NE force PAS un bump du plugin — sauf si l'interface MCP change.
 □ Les 3 versions du plugin sont-elles identiques ?
   → grep -E '"version"' .claude-plugin/marketplace.json plugins/<plugin>/.claude-plugin/plugin.json
   → grep "^version:" plugins/<plugin>/skills/*/SKILL.md
-□ Si c'est une release : ai-je aussi mis à jour le `version` top-level de marketplace.json
-  pour refléter le plugin qu'on vient de publier ?
+□ Ai-je incrémenté le `version` top-level de marketplace.json d'un PATCH (+0.0.1) ?
+  (compteur monotone — toujours +0.0.1 à chaque release, indépendant des versions plugins)
 ```
 
 ---
