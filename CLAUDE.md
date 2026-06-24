@@ -47,9 +47,10 @@ Cowork detects updates via version number. Without a bump, installed users never
 **On every commit that changes plugin behaviour (scripts, templates, SKILL.md, data):**
 1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH (`0.x.Y+1`) for fixes, MINOR (`0.X+1.0`) for new behaviour
 2. Sync `plugins/<plugin>/skills/<skill>/SKILL.md` frontmatter `version:` to the same value
-3. Sync `.claude-plugin/marketplace.json` top-level `version` **and** the plugin entry `version` to the same value
+3. Sync `.claude-plugin/marketplace.json` **plugin entry** `version` (`plugins[name].version`) to the same value
+4. Bump `.claude-plugin/marketplace.json` **top-level** `version` by one PATCH (`+0.0.1`) — monotonic counter incremented on every release, independent of plugin version numbers
 
-All three must be identical after the bump. Drift breaks Cowork updates.
+The three per-plugin fields (SKILL.md · plugin.json · marketplace plugin entry) must be identical after the bump. Drift breaks Cowork updates.
 
 ### Plugin directory resolver in every SKILL.md
 Every SKILL.md that invokes a script must resolve `PLUGIN_DIR` via the standard priority-ordered resolver (env var → marketplace cache → Cowork sandbox → dev path). See `docs/skill-marketplace-guide.md` §7.
