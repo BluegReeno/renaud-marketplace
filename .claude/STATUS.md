@@ -1,14 +1,15 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-19
+Last updated: 2026-06-24
 
 ## Current Focus
 
 Refonte qualité CV — nouvelle démarche structurée par profil (recherches marché → parcours HAL → CV par profil)
+Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18, bloqué sur recherche BrightData #22)
 
 ## In Progress
 
-- [ ] **P4 Solutions Engineer** — ✅ refonte complète v0.5.0 (titre, about, containers, bullets BG/Artelia/OO) → **review visuelle finale + version EN à aligner**
+- [ ] **morning-briefing v2 (#18)** — architecture clarifiée (gmail connectors, daily log HAL en cours session dédiée) → bloqué sur recherche BrightData #22 avant implémentation
 - [ ] **P6 Digital Innovation — Bureau d'ingénierie ENR** — session dédiée
 - [ ] **P1 Architecte IA** — session dédiée
 - [ ] **P3 Late CTO** — session dédiée
@@ -28,6 +29,12 @@ Refonte qualité CV — nouvelle démarche structurée par profil (recherches ma
 6. COMMIT → bump version cv-master.json + STATUS.md
 
 ## Done (current sprint)
+
+- [x] **fix(briefing): sprint-planner clôture sprints actuel avant création (briefing v0.4.4 / PR #19)** — Nouvelle étape 6b : `list_sprints(status="actuel")` sur blue-green + renaud → `update_sprint(status="passes")` avant `create_sprint`. Closes #17. — 2026-06-24
+
+- [x] **fix(jobsearch): P4×T5 About rewrite — technical-first, drop false buyer claim (jobsearch v0.5.1 / PR #20)** — About EN réécrit (technique → delivery → empathie), HAL + BlueWind comme ancres, suppression "15 years client side" → "4 years DSI Artelia", suppression "user-buyer GenAI vendors target". credibility_note + profiles/p4_cs_fde.md corrigés. Closes #14. — 2026-06-24
+
+- [x] **fix(cv-generator): auto-fit itératif 3 niveaux + doc cold start (jobsearch v0.5.2 / PR #21)** — `COMPACT_CSS` → `COMPACT_CSS_LEVELS[3]` (gentle → moderate → ultra-compact). Retry binaire → boucle itérative niveau 1-2-3 jusqu'à 1 page. SKILL.md : doc cold start + commande pre-warm. Closes #15. — 2026-06-24
 
 - [x] **Mistral AI — CVs killer P4×T5 EN (jobsearch v0.5.1)** — 2 CVs générés et validés (FDE + Prototyping). Nouveaux params `--about-override` / `--title-override` ajoutés au générateur. Règles éditoriales EN gravées dans SKILL.md (premier lecteur = RH, pas ingénieur). P4×T5 EN containers mis à jour (AI Solutions 3 items, Open Ocean 1 bullet). — 2026-06-20
 
@@ -86,6 +93,9 @@ Refonte qualité CV — nouvelle démarche structurée par profil (recherches ma
 
 ## Backlog
 
+- [ ] **#22 — research(brightdata)** : session dédiée — parse alertes LinkedIn → titres → comparatif outils BrightData pour JD clean. Débloque #18.
+- [ ] **#18 — morning-briefing v2** : scan 2 boîtes mail + scoring offres + plan du jour. Attendre #22 + daily log HAL.
+- [ ] **#10 — skill mail** : scanner/classifier boîte jobsearch Gmail. Dépend de #18.
 - [ ] Visual review of priority CVs (p1×t4, p3×t1, p2×t5)
 - [ ] gmail-mcp: test OAuth flow end-to-end from claude.ai (connector validated 2026-06-10)
 - [ ] Notion job search skill
