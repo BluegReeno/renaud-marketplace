@@ -8,8 +8,6 @@ Refonte qualité CV — nouvelle démarche structurée par profil (recherches ma
 Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18 — #22 résolu, prêt pour brief-to-plan)
 
 ## In Progress
-
-- [ ] **morning-briefing v2 (#18)** — architecture clarifiée (gmail connectors, daily log HAL en cours session dédiée) → **prêt à implémenter** : faire brief depuis issue #22 → brief-to-plan avant de coder
 - [ ] **P6 Digital Innovation — Bureau d'ingénierie ENR** — session dédiée
 - [ ] **P1 Architecte IA** — session dédiée
 - [ ] **P3 Late CTO** — session dédiée
@@ -29,6 +27,8 @@ Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18
 6. COMMIT → bump version cv-master.json + STATUS.md
 
 ## Done (current sprint)
+
+- [x] **feat(briefing): morning-briefing v2 (#18) — Gmail perso+pro, scoring offres BrightData, plan du jour 6 blocs (briefing v0.6.0 / PR #24)** — 2026-06-24
 
 - [x] **research(brightdata): pipeline extraction JD LinkedIn validé (#22)** — `web_data_linkedin_job_listings` retenu (JSON structuré, zéro bruit). gmail-mcp retourne plain text, job IDs extractibles par regex `jobs/view/(\d+)`. Pipeline : email → job IDs → URL slug → web_data_linkedin_job_listings → job_summary → LLM. `scrape_as_markdown` éliminé (85% bruit, LinkedIn bloque). Bonus : `web_data_linkedin_posts` disponible pour analyse tendances (likes/comments, pas d'impressions). Issue #22 commentée + fermée. Débloque #18. — 2026-06-24
 
@@ -95,8 +95,7 @@ Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18
 
 ## Backlog
 
-- [ ] **#18 — morning-briefing v2** : prochaine session → brief depuis issue #22 → brief-to-plan → implémentation. Scan 2 boîtes mail + scoring offres + plan du jour.
-- [ ] **#10 — skill mail** : scanner/classifier boîte jobsearch Gmail. Dépend de #18.
+- [ ] **#10 — skill mail** : scanner/classifier boîte jobsearch Gmail. Dépend de #18 (✅ mergé).
 - [ ] **#10 — skill mail** : scanner/classifier boîte jobsearch Gmail. Dépend de #18.
 - [ ] Visual review of priority CVs (p1×t4, p3×t1, p2×t5)
 - [ ] gmail-mcp: test OAuth flow end-to-end from claude.ai (connector validated 2026-06-10)
