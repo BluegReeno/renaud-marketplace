@@ -73,6 +73,7 @@ LEGACY_FIELDS = {"notion_id"}
 
 JS_STATUTS = [
     "📝 À postuler",
+    "📋 CV préparé — à envoyer",
     "✉️ Candidature envoyée",
     "📞 Entretien prévu",
     "🔄 Relance à faire",
@@ -447,6 +448,10 @@ def _self_test():
     # 20. JS statut with emoji
     r = validate_create("opportunite-js", {"statut": "📞 Entretien prévu"})
     check("JS statut with emoji accepted", r.ok)
+
+    # 20b. New statut "CV préparé — à envoyer" (sub-agent fan-out)
+    r = validate_create("opportunite-js", {"statut": "📋 CV préparé — à envoyer"})
+    check("JS statut CV préparé accepted", r.ok)
 
     # 21. The categorie/interlocuteurs fix: zero warnings on a full entretien
     r = validate_create("entretien", {
