@@ -11,7 +11,7 @@ description: >
   Use when the user says "log
   application", "j'ai postulé", "candidature envoyée", "je viens de candidater",
   "track application", "log apply", or pastes a job offer with intent to file it.
-version: 0.4.2
+version: 0.6.0
 allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 
@@ -27,8 +27,25 @@ Collect (and confirm) the following before doing anything else:
 
 1. **Pasted offer text** (required) — the job description body. The skill will not fetch URLs; the user pastes the text.
 2. **Company name** and **role title** — extract from the offer body if obvious, otherwise ASK. They drive the candidature title `<Poste> — <Entreprise>` and the `entreprise` frontmatter.
-3. **`source`** (required, one of `LinkedIn` / `WTTJ` / `direct` / `referral` / other) — ASK if not stated. This field is mandatory.
-4. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
+3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below). **ASK** if not provided and not auto-detectable. No silent default.
+
+   **Auto-detection table (sender → source)**:
+
+   | Sender email contains | `source` |
+   |-----------------------|----------|
+   | `jobalerts-noreply@` or `jobs-listings@linkedin.com` | `linkedin-alert` |
+   | `messaging-digest-noreply@linkedin.com` | `linkedin-inmail` |
+   | `welcometothejungle.com` | `wttj` |
+   | `collective.work` or `malt.com` | `freelance` |
+   | `taleez` / `myworkday` / `smartrecruiters` / `lever` / `greenhouse` | `direct-ats` |
+   | named recruitment firm (cabinet) | `headhunter` |
+   | not matched | `other` |
+
+4. **`source_detail`** (optional, free text) — sender name or cabinet identifier, e.g. `"LinkedIn Job Alerts"` or `"Yotta — Expert recrutement Data/AI"`. Enables per-channel conversion tracking. **Omit entirely** if not available — do NOT pass an empty string.
+
+5. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
+
+6. **`statut`** (optional, default: `"✉️ Candidature envoyée"`) — pass `"📋 CV préparé — à envoyer"` when invoked from the `cv-log-worker` fan-out context. **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📋 CV préparé — à envoyer"`. Any other value → reject with an explicit error before proceeding.
 
 Do not proceed until `source` and `entreprise` + `poste` are settled.
 
@@ -73,16 +90,19 @@ Invoke `jobsearch-vault` and ask it to **create a note** with exactly this struc
   "folder":"CRM-JobSearch/Opportunites",
   "fields":{
     "entreprise":"[[<Entreprise>]]",
-    "statut":"✉️ Candidature envoyée",
-    "source":"<LinkedIn|WTTJ|direct|referral|other>",
+    "statut":"<statut — default: ✉️ Candidature envoyée>",
+    "source":"<linkedin-alert|linkedin-inmail|wttj|freelance|direct-ats|headhunter|referral|other>",
+    "source_detail":"<source_detail — OMIT KEY if empty>",
     "date_candidature":"<YYYY-MM-DD>",
     "date_relance":"<YYYY-MM-DD +7d>",
-    "lien_offre":"<url>",
+    "lien_offre":"<url — OMIT KEY if no URL>",
     "target_profile":"P<1-5>"
   },
   "body":"## Annonce\n\n<pasted offer text, verbatim>\n"
 }
 ```
+
+`source_detail` — **include the key ONLY when a value exists; omit it entirely otherwise** (same rule as `lien_offre`). If `jobsearch-vault` returns an `unknown field 'source_detail'` warning on stderr, apply the same AC1 contract: exit 0 + this specific warning → ACCEPT (non-blocking unknown field, same as `target_profile`).
 
 `target_profile` is NOT in the `opportunite-js` schema → `jobsearch-vault` prints a non-blocking warning to stderr (the documented escape hatch — the field is still written). The agreed contract is:
 
@@ -117,7 +137,7 @@ Invoke `jobsearch-vault` and ask it to **create a note** with this structured re
     "etiquettes":["jobsearch"],
     "opportunite":"[[<Poste> — <Entreprise>]]"
   },
-  "body":"## Résumé\n\nRelance candidature envoyée le <YYYY-MM-DD> (<source>). Vérifier réponse, sinon LinkedIn message au recruteur.\n"
+  "body":"## Résumé\n\nRelance — <statut_label: 'candidature envoyée' si ✉️, 'CV préparé' si 📋> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.\n"
 }
 ```
 
@@ -146,7 +166,7 @@ Invoke `mcp__hal-mcp__create_task` exactly once with:
 mcp__hal-mcp__create_task(
   workspace_slug = "renaud",
   title          = "Relance — <Entreprise> — <YYYY-MM-DD candidature>",
-  description    = "Relance candidature <Poste> envoyée le <YYYY-MM-DD> (<source>). Vérifier réponse, sinon LinkedIn message au recruteur.",
+  description    = "Relance — <statut_label> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
   tags           = ["jobsearch"],
   due_date       = "<YYYY-MM-DD +7d>"   # same date as Obsidian tache echeance
 )
@@ -182,7 +202,8 @@ Render a concise summary, in French:
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
    🔄 Relance  : <YYYY-MM-DD +7d> — apparaîtra dans /briefing (Obsidian + hal renaud/jobsearch)
                   (si Step 4b a échoué : Obsidian uniquement — hal non créé, voir ⚠️ ci-dessus)
-   🔗 Source   : <source>
+   🔗 Source   : <source> (<source_detail if present, else omit>)
+   📌 Statut   : <statut>
 ```
 
 If the candidature already existed and was updated rather than created, change the first line to `🔁 Candidature mise à jour — …` and include the original `date_candidature`.
@@ -193,11 +214,13 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 - **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__hal-mcp__list_tasks` for Step 4b idempotency, and `mcp__hal-mcp__create_task` for the Step 4b hal mirror — do not work around it.
 - **Dual relance write (Step 4 + Step 4b) is intentional.** Obsidian `tache` is the canonical jobsearch trail; the hal task is the unified-PM mirror that surfaces in `/briefing`'s `jobsearch` section. Both must carry the `jobsearch` tag/etiquette. If Step 4b fails after Step 4 succeeds, the candidature is still safe — degrade gracefully and continue (see Step 4b's failure block).
-- **First-apply `statut` is `✉️ Candidature envoyée`** (with emoji, verbatim — re-typing the emoji loses the variation selector). Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`. The user transitions the candidature's `statut` manually (or via a later skill) when they actually chase the relance.
+- **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📋 CV préparé — à envoyer"` instead. Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
 - **`target_profile` warning is expected.** It is non-blocking. Do not retry without the field; do not patch the global schema from here.
-- **`source` is mandatory.** If the user did not state one, the skill ASKS in Step 0 before proceeding. No silent default.
+- **`source_detail` warning may appear.** If `jobsearch-vault` returns `unknown field 'source_detail'` on stderr at exit 0, apply the same AC1 contract as `target_profile`: non-blocking, ACCEPT. Surface any OTHER exit-0 stderr warning verbatim.
+- **`source` is mandatory.** If the user did not state one, the skill ASKS in Step 0 before proceeding. No silent default. Valid values: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `other`.
+- **`source_detail` is optional.** Include the key ONLY when a non-empty value is available. Never pass an empty string.
 - **Idempotency on re-apply.** Step 3 must search before creating, and switch to `update_frontmatter.py` when the note exists. Do not let `create_note.py` fail-then-retry-by-rename.
 - **No auto-apply, no email, no CV attach.** The skill files the trail; the user submits the application themselves. `cv-generator` handles the PDF — invoke it separately via `/cv-generator`.
 - **Compose, do not reimplement.** This skill is orchestration: classify, compose JSON payloads, and call `jobsearch-vault`. It does not re-implement vault writes.
