@@ -1,6 +1,6 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-24
+Last updated: 2026-06-29
 
 ## Current Focus
 
@@ -27,6 +27,8 @@ Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18
 6. COMMIT → bump version cv-master.json + STATUS.md
 
 ## Done (current sprint)
+
+- [x] **fix(jobsearch): log-application relance task in hal renaud only, drop Obsidian tache (jobsearch v0.6.1 / PR #28)** — Step 4 crée directement la tâche relance dans hal (`renaud`, tag `jobsearch`). Step 4b (miroir hal) supprimé — hal est la source unique. Closes #27. — 2026-06-29
 
 - [x] **feat(briefing): morning-briefing v2 (#18) — Gmail perso+pro, scoring offres BrightData, plan du jour 6 blocs (briefing v0.6.0 / PR #24)** — 2026-06-24
 
