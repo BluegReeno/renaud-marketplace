@@ -1,30 +1,34 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-06-29
+Last updated: 2026-06-30
 
 ## Current Focus
 
-Refonte qualité CV — nouvelle démarche structurée par profil (recherches marché → parcours HAL → CV par profil)
-Morning-briefing v2 — scan 2 boîtes mail + scoring offres + plan du jour (#18 — #22 résolu, prêt pour brief-to-plan)
+Skills via Archon — deux issues `ai-improvable` prêtes à traiter séquentiellement.
 
 ## In Progress
+
+- [ ] **C1 — #29 `log-cr` skill (jobsearch)** — nouveau skill sibling de `log-application` pour logger un CR d'entretien. Spec complète dans l'issue. Lancer depuis ce repo :
+  ```bash
+  archon workflow run skill-improve "29"
+  ```
+
+- [ ] **C3 — #10 `jobsearch/mail` skill** — après C1. Nouveau skill scan Gmail + classification (5 catégories) + actions proposées. Spec complète dans l'issue. Lancer :
+  ```bash
+  archon workflow run skill-improve "10"
+  ```
+
+## Backlog (CV — reprendre quand job search actif)
+
 - [ ] **P6 Digital Innovation — Bureau d'ingénierie ENR** — session dédiée
 - [ ] **P1 Architecte IA** — session dédiée
 - [ ] **P3 Late CTO** — session dédiée
 - [ ] **P2 Lead IA** — session dédiée (profil le plus faible, à reconsidérer)
 
-**Ressources prêtes :**
+**Ressources CV prêtes :**
 - Parcours source de vérité → HAL workspace `renaud`, slug `parcours` (màj 2026-06-19)
 - Fichier local → `~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/parcours-renaud.md`
 - Briefs marché par profil → `~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/research/P{1,2,3,4,6}-*.md`
-
-**Template session par profil :**
-1. LOAD → parcours HAL + brief recherche profil
-2. SCRAPE → 2-3 offres LinkedIn (Bright Data MCP)
-3. DRAFT → about + containers + bullets par expérience (markdown)
-4. REVIEW → validation Renaud
-5. GEN → cv-generator → PDF
-6. COMMIT → bump version cv-master.json + STATUS.md
 
 ## Done (current sprint)
 
