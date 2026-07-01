@@ -9,7 +9,7 @@ description: >
   ordered plan du jour. Use when the user asks "what's up for today",
   "ma journée", "briefing du jour", "quel est mon planning", or any similar
   daily-overview trigger.
-version: 0.7.0
+version: 0.7.1
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
@@ -271,7 +271,7 @@ HH:MM–HH:MM — <event title> [pro|perso|famille]
 (or: ⚠️ Gmail perso DOWN — <reason>)
 
 CVs préparés ce run :
-- ✅ <JOB_TITLE> — <COMPANY> (P<n>) → <cv_filename> · loggé (📋 CV préparé — à envoyer)
+- ✅ <JOB_TITLE> — <COMPANY> (P<n>) → <cv_filename> · loggé (📝 À postuler)
 - ⚠️ ÉCHEC <JOB_TITLE> — <COMPANY> → <reason>
 (aucun CV généré — 0 offre 🔥 non loguée  /  or: ⚠️ cv-log-worker skipped — Step 1h cap atteint ou gmail-perso DOWN)
 
@@ -416,4 +416,4 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 - **Agent fan-out cap** — max 3 `cv-log-worker` sub-agents per run. If >3 🔥 deduped offers exist, take the top 3 by score×proximity. Never spawn more than 3 Agent calls in Step 1h.
 - **Sub-agent failures are loud** — if a `cv-log-worker` returns `ÉCHEC`, surface `⚠️ CV non généré — <company> : <reason>` in the "CVs préparés ce run" section. Never silently drop a sub-agent failure.
 - **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
-- **Status `📋 CV préparé — à envoyer`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud sets the status to sent when he actually applies.
+- **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.

@@ -3,8 +3,8 @@ name: cv-log-worker
 description: >
   Fan-out worker spawned by morning-briefing for a single 🔥 job offer.
   Generates a 1-page PDF CV via cv-generator, then logs the application
-  via log-application with status "📋 CV préparé — à envoyer" and
-  auto-detected source from the email sender. Returns a one-line summary.
+  via log-application with status "📝 À postuler" and auto-detected source
+  from the email sender. Returns a one-line summary.
   Spawned in parallel (up to 3 per briefing run). Never auto-applies,
   never sends messages, never generates cover letters.
 allowed-tools: "Skill(cv-generator) Skill(log-application)"
@@ -66,7 +66,9 @@ Invoke `Skill(log-application)` with:
 - Source: the `source` detected in Step A
 - Source detail: the `source_detail` from Step A (omit if empty)
 - URL: `JOB_URL` (omit if empty string)
-- Statut: `📋 CV préparé — à envoyer`
+- Statut: `📝 À postuler`
+- CV path: `jobsearch/<cv_filename>` (only if Step B succeeded; omit if Step B failed)
+- CV profile: the profile detected in Step B, e.g. `P4` (only if Step B succeeded; omit if Step B failed)
 
 If `log-application` fails → proceed to Step D with failure reason.
 
@@ -91,6 +93,6 @@ CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | 
 - **No cover letter.** Never generate a cover letter under any circumstance.
 - **No auto-apply.** Never submit an application, click any "Apply" button, or interact with job portals.
 - **No recruiter reply.** Never compose or send any message to any person.
-- **Status is `📋 CV préparé — à envoyer`** — NOT `✉️ Candidature envoyée`. Renaud submits manually.
+- **Status is `📝 À postuler`** — NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
 - **One offer only.** You handle exactly the one offer described in your prompt. No iteration over other offers.
 - **Fail loud, not silent.** If either step fails, report it clearly in Step D — never return a silent success.
