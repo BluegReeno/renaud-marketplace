@@ -12,7 +12,7 @@ description: >
   other tasks. Use when the user says "log application", "j'ai postulé",
   "candidature envoyée", "je viens de candidater", "track application",
   "log apply", or pastes a job offer with intent to file it.
-version: 0.6.1
+version: 0.6.2
 allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 
@@ -46,7 +46,11 @@ Collect (and confirm) the following before doing anything else:
 
 5. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
 
-6. **`statut`** (optional, default: `"✉️ Candidature envoyée"`) — pass `"📋 CV préparé — à envoyer"` when invoked from the `cv-log-worker` fan-out context. **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📋 CV préparé — à envoyer"`. Any other value → reject with an explicit error before proceeding.
+6. **`statut`** (optional, default: `"✉️ Candidature envoyée"`) — pass `"📝 À postuler"` when invoked from the `cv-log-worker` fan-out context (CV generated, not yet sent). **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📝 À postuler"`. Any other value → reject with an explicit error before proceeding.
+
+7. **`cv_path`** (optional) — relative path of the generated PDF (e.g. `jobsearch/CV_Poste_Entreprise.pdf`). Provided by `cv-log-worker` when a CV was successfully generated. If present, a `## CV généré` section is appended to the note body. Omit if no CV was generated.
+
+8. **`cv_profile`** (optional) — detected profile slug (e.g. `P4`). Provided alongside `cv_path` by `cv-log-worker`. Omit if no CV was generated.
 
 Do not proceed until `source` and `entreprise` + `poste` are settled.
 
@@ -103,6 +107,17 @@ Invoke `jobsearch-vault` and ask it to **create a note** with exactly this struc
 }
 ```
 
+When `cv_path` is provided (i.e. invoked from `cv-log-worker` after a successful CV generation), append a `## CV généré` section to the body:
+
+```
+## CV généré
+
+- Profil : <cv_profile>
+- Fichier : <cv_path>
+```
+
+Omit the section entirely when `cv_path` is not provided.
+
 `source_detail` — **include the key ONLY when a value exists; omit it entirely otherwise** (same rule as `lien_offre`). If `jobsearch-vault` returns an `unknown field 'source_detail'` warning on stderr, apply the same AC1 contract: exit 0 + this specific warning → ACCEPT (non-blocking unknown field, same as `target_profile`).
 
 `target_profile` is NOT in the `opportunite-js` schema → `jobsearch-vault` prints a non-blocking warning to stderr (the documented escape hatch — the field is still written). The agreed contract is:
@@ -133,7 +148,7 @@ Invoke `mcp__hal-mcp__create_task` exactly once with:
 mcp__hal-mcp__create_task(
   workspace_slug = "renaud",
   title          = "Relance — <Entreprise> — <YYYY-MM-DD candidature>",
-  description    = "Relance — <statut_label: 'candidature envoyée' si ✉️, 'CV préparé' si 📋> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
+  description    = "Relance — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
   tags           = ["jobsearch"],
   due_date       = "<YYYY-MM-DD +7d>"
 )
@@ -176,7 +191,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 - **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__hal-mcp__create_task` for the hal relance task — do not work around it.
 - **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (`renaud` workspace, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
-- **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📋 CV préparé — à envoyer"` instead. Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
+- **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📝 À postuler"` instead (CV generated but not yet submitted). Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
 - **`target_profile` warning is expected.** It is non-blocking. Do not retry without the field; do not patch the global schema from here.
