@@ -52,3 +52,9 @@ breif-gmail.md
 skills-lock.json
 .agents/skills/
 .claude/skills/
+
+# Personal context — local paths, job-search state
+.claude/STATUS.md
+
+# CV profiles — personal data
+plugins/jobsearch/profiles/
