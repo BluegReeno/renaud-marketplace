@@ -66,10 +66,20 @@ function sanitizeHeader(value: string, field: string): string {
   return value;
 }
 
+// RFC 2047 encoded-word (UTF-8/Base64) for non-ASCII header values.
+// Prevents mojibake when email clients decode headers as Latin-1.
+function encodeRfc2047(value: string): string {
+  if (!/[^\x00-\x7F]/.test(value)) return value;
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return `=?UTF-8?B?${btoa(binary)}?=`;
+}
+
 function buildRfc2822(to: string, subject: string, body: string, replyToId?: string): string {
   const lines = [
     `To: ${sanitizeHeader(to, "to")}`,
-    `Subject: ${sanitizeHeader(subject, "subject")}`,
+    `Subject: ${encodeRfc2047(sanitizeHeader(subject, "subject"))}`,
     "Content-Type: text/plain; charset=UTF-8",
     "MIME-Version: 1.0",
   ];
@@ -93,7 +103,7 @@ function okResult(data: unknown) {
 }
 
 // MCP server created once at module level — tools registered once per cold start
-const server = new McpServer({ name: "gmail-mcp", version: "0.2.0" });
+const server = new McpServer({ name: "gmail-mcp", version: "0.2.1" });
 
 // deno-lint-ignore no-explicit-any
 const registerTool: (...args: any[]) => void = server.registerTool.bind(server);
