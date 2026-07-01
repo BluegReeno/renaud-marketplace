@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "jobsearch",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "description": "Job search toolkit — CV generation and Gmail access for Renaud Laborbe",
       "source": "./plugins/jobsearch",
       "skills": [
@@ -18,6 +18,7 @@
         "./plugins/jobsearch/skills/cover-letter",
         "./plugins/jobsearch/skills/log-application",
         "./plugins/jobsearch/skills/interview-prep",
+        "./plugins/jobsearch/skills/log-cr",
         "./plugins/jobsearch/skills/jobsearch-vault"
       ],
       "author": {
