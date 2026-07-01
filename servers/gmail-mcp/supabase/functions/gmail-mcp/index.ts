@@ -76,19 +76,59 @@ function encodeRfc2047(value: string): string {
   return `=?UTF-8?B?${btoa(binary)}?=`;
 }
 
-function buildRfc2822(to: string, subject: string, body: string, replyToId?: string): string {
-  const lines = [
+interface Attachment {
+  filename: string;
+  mimeType: string;
+  content: string; // standard base64 (A-Za-z0-9+/=), no line breaks required
+}
+
+// RFC 2045 §6.8 — base64 lines must not exceed 76 chars
+function foldBase64Lines(b64: string): string {
+  return b64.match(/.{1,76}/g)?.join("\r\n") ?? b64;
+}
+
+function buildMimeMessage(
+  to: string,
+  subject: string,
+  body: string,
+  replyToId?: string,
+  attachments?: Attachment[],
+): string {
+  const headers = [
     `To: ${sanitizeHeader(to, "to")}`,
     `Subject: ${encodeRfc2047(sanitizeHeader(subject, "subject"))}`,
-    "Content-Type: text/plain; charset=UTF-8",
     "MIME-Version: 1.0",
   ];
   if (replyToId) {
-    lines.push(`In-Reply-To: <${replyToId}>`);
-    lines.push(`References: <${replyToId}>`);
+    headers.push(`In-Reply-To: <${replyToId}>`, `References: <${replyToId}>`);
   }
-  lines.push("", body);
-  return lines.join("\r\n");
+
+  if (!attachments || attachments.length === 0) {
+    return [...headers, "Content-Type: text/plain; charset=UTF-8", "", body].join("\r\n");
+  }
+
+  const boundary = crypto.randomUUID().replace(/-/g, "");
+  const parts: string[] = [
+    ...headers,
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    "",
+    `--${boundary}`,
+    "Content-Type: text/plain; charset=UTF-8",
+    "",
+    body,
+  ];
+  for (const att of attachments) {
+    parts.push(
+      `--${boundary}`,
+      `Content-Type: ${sanitizeHeader(att.mimeType, "mimeType")}`,
+      `Content-Disposition: attachment; filename="${sanitizeHeader(att.filename, "filename")}"`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      foldBase64Lines(att.content),
+    );
+  }
+  parts.push(`--${boundary}--`);
+  return parts.join("\r\n");
 }
 
 function toUrlSafeBase64(str: string): string {
@@ -103,7 +143,7 @@ function okResult(data: unknown) {
 }
 
 // MCP server created once at module level — tools registered once per cold start
-const server = new McpServer({ name: "gmail-mcp", version: "0.2.1" });
+const server = new McpServer({ name: "gmail-mcp", version: "0.3.0" });
 
 // deno-lint-ignore no-explicit-any
 const registerTool: (...args: any[]) => void = server.registerTool.bind(server);
@@ -188,21 +228,48 @@ registerTool(
   }
 );
 
+// Gmail's 25 MB limit applies to the stored message. A base64 content string of 25 MB
+// corresponds to ~18.5 MB of raw bytes — reject before encoding to avoid server-side errors.
+const ATTACHMENT_B64_LIMIT = 25 * 1024 * 1024;
+
 registerTool(
   "draft_email",
   {
     title: "Draft Email",
-    description: "Create a Gmail draft. Optionally threads it as a reply by providing reply_to_message_id.",
+    description: "Create a Gmail draft with optional file attachments. Optionally threads as a reply by providing reply_to_message_id.",
     inputSchema: z.object({
       to: z.string().describe("Recipient email address"),
       subject: z.string().describe("Email subject"),
       body: z.string().describe("Plain text email body"),
       reply_to_message_id: z.string().optional().describe("Gmail message ID to reply to"),
+      attachments: z.array(z.object({
+        filename: z.string().describe("Filename including extension (e.g. CV_Renaud_Laborbe.pdf)"),
+        mimeType: z.string().describe("MIME type (e.g. application/pdf, image/png)"),
+        content: z.string().describe("File content encoded as standard base64 (A-Za-z0-9+/=). Strip any existing newlines before passing."),
+      })).optional().describe("Files to attach. Total base64 size must be under 25 MB (~18.5 MB raw). For larger files, share a Drive link in the body instead."),
     }),
   },
-  async ({ to, subject, body, reply_to_message_id }: { to: string; subject: string; body: string; reply_to_message_id?: string }, extra: unknown) => {
+  async (
+    { to, subject, body, reply_to_message_id, attachments }: {
+      to: string;
+      subject: string;
+      body: string;
+      reply_to_message_id?: string;
+      attachments?: Attachment[];
+    },
+    extra: unknown,
+  ) => {
     const token = getGmailToken(extra);
-    const raw = toUrlSafeBase64(buildRfc2822(to, subject, body, reply_to_message_id));
+    if (attachments && attachments.length > 0) {
+      const totalB64 = attachments.reduce((sum, att) => sum + att.content.length, 0);
+      if (totalB64 > ATTACHMENT_B64_LIMIT) {
+        const mb = Math.round(totalB64 / 1024 / 1024);
+        throw new Error(
+          `Attachments too large: total base64 size is ${mb} MB (limit: 25 MB / ~18.5 MB raw). Share large files via a Drive link in the email body instead.`,
+        );
+      }
+    }
+    const raw = toUrlSafeBase64(buildMimeMessage(to, subject, body, reply_to_message_id, attachments));
     const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/drafts", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
