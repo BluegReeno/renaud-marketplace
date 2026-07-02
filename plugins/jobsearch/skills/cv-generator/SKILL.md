@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.8.1
+version: 0.8.2
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -82,6 +82,10 @@ Default if ambiguous: **P1 × T4** (`--profile p1 --company-type t4`)
 | **P5 Sales** | — | — | ✅ p5×t3 | — | ✅ p5×t5 |
 
 If the detected combination is not a valid cell (marked —), fall back to the nearest valid cell or ask the user for clarification.
+
+### Profile narrative files (optional deep dive)
+
+For the detected profile (P1-P5), check if `profiles/{profile}.md` exists (e.g. `profiles/p1_architecte.md`) — gitignored personal file, not always present. If it exists, read it for real target-company examples per cell and finer-grained narrative rules than the summary below. If missing, rely on "Signal per profile" and "Factual anchors" further down.
 
 ---
 

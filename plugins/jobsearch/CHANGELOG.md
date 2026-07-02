@@ -1,5 +1,15 @@
 # jobsearch — Changelog
 
+## [0.8.2] — 2026-07-02
+
+### Changed (cv-generator SKILL.md)
+
+- **Profile narrative files wired in** : Step 1 now points to `profiles/{profile}.md`
+  (gitignored, personal — e.g. `profiles/p1_architecte.md`) when present, for real
+  target-company examples per cell and finer-grained narrative rules than the
+  in-file "Signal per profile" summary. Falls back silently if the file is absent.
+  Covers P1-P5 only — no P6 profile exists yet.
+
 ## [0.8.1] — 2026-07-02
 
 ### Changed (cv-generator SKILL.md v0.5.3 → v0.8.1 / generate_cv.py)

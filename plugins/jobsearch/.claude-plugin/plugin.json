@@ -1,6 +1,6 @@
 {
   "name": "jobsearch",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Job search toolkit — CV generation and Gmail access for Renaud Laborbe",
   "author": {
     "name": "Renaud Laborbe",
