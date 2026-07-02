@@ -1,5 +1,15 @@
 # jobsearch — Changelog
 
+## [0.8.1] — 2026-07-02
+
+### Changed (cv-generator SKILL.md v0.5.3 → v0.8.1 / generate_cv.py)
+
+- **Corporate-first order — reintroduced (refined scope)** : `CORPORATE_FIRST_CELLS` re-added
+  with a narrower set of 3 cells: `(p1,t4)`, `(p2,t4)`, `(p5,t5)`. These cells output
+  Artelia → Blue Green → Open Ocean to lead with corporate proof over solopreneur perception.
+  All other cells remain chronological reverse (Blue Green → Artelia → Open Ocean).
+- **SKILL.md** : frontmatter version aligned to 0.8.1 (sync with plugin.json).
+
 ## [0.4.8] — 2026-06-16
 
 ### Changed (cv-generator SKILL.md v0.2.6 → v0.2.7 / generate_cv.py / cv-master.json)

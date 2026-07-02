@@ -45,8 +45,8 @@ RETRO_COMPAT_MAP = {
     'business_dev':  ('p5', 't3'),
 }
 
-# Cells where Artelia (corporate proof) must lead over Blue Green (solopreneur perception).
-# Set of tuples for O(1) lookup — hardcoded business rule, not derived from the matrix.
+# Cells where Artelia (corporate proof) must lead over Blue Green (solopreneur perception)
+# — hardcoded rule, never derived from the matrix.
 CORPORATE_FIRST_CELLS = {('p1', 't4'), ('p2', 't4'), ('p5', 't5')}
 
 # Progressive compact CSS levels — injected before </head>, tried in sequence until 1-page fits
