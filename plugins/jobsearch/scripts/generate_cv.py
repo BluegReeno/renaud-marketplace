@@ -45,6 +45,10 @@ RETRO_COMPAT_MAP = {
     'business_dev':  ('p5', 't3'),
 }
 
+# Cells where Artelia (corporate proof) must lead over Blue Green (solopreneur perception).
+# Set of tuples for O(1) lookup — hardcoded business rule, not derived from the matrix.
+CORPORATE_FIRST_CELLS = {('p1', 't4'), ('p2', 't4'), ('p5', 't5')}
+
 # Progressive compact CSS levels — injected before </head>, tried in sequence until 1-page fits
 COMPACT_CSS_LEVELS = [
     # Level 1 — gentle: tighten padding/margins
@@ -146,6 +150,8 @@ def resolve_cell_content(cv_data, profile, company_type, lang):
 
 
 def get_job_order(profile, company_type):
+    if (profile, company_type) in CORPORATE_FIRST_CELLS:
+        return ['artelia', 'blue_green', 'open_ocean']
     return ['blue_green', 'artelia', 'open_ocean']
 
 
