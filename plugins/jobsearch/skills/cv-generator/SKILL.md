@@ -4,7 +4,7 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.8.2
+version: 0.8.3
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 
@@ -91,8 +91,15 @@ For the detected profile (P1-P5), check if `profiles/{profile}.md` exists (e.g. 
 
 ## Step 2 — Detect language
 
-- If the job offer is written in French → `--lang fr`
-- Otherwise → `--lang en`
+Detect the CV language from the **raw job offer text** (not from any reformulated summary, not from the conversation language):
+
+- Job offer written **exclusively in French** → `--lang fr`
+- Job offer written **in English** (even partially) → `--lang en`
+- Job offer **bilingual FR + EN** (contains significant blocks in both languages) → `--lang en`
+
+**Rule: when in doubt, default to `--lang en`.**
+
+Memorise the detected language as `DETECTED_LANG` before calling the script — never let a French-language conversation or a French-language summary of the offer override this value.
 
 ---
 
