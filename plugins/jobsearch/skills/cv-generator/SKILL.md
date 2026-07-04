@@ -174,7 +174,7 @@ uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
   --output-dir ~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/
 ```
 
-Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}` with the detected values. Output filename is auto-built: `CV_Renaud_Laborbe_{job_slug}_{company_slug}_{LANG}.pdf`.
+Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}` with the detected values. Output filename is auto-built: `CV_Renaud-Laborbe_{company_slug}_{title_slug}_{LANG}.pdf` — where `{company_slug}` is the company name (original case, accents stripped, truncated to 2 words), and `{title_slug}` applies known abbreviations before slugifying (FDE, SA, SE, CTO, AE, BDM…) with hyphens as word separators. Example: `--company "Orasio" --job-title "Forward Deployed Engineer Lead"` → `CV_Renaud-Laborbe_Orasio_FDE-Lead_EN.pdf`.
 
 **Optional flags:**
 

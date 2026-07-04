@@ -103,22 +103,53 @@ def get_skill_dir():
     return Path(__file__).parent.parent
 
 
+ACCENT_REPLACEMENTS = [
+    ('é', 'e'), ('è', 'e'), ('ê', 'e'), ('ë', 'e'),
+    ('à', 'a'), ('â', 'a'), ('ä', 'a'),
+    ('î', 'i'), ('ï', 'i'),
+    ('ô', 'o'), ('ö', 'o'),
+    ('ù', 'u'), ('û', 'u'), ('ü', 'u'),
+    ('ç', 'c'), ('ñ', 'n'),
+]
+
+# Known job title abbreviations — applied before slugifying
+TITLE_ABBREVIATIONS = [
+    ('Forward Deployed Engineer', 'FDE'),
+    ('Solutions Architect', 'SA'),
+    ('Solutions Engineer', 'SE'),
+    ('Chief Technology Officer', 'CTO'),
+    ('Account Executive', 'AE'),
+    ('Business Development Manager', 'BDM'),
+]
+
+
 def slugify(text):
     """Convert text to a filename-safe ASCII slug (lowercase, underscores)."""
     text = text.lower()
-    # Replace accented chars with ascii equivalents
-    replacements = [
-        ('é', 'e'), ('è', 'e'), ('ê', 'e'), ('ë', 'e'),
-        ('à', 'a'), ('â', 'a'), ('ä', 'a'),
-        ('î', 'i'), ('ï', 'i'),
-        ('ô', 'o'), ('ö', 'o'),
-        ('ù', 'u'), ('û', 'u'), ('ü', 'u'),
-        ('ç', 'c'), ('ñ', 'n'),
-    ]
-    for src, dst in replacements:
+    for src, dst in ACCENT_REPLACEMENTS:
         text = text.replace(src, dst)
     text = re.sub(r'[^\w\s-]', '', text)
     return re.sub(r'[\s-]+', '_', text).strip('_')
+
+
+def abbreviate_title(title):
+    """Apply known abbreviations and return a hyphen-separated slug (preserves case of remaining words)."""
+    result = title
+    for phrase, abbrev in TITLE_ABBREVIATIONS:
+        result = re.sub(re.escape(phrase), abbrev, result, flags=re.IGNORECASE)
+    result = re.sub(r'[^\w\s-]', '', result)
+    parts = result.split()
+    return '-'.join(p for p in parts if p)
+
+
+def slugify_company(company, max_words=2):
+    """Return a clean company slug: accents stripped, original case preserved, capped at max_words words."""
+    result = company
+    for src, dst in ACCENT_REPLACEMENTS:
+        result = result.replace(src, dst).replace(src.upper(), dst.upper())
+    result = re.sub(r'[^\w\s-]', '', result)
+    words = result.split()[:max_words]
+    return '-'.join(words)
 
 
 def load_cv_data(data_dir=None):
@@ -327,11 +358,11 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
     # Build output filename
     if output_filename is None:
         if company or job_title:
-            parts = ['CV', 'Renaud', 'Laborbe']
-            if job_title:
-                parts.append(slugify(job_title))
+            parts = ['CV', 'Renaud-Laborbe']
             if company:
-                parts.append(slugify(company))
+                parts.append(slugify_company(company))
+            if job_title:
+                parts.append(abbreviate_title(job_title))
             parts.append(lang.upper())
             output_filename = '_'.join(parts) + '.pdf'
         else:
