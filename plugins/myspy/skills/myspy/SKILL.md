@@ -22,7 +22,8 @@ Ce n'est **PAS** une thérapie de substitution — outil de suivi et de réflexi
 1. Appeler `mcp__hal-mcp__list_projects` avec `workspace_slug='renaud'` et `tags=['myspy']` pour relire le projet MySpy existant.
    Le champ `description` du projet = **profil vivant** : patterns connus, objectifs de fond, dernières techniques utilisées (slugs du bundle myspy-kwiki utilisés récemment).
 
-2. Appeler `mcp__hal-mcp__list_tasks` avec `project_id=<id du projet MySpy>` et `status='todo'` pour relire l'action engagée la semaine précédente.
+2. Appeler `mcp__hal-mcp__list_tasks` avec `workspace_slug='renaud'`, `project_id=<id du projet MySpy>` et `status='todo'` pour relire l'action engagée la semaine précédente.
+   Si la liste est vide : première séance ou action déjà archivée — demander directement à l'utilisateur quelle était son intention de la semaine.
 
 **Si le projet MySpy n'existe pas encore dans le workspace 'renaud'** : informer l'utilisateur que l'initialisation (création du projet + ajout du tag 'myspy' aux `allowed_tags` du workspace) doit être faite avant la première séance. Ne pas tenter de le créer depuis ce skill.
 
@@ -37,7 +38,7 @@ python3 /Users/renaud/Projects/myspy-kwiki/okf-cli.py find "<mot-clé>"
 python3 /Users/renaud/Projects/myspy-kwiki/okf-cli.py read <chemin-de-page>
 ```
 
-**Note :** ce chemin est propre à l'installation locale (pas portable — pas un problème, ce skill est strictement personnel). Si le bundle est absent à cet emplacement, le signaler à l'utilisateur plutôt que d'improviser du contenu méthodologique.
+**Note :** ce chemin est propre à l'installation locale (pas portable — pas un problème, ce skill est strictement personnel). Si le bundle est absent à cet emplacement, ou si l'appel Bash échoue (exit code ≠ 0 ou traceback Python), le signaler à l'utilisateur plutôt que d'improviser du contenu méthodologique.
 
 ## Trame de séance (45–60 min)
 
@@ -77,13 +78,24 @@ Puis écrire dans hal :
    - `workspace_slug='renaud'`, `project_id=<id>`, `channel='myspy-session'`
    - `summary` = résumé court
    - `transcript` = compte-rendu structuré complet (score d'échelle + méthode utilisée)
-   - `tags=['myspy']`, `occurred_at` = date du jour
+   - `tags=['myspy']`, `occurred_at` = date du jour au format ISO 8601 (ex. `2026-07-05`)
+
+   **Si `log_interaction` échoue** : fournir le CR complet en clair dans le chat (l'utilisateur peut le copier manuellement), puis tenter quand même `create_task`.
 
 2. `mcp__hal-mcp__update_task_status` sur la tâche de la semaine précédente :
    - `status="done"` si accomplie (l'enum ne connaît pas de statut "partiel" — nuancer dans le résumé si nécessaire).
 
+   **Si `update_task_status` échoue** : signaler et continuer — non bloquant :
+   > ⚠️  Tâche précédente NON clôturée (`<erreur>`) — nouvelle action créée quand même.
+
 3. `mcp__hal-mcp__create_task` pour la nouvelle action :
    - `workspace_slug='renaud'`, `project_id=<id>`, `title=<action définie>`, `tags=['myspy']`
+
+   **Si `create_task` échoue après un `log_interaction` réussi** :
+   > ⚠️  Half-state — séance loguée, nouvelle action NON créée dans hal.
+   >     Erreur     : `<erreur>`
+   >     Impact     : la semaine prochaine démarrera sans action définie.
+   >     Recovery   : relancer /myspy la semaine prochaine — la clôture recréera la tâche.
 
 4. `mcp__hal-mcp__update_project` (`project_id=<id>`, `description=<profil vivant mis à jour>`) **UNIQUEMENT** si un nouveau pattern ou insight structurant est apparu pendant la séance — ne pas réécrire à chaque fois.
 
