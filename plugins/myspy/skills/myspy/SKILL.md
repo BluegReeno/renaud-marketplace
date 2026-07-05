@@ -75,7 +75,7 @@ Dans les deux cas, **exclure les techniques récemment utilisées** (voir profil
 Puis écrire dans hal :
 
 1. `mcp__hal-mcp__log_interaction` :
-   - `workspace_slug='renaud'`, `project_id=<id>`, `channel='myspy-session'`
+   - `workspace_slug='renaud'`, `project_id=<id>`, `channel='myspy-session'` (valeur libre, aucune configuration préalable requise côté hal — contrairement aux `tags`, qui doivent être déclarés dans `allowed_tags` du workspace)
    - `summary` = résumé court
    - `transcript` = compte-rendu structuré complet (score d'échelle + méthode utilisée)
    - `tags=['myspy']`, `occurred_at` = date du jour au format ISO 8601 (ex. `2026-07-05`)
