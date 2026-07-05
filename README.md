@@ -88,6 +88,7 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 | `jobsearch` | 0.4.8 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
 | `briefing` | 0.4.3 | `morning-briefing`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
 | `improve` | 0.1.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
+| `myspy` | 0.1.0 | `myspy` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
 ---
 
@@ -99,6 +100,7 @@ Dépôt public — pas de token requis. Ajouter le marketplace puis installer le
 /plugin marketplace add BluegReeno/renaud-marketplace jobsearch
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
 /plugin marketplace add BluegReeno/renaud-marketplace improve
+/plugin marketplace add BluegReeno/renaud-marketplace myspy
 ```
 
 ### Connecting from Claude, Gemini, or OpenAI
