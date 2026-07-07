@@ -10,7 +10,6 @@ description: >
   "problème avec le skill X", "ce skill ne fait pas Y", "ajoute ça au skill",
   or spots a bug in any skill (morning-briefing, cv-generator, sprint-planner,
   hal, edifice, blue-green-proposal-generator, etc.) during a Cowork session.
-version: 0.1.2
 allowed-tools: "AskUserQuestion ToolSearch mcp__github__issue_write"
 ---
 

@@ -4,7 +4,6 @@ description: >
   Generate a personalized 1-page PDF CV for Renaud Laborbe. Use when the user pastes
   a job offer, describes a target role, or asks to generate/update a CV. Selects the
   right positioning from a 5-profile × 5-company-type matrix (15 cells, FR + EN).
-version: 0.8.3
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write"
 ---
 

@@ -85,9 +85,9 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.4.8 | `cv-generator`, `log-application`, `interview-prep`, `jobsearch-vault` | `gmail-mcp` | CV génération, log candidature, prep d'entretien, accès Gmail, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.4.3 | `morning-briefing`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
-| `improve` | 0.1.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
+| `jobsearch` | 0.8.3 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.8.0 | `morning-briefing`, `mail-triage`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + tri de mails + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
+| `improve` | 0.1.2 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
 | `myspy` | 0.1.0 | `myspy` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
 ---
