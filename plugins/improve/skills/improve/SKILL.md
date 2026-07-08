@@ -146,7 +146,9 @@ archon workflow run skill-improve "#<ISSUE_NUMBER>"
 - [ ] Lire `plugins/<plugin>/skills/<skill>/SKILL.md`
 - [ ] Identifier la section à modifier
 - [ ] Corriger selon le comportement attendu
-- [ ] Bumper la version dans les 3 endroits (plugin.json / SKILL.md frontmatter / marketplace.json)
+- [ ] Bumper la version dans les 2 champs (plugin.json / marketplace.json plugins[].version)
+- [ ] Ajouter l'entrée `## <plugin> <version>` dans CHANGELOG.md
+- [ ] `bash scripts/check_version_sync.sh` passe (exit 0)
 - [ ] Ouvrir une PR avec `closes #<ISSUE_NUMBER>`
 ```
 

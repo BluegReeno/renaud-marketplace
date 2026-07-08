@@ -348,15 +348,16 @@ Keep it lean. The most important rules:
 ## Plugin Skill Constraint — No pre-install step
 Skills must never require pip install. Use stdlib or uv run --with.
 
-## Versioning — marketplace.json = plugin.json
-These must always be identical. Check before every commit.
+## Versioning — 2-field invariant + CHANGELOG
+plugin.json version == marketplace.json plugins[].version; CHANGELOG.md documents the
+current version. Verified by scripts/check_version_sync.sh.
 
 ## Source of truth for shared scripts
 If scripts are shared across plugins, pick ONE location as canonical.
 Never sync from external repos at runtime.
 
 ## Release cadence
-Manual release: bump → commit → push. No CI needed at this scale.
+Manual bump → commit → push; CI (check_version_sync.sh + deno check) runs on every PR and push.
 ```
 
 ---

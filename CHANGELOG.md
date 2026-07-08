@@ -19,6 +19,12 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   (`mail-triage`), weekly sprint review (`sprint-review`) and sprint planner
   (`sprint-planner`).
 
+## improve 0.1.3
+
+- Update the "Pour fixer (Archon)" checklist to the 2-field version invariant
+  (plugin.json / marketplace.json) + CHANGELOG entry + `check_version_sync.sh`,
+  replacing the retired 3-field rule that referenced `SKILL.md` frontmatter.
+
 ## improve 0.1.2
 
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
