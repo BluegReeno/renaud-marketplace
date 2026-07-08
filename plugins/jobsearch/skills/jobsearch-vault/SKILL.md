@@ -12,7 +12,6 @@ description: >
   "search my applications", "show my interviews", "mes candidatures actives" — and
   use as a shared library invoked by `log-application`, `interview-prep`, and
   `morning-briefing`.
-version: 0.4.0
 allowed-tools: "Bash Read"
 ---
 

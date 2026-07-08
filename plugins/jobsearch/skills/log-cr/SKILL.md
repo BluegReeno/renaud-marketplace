@@ -9,7 +9,6 @@ description: >
   hal task. Use when the user says "log CR", "compte-rendu entretien",
   "j'ai passé l'entretien", "retour d'entretien", "debrief entretien",
   "debrief <company>", "j'ai eu l'entretien avec", "log debrief".
-version: 0.8.0
 allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__update_task_status mcp__hal-mcp__create_task"
 ---
 

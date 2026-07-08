@@ -9,7 +9,6 @@ description: >
   ordered plan du jour. Use when the user asks "what's up for today",
   "ma journée", "briefing du jour", "quel est mon planning", or any similar
   daily-overview trigger.
-version: 0.8.0
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 

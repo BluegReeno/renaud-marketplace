@@ -6,7 +6,6 @@ description: >
   companies, and projects plus the Obsidian jobsearch vault, then classify each thread into
   domain-specific categories and recommend a concrete action per thread. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
-version: 0.8.0
 allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_contacts mcp__hal-mcp__list_companies mcp__hal-mcp__list_projects mcp__hal-mcp__list_tasks mcp__hal-mcp__list_sprints mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
 ---
 

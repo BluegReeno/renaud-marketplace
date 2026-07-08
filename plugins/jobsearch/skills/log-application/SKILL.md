@@ -12,7 +12,6 @@ description: >
   other tasks. Use when the user says "log application", "j'ai postulé",
   "candidature envoyée", "je viens de candidater", "track application",
   "log apply", or pastes a job offer with intent to file it.
-version: 0.7.0
 allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 

@@ -5,7 +5,6 @@ description: >
   and asks for a cover letter / lettre de motivation. Detects profile × company type from
   the offer (same 15-cell matrix as the CV generator) and produces a 3-paragraph letter
   anchored in real, verifiable experience. No boilerplate.
-version: 0.7.0
 allowed-tools: "Read mcp__claude_ai_gmail-mcp__draft_email Bash(python3 *)"
 ---
 
