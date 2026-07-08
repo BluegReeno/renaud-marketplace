@@ -28,4 +28,5 @@ jobs:
         with:
           deno-version: v2.x
       - name: Type check edge function
-        run: deno check servers/gmail-mcp/supabase/functions/gmail-mcp/index.ts
+        working-directory: servers/gmail-mcp/supabase/functions/gmail-mcp
+        run: deno check index.ts
