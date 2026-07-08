@@ -11,16 +11,16 @@ Powered by [hal](https://github.com/BluegReeno/hal) (CRM + morning briefing) and
 ```
 renaud-marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json          ← point d'entrée Cowork (top-level version = plugin le plus récemment publié)
+│   └── marketplace.json          ← point d'entrée Cowork (top-level version = compteur monotone, +0.0.1 par release)
 ├── plugins/
 │   ├── jobsearch/                ← plugin umbrella job search
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json       ← (VERSION ICI)
 │   │   ├── .mcp.json             ← déclaration serveur MCP (url + version MCP)
 │   │   ├── skills/
-│   │   │   ├── cv-generator/SKILL.md       ← (VERSION ICI dans le frontmatter)
-│   │   │   ├── log-application/SKILL.md    ← (VERSION ICI dans le frontmatter)
-│   │   │   ├── interview-prep/SKILL.md     ← (VERSION ICI dans le frontmatter)
+│   │   │   ├── cv-generator/SKILL.md       ← skill (pas de version dans le frontmatter)
+│   │   │   ├── log-application/SKILL.md    ← skill
+│   │   │   ├── interview-prep/SKILL.md     ← skill
 │   │   │   └── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (lib partagée)
 │   │   ├── commands/             ← slash commands (/log-application, /interview-prep)
 │   │   │   ├── log-application.md
@@ -36,7 +36,7 @@ renaud-marketplace/
 │       ├── .mcp.json             ← hal-mcp dédupliqué avec bluegreen-marketplace/plugins/hal
 │       ├── skills/
 │       │   └── morning-briefing/
-│       │       └── SKILL.md      ← (VERSION ICI dans le frontmatter)
+│       │       └── SKILL.md      ← skill (pas de version dans le frontmatter)
 │       ├── commands/
 │       │   └── briefing.md       ← slash command de déclenchement
 │       └── CHANGELOG.md
@@ -59,7 +59,7 @@ renaud-marketplace/
 plugins/<plugin>/
 ├── .claude-plugin/plugin.json   ← name + version (= entrée plugins[] de marketplace.json)
 ├── .mcp.json                    ← { "mcpServers": { "<name>": { "type":"http", "url":"...", "version":"..." } } }
-├── skills/<skill>/SKILL.md      ← frontmatter: name, version, description
+├── skills/<skill>/SKILL.md      ← frontmatter: name, description (pas de version)
 └── scripts/                     ← invoqués par SKILL.md via uv run --with
 ```
 

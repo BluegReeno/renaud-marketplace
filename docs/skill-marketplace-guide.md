@@ -94,7 +94,7 @@ my-marketplace/
 **Critical rule**: for each plugin, the `marketplace.json` `plugins[].version` entry must
 equal that plugin's `plugin.json` `version`. They are kept in sync manually at every release.
 Drift on the per-plugin entry breaks installs. (The top-level `marketplace.json` `version`
-is a separate "what's new" marker — see §5.)
+is a separate monotonic release counter — see §5.)
 
 ### plugin.json — the plugin manifest
 
@@ -119,7 +119,6 @@ name: my-skill
 description: >
   One sentence that Claude uses to decide when to load this skill.
   Good triggers: "when the user does X", "when file Y exists".
-version: 0.1.0
 allowed-tools: "Bash(uv *) Bash(python3 *) Read Write Edit"
 ---
 
@@ -175,12 +174,15 @@ manifest only — never executed at runtime.
 Each component tracks its version independently. This prevents false "breaking change"
 signals when only one piece changes.
 
+SKILL.md frontmatter no longer carries a `version:` field — a plugin's version
+lives at the plugin level only.
+
 | Component | Version field | File |
 |-----------|--------------|------|
 | Plugin | `"version"` | `plugins/my-plugin/.claude-plugin/plugin.json` |
-| Each skill | `version:` frontmatter | `plugins/my-plugin/skills/*/SKILL.md` |
 | MCP server | `"version"` | `plugins/my-plugin/.mcp.json` |
-| Marketplace | `"version"` | `.claude-plugin/marketplace.json` |
+| Marketplace (per plugin) | `plugins[].version` | `.claude-plugin/marketplace.json` |
+| Marketplace (top-level) | `"version"` | `.claude-plugin/marketplace.json` |
 
 ### Bump rules
 
@@ -188,11 +190,15 @@ signals when only one piece changes.
 - `MINOR` (`0.X+1.0`) — interface change: new required command, renamed CLI flag, new
   required JSON field, new observable behavior
 
-**Per release:**
+**Per release (the enforced 2-field invariant):**
 1. Bump each component that changed → its own PATCH or MINOR
 2. Plugin → always PATCH+1 once per release (regardless of how many components changed)
-3. Sync three fields per-plugin: `plugin.json` `version` === SKILL.md frontmatter `version:` === `marketplace.json` `plugins[].version` for that entry
-4. Top-level `marketplace.json` `version` tracks **the most-recently-released plugin** in the repo — it is a "what's new" marker, not a repo-wide synced field. When releasing a plugin whose version is lower than the previous top-level (e.g. shipping `briefing 0.1.0` after `jobsearch 0.2.0`), the top-level regresses on purpose; this is not drift.
+3. Sync **two fields** per-plugin: `plugin.json` `version` === `marketplace.json`
+   `plugins[].version` for that entry. `scripts/check_version_sync.sh` enforces this
+   (exit 1 on drift) and also fails if `CHANGELOG.md` lacks an entry for the current version.
+4. Top-level `marketplace.json` `version` is a **monotonic release counter** — bump it
+   `+0.0.1` on every release, independent of plugin version numbers. It only signals
+   Cowork that a new release exists; it is a process rule, not statically checked.
 
 ---
 
@@ -294,28 +300,29 @@ fi
 
 ---
 
-## 8. Release Process (Manual — No CI)
+## 8. Release Process (Manual bump + CI check)
 
-For a solo developer with ~1-2 releases per month, CI adds infrastructure overhead
-(PAT tokens, secrets, YAML maintenance) with minimal gain. Manual release is sufficient.
+Version bumps are made by hand at release time; CI (`.github/workflows/ci.yml`) then
+verifies the invariant on every push and pull request via `scripts/check_version_sync.sh`.
 
 ```bash
 # 1. Bump version in each modified component (see Versioning Policy)
 # 2. Bump plugin version in plugin.json
 # 3. Sync the per-plugin entry in marketplace.json (plugins[].version) to plugin.json
-# 4. Update the top-level marketplace.json version to track the plugin you're releasing
-# 5. Commit and push
+# 4. Add a `## <plugin> <version>` entry to CHANGELOG.md
+# 5. Bump the top-level marketplace.json version by +0.0.1 (monotonic counter)
+# 6. Commit and push
 git add plugins/my-plugin/.claude-plugin/plugin.json
-git add plugins/my-plugin/skills/my-skill/SKILL.md
-git add .claude-plugin/marketplace.json
+git add .claude-plugin/marketplace.json CHANGELOG.md
 git commit -m "chore(my-plugin): release vX.Y.Z"
 git push
 ```
 
-Before releasing: verify the per-plugin trio is identical — `plugin.json` `version`,
-SKILL.md frontmatter `version:`, and `marketplace.json` `plugins[].version` for that
-entry. The top-level `marketplace.json` `version` is a separate "what's new" marker
-(see §5) and tracks the plugin you're shipping; it may legitimately regress.
+Before releasing: verify the per-plugin pair is identical — `plugin.json` `version`
+and `marketplace.json` `plugins[].version` for that entry — and that `CHANGELOG.md`
+has an entry for the current version. `scripts/check_version_sync.sh` (run in CI)
+enforces both. The top-level `marketplace.json` `version` is a separate monotonic
+release counter (see §5): bump it `+0.0.1` on every release.
 
 ---
 
