@@ -6,7 +6,6 @@ description: >
   (myspy-kwiki), et persistance dans le workspace hal 'renaud'. Déclencher avec :
   "séance MySpy", "check-in hebdo", "on fait ma séance", "point perso de la semaine",
   "bilan psy de la semaine".
-version: 0.1.0
 allowed-tools: "mcp__hal-mcp__list_projects mcp__hal-mcp__update_project mcp__hal-mcp__log_interaction mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task mcp__hal-mcp__update_task_status Bash"
 ---
 

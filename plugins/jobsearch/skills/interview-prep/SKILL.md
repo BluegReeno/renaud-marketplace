@@ -10,7 +10,6 @@ description: >
   every interview presents one coherent profile. Use when the user says
   "prépare l'entretien", "interview prep", "préparation entretien", "je passe un
   entretien avec", "prep <company>", "interview avec".
-version: 0.4.2
 allowed-tools: "Skill(jobsearch-vault) Read mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
 ---
 
