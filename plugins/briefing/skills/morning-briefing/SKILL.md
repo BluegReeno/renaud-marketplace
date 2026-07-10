@@ -22,9 +22,29 @@ Any backend that is unreachable renders a loud `⚠️ <source> DOWN — <reason
 
 ---
 
+## Invocation modes — interactive vs `--headless`
+
+This skill runs in two modes. **Interactive** (default, no flag) is the full behaviour described in the steps below, run inside a live session with a human present. **`--headless`** is an explicit, unattended-safe mode for scheduled / `claude -p` runs (e.g. a nightly scheduler that has no one to answer prompts or validate output).
+
+`/briefing --headless` differs from interactive exactly as follows — every difference is a **visible** change in the rendered brief, never a silent one:
+
+| Aspect | Interactive (no flag) | `--headless` |
+|--------|-----------------------|--------------|
+| **Step 1h — CV fan-out** | Runs (spawns `cv-log-worker` sub-agents for 🔥 offers) | **Skipped entirely.** The brief renders the literal line `CV pre-generation: skipped (headless mode)` in the "CVs préparés ce run" section. Omission is visible, never silent. |
+| **Plan du jour** | Prompt the user to validate/modify before writing | Rendered with the `[proposé — non validé]` marker and **NOT written to hal**. |
+| **Daily-log writes (Step 4)** | Happen | **Still happen** — they are the whole point of the headless run. |
+| **Connector failure** (calendar, gmail, brightdata) | `⚠️ <source> DOWN — <reason>` line, run continues | Block states `<source>: UNAVAILABLE (<error>)`, run continues — visible degradation. |
+| **hal unreachable** | `hal:DOWN`, Steps 1a/1b/4 skipped, brief still renders | **ABORT with an error** — the daily-log write is the run's purpose, so a headless run with no hal has nothing to deliver. |
+
+The flag toggles only the five rows above. Everything else — sources pulled, block layout, scoring, ordering — is identical in both modes. Interactive behaviour is unchanged by the presence of this contract.
+
+---
+
 ## Step 0 — Pre-flight (probe every source before pulling)
 
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
+
+In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise an error; do not render a partial brief — see Invocation modes). Any **other** failing probe ⇒ its block renders `<source>: UNAVAILABLE (<error>)` instead of the interactive `⚠️ <source> DOWN` line, and the run continues.
 
 - **hal-mcp probe**: call `mcp__hal-mcp__whoami`. Expected: `renaud@bluegreen.ai` with workspaces including `blue-green` and `renaud`. On failure → mark `hal:DOWN <reason>`, skip Steps 1a, 1b, 4. If workspace slugs differ, fail loud with actual slugs.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures). On failure → mark `jobsearch:DOWN <reason>`, skip Step 1c.
@@ -191,6 +211,8 @@ Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score em
 
 ### 1h — CV fan-out (spawn sub-agents for 🔥 offers)
 
+**In `--headless` mode, skip this entire step** (no fan-out — see Invocation modes). Step 3 then renders the single `CV pre-generation: skipped (headless mode)` line for this block, keyed on the mode (not on an empty `cv_fanout_results[]`).
+
 Skip if there are no 🔥 offers after the Step 1g dedup pass.
 
 For each 🔥 offer **not already in the vault**, up to a **cap of 3 per run**, spawn one `cv-log-worker` sub-agent **in parallel** using the `Agent` tool:
@@ -213,9 +235,6 @@ Collect each sub-agent's result — one line per offer:
 - Failure: `ÉCHEC | <JOB_TITLE> — <COMPANY> | <reason>`
 
 Store these in `cv_fanout_results[]` for use in Step 3 rendering.
-
-<!-- TODO: verify in Cowork — sub-agent inherits MCP tools (hal-mcp, Gmail, BrightData) when spawned from a skill context. Bug #30280 indicates yes in skill context but unverified on Cowork desktop runtime specifically. -->
-<!-- TODO: verify in Cowork — Skill(cv-generator) callable from inside a sub-agent spawned by a skill (depth: skill → agent → skill). Bug #59968 was closed stale — retest on current Cowork version. -->
 
 ---
 
@@ -274,6 +293,8 @@ CVs préparés ce run :
 - ⚠️ ÉCHEC <JOB_TITLE> — <COMPANY> → <reason>
 (aucun CV généré — 0 offre 🔥 non loguée  /  or: ⚠️ cv-log-worker skipped — Step 1h cap atteint ou gmail-perso DOWN)
 
+**In `--headless` mode, replace this entire "CVs préparés ce run" block with the single line `CV pre-generation: skipped (headless mode)`** — the omission is visible, never silent (see Invocation modes).
+
 ## 🔄 Jobsearch — Process en cours
 - **<company>** (<role>) — stage : <vault stage>
   → Mail récent : <subject> [<date>] — <1-line summary>
@@ -317,7 +338,7 @@ Apply ordering rules in priority order:
 3. **Deep-work in open windows** — assign hal sprint tasks to remaining free slots, `[business]` (revenue-generating) before `[perso]`.
 4. **Revenue priority** — job + revenue tasks before admin before personal.
 
-If the briefing is a **scheduled/automated run** (not in a live session), mark the plan `[proposé — non validé]` and do NOT write it to hal. When run in a **live session**, prompt the user to validate or modify before writing.
+**Plan du jour write policy (flag-driven — see Invocation modes).** In **`--headless`** mode, mark the plan `[proposé — non validé]` and do NOT write it to hal. In **interactive** mode (no flag), prompt the user to validate or modify before writing.
 
 ---
 
