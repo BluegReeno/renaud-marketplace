@@ -13,6 +13,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.9.0
+
+- explicit --headless mode
+
 ## briefing 0.8.0
 
 - Daily morning briefing (`morning-briefing`), on-demand mail triage
