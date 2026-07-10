@@ -13,14 +13,6 @@
       "version": "0.8.3",
       "description": "Job search toolkit — CV generation and Gmail access for Renaud Laborbe",
       "source": "./plugins/jobsearch",
-      "skills": [
-        "./plugins/jobsearch/skills/cv-generator",
-        "./plugins/jobsearch/skills/cover-letter",
-        "./plugins/jobsearch/skills/log-application",
-        "./plugins/jobsearch/skills/interview-prep",
-        "./plugins/jobsearch/skills/log-cr",
-        "./plugins/jobsearch/skills/jobsearch-vault"
-      ],
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"
@@ -33,12 +25,6 @@
       "version": "0.9.0",
       "description": "Morning briefing, mail triage + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, 3 Google Calendars, both inboxes), on-demand mail classification with HAL CRM context, and weekly sprint review and planner",
       "source": "./plugins/briefing",
-      "skills": [
-        "./plugins/briefing/skills/morning-briefing",
-        "./plugins/briefing/skills/mail-triage",
-        "./plugins/briefing/skills/sprint-review",
-        "./plugins/briefing/skills/sprint-planner"
-      ],
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"
@@ -51,9 +37,6 @@
       "version": "0.2.0",
       "description": "Skill improvement capture — formalise une observation en GitHub Issue en ≤30s depuis Cowork",
       "source": "./plugins/improve",
-      "skills": [
-        "./plugins/improve/skills/improve"
-      ],
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"
@@ -66,9 +49,6 @@
       "version": "0.1.0",
       "description": "Personal weekly self-reflection check-in — CBT/SFBT-based structured session with a private OKF knowledge base",
       "source": "./plugins/myspy",
-      "skills": [
-        "./plugins/myspy/skills/myspy"
-      ],
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"
