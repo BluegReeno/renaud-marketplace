@@ -19,6 +19,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   (`mail-triage`), weekly sprint review (`sprint-review`) and sprint planner
   (`sprint-planner`).
 
+## improve 0.2.0
+
+- generated skill→repo map
+
 ## improve 0.1.3
 
 - Update the "Pour fixer (Archon)" checklist to the 2-field version invariant

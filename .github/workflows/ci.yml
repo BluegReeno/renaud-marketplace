@@ -17,6 +17,12 @@ jobs:
           python-version: "3.12"
       - name: Check plugin version invariant
         run: bash scripts/check_version_sync.sh
+      - name: Check /improve map is up to date
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/generate_improve_map.py
+          git diff --exit-code
 
   deno-check:
     name: Deno type check (gmail-mcp)

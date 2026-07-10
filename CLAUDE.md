@@ -44,13 +44,17 @@ Prefer stdlib (`json`, `pathlib`, `urllib`, `re`). Only use `--with` for unavoid
 ### Versioning — bump on every functional change
 Cowork detects updates via version number. Without a bump, installed users never get the fix.
 
-**On every commit that changes plugin behaviour (scripts, templates, SKILL.md, data):**
+**Prefer `scripts/release.sh <plugin> <version> "<changelog line>"`** — it performs steps 1–4 below in one validated pass and commits (never pushes). Do the steps by hand only when deviating from the standard release.
+
+**After adding or renaming a skill, run `python3 scripts/generate_improve_map.py`** to regenerate the `/improve` skill→plugin→repo table; CI rejects a stale table.
+
+**What a release does (steps 1–4, on every commit that changes plugin behaviour — scripts, templates, SKILL.md, data):**
 1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH (`0.x.Y+1`) for fixes, MINOR (`0.X+1.0`) for new behaviour
 2. Sync `.claude-plugin/marketplace.json` **plugin entry** `version` (`plugins[name].version`) to the same value
 3. Add a `## <plugin> <version>` entry to `CHANGELOG.md` for the new version
 4. Bump `.claude-plugin/marketplace.json` **top-level** `version` by one PATCH (`+0.0.1`) — monotonic counter incremented on every release, independent of plugin version numbers
 
-The two enforced per-plugin fields (plugin.json · marketplace plugin entry) must be identical after the bump, and `CHANGELOG.md` must document the current version. `scripts/check_version_sync.sh` enforces this (exit 1 on drift). SKILL.md frontmatter no longer carries `version:` — drift there used to be untracked. Drift in the enforced fields breaks Cowork updates.
+The two enforced per-plugin fields (plugin.json · marketplace plugin entry) must be identical after the bump, and `CHANGELOG.md` must document the current version. `scripts/check_version_sync.sh` enforces this (exit 1 on drift) — `release.sh` runs it before committing. SKILL.md frontmatter no longer carries `version:` — drift there used to be untracked. Drift in the enforced fields breaks Cowork updates.
 
 ### Plugin directory resolver in every SKILL.md
 Every SKILL.md that invokes a script must resolve `PLUGIN_DIR` via the standard priority-ordered resolver (env var → marketplace cache → Cowork sandbox → dev path). See `docs/skill-marketplace-guide.md` §7.

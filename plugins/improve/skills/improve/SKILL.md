@@ -66,23 +66,33 @@ normal et continue avec les réponses.
 ### Skill → plugin → repo lookup
 
 À partir de la phrase de Renaud, identifie le skill mentionné et déduis le
-plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées) :
+plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 
-| Skill                         | Plugin   | Repo                  |
-|-------------------------------|----------|-----------------------|
-| morning-briefing              | briefing | renaud-marketplace    |
-| sprint-planner                | briefing | renaud-marketplace    |
-| sprint-review                 | briefing | renaud-marketplace    |
-| cv-generator                  | jobsearch | renaud-marketplace   |
-| cover-letter                  | jobsearch | renaud-marketplace   |
-| log-application               | jobsearch | renaud-marketplace   |
-| interview-prep                | jobsearch | renaud-marketplace   |
-| jobsearch-vault               | jobsearch | renaud-marketplace   |
-| improve                       | improve  | renaud-marketplace    |
-| hal                           | hal      | bluegreen-marketplace |
-| edifice                       | hal      | bluegreen-marketplace |
-| blue-green-proposal-generator | hal      | bluegreen-marketplace |
-| document-generator            | hal      | bluegreen-marketplace |
+> **Tableau généré** — ne pas éditer à la main. Régénéré par
+> `scripts/generate_improve_map.py` (CI le vérifie contre toute dérive).
+
+<!-- improve-map:start -->
+
+| Skill            | Plugin    | Repo                  |
+|------------------|-----------|-----------------------|
+| mail-triage      | briefing  | renaud-marketplace    |
+| morning-briefing | briefing  | renaud-marketplace    |
+| sprint-planner   | briefing  | renaud-marketplace    |
+| sprint-review    | briefing  | renaud-marketplace    |
+| improve          | improve   | renaud-marketplace    |
+| cover-letter     | jobsearch | renaud-marketplace    |
+| cv-generator     | jobsearch | renaud-marketplace    |
+| interview-prep   | jobsearch | renaud-marketplace    |
+| jobsearch-vault  | jobsearch | renaud-marketplace    |
+| log-application  | jobsearch | renaud-marketplace    |
+| log-cr           | jobsearch | renaud-marketplace    |
+| myspy            | myspy     | renaud-marketplace    |
+| crm              | hal       | bluegreen-marketplace |
+| edifice          | hal       | bluegreen-marketplace |
+| linkedin         | hal       | bluegreen-marketplace |
+| pm               | hal       | bluegreen-marketplace |
+
+<!-- improve-map:end -->
 
 Le chemin du SKILL.md est toujours :
 `plugins/<plugin>/skills/<skill>/SKILL.md`

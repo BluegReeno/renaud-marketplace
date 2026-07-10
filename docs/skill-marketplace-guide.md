@@ -300,10 +300,26 @@ fi
 
 ---
 
-## 8. Release Process (Manual bump + CI check)
+## 8. Release Process (one command + CI check)
 
-Version bumps are made by hand at release time; CI (`.github/workflows/ci.yml`) then
-verifies the invariant on every push and pull request via `scripts/check_version_sync.sh`.
+Use the release orchestrator — it performs the whole bump in one validated pass and
+commits (it never pushes, merges, or tags; you do that after review):
+
+```bash
+./scripts/release.sh <plugin> <new-version> "<changelog line>" [--mcp-version <v>]
+# e.g. ./scripts/release.sh improve 0.2.0 "generated skill→repo map"
+```
+
+It bumps `plugin.json`, syncs the `marketplace.json` plugin entry, inserts the
+`CHANGELOG.md` entry, bumps the top-level monotonic counter, runs
+`check_version_sync.sh`, and commits — all validation runs *before* any file is
+written, so a failed check leaves the tree clean.
+
+CI (`.github/workflows/ci.yml`) then verifies the invariant on every push and pull
+request via `scripts/check_version_sync.sh`, and re-runs `scripts/generate_improve_map.py`
+with `git diff --exit-code` to reject a stale `/improve` table.
+
+**Under the hood** — what `release.sh` does by hand, if you ever need to bump manually:
 
 ```bash
 # 1. Bump version in each modified component (see Versioning Policy)
