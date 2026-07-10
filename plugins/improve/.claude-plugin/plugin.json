@@ -1,6 +1,6 @@
 {
   "name": "improve",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Skill improvement capture — formalise une observation en GitHub Issue en ≤30s depuis Cowork",
   "author": {
     "name": "Renaud Laborbe",

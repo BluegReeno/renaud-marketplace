@@ -56,6 +56,8 @@ Il NE force PAS un bump du plugin — sauf si l'interface MCP change.
   → Oui : bump MINOR dans les 2 champs du plugin concerné
 □ Les 2 versions du plugin sont-elles identiques ?
   → grep -E '"version"' .claude-plugin/marketplace.json plugins/<plugin>/.claude-plugin/plugin.json
+□ Ai-je ajouté ou renommé un skill ?
+  → Oui : lancer `python3 scripts/generate_improve_map.py` (régénère le tableau /improve)
 □ Ai-je ajouté l'entrée `## <plugin> <version>` dans CHANGELOG.md ?
 □ Ai-je incrémenté le `version` top-level de marketplace.json d'un PATCH (+0.0.1) ?
   (compteur monotone — toujours +0.0.1 à chaque release, indépendant des versions plugins)
