@@ -24,6 +24,18 @@ jobs:
           python3 scripts/generate_improve_map.py
           git diff --exit-code
 
+  marketplace-schema:
+    name: Marketplace schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate marketplace.json schema and paths
+        run: bash scripts/check_marketplace_schema.sh
+
   deno-check:
     name: Deno type check (gmail-mcp)
     runs-on: ubuntu-latest
