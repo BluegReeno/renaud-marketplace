@@ -36,6 +36,18 @@ jobs:
       - name: Validate marketplace.json schema and paths
         run: bash scripts/check_marketplace_schema.sh
 
+  test-generate-improve-map:
+    name: Offline tests — generate_improve_map.py
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline tests
+        run: python3 scripts/test_generate_improve_map.py
+
   deno-check:
     name: Deno type check (gmail-mcp)
     runs-on: ubuntu-latest
