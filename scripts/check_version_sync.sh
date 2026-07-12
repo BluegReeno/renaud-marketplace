@@ -60,6 +60,63 @@ print(entry['version'] if entry else 'NOT_FOUND')
   fi
 done
 
+# Invariant 3: every SKILL.md must have required frontmatter fields.
+#   - name:          must match the skill folder name
+#   - description:   must be present
+#   - allowed-tools: must be present
+echo ""
+echo "--- SKILL.md frontmatter ---"
+for skill_md in "$REPO_ROOT"/plugins/*/skills/*/SKILL.md; do
+  skill_dir="$(dirname "$skill_md")"
+  skill_folder="$(basename "$skill_dir")"
+  plugin_folder="$(basename "$(dirname "$(dirname "$skill_dir")")")"
+  label="[$plugin_folder/$skill_folder]"
+
+  result="$(python3 - "$skill_md" "$skill_folder" <<'PYEOF'
+import re, sys
+
+path, expected_name = sys.argv[1], sys.argv[2]
+content = open(path).read()
+
+# Extract frontmatter between first pair of --- delimiters
+m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+if not m:
+    print(f"NO_FRONTMATTER")
+    sys.exit(0)
+
+fm = m.group(1)
+errors = []
+
+name_m = re.search(r'^name:\s*(\S+)', fm, re.MULTILINE)
+if not name_m:
+    errors.append("missing 'name:'")
+elif name_m.group(1).strip() != expected_name:
+    errors.append(f"name='{name_m.group(1).strip()}' does not match folder '{expected_name}'")
+
+if not re.search(r'^description:', fm, re.MULTILINE):
+    errors.append("missing 'description:'")
+
+if not re.search(r'^allowed-tools:', fm, re.MULTILINE):
+    errors.append("missing 'allowed-tools:'")
+
+print("|".join(errors) if errors else "OK")
+PYEOF
+)"
+
+  if [ "$result" = "OK" ]; then
+    echo "OK       $label"
+  elif [ "$result" = "NO_FRONTMATTER" ]; then
+    echo "MISSING  $label frontmatter block (--- delimiters) not found"
+    ERRORS=$((ERRORS + 1))
+  else
+    IFS='|' read -ra errs <<< "$result"
+    for err in "${errs[@]}"; do
+      echo "INVALID  $label $err"
+      ERRORS=$((ERRORS + 1))
+    done
+  fi
+done
+
 if [ "$ERRORS" -gt 0 ]; then
   echo ""
   echo "FAIL: $ERRORS invariant violation(s)."
@@ -67,4 +124,4 @@ if [ "$ERRORS" -gt 0 ]; then
 fi
 
 echo ""
-echo "OK: plugin.json/marketplace.json in sync; CHANGELOG.md documents all current versions."
+echo "OK: plugin.json/marketplace.json in sync; CHANGELOG.md documents all current versions; SKILL.md frontmatter valid."
