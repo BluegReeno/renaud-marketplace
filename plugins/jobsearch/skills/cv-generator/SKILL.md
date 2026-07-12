@@ -430,7 +430,7 @@ No exceptions.
 
 **P3 — CTO**: Open Ocean IS the proof (start to exit). Must show current stack is live (BWC v2.2). For T5: velocity + team-building combo. For T1: scaling experience, fundraising, technical maturity.
 
-**P4 — CS/FDE**: "Was the customer before being the FDE" — 15 years on the industrial-client side. Full cycle: discovery → demo → POC → production handover → autonomous use.
+**P4 — CS/FDE**: 15 years in energy/offshore/engineering as **founder & builder**, carrying the full client cycle **from the vendor side** — onboarding (Open Ocean: DCNS, RTE, SBM Offshore), renewals & expansion (Artelia: ASN, Nexans, Cadeler), GenAI deployment (Blue Green: EnBW France, Valorem). He knows what the industrial operator buys, integrates, and expects, because he has delivered it to them.
 
 **P5 — Sales/BizDev**: Technical enough to run live demos and scope with engineering teams. For T5: builds with the product he sells (uses Claude/Mistral daily in production).
 
