@@ -87,7 +87,7 @@ if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
   die "working tree is dirty — commit or stash before releasing"
 fi
 
-CURRENT_VERSION="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['version'])" "$PLUGIN_JSON" 2>/dev/null)" \
+CURRENT_VERSION="$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['version'])" "$PLUGIN_JSON")" \
   || die "cannot read 'version' from $PLUGIN_JSON"
 
 # New version must be a valid X.Y.Z (three-part numeric) and strictly greater

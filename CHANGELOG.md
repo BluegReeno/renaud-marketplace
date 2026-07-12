@@ -7,15 +7,23 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## jobsearch 0.8.4
+
+- Fix P4 narrative in `cv-generator`: replace false "was the customer" framing with accurate founder/builder-on-vendor-side framing (15 years energy/offshore/engineering delivering to industrial clients).
+
 ## jobsearch 0.8.3
 
 - CV generation (`cv-generator`), cover letters (`cover-letter`), application
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
-## briefing 0.9.1
+## briefing 0.9.2
 
 - fix(cv-log-worker): comp gate — reject offers with an explicit salary below the 80k€ floor (closes #44)
+
+## briefing 0.9.1
+
+- sprint-review: compute week day names programmatically (Python) to prevent wrong day labels (e.g. "Ven 11/07" when 11/07 is Saturday)
 
 ## briefing 0.9.0
 

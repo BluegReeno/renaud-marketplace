@@ -16,6 +16,32 @@ allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__li
 
 Tu es le copilote de Renaud Laborbe. Ta mission : faire le bilan honnête du sprint, mesurer les métriques jobsearch, identifier les patterns à corriger, préparer la shortlist pour la semaine suivante. Ton direct, sans complaisance, sans flatterie.
 
+## PRÉCALCUL — Dates et jours vérifiés (silencieux, exécuter en premier)
+
+**Avant toute autre action**, exécuter ce bloc pour obtenir les labels dates+jours vérifiés :
+
+```bash
+python3 -c "
+from datetime import date, timedelta
+today = date.today()
+curr_mon = today - timedelta(days=today.weekday())
+next_mon = curr_mon + timedelta(weeks=1)
+jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+for i in range(5):
+    d = curr_mon + timedelta(days=i)
+    print(f'CURR_D{i}_ISO={d.strftime(\"%Y-%m-%d\")}')
+    print(f'CURR_D{i}_LABEL={jours[i]} {d.strftime(\"%d/%m\")}')
+for i in range(5):
+    d = next_mon + timedelta(days=i)
+    print(f'NEXT_D{i}_ISO={d.strftime(\"%Y-%m-%d\")}')
+    print(f'NEXT_D{i}_LABEL={jours[i]} {d.strftime(\"%d/%m\")}')
+"
+```
+
+Capturer la sortie. **Règle absolue : ne jamais inférer un nom de jour.** Utiliser exclusivement les valeurs calculées ci-dessus :
+- Semaine courante : `CURR_D0_LABEL` (lundi) … `CURR_D4_LABEL` (vendredi) pour les affichages ; `CURR_D0_ISO` … `CURR_D4_ISO` pour les appels API.
+- Semaine S+1 : `NEXT_D0_LABEL` (lundi) … `NEXT_D4_LABEL` (vendredi) pour les affichages ; `NEXT_D0_ISO` … `NEXT_D4_ISO` pour les appels API.
+
 ## Contexte permanent
 
 - **hal-mcp** = source de vérité pour les tâches et sprints.
@@ -71,7 +97,7 @@ Calculer par workspace :
 Afficher :
 
 ```
-## Bilan Sprint [N] — Semaine du [date_lundi]–[date_vendredi]
+## Bilan Sprint [N] — Semaine du $CURR_D0_LABEL–$CURR_D4_LABEL
 
 ### Blue Green [business] — X/Y terminées (Z%)
 ✅ [titre]
@@ -231,25 +257,25 @@ mcp__hal-mcp__list_tasks(workspace_slug="renaud")      → filtrer non terminée
 
 mcp__claude_ai_Google_Calendar__list_events(
   calendarId="renaud@bluegreen.ai",
-  timeMin="[lundi_prochain]T00:00:00+02:00",
-  timeMax="[vendredi_prochain]T23:59:59+02:00"
+  timeMin="$NEXT_D0_ISOT00:00:00+02:00",
+  timeMax="$NEXT_D4_ISOT23:59:59+02:00"
 )
 mcp__claude_ai_Google_Calendar__list_events(
   calendarId="rlaborbe@gmail.com",
-  timeMin="[lundi_prochain]T00:00:00+02:00",
-  timeMax="[vendredi_prochain]T23:59:59+02:00"
+  timeMin="$NEXT_D0_ISOT00:00:00+02:00",
+  timeMax="$NEXT_D4_ISOT23:59:59+02:00"
 )
 mcp__claude_ai_Google_Calendar__list_events(
   calendarId="hah0feg81cofndkov7derd6g00@group.calendar.google.com",
-  timeMin="[lundi_prochain]T00:00:00+02:00",
-  timeMax="[vendredi_prochain]T23:59:59+02:00"
+  timeMin="$NEXT_D0_ISOT00:00:00+02:00",
+  timeMax="$NEXT_D4_ISOT23:59:59+02:00"
 )
 ```
 
 Afficher la shortlist avec les relances dues et les entretiens détectés via jobsearch-vault :
 
 ```
-## Shortlist sprint suivant — semaine du [lundi_prochain]
+## Shortlist sprint suivant — semaine du $NEXT_D0_LABEL
 
 🔴 MUST (revenus + engagement pris)
 - [ ] [Entretien prévu semaine prochaine — depuis jobsearch-vault]
@@ -296,7 +322,7 @@ mcp__hal-mcp__save_document(
   slug="sprint-review-[sprint_number_rn]",
   domain="jobsearch",
   kind="sprint_review",
-  title="Sprint Review [N] — Semaine du [date_lundi]",
+  title="Sprint Review [N] — Semaine du $CURR_D0_LABEL",
   content_md="[bilan résumé : score sprint, métriques jobsearch, shortlist, décisions prises]"
 )
 ```

@@ -319,6 +319,25 @@ CI (`.github/workflows/ci.yml`) then verifies the invariant on every push and pu
 request via `scripts/check_version_sync.sh`, and re-runs `scripts/generate_improve_map.py`
 with `git diff --exit-code` to reject a stale `/improve` table.
 
+> **Cross-repo dependency — keep `bluegreen-marketplace` public**
+>
+> `generate_improve_map.py` fetches the sibling repo `BluegReeno/bluegreen-marketplace`
+> via `gh api repos/BluegReeno/bluegreen-marketplace/...` (GitHub Contents API). CI injects
+> the auto-generated `GITHUB_TOKEN` scoped to this repo; that token can read **public** repos
+> but cannot access a private one.
+>
+> If `bluegreen-marketplace` is ever privatized, the `gh api` call returns 404/403 and
+> the script exits non-zero, breaking CI in this repo with a `gh api ... failed` error.
+> The break is explicit, but the cause is non-obvious without this note.
+>
+> **Mitigation if privatization is needed**: store a GitHub PAT (with `repo` read scope on
+> `bluegreen-marketplace`) as a repository secret (e.g. `BG_MARKETPLACE_TOKEN`) and update
+> the CI step:
+> ```yaml
+> env:
+>   GH_TOKEN: ${{ secrets.BG_MARKETPLACE_TOKEN }}
+> ```
+
 **Under the hood** — what `release.sh` does by hand, if you ever need to bump manually:
 
 ```bash
