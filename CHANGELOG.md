@@ -13,6 +13,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.9.1
+
+- fix(cv-log-worker): comp gate — skip offers >10% under 90k€ target (closes #44)
+
 ## briefing 0.9.0
 
 - explicit --headless mode
