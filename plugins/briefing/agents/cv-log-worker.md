@@ -2,7 +2,7 @@
 name: cv-log-worker
 description: >
   Fan-out worker spawned by morning-briefing for a single 🔥 job offer.
-  Checks compensation against the 90k€ target (rejects if >10% under lower bound).
+  Checks compensation against an 80k€ floor (rejects only if an explicit figure is below 80k€).
   Generates a 1-page PDF CV via cv-generator, then logs the application
   via log-application with status "📝 À postuler" and auto-detected source
   from the email sender. Returns a one-line summary.
@@ -47,10 +47,8 @@ Set `source_detail` to the sender name or domain extracted from `SENDER_EMAIL`
 ## Step A.5 — Comp gate (salary filter)
 
 > **Constants:**
-> `TARGET_COMP = 90 000 €` · `TOLERANCE = 5 %` (±5 %) · `GATE_THRESHOLD = 10 %`
-> Lower bound = 90 000 × 0.95 = **85 500 €**
-> Rejection threshold = 85 500 × 0.90 = **76 950 €**
-> Reject only if an explicit compensation figure is found AND is below 76 950 €.
+> `TARGET_COMP = 90 000 €` (target package — display only) · `COMP_FLOOR = 80 000 €` (rejection floor)
+> Reject only if an explicit compensation figure is found AND is below **80 000 €**.
 > Never block when compensation is unknown.
 
 ### A.5.1 — Extract compensation from JD_TEXT
@@ -62,9 +60,9 @@ Scan `JD_TEXT` for any of these patterns (case-insensitive):
 - Annuals: `X € brut annuel`, `X €/year`, `X k€ annuels`
 - OTE: `X k€ OTE`, `up to X€ OTE` — treat as the total package (it's variable)
 
-**Extraction rule:** use the **lower bound** of any range, or the stated figure if single.
+**Extraction rule:** use the **upper bound** of any range, or the stated figure if single.
 For OTE, use the stated figure directly (it's already a variable ceiling).
-If multiple figures found, use the **lowest** (most conservative).
+If multiple figures found, use the **highest** (avoid rejecting a negotiable offer).
 
 Convert `k€` or `K€` or `K EUR` → × 1000.
 
@@ -84,14 +82,14 @@ If `COMP_FOUND` is still null AND `JOB_URL` is non-empty:
 | Condition | Action |
 |-----------|--------|
 | `COMP_FOUND` is null | **Continue** → proceed to Step B |
-| `COMP_FOUND` ≥ 76 950 € | **Continue** → proceed to Step B |
-| `COMP_FOUND` < 76 950 € | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
+| `COMP_FOUND` ≥ 80 000 € | **Continue** → proceed to Step B |
+| `COMP_FOUND` < 80 000 € | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
 
 **If rejected**, return immediately (do not proceed to Steps B or C):
 ```
 ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible 90k | écart <N>%
 ```
-Where `<N>%` = `round((85500 - COMP_FOUND) / 85500 × 100)`.
+Where `<N>%` = `round((90000 - COMP_FOUND) / 90000 × 100)` (gap vs the 90 k€ target).
 
 ## Step B — Generate the CV
 

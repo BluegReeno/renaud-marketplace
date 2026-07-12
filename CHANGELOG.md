@@ -15,7 +15,7 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 
 ## briefing 0.9.1
 
-- fix(cv-log-worker): comp gate — skip offers >10% under 90k€ target (closes #44)
+- fix(cv-log-worker): comp gate — reject offers with an explicit salary below the 80k€ floor (closes #44)
 
 ## briefing 0.9.0
 
