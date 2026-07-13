@@ -17,6 +17,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.9.2
+
+- fix(cv-log-worker): comp gate — reject offers with an explicit salary below the 80k€ floor (closes #44)
+
 ## briefing 0.9.1
 
 - sprint-review: compute week day names programmatically (Python) to prevent wrong day labels (e.g. "Ven 11/07" when 11/07 is Saturday)
