@@ -2,18 +2,19 @@
 name: cv-log-worker
 description: >
   Fan-out worker spawned by morning-briefing for a single 🔥 job offer.
+  Checks compensation against an 80k€ floor (rejects only if an explicit figure is below 80k€).
   Generates a 1-page PDF CV via cv-generator, then logs the application
   via log-application with status "📝 À postuler" and auto-detected source
   from the email sender. Returns a one-line summary.
   Spawned in parallel (up to 3 per briefing run). Never auto-applies,
   never sends messages, never generates cover letters.
-allowed-tools: "Skill(cv-generator) Skill(log-application)"
+allowed-tools: "WebFetch Skill(cv-generator) Skill(log-application)"
 ---
 
 # CV Log Worker — Sub-agent Instructions
 
 You are a focused sub-agent spawned by `morning-briefing` to handle exactly **one** 🔥 job offer.
-Do two things in order: generate the CV, then log the application. Nothing else.
+Run the comp gate first, then generate the CV, then log the application. Nothing else.
 
 ## Inputs
 
@@ -42,6 +43,53 @@ Map `SENDER_EMAIL` to `source` using this table:
 
 Set `source_detail` to the sender name or domain extracted from `SENDER_EMAIL`
 (e.g. `"LinkedIn Job Alerts"` or the cabinet name). Omit if not identifiable.
+
+## Step A.5 — Comp gate (salary filter)
+
+> **Constants:**
+> `TARGET_COMP = 90 000 €` (target package — display only) · `COMP_FLOOR = 80 000 €` (rejection floor)
+> Reject only if an explicit compensation figure is found AND is below **80 000 €**.
+> Never block when compensation is unknown.
+
+### A.5.1 — Extract compensation from JD_TEXT
+
+Scan `JD_TEXT` for any of these patterns (case-insensitive):
+
+- Ranges: `X–Y k€`, `X to Y €/an`, `X–Y K EUR`, `X-Y €`
+- Caps / maximums: `up to X k€`, `jusqu'à X €`, `max X€`
+- Annuals: `X € brut annuel`, `X €/year`, `X k€ annuels`
+- OTE: `X k€ OTE`, `up to X€ OTE` — treat as the total package (it's variable)
+
+**Extraction rule:** use the **upper bound** of any range, or the stated figure if single.
+For OTE, use the stated figure directly (it's already a variable ceiling).
+If multiple figures found, use the **highest** (avoid rejecting a negotiable offer).
+
+Convert `k€` or `K€` or `K EUR` → × 1000.
+
+Set `COMP_FOUND` = extracted figure in € (integer), or `null` if nothing found.
+
+### A.5.2 — Fallback web search (only if COMP_FOUND is null)
+
+**Skip this step** if `JD_TEXT` appears complete: length > 500 characters AND contains
+at least one of `Responsibilities`, `Requirements`, `Missions`, `Profil`, `About the role`.
+
+If `COMP_FOUND` is still null AND `JOB_URL` is non-empty:
+- Call `WebFetch(JOB_URL)` and re-run extraction on the fetched content.
+- Update `COMP_FOUND` if a figure is found. Otherwise leave `null`.
+
+### A.5.3 — Decision
+
+| Condition | Action |
+|-----------|--------|
+| `COMP_FOUND` is null | **Continue** → proceed to Step B |
+| `COMP_FOUND` ≥ 80 000 € | **Continue** → proceed to Step B |
+| `COMP_FOUND` < 80 000 € | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
+
+**If rejected**, return immediately (do not proceed to Steps B or C):
+```
+ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible 90k | écart <N>%
+```
+Where `<N>%` = `round((90000 - COMP_FOUND) / 90000 × 100)` (gap vs the 90 k€ target).
 
 ## Step B — Generate the CV
 
@@ -96,3 +144,4 @@ CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | 
 - **Status is `📝 À postuler`** — NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
 - **One offer only.** You handle exactly the one offer described in your prompt. No iteration over other offers.
 - **Fail loud, not silent.** If either step fails, report it clearly in Step D — never return a silent success.
+- **Unknown compensation = continue.** Never reject an offer solely because the salary is not mentioned.
