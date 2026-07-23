@@ -9,7 +9,7 @@ description: >
   hal task. Use when the user says "log CR", "compte-rendu entretien",
   "j'ai passé l'entretien", "retour d'entretien", "debrief entretien",
   "debrief <company>", "j'ai eu l'entretien avec", "log debrief".
-allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__update_task_status mcp__hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log CR — Skill Instructions
@@ -131,9 +131,9 @@ Ask `jobsearch-vault` to update the candidature note (`update_frontmatter`) sett
 
 The prep task was created by `interview-prep` with title `"Entretien <type_entretien> — <Entreprise> — <DD-MM-YYYY>"`.
 
-**Find it:** `mcp__hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Search the result for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
+**Find it:** `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Search the result for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
 
-- **Found** → `mcp__hal-mcp__update_task_status(workspace_slug="renaud", task_id=<id>, status="done")`.
+- **Found** → `mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="renaud", task_id=<id>, status="done")`.
 - **Not found** → silently skip (already closed, or never created — both are normal).
 - **`update_task_status` fails** → prepend to the Step 9 report and continue:
 
@@ -143,16 +143,16 @@ The prep task was created by `interview-prep` with title `"Entretien <type_entre
 
 ## Step 8 — Create the post-interview relance hal task
 
-**Idempotency:** call `mcp__hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
+**Idempotency:** call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
 
 ```
 ⚠️ idempotency pre-check failed (<error>) — attempting create; may duplicate if already present.
 ```
 
-Invoke `mcp__hal-mcp__create_task` exactly once:
+Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once:
 
 ```
-mcp__hal-mcp__create_task(
+mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug = "renaud",
   title          = "Relance — <Entreprise> — <YYYY-MM-DD entretien>",
   description    = "Relance post-entretien <type_entretien> avec <Interlocuteurs>. CR : CRM-JobSearch/Entretiens/CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>.md",

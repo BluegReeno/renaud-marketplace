@@ -22,7 +22,7 @@ Le pattern retenu (inspiré de ClawMem) : **un daily log par workspace par jour*
 1. **Step 0 étendu** : avant de générer le brief, lire le daily log de la veille pour chaque workspace (contexte cross-session).
 2. **Step 4 nouveau** : après le rendu du brief, écrire un daily log structuré dans HAL pour chaque workspace concerné (`blue-green` et `renaud`).
 3. **Contrainte READ-ONLY levée** : le skill écrit maintenant deux documents en fin d'exécution. C'est la seule mutation autorisée — aucune autre écriture hal/calendar.
-4. **`allowed-tools` mis à jour** : ajout de `mcp__hal-mcp__get_document` et `mcp__hal-mcp__save_document`.
+4. **`allowed-tools` mis à jour** : ajout de `mcp__plugin_hal_hal-mcp__get_document` et `mcp__plugin_hal_hal-mcp__save_document`.
 
 ## Convention daily log
 
@@ -117,7 +117,7 @@ HH:MM — <événement> [perso|famille]
 
 ```yaml
 version: 0.5.0
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault)"
 ```
 
 #### 1b — Ajouter Step 0.5 — Lecture des daily logs de la veille
@@ -195,7 +195,7 @@ Renommer l'actuel "Step 4 — Constraints" en "Step 5 — Constraints" et modifi
 ## Acceptance Criteria
 
 - [ ] `version: 0.5.0` dans le frontmatter SKILL.md
-- [ ] `mcp__hal-mcp__get_document` et `mcp__hal-mcp__save_document` dans `allowed-tools`
+- [ ] `mcp__plugin_hal_hal-mcp__get_document` et `mcp__plugin_hal_hal-mcp__save_document` dans `allowed-tools`
 - [ ] Après exécution du skill : `get_document(workspace_slug="blue-green", slug="daily-log-<aujourd'hui>")` retourne un doc `domain="memory"`, `kind="daily-log"` avec les tâches BG du sprint
 - [ ] Idem pour `workspace_slug="renaud"` avec tâches groupées par tag
 - [ ] Si hal:DOWN → brief rendu normalement, Step 4 skippé, aucune erreur non-gérée

@@ -12,7 +12,7 @@ description: >
   other tasks. Use when the user says "log application", "j'ai postulé",
   "candidature envoyée", "je viens de candidater", "track application",
   "log apply", or pastes a job offer with intent to file it.
-allowed-tools: "Skill(jobsearch-vault) mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log Application — Skill Instructions
@@ -135,16 +135,16 @@ Adding `target_profile` to the global schema is out of scope for this skill — 
 
 The relance lives in hal (`renaud` workspace), not the Obsidian vault. This makes it accessible from any instance (mobile, Codex, Dust) consistent with all other tasks.
 
-**Idempotency on re-apply.** Before creating, call `mcp__hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists. Match on title equality (not substring). If found, skip creation — the relance is already tracked.
+**Idempotency on re-apply.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists. Match on title equality (not substring). If found, skip creation — the relance is already tracked.
 
 **If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
 `⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
 Then apply the standard failure handling below if `create_task` also fails.
 
-Invoke `mcp__hal-mcp__create_task` exactly once with:
+Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 
 ```
-mcp__hal-mcp__create_task(
+mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug = "renaud",
   title          = "Relance — <Entreprise> — <YYYY-MM-DD candidature>",
   description    = "Relance — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
@@ -155,7 +155,7 @@ mcp__hal-mcp__create_task(
 
 No `sprint_id` — jobsearch tasks track tags, not sprints; `/briefing` falls back to open tasks when no active sprint is set on the workspace.
 
-**Failure handling.** If `mcp__hal-mcp__create_task` fails (non-zero / exception) but Step 3 succeeded, the vault is in a **half-state**: the candidature note exists, the relance task does not, `/briefing` will silently miss the relance. Report explicitly:
+**Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 3 succeeded, the vault is in a **half-state**: the candidature note exists, the relance task does not, `/briefing` will silently miss the relance. Report explicitly:
 
 ```
 ⚠️  Half-state — candidature loguée, relance NON créée dans hal.
@@ -188,7 +188,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__hal-mcp__create_task` for the hal relance task — do not work around it.
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
 - **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (`renaud` workspace, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
 - **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📝 À postuler"` instead (CV generated but not yet submitted). Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).

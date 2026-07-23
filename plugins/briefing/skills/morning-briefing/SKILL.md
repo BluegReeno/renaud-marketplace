@@ -9,7 +9,7 @@ description: >
   ordered plan du jour. Use when the user asks "what's up for today",
   "ma journée", "briefing du jour", "quel est mon planning", or any similar
   daily-overview trigger.
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails mcp__claude_ai_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
 # Morning Briefing — Skill Instructions
@@ -46,10 +46,10 @@ Probe each backend independently. Do NOT bail on the first failure — all probe
 
 In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise an error; do not render a partial brief — see Invocation modes). Any **other** failing probe ⇒ its block renders `<source>: UNAVAILABLE (<error>)` instead of the interactive `⚠️ <source> DOWN` line, and the run continues.
 
-- **hal-mcp probe**: call `mcp__hal-mcp__whoami`. Expected: `renaud@bluegreen.ai` with workspaces including `blue-green` and `renaud`. On failure → mark `hal:DOWN <reason>`, skip Steps 1a, 1b, 4. If workspace slugs differ, fail loud with actual slugs.
+- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Expected: `renaud@bluegreen.ai` with workspaces including `blue-green` and `renaud`. On failure → mark `hal:DOWN <reason>`, skip Steps 1a, 1b, 4. If workspace slugs differ, fail loud with actual slugs.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures). On failure → mark `jobsearch:DOWN <reason>`, skip Step 1c.
 - **Google Calendar probe**: call `mcp__claude_ai_Google_Calendar__list_calendars`. On failure → mark `gcal:DOWN <reason>`, skip Step 1d. If the error suggests OAuth failure, include "reconnect at claude.ai/connectors" in the message.
-- **Gmail perso probe**: call `mcp__claude_ai_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
+- **Gmail perso probe**: call `mcp__plugin_jobsearch_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 1f.
 
 ---
@@ -59,7 +59,7 @@ In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise a
 If `hal:UP`: for each workspace returned by `whoami`, call:
 
 ```
-mcp__hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of yesterday>")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of yesterday>")
 ```
 
 When the document exists, extract its `## Notes` section and keep it as **silent internal context** — do NOT echo it in the rendered brief. It is a hand-off from the previous day for the agent's own awareness, not user-facing output.
@@ -77,12 +77,12 @@ No inter-step dependencies after Step 0. Issue tool calls in parallel for maximu
 ### 1a — hal tasks for `blue-green` workspace
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
   → take the first entry's id
 if sprint.id is not None:
-  mcp__hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<id>)
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<id>)
 else:
-  mcp__hal-mcp__list_tasks(workspace_slug="blue-green")
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green")
   → note "(no active sprint — showing open tasks)"
 ```
 
@@ -119,7 +119,7 @@ For each calendar, call `mcp__claude_ai_Google_Calendar__list_events(calendarId=
 
 Do not implement pagination — the default page is enough for a daily window.
 
-### 1e — Gmail perso `rlaborbe@gmail.com` (via `mcp__claude_ai_gmail-mcp__*`)
+### 1e — Gmail perso `rlaborbe@gmail.com` (via `mcp__plugin_jobsearch_gmail-mcp__*`)
 
 Skip if `gmail-perso:DOWN`.
 
@@ -127,25 +127,25 @@ Issue up to three parallel searches:
 
 1. **LinkedIn digests (last 24h)**:
    ```
-   mcp__claude_ai_gmail-mcp__search_emails(
+   mcp__plugin_jobsearch_gmail-mcp__search_emails(
      query="from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com newer_than:1d",
      maxResults=20
    )
    ```
-   For each matching email, call `mcp__claude_ai_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
+   For each matching email, call `mcp__plugin_jobsearch_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
 
    **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer for use in Step 1g.
 
 2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
    For each active candidature, search:
    ```
-   mcp__claude_ai_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
+   mcp__plugin_jobsearch_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
    ```
    Run one search per active candidature (parallel). Read matching threads for context.
 
 3. **Inbound recruiters (last 48h)**:
    ```
-   mcp__claude_ai_gmail-mcp__search_emails(
+   mcp__plugin_jobsearch_gmail-mcp__search_emails(
      query="(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position) newer_than:2d -from:jobalerts-noreply@linkedin.com",
      maxResults=10
    )
@@ -346,7 +346,7 @@ Apply ordering rules in priority order:
 
 If `hal:DOWN` (Step 0 failed), skip this step entirely.
 
-If `hal:UP`: for **each** workspace returned by `whoami` (do NOT hardcode slugs — iterate on what `whoami` actually returns), call `mcp__hal-mcp__save_document` with:
+If `hal:UP`: for **each** workspace returned by `whoami` (do NOT hardcode slugs — iterate on what `whoami` actually returns), call `mcp__plugin_hal_hal-mcp__save_document` with:
 
 - `workspace_slug`: the workspace's slug
 - `slug`: `daily-log-<YYYY-MM-DD>` (today's date, Europe/Paris)

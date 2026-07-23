@@ -3,7 +3,7 @@
 This template is used by two entry points that write to different backends:
 
 1. **`renaud-marketplace/plugins/jobsearch/skills/log-cr`** — writes `entretien` (Compte-rendu) notes to the Obsidian jobsearch vault (`CRM-JobSearch/Entretiens/`).
-2. **`bluegreen-marketplace/plugins/hal/skills/crm` (`/crm log`)** — logs interactions via `mcp__hal-mcp__log_interaction` to the `blue-green` workspace CRM.
+2. **`bluegreen-marketplace/plugins/hal/skills/crm` (`/crm log`)** — logs interactions via `mcp__plugin_hal_hal-mcp__log_interaction` to the `blue-green` workspace CRM.
 
 Both use the same Markdown structure below. If you update this template, check that `/crm log` in bluegreen-marketplace is aligned — the two must not diverge.
 
