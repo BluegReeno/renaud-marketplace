@@ -6,7 +6,7 @@ description: >
   (myspy-kwiki), et persistance dans le workspace hal 'renaud'. Déclencher avec :
   "séance MySpy", "check-in hebdo", "on fait ma séance", "point perso de la semaine",
   "bilan psy de la semaine".
-allowed-tools: "mcp__hal-mcp__list_projects mcp__hal-mcp__update_project mcp__hal-mcp__log_interaction mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task mcp__hal-mcp__update_task_status Bash"
+allowed-tools: "mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__update_project mcp__plugin_hal_hal-mcp__log_interaction mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_hal-mcp__update_task_status Bash"
 ---
 
 # MySpy — Check-in hebdomadaire de développement personnel
@@ -18,10 +18,10 @@ Ce n'est **PAS** une thérapie de substitution — outil de suivi et de réflexi
 
 ## Étape 0 — Contexte (à exécuter au début de chaque séance)
 
-1. Appeler `mcp__hal-mcp__list_projects` avec `workspace_slug='renaud'` et `tags=['myspy']` pour relire le projet MySpy existant.
+1. Appeler `mcp__plugin_hal_hal-mcp__list_projects` avec `workspace_slug='renaud'` et `tags=['myspy']` pour relire le projet MySpy existant.
    Le champ `description` du projet = **profil vivant** : patterns connus, objectifs de fond, dernières techniques utilisées (slugs du bundle myspy-kwiki utilisés récemment).
 
-2. Appeler `mcp__hal-mcp__list_tasks` avec `workspace_slug='renaud'`, `project_id=<id du projet MySpy>` et `status='todo'` pour relire l'action engagée la semaine précédente.
+2. Appeler `mcp__plugin_hal_hal-mcp__list_tasks` avec `workspace_slug='renaud'`, `project_id=<id du projet MySpy>` et `status='todo'` pour relire l'action engagée la semaine précédente.
    Si la liste est vide : première séance ou action déjà archivée — demander directement à l'utilisateur quelle était son intention de la semaine.
 
 **Si le projet MySpy n'existe pas encore dans le workspace 'renaud'** : informer l'utilisateur que l'initialisation (création du projet + ajout du tag 'myspy' aux `allowed_tags` du workspace) doit être faite avant la première séance. Ne pas tenter de le créer depuis ce skill.
@@ -73,7 +73,7 @@ Dans les deux cas, **exclure les techniques récemment utilisées** (voir profil
 
 Puis écrire dans hal :
 
-1. `mcp__hal-mcp__log_interaction` :
+1. `mcp__plugin_hal_hal-mcp__log_interaction` :
    - `workspace_slug='renaud'`, `project_id=<id>`, `channel='myspy-session'` (valeur libre, aucune configuration préalable requise côté hal — contrairement aux `tags`, qui doivent être déclarés dans `allowed_tags` du workspace)
    - `summary` = résumé court
    - `transcript` = compte-rendu structuré complet (score d'échelle + méthode utilisée)
@@ -81,13 +81,13 @@ Puis écrire dans hal :
 
    **Si `log_interaction` échoue** : fournir le CR complet en clair dans le chat (l'utilisateur peut le copier manuellement), puis tenter quand même `create_task`.
 
-2. `mcp__hal-mcp__update_task_status` sur la tâche de la semaine précédente :
+2. `mcp__plugin_hal_hal-mcp__update_task_status` sur la tâche de la semaine précédente :
    - `status="done"` si accomplie (l'enum ne connaît pas de statut "partiel" — nuancer dans le résumé si nécessaire).
 
    **Si `update_task_status` échoue** : signaler et continuer — non bloquant :
    > ⚠️  Tâche précédente NON clôturée (`<erreur>`) — nouvelle action créée quand même.
 
-3. `mcp__hal-mcp__create_task` pour la nouvelle action :
+3. `mcp__plugin_hal_hal-mcp__create_task` pour la nouvelle action :
    - `workspace_slug='renaud'`, `project_id=<id>`, `title=<action définie>`, `tags=['myspy']`
 
    **Si `create_task` échoue après un `log_interaction` réussi** :
@@ -96,7 +96,7 @@ Puis écrire dans hal :
    >     Impact     : la semaine prochaine démarrera sans action définie.
    >     Recovery   : relancer /myspy la semaine prochaine — la clôture recréera la tâche.
 
-4. `mcp__hal-mcp__update_project` (`project_id=<id>`, `description=<profil vivant mis à jour>`) **UNIQUEMENT** si un nouveau pattern ou insight structurant est apparu pendant la séance — ne pas réécrire à chaque fois.
+4. `mcp__plugin_hal_hal-mcp__update_project` (`project_id=<id>`, `description=<profil vivant mis à jour>`) **UNIQUEMENT** si un nouveau pattern ou insight structurant est apparu pendant la séance — ne pas réécrire à chaque fois.
 
 ## Garde-fous de sécurité (non négociables, toujours actifs)
 

@@ -9,7 +9,7 @@ description: >
   Utiliser quand Renaud dit "sprint review", "bilan du sprint", "bilan de la
   semaine", "weekly review", "rétrospective", "fin de sprint" — ou en mode
   schedule (vendredi après-midi automatique).
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__list_projects mcp__hal-mcp__update_task_status mcp__hal-mcp__update_sprint mcp__hal-mcp__get_document mcp__hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault) Bash"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__update_sprint mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_events Skill(jobsearch-vault) Bash"
 ---
 
 # Sprint Review — Renaud Laborbe
@@ -62,8 +62,8 @@ En **mode conversationnel** : comportement identique pour les étapes 0–4. Ét
 En parallèle :
 
 ```
-mcp__hal-mcp__get_document(workspace_slug="renaud", slug="memory")
-mcp__hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug="renaud", slug="memory")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
 ```
 
 Ne pas afficher le contenu brut. Utiliser pour calibrer le ton et les priorités.
@@ -73,20 +73,20 @@ Si un document est absent (404), continuer sans bloquer.
 
 ## ÉTAPE 1 — Bilan des tâches sprint (hal)
 
-Probe hal : `mcp__hal-mcp__whoami`. Si échec → marquer `hal:DOWN <raison>` et sauter cette étape en rendant `⚠️ hal DOWN — <raison>`.
+Probe hal : `mcp__plugin_hal_hal-mcp__whoami`. Si échec → marquer `hal:DOWN <raison>` et sauter cette étape en rendant `⚠️ hal DOWN — <raison>`.
 
 Lire en parallèle :
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-mcp__hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
 ```
 
 Pour chaque workspace : prendre le premier élément de la liste (un seul sprint actif possible). Si la liste est vide → utiliser `list_tasks` sans `sprint_id` et noter `(aucun sprint actif — tâches ouvertes)`.
 
 ```
-mcp__hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
-mcp__hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
 ```
 
 Calculer par workspace :
@@ -233,7 +233,7 @@ Déclencher si :
 ## ÉTAPE 3 — Bilan Blue Green
 
 ```
-mcp__hal-mcp__list_projects(workspace_slug="blue-green")
+mcp__plugin_hal_hal-mcp__list_projects(workspace_slug="blue-green")
 ```
 
 Afficher les projets dont le stage n'est pas fermé/annulé :
@@ -252,8 +252,8 @@ Si aucun projet actif : "Pipeline BG vide — action à planifier semaine procha
 Scanner en parallèle :
 
 ```
-mcp__hal-mcp__list_tasks(workspace_slug="blue-green")  → filtrer non terminées + sans sprint_id
-mcp__hal-mcp__list_tasks(workspace_slug="renaud")      → filtrer non terminées + sans sprint_id
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green")  → filtrer non terminées + sans sprint_id
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")      → filtrer non terminées + sans sprint_id
 
 mcp__claude_ai_Google_Calendar__list_events(
   calendarId="renaud@bluegreen.ai",
@@ -310,14 +310,14 @@ Terminer par :
 Pour chaque tâche déjà `done` dans hal — aucune action. Pour les tâches que Renaud confirme comme terminées :
 
 ```
-mcp__hal-mcp__update_task_status(workspace_slug="blue-green", task_id=..., status="done")
-mcp__hal-mcp__update_task_status(workspace_slug="renaud", task_id=..., status="done")
+mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="blue-green", task_id=..., status="done")
+mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="renaud", task_id=..., status="done")
 ```
 
 ### 5b. Sauvegarder le bilan dans hal
 
 ```
-mcp__hal-mcp__save_document(
+mcp__plugin_hal_hal-mcp__save_document(
   workspace_slug="renaud",
   slug="sprint-review-[sprint_number_rn]",
   domain="jobsearch",

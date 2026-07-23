@@ -5,7 +5,7 @@ description: >
   and asks for a cover letter / lettre de motivation. Detects profile × company type from
   the offer (same 15-cell matrix as the CV generator) and produces a 3-paragraph letter
   anchored in real, verifiable experience. No boilerplate.
-allowed-tools: "Read mcp__claude_ai_gmail-mcp__draft_email Bash(python3 *)"
+allowed-tools: "Read mcp__plugin_jobsearch_gmail-mcp__draft_email Bash(python3 *)"
 ---
 
 # Cover Letter — Skill Instructions
@@ -175,7 +175,7 @@ python3 -c "import base64,sys; print(base64.b64encode(open(sys.argv[1],'rb').rea
 
 Pass the output (a single line of base64) as `content`. The filename must match the PDF filename (e.g. `CV_Renaud_Laborbe_P4_Anthropic.pdf`), MIME type `application/pdf`.
 
-**Invoke `mcp__claude_ai_gmail-mcp__draft_email`:**
+**Invoke `mcp__plugin_jobsearch_gmail-mcp__draft_email`:**
 
 ```json
 {

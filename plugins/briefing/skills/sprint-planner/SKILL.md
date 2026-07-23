@@ -12,7 +12,7 @@ description: >
   Utiliser quand Renaud dit "sprint planning", "planifier la semaine",
   "plan my week", "sprint de la semaine prochaine", "weekly planning",
   "priorités de la semaine", "organiser ma semaine" — ou en mode schedule.
-allowed-tools: "mcp__hal-mcp__whoami mcp__hal-mcp__list_sprints mcp__hal-mcp__list_tasks mcp__hal-mcp__create_sprint mcp__hal-mcp__update_sprint mcp__hal-mcp__create_task mcp__hal-mcp__assign_task_to_sprint mcp__hal-mcp__update_task mcp__hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_sprint mcp__plugin_hal_hal-mcp__update_sprint mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_hal-mcp__assign_task_to_sprint mcp__plugin_hal_hal-mcp__update_task mcp__plugin_hal_hal-mcp__get_document mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails Skill(jobsearch-vault) Bash"
 ---
 
 # Sprint Planner — Renaud Laborbe
@@ -44,8 +44,8 @@ En **mode conversationnel** : pour les étapes 1c et 4, attendre les réponses d
 En parallèle :
 
 ```
-mcp__hal-mcp__get_document(workspace_slug="renaud", slug="memory")
-mcp__hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug="renaud", slug="memory")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
 ```
 
 Ne pas afficher le contenu brut. Utiliser pour calibrer le ton et les priorités.
@@ -57,23 +57,23 @@ Si un document est absent (404), continuer sans bloquer.
 
 ### 1a. Lire le sprint actuel dans hal
 
-Probe hal : `mcp__hal-mcp__whoami`. Si échec → `hal:DOWN <raison>`, sauter toute l'étape 1.
+Probe hal : `mcp__plugin_hal_hal-mcp__whoami`. Si échec → `hal:DOWN <raison>`, sauter toute l'étape 1.
 
 En parallèle :
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
   → sprint_id_bg, sprint_name_bg, sprint_number_bg
 
-mcp__hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
   → sprint_id_rn, sprint_name_rn, sprint_number_rn
 ```
 
 Si aucun sprint actif dans un workspace → `sprint_id = null`, `sprint_number = 0`.
 
 ```
-mcp__hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
-mcp__hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
 ```
 
 ### 1b. Calculer le taux de complétion
@@ -175,7 +175,7 @@ Chercher dans rlaborbe@gmail.com les alertes LinkedIn de la semaine écoulée.
 Cette étape requiert le plugin jobsearch (gmail-mcp) co-installé. Si le tool est indisponible, marquer `gmail:DOWN` et sauter.
 
 ```
-mcp__claude_ai_gmail-mcp__search_emails(query="from:jobalerts-noreply@linkedin.com newer_than:7d")
+mcp__plugin_jobsearch_gmail-mcp__search_emails(query="from:jobalerts-noreply@linkedin.com newer_than:7d")
 ```
 
 Pour chaque offre extraite, scorer selon le profil de Renaud (Solution Architect IA, ~90K€, Paris IDF) :
@@ -323,8 +323,8 @@ Terminer par :
 ### 6a. Vérifier si un sprint suivant existe déjà (idempotence)
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status=<SPRINT_STATUS>)
-mcp__hal-mcp__list_sprints(workspace_slug="renaud", status=<SPRINT_STATUS>)
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status=<SPRINT_STATUS>)
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status=<SPRINT_STATUS>)
 ```
 
 Si un sprint avec le statut cible existe déjà dans un workspace → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number_actuel + 1`.
@@ -332,7 +332,7 @@ Si un sprint avec le statut cible existe déjà dans un workspace → utiliser s
 Si un sprint existe avec le **mauvais statut** (ex : `status="suivant"` alors que `SPRINT_STATUS="actuel"`), corriger via :
 
 ```
-mcp__hal-mcp__update_sprint(
+mcp__plugin_hal_hal-mcp__update_sprint(
   workspace_slug=<workspace>,
   sprint_id=<sprint_id_existant>,
   status=<SPRINT_STATUS>
@@ -348,17 +348,17 @@ Si `SPRINT_STATUS = "actuel"` uniquement : avant de créer le nouveau sprint, cl
 En parallèle :
 
 ```
-mcp__hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
   → sprints_a_clore_bg (liste)
 
-mcp__hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
   → sprints_a_clore_rn (liste)
 ```
 
 Pour chaque sprint retourné (les deux workspaces) :
 
 ```
-mcp__hal-mcp__update_sprint(
+mcp__plugin_hal_hal-mcp__update_sprint(
   workspace_slug=<workspace>,
   sprint_id=<sprint_id>,
   status="passes"
@@ -374,7 +374,7 @@ Si la liste est vide pour un workspace → rien à faire, continuer.
 ```
 # SPRINT_STATUS = "actuel" si NEXT_MON <= TODAY (lundi matin / rattrapage), sinon "suivant"
 
-mcp__hal-mcp__create_sprint(
+mcp__plugin_hal_hal-mcp__create_sprint(
   workspace_slug="blue-green",
   name="Sprint [N] — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
   sprint_number=<sprint_number_bg_actuel + 1>,
@@ -383,7 +383,7 @@ mcp__hal-mcp__create_sprint(
   ends_at="[NEXT_FRI]"
 )
 
-mcp__hal-mcp__create_sprint(
+mcp__plugin_hal_hal-mcp__create_sprint(
   workspace_slug="renaud",
   name="Perso — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
   sprint_number=<sprint_number_rn_actuel + 1>,
@@ -398,7 +398,7 @@ mcp__hal-mcp__create_sprint(
 Pour chaque tâche non terminée reportée depuis l'étape 1c :
 
 ```
-mcp__hal-mcp__assign_task_to_sprint(
+mcp__plugin_hal_hal-mcp__assign_task_to_sprint(
   workspace_slug=<workspace>,
   task_id=<id>,
   sprint_id=<nouveau_sprint_id>
@@ -410,7 +410,7 @@ mcp__hal-mcp__assign_task_to_sprint(
 Pour les offres LinkedIn 🔥, relances à créer, post LinkedIn si pas encore dans hal :
 
 ```
-mcp__hal-mcp__create_task(
+mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug="renaud",
   title="[titre]",
   sprint_id=<sprint_id_rn>,
@@ -423,7 +423,7 @@ mcp__hal-mcp__create_task(
 Pour les tâches BG :
 
 ```
-mcp__hal-mcp__create_task(
+mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug="blue-green",
   title="[titre]",
   sprint_id=<sprint_id_bg>,
