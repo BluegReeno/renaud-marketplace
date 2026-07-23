@@ -58,6 +58,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
 
+## myspy 0.2.0
+
+- address hal-mcp tools as mcp__plugin_hal_hal-mcp__*
+
 ## myspy 0.1.0
 
 - Personal weekly self-reflection check-in (`myspy`) — structured CBT/SFBT
