@@ -21,6 +21,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.10.1
+
+- morning-briefing daily log embeds Gmail/LinkedIn/vault/Meet/hal links + next-actions per task entry (closes #70)
+
 ## briefing 0.10.0
 
 - drop duplicate hal-mcp declaration; address hal-mcp tools as mcp__plugin_hal_hal-mcp__*

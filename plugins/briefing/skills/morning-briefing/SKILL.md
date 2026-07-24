@@ -86,11 +86,11 @@ else:
   → note "(no active sprint — showing open tasks)"
 ```
 
-Label every task `[business]`.
+Label every task `[business]`. Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : blue-green/<id>` (see Step 4's Liens block).
 
 ### 1b — hal tasks for `renaud` workspace
 
-Identical flow with `workspace_slug="renaud"`. Label every task `[perso]`.
+Identical flow with `workspace_slug="renaud"`. Label every task `[perso]`. Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : renaud/<id>`.
 
 **Tag grouping (renaud only).** Group returned tasks by their **first** tag. Tasks with no tag land under `other`. Fixed order:
 
@@ -104,8 +104,11 @@ Invoke `jobsearch-vault` and ask for:
 1. Upcoming interviews in the next 7 days.
 2. Relances due today or overdue.
 3. Count and list of active candidatures (company + role + current stage).
+4. For each item above, its vault-relative note path as returned by `jobsearch-vault` (e.g. `CRM-JobSearch/Entretiens/<Title>.md`) — needed to build the `obsidian://` link in Step 4.
 
 READ-ONLY — do not write the vault.
+
+The vault name for `obsidian://open?vault=<vault>&file=<path>` links is `SecondLife` (fixed — see the `jobsearch-vault` skill's vault-path resolution). Build the file part by URL-encoding the note path.
 
 ### 1d — Google Calendars (three calendars, merged)
 
@@ -118,6 +121,8 @@ For each calendar, call `mcp__claude_ai_Google_Calendar__list_events(calendarId=
 `timeMin` and `timeMax` MUST be Europe/Paris local time, not UTC. If all three calendars return zero events, extend `timeMax` to +7 days to surface "next upcoming". Merge results, sort by `start`. Tag each event (`pro`, `perso`, `famille`).
 
 Do not implement pagination — the default page is enough for a daily window.
+
+Keep each event's `hangoutLink` field, when present — Step 4 links it as the Meet URL for prep/follow-up entries anchored on that event.
 
 ### 1e — Gmail perso `rlaborbe@gmail.com` (via `mcp__plugin_jobsearch_gmail-mcp__*`)
 
@@ -134,14 +139,14 @@ Issue up to three parallel searches:
    ```
    For each matching email, call `mcp__plugin_jobsearch_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
 
-   **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer for use in Step 1g.
+   **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer — this URL survives through Step 1g scoring and Step 1h fan-out all the way to the Step 4 daily log; do not discard it after Step 3 rendering.
 
 2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
    For each active candidature, search:
    ```
    mcp__plugin_jobsearch_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
    ```
-   Run one search per active candidature (parallel). Read matching threads for context.
+   Run one search per active candidature (parallel). Read matching threads for context. Keep each matching email's `id` — Step 4 links it as `https://mail.google.com/mail/?authuser=rlaborbe@gmail.com#all/<messageId>`.
 
 3. **Inbound recruiters (last 48h)**:
    ```
@@ -150,9 +155,9 @@ Issue up to three parallel searches:
      maxResults=10
    )
    ```
-   Read threads that look like genuine recruiter outreach (not automated digests).
+   Read threads that look like genuine recruiter outreach (not automated digests). Keep each matching email's `id` for the same Gmail-link purpose.
 
-Collect results into: `linkedin_offers[]` (raw, all offers), `candidature_threads[]` (matched to active process), `inbound_recruiters[]`.
+Collect results into: `linkedin_offers[]` (raw, all offers), `candidature_threads[]` (matched to active process, each carrying its Gmail message `id`), `inbound_recruiters[]` (each carrying its Gmail message `id`).
 
 ### 1f — Gmail pro `renaud@bluegreen.ai` (via `mcp__claude_ai_Gmail__*`)
 
@@ -164,7 +169,7 @@ Issue two parallel searches:
    ```
    mcp__claude_ai_Gmail__search_threads(query="newer_than:7d -label:newsletters", maxResults=20)
    ```
-   Cross-reference thread subjects/senders against active BG opportunities from the hal CRM context. Read threads that match.
+   Cross-reference thread subjects/senders against active BG opportunities from the hal CRM context. Read threads that match. Keep each matching thread's `id` — Step 4 links it as `https://mail.google.com/mail/?authuser=renaud@bluegreen.ai#all/<messageId>`.
 
 2. **Inbound (new contacts, calls for tender)**:
    ```
@@ -173,9 +178,9 @@ Issue two parallel searches:
      maxResults=10
    )
    ```
-   Flag threads that look like new commercial inbound not matched to any existing CRM entry.
+   Flag threads that look like new commercial inbound not matched to any existing CRM entry. Keep each thread's `id` for the same Gmail-link purpose.
 
-Collect into: `bg_commercial_replies[]` (matched to CRM), `bg_inbound[]` (new).
+Collect into: `bg_commercial_replies[]` (matched to CRM, each carrying its Gmail message `id`), `bg_inbound[]` (new, each carrying its Gmail message `id`).
 
 ### 1g — Job-offer scoring pipeline
 
@@ -247,6 +252,8 @@ Assemble one ordered structure from all pulls:
 - Candidature cross-reference: vault stage + mail context from Step 1e
 - BG commercial: CRM stage + mail context from Step 1f
 - Sources DOWN: `⚠️` line in the relevant section
+
+**Link fields travel with each item.** Gmail message `id`, LinkedIn job URL, vault note path, `hangoutLink`, and hal task `id` collected in Step 1 are carried through this merge and into Step 4 — they are not rendering-only data to discard after Step 3. The rendered chat brief may stay synthetic; the daily log persisted in Step 4 is the one place these links must all surface.
 
 ---
 
@@ -366,6 +373,20 @@ A write failure for one workspace MUST NOT block the write for the other(s).
 
 ### Content templates
 
+The daily log is a **hand-off document**: Renaud opens a fresh session per task and must not have to re-search for context. Every task, offer, and process entry therefore carries a **Liens** sub-line and a **▶️ prochaines actions** sub-line — this is what makes the log exhaustive even though the chat-rendered brief (Step 3) stays synthetic.
+
+**Liens line — format and rule.** One `  Liens : ` sub-line per entry, listing only the links/refs actually available for that entry, space-separated. **Never fabricate an ID or URL that wasn't captured in Step 1** — omit a link type entirely (do not print a placeholder) when its source ID is missing. Available link types:
+
+| Link type | Rendering |
+|---|---|
+| Gmail message | `` Gmail `https://mail.google.com/mail/?authuser=<compte>#all/<messageId>` `` |
+| LinkedIn offer | `` Offre `https://www.linkedin.com/jobs/view/<jobId>` `` |
+| Vault note | `` Vault `<vault-relative path>` (`obsidian://open?vault=SecondLife&file=<path, URL-encoded>`) `` |
+| Google Meet | `` Meet `<hangoutLink>` `` |
+| hal task/project | `` réf. hal `<workspace>/<id>` `` |
+
+**Prochaines actions line.** One `  ▶️ prochaines actions : <one sentence>` sub-line per entry — the concrete next step, reusing the Step 3 plan-du-jour context brief where the entry also appears there.
+
 #### Workspace `blue-green`
 
 ```markdown
@@ -373,13 +394,22 @@ A write failure for one workspace MUST NOT block the write for the other(s).
 
 ## Sprint en cours [business]
 - [ ] <task title> · priorité : <priority|none>
+  Liens : réf. hal `blue-green/<task_id>`
+  ▶️ prochaines actions : <one sentence>
 ...
 (or "(aucune tâche en cours)")
 
 ## Agenda du jour [pro]
-HH:MM — <event title> [pro]
+HH:MM — <event title> [pro]<space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
 ...
 (or "(aucun événement pro aujourd'hui)")
+
+## Commercial — Process en cours [business]
+- **<company/contact>** — <opportunity title> — stage : <CRM stage>
+  Liens : <Gmail and/or réf. hal — whichever are available>
+  ▶️ prochaines actions : <one sentence>
+...
+(or "(aucun process commercial en cours)")
 
 ## Notes
 (vide — à compléter en cours de journée)
@@ -396,21 +426,41 @@ Group sprint tasks by first tag (same order as Step 3). Skip empty groups. Tasks
 
 ### 🎯 jobsearch
 - [ ] <task title>
+  Liens : <réf. hal, and Vault/Offre/Gmail when this task is tied to a candidature — whichever are available>
+  ▶️ prochaines actions : <one sentence>
 ...
 
 ### 🏡 rosaslaborbe / 🧍 personal / 💶 finance / 📋 hr / 👨‍👩‍👧 laborbe / 📌 other
 - [ ] <task title>
+  Liens : réf. hal `renaud/<task_id>`
+  ▶️ prochaines actions : <one sentence>
 ...
 (skip empty subsections — or "(aucune tâche en cours)" if all empty)
 
 ## Agenda du jour [perso + famille]
-HH:MM — <event title> [perso|famille]
+HH:MM — <event title> [perso|famille]<space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
 ...
 (or "(aucun événement perso/famille aujourd'hui)")
+
+## 🎯 Jobsearch — Offres & process
+🔥 <title> — <company>
+  Liens : Offre `https://www.linkedin.com/jobs/view/<jobId>`
+  ▶️ prochaines actions : <one sentence>
+🟡 <title> — <company>
+  Liens : Offre `https://www.linkedin.com/jobs/view/<jobId>`
+  ▶️ prochaines actions : <one sentence>
+...
+- **<company>** (<role>) — stage : <vault stage>
+  Liens : <Vault and/or Gmail — whichever are available>
+  ▶️ prochaines actions : <one sentence — e.g. relance due date, mail to answer>
+...
+(or "(aucune offre ni process jobsearch aujourd'hui)")
 
 ## Notes
 (vide — à compléter en cours de journée)
 ```
+
+**Interview-prep example (illustrative, not a fixed schema).** A candidature entering interview prep — e.g. take-home + Meet scheduled — renders as one entry combining every link it has: `Liens : Vault \`CRM-JobSearch/Entretiens/<Title>.md\` (\`obsidian://open?vault=SecondLife&file=...\`) · Offre \`https://www.linkedin.com/jobs/view/<jobId>\` · Meet \`<hangoutLink>\` · réf. hal \`renaud/<task_id>\`` followed by `▶️ prochaines actions : terminer le take-home avant le <date>, relire la prep vault, rappeler <recruiter> sur Ashby si pas de nouvelles.` Only include the link types that were actually captured in Step 1 for that entry.
 
 #### Any other workspace returned by `whoami`
 
@@ -438,3 +488,5 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 - **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
 - **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
 - **Relationship with `mail-triage`** — Steps 1e/1f do a lightweight, context-integrated mail pass for the daily briefing. The `mail-triage` skill (also in this plugin) provides a deeper, on-demand triage with explicit per-thread classification. Do NOT call `Skill(mail-triage)` from inside this skill — the shallow pass here is intentionally faster and context-lighter. Users who want full triage run `/mail` separately.
+- **Daily log is the hand-off, not the chat brief** — every task/offer/process entry written in Step 4 carries a `Liens` sub-line and a `▶️ prochaines actions` sub-line, so Renaud can work each entry in a fresh session without re-collecting context. The Step 3 chat brief can stay synthetic; Step 4 may not.
+- **Never fabricate a link** — a `Liens` sub-line lists only link types whose source ID/URL was actually captured in Step 1 (Gmail message id, LinkedIn job id, vault note path, `hangoutLink`, hal task id). Omit a link type silently rather than guessing or printing a placeholder.
