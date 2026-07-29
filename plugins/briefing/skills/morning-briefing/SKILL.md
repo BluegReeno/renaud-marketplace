@@ -9,14 +9,16 @@ description: >
   ordered plan du jour. Use when the user asks "what's up for today",
   "ma journée", "briefing du jour", "quel est mon planning", or any similar
   daily-overview trigger.
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
 # Morning Briefing — Skill Instructions
 
 ## What this skill does
 
-Produce one morning briefing that merges **six sources** into a single structured view: hal tasks (two workspaces, sprint-aware), Obsidian jobsearch state, three Google Calendars, and two Gmail inboxes — then cross-references mails against the vault and CRM to update in-flight process status. It also runs a scoring pipeline on LinkedIn job alerts found in the perso inbox, surfaces the best 2-3 offers with fit rationale, and generates an **ordered plan du jour** as the final block. The rendered brief is read-only except for one daily-log write per hal workspace at the end of the run (Step 4).
+Produce one morning briefing that merges **six sources** into a single structured view: hal tasks (two workspaces, sprint-aware), Obsidian jobsearch state, three Google Calendars, and two Gmail inboxes — then cross-references mails against the vault and CRM to update in-flight process status. It also runs a scoring pipeline on LinkedIn job alerts found in the perso inbox, surfaces the best 2-3 offers with fit rationale, and generates an **ordered plan du jour** as the final block. The rendered brief is read-only except for one daily-log write per hal workspace at the end of the run (Step 4), plus description-only updates to a dedicated hal task when routing idea capture out of the daily log (Step 5).
+
+Any session that reviews or cleans up this skill's daily log or hal tasks — reordering, cancelling, merging duplicates, updating descriptions — is **log-only**: it must never execute a task inline (e.g. draft a LinkedIn post, write a CR). See Step 5.
 
 Any backend that is unreachable renders a loud `⚠️ <source> DOWN — <reason>` line instead of silently omitting data. Silent omission is a critical failure.
 
@@ -412,7 +414,7 @@ HH:MM — <event title> [pro]<space>· Meet : `<hangoutLink>` (omit "· Meet :" 
 (or "(aucun process commercial en cours)")
 
 ## Notes
-(vide — à compléter en cours de journée)
+(vide — à compléter en cours de journée ; les idées/angles capturés en cours de journée référencent une tâche hal dédiée — `réf. hal <workspace>/<id>` — plutôt que d'y recopier le texte, voir Step 5)
 ```
 
 #### Workspace `renaud`
@@ -457,7 +459,7 @@ HH:MM — <event title> [perso|famille]<space>· Meet : `<hangoutLink>` (omit "�
 (or "(aucune offre ni process jobsearch aujourd'hui)")
 
 ## Notes
-(vide — à compléter en cours de journée)
+(vide — à compléter en cours de journée ; les idées/angles capturés en cours de journée référencent une tâche hal dédiée — `réf. hal <workspace>/<id>` — plutôt que d'y recopier le texte, voir Step 5)
 ```
 
 **Interview-prep example (illustrative, not a fixed schema).** A candidature entering interview prep — e.g. take-home + Meet scheduled — renders as one entry combining every link it has: `Liens : Vault \`CRM-JobSearch/Entretiens/<Title>.md\` (\`obsidian://open?vault=SecondLife&file=...\`) · Offre \`https://www.linkedin.com/jobs/view/<jobId>\` · Meet \`<hangoutLink>\` · réf. hal \`renaud/<task_id>\`` followed by `▶️ prochaines actions : terminer le take-home avant le <date>, relire la prep vault, rappeler <recruiter> sur Ashby si pas de nouvelles.` Only include the link types that were actually captured in Step 1 for that entry.
@@ -474,7 +476,7 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 ## Step 5 — Constraints (load-bearing)
 
 - **Read-only for Gmail, calendar, and vault** — no draft, send, label, or delete calls on mail.
-- **One `save_document` write per hal workspace** — the only permitted write in the entire skill. No other `create_*`, `update_*`, or `delete_*`.
+- **Writes are limited to two calls** — one `save_document` per hal workspace (Step 4), and a description-only `update_task` append when routing idea capture to a dedicated hal task (see the two bullets below). No other `create_*`, `update_task_status`, or `delete_*` call is permitted anywhere in this skill.
 - **Never write if `hal:DOWN`**.
 - **Never silently omit a source** — any probe or Step 1 call failure renders `⚠️` in the section AND in the source-status footer.
 - **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
@@ -490,3 +492,5 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 - **Relationship with `mail-triage`** — Steps 1e/1f do a lightweight, context-integrated mail pass for the daily briefing. The `mail-triage` skill (also in this plugin) provides a deeper, on-demand triage with explicit per-thread classification. Do NOT call `Skill(mail-triage)` from inside this skill — the shallow pass here is intentionally faster and context-lighter. Users who want full triage run `/mail` separately.
 - **Daily log is the hand-off, not the chat brief** — every task/offer/process entry written in Step 4 carries a `Liens` sub-line and a `▶️ prochaines actions` sub-line, so Renaud can work each entry in a fresh session without re-collecting context. The Step 3 chat brief can stay synthetic; Step 4 may not.
 - **Never fabricate a link** — a `Liens` sub-line lists only link types whose source ID/URL was actually captured in Step 1 (Gmail message id, LinkedIn job id, vault note path, `hangoutLink`, hal task id). Omit a link type silently rather than guessing or printing a placeholder.
+- **Daily-log / task-cleanup sessions are log-only, never execution** — this applies whenever a session reviews or maintains this skill's daily log or hal tasks (updating status, cancelling, merging duplicates, editing a description), whether that happens inside a Step 4 run or in a later, separate conversation looking at the daily log / Command Center dashboard. In that context, only list, log, and update task bookkeeping — never execute a task (e.g. draft the LinkedIn post, write the CR) inline, and never offer "I'll do X now — which option do you want?". Executing a task happens in its own dedicated session, started separately.
+- **Route idea capture to a dedicated hal task, not into the daily log** — when a task-cleanup session surfaces an idea/angle worth capturing (e.g. LinkedIn post angles with stats from the last post), first look for an existing dedicated hal task for that topic via `mcp__plugin_hal_hal-mcp__list_tasks`. There is no full-text search — filter by tag (use an allowed workspace tag such as `marketing`, never a hardcoded `linkedin` tag <!-- TODO: verify in Cowork: exact tag/title convention the workspace uses for the dedicated LinkedIn-idea task --> ) and match the title client-side. If found, call `mcp__plugin_hal_hal-mcp__update_task` to append the idea to that task's `description` (append, never overwrite prior content) and reference only `réf. hal <workspace>/<id>` from the daily log's Notes section — do not paste the narrative content into the daily log itself. If no dedicated task exists, say so and ask before creating one (`create_task` is not in this skill's allowed-tools).
