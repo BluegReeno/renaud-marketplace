@@ -21,6 +21,12 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.11.0
+
+- multi-user: morning-briefing, mail-triage, sprint-planner and sprint-review now iterate over every workspace `whoami` returns instead of hardcoding workspace slugs; calendars are the union of the `calendar_id` / `member_calendar_id` each workspace declares; task labels use the workspace name; mailbox references are server-decided (Gmail perso/pro labels, no addresses). sprint-planner and sprint-review probe hal before loading any context document (fixes the hardcoded-slug `get_document` that ran before the probe). No workspace slug, calendar ID or mailbox address remains as a literal (#77, #76 partial)
+- sprint-planner, sprint-review: a missing `sprints_enabled` field now stops before any write and asks which workspaces to process, instead of falling back to processing them all. Both skills write (sprints, tasks, statuses, reviews), so missing information must close the write perimeter, never widen it
+- sprint-review: one sprint review per closed workspace, saved **in that workspace** with `domain="memory"` — replaces the single review routed to whichever workspace carried the `jobsearch` tag, with a fallback to the default workspace. A sprint belongs to a workspace, so its review does too; no destination is chosen, and jobsearch metrics only appear in the workspace where the job search lives
+
 ## briefing 0.10.2
 
 - morning-briefing: daily-log / task-cleanup sessions are log-only — never propose executing a task inline; idea capture (e.g. LinkedIn post angles) routes into a dedicated hal task's description, referenced by id in the daily log instead of duplicated narrative (closes #72)
@@ -65,6 +71,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
+
+## mycoach 0.4.0
+
+- multi-user: add a `whoami` probe and resolve the session workspace by the `mycoach` tag in its `allowed_tags` (none → stop with the init message; several → ask which); never fall back to `default_workspace_slug`, so a personal session is never written to a business workspace. All hardcoded workspace slugs removed (#77)
 
 ## mycoach 0.3.0
 

@@ -1,9 +1,9 @@
 ---
 name: mail-triage
 description: >
-  Scan both mail inboxes (perso rlaborbe@gmail.com + pro renaud@bluegreen.ai) over a
-  configurable window (default 7 days), cross-reference senders against HAL CRM contacts,
-  companies, and projects plus the Obsidian jobsearch vault, then classify each thread into
+  Scan both mail inboxes (Gmail perso + Gmail pro) over a configurable window
+  (default 7 days), cross-reference senders against HAL CRM contacts, companies,
+  and projects plus the Obsidian jobsearch vault, then classify each thread into
   domain-specific categories and recommend a concrete action per thread. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
 allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
@@ -36,7 +36,7 @@ omission is a critical failure.
 
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
 
-- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Expected: `renaud@bluegreen.ai` with workspaces including `blue-green` and `renaud`. On failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c.
+- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip Steps 1a-1c: with no workspace there is no CRM context to load. Never assert a specific email or slug — Step 1 iterates on whatever `whoami` returns.
 - **Gmail perso probe**: call `mcp__plugin_jobsearch_gmail-mcp__search_emails` with a minimal query (`after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 2b.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures via `Skill(jobsearch-vault)`). On failure → mark `jobsearch:DOWN <reason>`, skip vault matching in Step 3.
@@ -49,19 +49,26 @@ If `hal:DOWN`, skip all sub-steps and proceed to Step 2 with empty context.
 
 Run all sub-steps in parallel.
 
-### 1a — Active Blue Green opportunities and tasks
+### 1a — Opportunities, tasks, contacts and companies (one loop over every workspace)
+
+Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`, in parallel:
 
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-  → take the first entry's id
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<id>)
-  (or list_tasks without sprint_id if no active sprint)
-mcp__plugin_hal_hal-mcp__list_projects(workspace_slug="blue-green")
+if w.sprints_enabled:
+  mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
+    → take the first entry's id
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
+    (or list_tasks without sprint_id if no active sprint)
+else:
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
+mcp__plugin_hal_hal-mcp__list_projects(workspace_slug=w.workspace_slug)
+mcp__plugin_hal_hal-mcp__list_contacts(workspace_slug=w.workspace_slug)
+mcp__plugin_hal_hal-mcp__list_companies(workspace_slug=w.workspace_slug)
 ```
 
 <!-- TODO: verify in Cowork — list_projects may accept a kind="opportunity" filter. Not confirmed in tool schema. If it does, use kind="opportunity" to narrow results. -->
 
-Collect: `bg_projects[]` (title, stage, key contacts), `bg_tasks[]` (title, tags).
+Collect, keyed by workspace: `projects_by_ws[w]` (title, stage, key contacts), `tasks_by_ws[w]` (title, tags), and a lookup map `email → {name, company, linked_project_title, workspace_name}` merged across all workspaces for use in Step 3 matching. When two workspaces resolve the same sender email, keep both and prefer the match whose workspace also owns the thread's inbox signal (Step 3).
 
 ### 1b — Active jobsearch candidatures
 
@@ -70,22 +77,15 @@ If `jobsearch:UP`: invoke `Skill(jobsearch-vault)` and ask for the list of activ
 
 Collect: `active_candidatures[]` (company, role, stage, recruiter_email if any).
 
-### 1c — HAL contacts and companies (Blue Green workspace)
-
-```
-mcp__plugin_hal_hal-mcp__list_contacts(workspace_slug="blue-green")
-mcp__plugin_hal_hal-mcp__list_companies(workspace_slug="blue-green")
-```
-
-Build a lookup map: `email → {name, company, linked_project_title}` for use in Step 3 matching.
-
 ---
 
 ## Step 2 — Scan inboxes
 
 Run 2a and 2b in parallel.
 
-### 2a — Gmail perso `rlaborbe@gmail.com`
+### 2a — Gmail perso (via `mcp__plugin_jobsearch_gmail-mcp__*`)
+
+Which inbox is scanned is decided by **which MCP server is called**, never by an address string — this block always targets the perso inbox because it calls `mcp__plugin_jobsearch_gmail-mcp__*`.
 
 Skip if `gmail-perso:DOWN`.
 
@@ -102,7 +102,9 @@ snippet is sufficient for classification; skip full body read.
 
 Collect: `perso_threads[]` (id, sender_email, subject, snippet, date).
 
-### 2b — Gmail pro `renaud@bluegreen.ai`
+### 2b — Gmail pro (via `mcp__claude_ai_Gmail__*`)
+
+This block always targets the pro inbox because it calls `mcp__claude_ai_Gmail__*` — the address is never named.
 
 Skip if `gmail-pro:DOWN`.
 
@@ -124,11 +126,11 @@ Collect: `pro_threads[]` (id, sender_email, subject, snippet, date).
 
 For each thread in `perso_threads[]` and `pro_threads[]`, apply the following resolution in order:
 
-1. **CRM lookup**: match `sender_email` against the HAL contacts map (Step 1c). A match → candidate for Blue Green domain even if the thread arrived in the perso inbox (forward/CC scenario).
+1. **CRM lookup**: match `sender_email` against the merged HAL contacts map (Step 1a). A match → candidate for the Blue Green (business) domain even if the thread arrived in the perso inbox (forward/CC scenario).
 2. **Vault lookup**: match `sender_email` or company name extracted from subject/snippet against `active_candidatures[]` (Step 1b). A match → jobsearch domain.
-3. **Inbox signal (default)**: perso inbox threads not matched to CRM → jobsearch domain. Pro inbox threads not matched to vault → Blue Green domain.
+3. **Inbox signal (default)**: perso inbox threads not matched to CRM → jobsearch domain. Pro inbox threads not matched to vault → Blue Green (business) domain.
 
-### Jobsearch categories (`rlaborbe@gmail.com` or matched from vault)
+### Jobsearch categories (Gmail perso or matched from vault)
 
 | Category | Classification signal |
 |----------|-----------------------|
@@ -138,7 +140,7 @@ For each thread in `perso_threads[]` and `pro_threads[]`, apply the following re
 | `relance_possible` | Thread matched to active candidature where the last message was sent BY Renaud and the delay since sending exceeds 7 days with no reply |
 | `nouvelle_opportunité` | Inbound recruiter contact or job alert not matched to any active candidature |
 
-### Blue Green categories (`renaud@bluegreen.ai` or matched from CRM)
+### Blue Green categories (Gmail pro or matched from CRM)
 
 | Category | Classification signal |
 |----------|-----------------------|
@@ -197,7 +199,7 @@ empty sub-sections (do not render a section header if it has zero threads).
 ```
 # Triage mails — <date in French> (fenêtre : <N> jours)
 
-## 🎯 Jobsearch — rlaborbe@gmail.com
+## 🎯 Jobsearch — Gmail perso
 
 ### réponse_positive (<count>)
 - **<company>** — <subject> [<date>]
@@ -218,7 +220,7 @@ empty sub-sections (do not render a section header if it has zero threads).
 
 (aucun mail jobsearch classifié  |  ou : ⚠️ Gmail perso DOWN — <reason>)
 
-## 💼 Blue Green — renaud@bluegreen.ai
+## 💼 Blue Green — Gmail pro
 
 ### nouvelle_demande_client (<count>)
 - **<sender name or company>** — <subject> [<date>]
@@ -237,8 +239,8 @@ empty sub-sections (do not render a section header if it has zero threads).
 ## Source status
 hal-mcp : ✅ | ⚠️ DOWN (<reason>)
 jobsearch-vault : ✅ | ⚠️ DOWN (<reason>)
-Gmail perso (rlaborbe@gmail.com) : ✅ | ⚠️ DOWN (<reason>)
-Gmail pro (renaud@bluegreen.ai) : ✅ | ⚠️ DOWN (<reason>)
+Gmail perso : ✅ | ⚠️ DOWN (<reason>)
+Gmail pro : ✅ | ⚠️ DOWN (<reason>)
 ```
 
 The "Source status" footer is mandatory and ALWAYS renders all four lines — even when all sources are healthy.

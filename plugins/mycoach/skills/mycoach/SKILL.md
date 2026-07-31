@@ -3,10 +3,11 @@ name: mycoach
 description: >
   Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT
   avec repérage léger de patterns IFS/Schéma, base de connaissance OKF privée
-  (mycoach-kwiki), et persistance dans le workspace hal 'renaud'. Déclencher avec :
+  (mycoach-kwiki), et persistance dans le workspace hal activé pour MyCoach
+  (celui dont les `allowed_tags` contiennent `mycoach`). Déclencher avec :
   "séance MyCoach", "check-in hebdo", "on fait ma séance", "point perso de la semaine",
   "bilan psy de la semaine".
-allowed-tools: "mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__update_project mcp__plugin_hal_hal-mcp__log_interaction mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_hal-mcp__update_task_status Bash"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__update_project mcp__plugin_hal_hal-mcp__log_interaction mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_hal-mcp__update_task_status Bash"
 ---
 
 # MyCoach — Check-in hebdomadaire de développement personnel
@@ -16,15 +17,24 @@ allowed-tools: "mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__
 Conduit une séance de réflexion structurée hebdomadaire, purement personnelle.
 Ce n'est **PAS** une thérapie de substitution — outil de suivi et de réflexion uniquement.
 
-## Étape 0 — Contexte (à exécuter au début de chaque séance)
+## Étape 0 — Résolution du workspace + contexte (à exécuter au début de chaque séance)
 
-1. Appeler `mcp__plugin_hal_hal-mcp__list_projects` avec `workspace_slug='renaud'` et `tags=['mycoach']` pour relire le projet MyCoach existant.
+Ce skill **écrit** dans hal. Il doit d'abord résoudre **quel** workspace est activé pour MyCoach, sans jamais deviner.
+
+0. **Résoudre le workspace MyCoach.** Appeler `mcp__plugin_hal_hal-mcp__whoami`. Parmi les `workspaces` retournés, retenir ceux dont les `allowed_tags` contiennent `mycoach` :
+   - **Aucun** → ne pas écrire. Informer l'utilisateur que l'initialisation (création du projet MyCoach + ajout du tag `mycoach` aux `allowed_tags` d'un workspace) doit être faite avant la première séance (voir le message d'initialisation ci-dessous). S'arrêter.
+   - **Exactement un** → c'est `WS` (son `workspace_slug`). Continuer.
+   - **Plusieurs** → demander à l'utilisateur dans lequel tenir la séance ; utiliser sa réponse comme `WS`.
+
+   **Ne jamais retomber sur `default_workspace_slug`** : le workspace par défaut peut être un workspace professionnel, et une séance personnelle ne doit jamais y être écrite. La résolution passe exclusivement par le tag `mycoach`. (Lire un tag pour trouver *quel workspace est activé pour MyCoach* ne route pas une tâche par son sujet — c'est de la résolution de périmètre, pas du routage.)
+
+1. Appeler `mcp__plugin_hal_hal-mcp__list_projects` avec `workspace_slug=WS` et `tags=['mycoach']` pour relire le projet MyCoach existant.
    Le champ `description` du projet = **profil vivant** : patterns connus, objectifs de fond, dernières techniques utilisées (slugs du bundle mycoach-kwiki utilisés récemment).
 
-2. Appeler `mcp__plugin_hal_hal-mcp__list_tasks` avec `workspace_slug='renaud'`, `project_id=<id du projet MyCoach>` et `status='todo'` pour relire l'action engagée la semaine précédente.
+2. Appeler `mcp__plugin_hal_hal-mcp__list_tasks` avec `workspace_slug=WS`, `project_id=<id du projet MyCoach>` et `status='todo'` pour relire l'action engagée la semaine précédente.
    Si la liste est vide : première séance ou action déjà archivée — demander directement à l'utilisateur quelle était son intention de la semaine.
 
-**Si le projet MyCoach n'existe pas encore dans le workspace 'renaud'** : informer l'utilisateur que l'initialisation (création du projet + ajout du tag 'mycoach' aux `allowed_tags` du workspace) doit être faite avant la première séance. Ne pas tenter de le créer depuis ce skill.
+**Si le tag `mycoach` est déclaré mais que le projet MyCoach n'existe pas encore dans `WS`** : informer l'utilisateur que l'initialisation (création du projet + ajout du tag `mycoach` aux `allowed_tags` du workspace) doit être faite avant la première séance. Ne pas tenter de le créer depuis ce skill.
 
 ## Base de connaissance
 
@@ -74,7 +84,7 @@ Dans les deux cas, **exclure les techniques récemment utilisées** (voir profil
 Puis écrire dans hal :
 
 1. `mcp__plugin_hal_hal-mcp__log_interaction` :
-   - `workspace_slug='renaud'`, `project_id=<id>`, `channel='mycoach-session'` (valeur libre, aucune configuration préalable requise côté hal — contrairement aux `tags`, qui doivent être déclarés dans `allowed_tags` du workspace)
+   - `workspace_slug=WS`, `project_id=<id>`, `channel='mycoach-session'` (valeur libre, aucune configuration préalable requise côté hal — contrairement aux `tags`, qui doivent être déclarés dans `allowed_tags` du workspace)
    - `summary` = résumé court
    - `transcript` = compte-rendu structuré complet (score d'échelle + méthode utilisée)
    - `tags=['mycoach']`, `occurred_at` = date du jour au format ISO 8601 (ex. `2026-07-05`)
@@ -88,7 +98,7 @@ Puis écrire dans hal :
    > ⚠️  Tâche précédente NON clôturée (`<erreur>`) — nouvelle action créée quand même.
 
 3. `mcp__plugin_hal_hal-mcp__create_task` pour la nouvelle action :
-   - `workspace_slug='renaud'`, `project_id=<id>`, `title=<action définie>`, `tags=['mycoach']`
+   - `workspace_slug=WS`, `project_id=<id>`, `title=<action définie>`, `tags=['mycoach']`
 
    **Si `create_task` échoue après un `log_interaction` réussi** :
    > ⚠️  Half-state — séance loguée, nouvelle action NON créée dans hal.

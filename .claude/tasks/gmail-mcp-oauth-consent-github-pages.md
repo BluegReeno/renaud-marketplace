@@ -82,7 +82,7 @@ Dans claude.ai :
 1. Supprimer l'ancien connecteur gmail-mcp
 2. Ajouter nouveau connecteur : `https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp`
 3. claude.ai → 401 → OAuth discovery → redirige vers la consent page
-4. Se connecter avec Google (`rlaborbe@gmail.com`)
+4. Se connecter avec Google (`<mailbox-perso>`)
 5. Cliquer "Autoriser"
 6. Vérifier que le connecteur est actif dans claude.ai
 

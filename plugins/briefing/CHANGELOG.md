@@ -12,7 +12,7 @@
 
 ### Added (sprint-review + sprint-planner skills)
 - `sprint-review` skill: full weekly sprint bilan — hal task completion rate across `blue-green` and `renaud` workspaces, jobsearch metrics (candidatures/week, conversion by profile, refus patterns, relances due next week), Blue Green active projects, prioritised shortlist for next sprint. Clôtures sprint in hal only after explicit user validation. Includes scheduled-mode support (fully autonomous steps 0–4, gate on step 5).
-- `sprint-planner` skill: next-sprint builder — report/abandon decisions for unfinished tasks, jobsearch vault metrics + vault relances, LinkedIn job alert scan via gmail-mcp (rlaborbe@gmail.com), 3-calendar conflict detection with automatic bloc adjustment in schedule mode, capacity calculation (35h brute, 10h job-search blocs, IC meeting, 30% buffer), 4-tier MUST/SHOULD/COULD/BACKLOG plan, hal sprint creation with sprint_number auto-increment and idempotency check. Creates sprint + assigns tasks only after explicit user validation.
+- `sprint-planner` skill: next-sprint builder — report/abandon decisions for unfinished tasks, jobsearch vault metrics + vault relances, LinkedIn job alert scan via gmail-mcp (Gmail perso), 3-calendar conflict detection with automatic bloc adjustment in schedule mode, capacity calculation (35h brute, 10h job-search blocs, IC meeting, 30% buffer), 4-tier MUST/SHOULD/COULD/BACKLOG plan, hal sprint creation with sprint_number auto-increment and idempotency check. Creates sprint + assigns tasks only after explicit user validation.
 - `/sprint-review` and `/sprint-planner` slash commands.
 
 ### Notes

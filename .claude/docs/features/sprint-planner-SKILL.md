@@ -170,7 +170,7 @@ Relances prévues semaine prochaine :
 
 ## ÉTAPE 3 — Scan LinkedIn Gmail
 
-Chercher dans rlaborbe@gmail.com les alertes LinkedIn de la semaine :
+Chercher dans la boîte perso (Gmail perso) les alertes LinkedIn de la semaine :
 
 ```
 gmail : search_emails(query="from:jobalerts-noreply@linkedin.com newer_than:7d")
@@ -202,22 +202,15 @@ Si aucune offre pertinente : le noter et continuer.
 
 ## ÉTAPE 4 — Lire les calendriers + questions contextuelles
 
-Lire les 3 calendriers Google pour la semaine prochaine (lundi→vendredi) :
+Lire les calendriers déclarés par les workspaces (union des `calendar_id` / `member_calendar_id`) pour la semaine prochaine (lundi→vendredi) :
 
 ```
+# pour chaque calendrier de l'union :
 google-calendar : list_events(
-  calendarId="renaud@bluegreen.ai",
+  calendarId="<calendar-id>",
   startTime="[lundi_prochain]T00:00:00",
   endTime="[vendredi_prochain]T23:59:59",
   timeZone="Europe/Paris"
-)
-google-calendar : list_events(
-  calendarId="rlaborbe@gmail.com",
-  startTime=..., endTime=..., timeZone="Europe/Paris"
-)
-google-calendar : list_events(
-  calendarId="hah0feg81cofndkov7derd6g00@group.calendar.google.com",
-  startTime=..., endTime=..., timeZone="Europe/Paris"
 )
 ```
 
