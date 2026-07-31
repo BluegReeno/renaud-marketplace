@@ -23,13 +23,13 @@ plan: if this is good, the daily loop works.
 
 ## Data sources (read-only — no writes)
 
-1. **hal tasks** (via `hal-mcp`): current-sprint tasks for `blue-green` **and** `renaud`
-   — `list_sprints(status:"actuel")` then `list_tasks(sprint_id:…)` per workspace. Both run under
-   the `renaud@bluegreen.ai` identity (member of both → RLS lets it read both).
+1. **hal tasks** (via `hal-mcp`): current-sprint tasks for every workspace `whoami` returns
+   — `list_sprints(status:"actuel")` then `list_tasks(sprint_id:…)` per workspace. RLS scopes the
+   run to the caller's workspace memberships.
 2. **Obsidian jobsearch** (via the `obsidian-crm` skill, dual-mode REST/filesystem): upcoming
    interviews, pending relances, active candidatures.
-3. **3 Google Calendars** (Google Calendar MCP): `renaud@bluegreen.ai`, `rlaborbe@gmail.com`,
-   family calendar — merged for today + next event.
+3. **Google Calendars** (Google Calendar MCP): the union of the `calendar_id` /
+   `member_calendar_id` declared by your workspaces — merged for today + next event.
 
 ## Output
 
