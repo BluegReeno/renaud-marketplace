@@ -314,28 +314,35 @@ Pour chaque tâche déjà `done` dans hal — aucune action. Pour les tâches qu
 mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug=<workspace de la tâche>, task_id=..., status="done")
 ```
 
-### 5b. Sauvegarder le bilan dans hal
+### 5b. Sauvegarder le bilan de chaque workspace
 
-Sauvegarder le bilan dans le workspace **dont les `allowed_tags` contiennent `jobsearch`** (le bilan est centré sur les métriques jobsearch). Si aucun workspace retenu ne porte le tag `jobsearch`, le sauvegarder dans le workspace par défaut (`is_default`).
+Un sprint appartient à un workspace : son bilan s'écrit **dans ce workspace**, jamais ailleurs.
+Pour **chaque** workspace retenu `w` dont le sprint vient d'être clôturé :
 
 ```
 mcp__plugin_hal_hal-mcp__save_document(
-  workspace_slug=<workspace de destination résolu ci-dessus>,
-  slug="sprint-review-[sprint_number de ce workspace]",
-  domain="jobsearch",
+  workspace_slug=w.workspace_slug,
+  slug="sprint-review-[sprint_number de w]",
+  domain="memory",
   kind="sprint_review",
   title="Sprint Review [N] — Semaine du $CURR_D0_LABEL",
-  content_md="[bilan résumé : score sprint, métriques jobsearch, shortlist, décisions prises]"
+  content_md="[bilan de CE workspace : score du sprint, tâches terminées / reportées, décisions prises]"
 )
 ```
+
+**Aucune destination à choisir** : pas de recherche du workspace par un tag, pas de repli sur le workspace par défaut. Un workspace clôturé = un bilan chez lui. Le workspace est un périmètre de partage, pas un rangement thématique — un bilan ne migre jamais vers un autre workspace parce que son sujet y ressemble.
+
+**Contenu propre à chaque workspace.** Chaque bilan porte le score et les tâches de *son* sprint. Les sections thématiques ne s'écrivent que là où elles ont un sens : les métriques jobsearch et la shortlist n'appartiennent qu'au workspace où vit le job search, et n'ont rien à faire dans le bilan d'un workspace professionnel ou familial.
+
+**`domain="memory"`** — le domaine doit appartenir au vocabulaire (`allowed_tags`) du workspace de destination, et `memory` est le seul terme commun à tous. Ne jamais coder en dur un domaine lié à un sujet (`jobsearch`) dans un document écrit dans plusieurs workspaces : il y serait hors vocabulaire et invisible aux recherches par domaine.
 
 Confirmer :
 
 ```
-✅ Sprint [N] clôturé.
+✅ Sprint clôturé.
 - <nom du workspace> [sprint_name] : [X] tâches marquées done
+  → bilan : hal/<workspace_slug>/sprint-review-[N]
   (une ligne par workspace retenu)
-- Bilan sauvegardé : hal/<workspace de destination>/sprint-review-[N]
 
 Bonne semaine. Le sprint-planner prend le relais.
 ```

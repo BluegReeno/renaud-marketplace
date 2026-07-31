@@ -24,6 +24,7 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 ## briefing 0.11.0
 
 - multi-user: morning-briefing, mail-triage, sprint-planner and sprint-review now iterate over every workspace `whoami` returns instead of hardcoding workspace slugs; calendars are the union of the `calendar_id` / `member_calendar_id` each workspace declares; task labels use the workspace name; mailbox references are server-decided (Gmail perso/pro labels, no addresses). sprint-planner and sprint-review probe hal before loading any context document (fixes the hardcoded-slug `get_document` that ran before the probe). No workspace slug, calendar ID or mailbox address remains as a literal (#77, #76 partial)
+- sprint-review: one sprint review per closed workspace, saved **in that workspace** with `domain="memory"` — replaces the single review routed to whichever workspace carried the `jobsearch` tag, with a fallback to the default workspace. A sprint belongs to a workspace, so its review does too; no destination is chosen, and jobsearch metrics only appear in the workspace where the job search lives
 
 ## briefing 0.10.2
 
