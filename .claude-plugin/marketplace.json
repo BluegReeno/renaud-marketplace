@@ -23,7 +23,7 @@
     {
       "name": "briefing",
       "version": "0.11.0",
-      "description": "Morning briefing, mail triage + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, 3 Google Calendars, both inboxes), on-demand mail classification with HAL CRM context, and weekly sprint review and planner",
+      "description": "Morning briefing, mail triage + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, Google Calendars declared by your hal workspaces, both inboxes), on-demand mail classification with HAL CRM context, and weekly sprint review and planner",
       "source": "./plugins/briefing",
       "author": {
         "name": "Renaud Laborbe",
