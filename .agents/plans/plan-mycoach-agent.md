@@ -1,4 +1,4 @@
-# PLAN — Agent « MySpy » (suivi personnel hebdomadaire)
+# PLAN — Agent « MyCoach » (suivi personnel hebdomadaire)
 
 > **Statut** : plan à valider par Renaud avant implémentation.
 > **Portée** : 2 work packages indépendants — **WP1** une base de connaissance méthodologique (bundle OKF, comme `OW-KWiki-llm`) et **WP2** le skill Claude Code + la mécanique de séance côté hal (projet/interactions/tâches, zéro nouvelle table).
@@ -53,14 +53,14 @@ timestamp: 2026-07-02T00:00:00Z
 
 `okf-cli.py` est **dependency-free** (stdlib Python only), s'exécute depuis n'importe où (il opère toujours sur son propre dossier), et fait une recherche par mots-clés classée (`find`) — **pas d'embeddings, pas de pgvector**. C'est la preuve concrète que la recherche structurée suffit pour ce type de corpus (confirme ce qu'on avait anticipé en §A.5/discussion précédente).
 
-**Décision : répliquer ce pattern tel quel pour MySpy plutôt que d'inventer autre chose.**
+**Décision : répliquer ce pattern tel quel pour MyCoach plutôt que d'inventer autre chose.**
 
 ### A.2 Nouveau bundle : emplacement et structure
 
-Nouveau dépôt dédié (privé, hors marketplace), par exemple `/Users/renaud/Projects/myspy-kwiki` (nom à ajuster librement) :
+Nouveau dépôt dédié (privé, hors marketplace), par exemple `/Users/renaud/Projects/mycoach-kwiki` (nom à ajuster librement) :
 
 ```
-myspy-kwiki/
+mycoach-kwiki/
 ├── index.md
 ├── log.md
 ├── okf-cli.py                 copié tel quel depuis OW-KWiki-llm (générique, aucune dépendance offshore-wind)
@@ -96,7 +96,7 @@ Process concret par thème :
 
 ### A.5 Outillage : réutiliser `okf-cli.py` tel quel
 
-Aucun développement nécessaire — le script est générique (aucune référence à l'éolien offshore dans sa logique), il suffit de le copier dans `myspy-kwiki/`. Commandes disponibles immédiatement :
+Aucun développement nécessaire — le script est générique (aucune référence à l'éolien offshore dans sa logique), il suffit de le copier dans `mycoach-kwiki/`. Commandes disponibles immédiatement :
 ```bash
 python3 okf-cli.py index                     # table des matières
 python3 okf-cli.py find "catastrophisme"      # recherche mots-clés classée
@@ -111,7 +111,7 @@ python3 okf-cli.py read cbt/thought-record    # lire une page
 
 ### A.7 Étapes WP1
 
-1. [ ] Créer le dépôt `myspy-kwiki` (structure §A.2), copier `okf-cli.py` depuis `OW-KWiki-llm`.
+1. [ ] Créer le dépôt `mycoach-kwiki` (structure §A.2), copier `okf-cli.py` depuis `OW-KWiki-llm`.
 2. [ ] Rédiger `index.md` (sections, convention de tags) sur le modèle de `bundles/offshore-wind/index.md`.
 3. [ ] Rédiger un premier lot de pages **à partir des sources déjà collectées** (recherche web précédente) : les techniques CBT/SFBT cœur + les schémas/parts en usage « léger » + la page `limites-explicites.md`.
 4. [ ] Renaud acquiert et fait passer au moins 1-2 livres via `docling` (CBT + SFBT en priorité, méthodes cœur) ; séance de travail commune pour transformer l'extraction en pages OKF.
@@ -124,7 +124,7 @@ python3 okf-cli.py read cbt/thought-record    # lire une page
 
 ### B.1 Architecture des données de séance — réutilisation du modèle CRM existant, zéro nouvelle table
 
-Vérification faite en conditions réelles (`list_projects(workspace_slug='renaud')`) : il existe déjà un précédent exact — un projet `IT Improvement` (`kind: "internal"`, `stage: "En cours"`, `description` en texte libre servant de synthèse vivante) tournant dans le workspace `renaud`. Pattern répliqué pour MySpy :
+Vérification faite en conditions réelles (`list_projects(workspace_slug='renaud')`) : il existe déjà un précédent exact — un projet `IT Improvement` (`kind: "internal"`, `stage: "En cours"`, `description` en texte libre servant de synthèse vivante) tournant dans le workspace `renaud`. Pattern répliqué pour MyCoach :
 
 | Besoin | Construct CRM réutilisé | Tools |
 |---|---|---|
@@ -132,37 +132,37 @@ Vérification faite en conditions réelles (`list_projects(workspace_slug='renau
 | **Journal de séance** (compte-rendu + transcript) | `halcrm_interactions` liée au projet | `log_interaction` |
 | **Action engagée pour la semaine suivante** | `halcrm_tasks` liée au projet | `create_task`, `list_tasks`, `update_task_status` |
 
-Stages `kind='internal'` (vérifié via `list_stages`) : actifs `Backlog / En cours / Livré`, terminaux `Terminé / Annulé`. Le projet MySpy reste en `En cours` en continu.
+Stages `kind='internal'` (vérifié via `list_stages`) : actifs `Backlog / En cours / Livré`, terminaux `Terminé / Annulé`. Le projet MyCoach reste en `En cours` en continu.
 
 **Contrainte réelle identifiée** : `log_interaction` existe en écriture, mais **aucun tool `list_interactions`/`get_interactions`** n'existe côté hal-mcp. La continuité réelle d'une séance à l'autre repose donc sur `halcrm_projects.description` (profil vivant) + `halcrm_tasks` (action en cours) — pas sur une relecture des interactions passées. C'est cohérent avec l'usage CRM actuel (journal d'audit, pas mémoire de travail). Amélioration possible plus tard si le besoin se confirme (§C).
 
 **Seule modification DB réelle** :
 ```sql
 update halcrm_workspaces
-set allowed_tags = array_append(allowed_tags, 'myspy')
+set allowed_tags = array_append(allowed_tags, 'mycoach')
 where workspace_slug = 'renaud'
-  and not ('myspy' = any(allowed_tags));
+  and not ('mycoach' = any(allowed_tags));
 ```
 (`create_project`/`create_task` valident leurs `tags` contre `allowed_tags`.) À vérifier aussi : le rôle `subcontractor` de Renaud sur `workspace_members` pour `renaud` autorise bien l'écriture.
 
 **Convention de séance :**
-1. `list_projects(workspace_slug='renaud', tags=['myspy'])` → profil vivant.
+1. `list_projects(workspace_slug='renaud', tags=['mycoach'])` → profil vivant.
 2. `list_tasks(project_id=..., status='todo')` → action de la semaine précédente.
-3. Conduire la séance (§B.2), en interrogeant le bundle `myspy-kwiki` (WP1) via `okf-cli.py find`/`read` (Bash) pour piocher les techniques/questions.
+3. Conduire la séance (§B.2), en interrogeant le bundle `mycoach-kwiki` (WP1) via `okf-cli.py find`/`read` (Bash) pour piocher les techniques/questions.
 4. `log_interaction(...)` — compte-rendu + transcript.
 5. `update_task_status` + `create_task(...)` pour la nouvelle action.
 6. `update_project(description=...)` si le profil a évolué.
 
-### B.2 Le skill `myspy`
+### B.2 Le skill `mycoach`
 
 ```
-plugins/myspy/
+plugins/mycoach/
 ├── .claude-plugin/plugin.json     (version 0.1.0)
-└── skills/myspy/SKILL.md          (version 0.1.0 — trame de séance + garde-fous, reste court)
+└── skills/mycoach/SKILL.md          (version 0.1.0 — trame de séance + garde-fous, reste court)
 ```
 + entrée dans `.claude-plugin/marketplace.json`, bump version top-level.
 
-**Triggers** : « séance MySpy », « check-in hebdo », « on fait ma séance », « point perso de la semaine ».
+**Triggers** : « séance MyCoach », « check-in hebdo », « on fait ma séance », « point perso de la semaine ».
 
 **`allowed-tools`** :
 ```
@@ -170,13 +170,13 @@ mcp__hal-mcp__list_projects mcp__hal-mcp__update_project mcp__hal-mcp__log_inter
 mcp__hal-mcp__list_tasks mcp__hal-mcp__create_task mcp__hal-mcp__update_task_status
 Bash
 ```
-(`Bash` uniquement pour appeler `okf-cli.py` sur le bundle `myspy-kwiki` — pas d'accès aux tools CRM business.)
+(`Bash` uniquement pour appeler `okf-cli.py` sur le bundle `mycoach-kwiki` — pas d'accès aux tools CRM business.)
 
 **⚠️ Point d'attention explicite** : `okf-cli.py` lit un dossier local sur le disque de Renaud. Ça marche parfaitement en Claude Code local (le cas d'usage visé, séance hebdo à son poste), mais **ne fonctionnerait pas depuis claude.ai/mobile** (pas d'accès filesystem à ce chemin) — contrairement aux tools hal qui, eux, marchent partout. Si l'usage mobile devient un besoin réel, il faudra reconsidérer (ex. synchroniser une partie du bundle vers hal). Non bloquant pour v1 si les séances se font en Claude Code local.
 
 **Trame de séance** (inchangée sur le fond) :
 - **Ouverture (SFBT, ~10 min)** : lire profil vivant + tâche de la semaine précédente ; question d'échelle ; question d'exception ; suivi de l'action engagée.
-- **Corps (~30-35 min)**, alterné selon focus déclaré : CBT (blocage actuel : situation → émotion → pensée automatique → distorsion → question socratique → reformulation) ou IFS/Schema léger (histoire personnelle : repérage de parts/schémas, sans reconstruction de la scène d'origine) — technique piochée dans `myspy-kwiki` en excluant celles récemment utilisées (§B.3).
+- **Corps (~30-35 min)**, alterné selon focus déclaré : CBT (blocage actuel : situation → émotion → pensée automatique → distorsion → question socratique → reformulation) ou IFS/Schema léger (histoire personnelle : repérage de parts/schémas, sans reconstruction de la scène d'origine) — technique piochée dans `mycoach-kwiki` en excluant celles récemment utilisées (§B.3).
 - **Clôture (SFBT, ~10 min)** : question miracle allégée, une seule action pour la semaine, auto-évaluation (0-10), écriture (`log_interaction` + `create_task` + `update_project` si pattern nouveau).
 
 **Garde-fous (non négociables, délibérément légers)** :
@@ -187,17 +187,17 @@ Bash
 
 ### B.3 Anti-répétition — la vraie priorité produit
 
-1. **Rotation forcée** : le profil vivant (`description`) garde une liste courte des dernières techniques utilisées (slugs de pages `myspy-kwiki`) ; le skill les exclut de la sélection à chaque séance — d'où l'intérêt réel de WP1 (plus le bundle est varié, plus la rotation a de marge).
+1. **Rotation forcée** : le profil vivant (`description`) garde une liste courte des dernières techniques utilisées (slugs de pages `mycoach-kwiki`) ; le skill les exclut de la sélection à chaque séance — d'où l'intérêt réel de WP1 (plus le bundle est varié, plus la rotation a de marge).
 2. **Nouveauté périodique délibérée** : toutes les 6-8 séances, piocher dans `engagement/` (narrative therapy, valeurs ACT, format rétrospective) plutôt que CBT/SFBT classique.
 3. **Méta-check explicite** : toutes les 8-10 séances, une question dédiée en clôture — « Est-ce que ces séances t'apportent encore quelque chose ? Qu'est-ce qui te manque ou t'ennuie ? » — pour détecter la lassitude avant qu'elle ne se traduise par un rendez-vous manqué.
 
 ### B.4 Étapes WP2
 
 1. [ ] Confirmer le rôle d'écriture de Renaud sur `workspace_members` (workspace `renaud`).
-2. [ ] `UPDATE halcrm_workspaces SET allowed_tags = array_append(allowed_tags, 'myspy') ...`.
-3. [ ] `create_project(...)` — initialisation du projet MySpy.
-4. [ ] Créer `plugins/myspy/.claude-plugin/plugin.json` + `SKILL.md` (trame + garde-fous + anti-répétition + appel `okf-cli.py`).
-5. [ ] Ajouter l'entrée `myspy` dans `.claude-plugin/marketplace.json`, bump version top-level.
+2. [ ] `UPDATE halcrm_workspaces SET allowed_tags = array_append(allowed_tags, 'mycoach') ...`.
+3. [ ] `create_project(...)` — initialisation du projet MyCoach.
+4. [ ] Créer `plugins/mycoach/.claude-plugin/plugin.json` + `SKILL.md` (trame + garde-fous + anti-répétition + appel `okf-cli.py`).
+5. [ ] Ajouter l'entrée `mycoach` dans `.claude-plugin/marketplace.json`, bump version top-level.
 6. [ ] Tester une séance à blanc (dry-run), avec le bundle WP1 même partiellement peuplé — vérifier le cycle complet lecture profil/tâche/bundle → séance → écriture interaction/tâche/profil.
 
 ---
@@ -209,7 +209,7 @@ Bash
 - Les outils cliniques encadrés (Woebot, Wysa — TCC, FDA Breakthrough Device) ont des preuves solides. L'essai randomisé **Therabot** (Dartmouth, *NEJM AI*, 2025) montre des bénéfices réels (-51 % symptômes dépressifs sur 4 semaines) **mais avec supervision clinique humaine en veille** — aucun agent IA générique n'est prêt à opérer en autonomie totale sur la santé mentale.
 - Une étude **Stanford** (FAccT 2025) documente des défaillances sérieuses des chatbots « thérapeutes » génériques : ~20 % de réponses inadéquates face à une idéation suicidaire simulée, biais de stigmatisation, sycophantie.
 - L'**APA** a publié un *Health Advisory* (nov. 2025) formalisant ces risques.
-- **Conséquence pour MySpy** : garde-fous minimaux non négociables (§B.2), volontairement légers vu le profil de risque réel exprimé par Renaud (§0).
+- **Conséquence pour MyCoach** : garde-fous minimaux non négociables (§B.2), volontairement légers vu le profil de risque réel exprimé par Renaud (§0).
 
 ### C.2 Méthodologies retenues
 
@@ -219,7 +219,7 @@ Bash
 | **CBT** | Corps de séance, blocages actuels | Base de preuve la plus large de toutes les psychothérapies (socle de Woebot/Wysa/Therabot). Mécanisable en texte. |
 | **IFS (léger) / Schema Therapy (léger)** | Corps de séance, histoire personnelle, **surface uniquement** | Repérage de patterns sans jamais de travail de reconstruction traumatique — la littérature est unanime sur le risque de re-traumatisation/faux souvenirs sans praticien formé. |
 
-**Principe directeur** : MySpy est un outil de réflexion structurée et de suivi, pas une thérapie de substitution.
+**Principe directeur** : MyCoach est un outil de réflexion structurée et de suivi, pas une thérapie de substitution.
 
 ### C.3 Architecture mémoire — validée par la littérature produit
 
@@ -231,12 +231,12 @@ Recherche complémentaire (MemGPT, LangGraph, papers DMT-CBT/COCOA, retours prod
 
 - **`list_interactions`/`get_interactions`** sur hal-mcp, si le besoin de relire le détail de séances anciennes se fait sentir (§B.1).
 - **Synthèse périodique (mensuelle/trimestrielle)** façon Mindsera/Rosebud — dépend du point précédent.
-- **Recherche plus fine que `okf-cli.py find`** (embeddings/RAG) sur `myspy-kwiki` — seulement si le corpus grossit au point que la recherche par mots-clés ne suffit plus. Pas anticipé : `OW-KWiki-llm` fonctionne bien avec `find` seul à ce jour.
+- **Recherche plus fine que `okf-cli.py find`** (embeddings/RAG) sur `mycoach-kwiki` — seulement si le corpus grossit au point que la recherche par mots-clés ne suffit plus. Pas anticipé : `OW-KWiki-llm` fonctionne bien avec `find` seul à ce jour.
 - **Pipeline d'enrichissement continu** via newsletters (Gmail, §A.6).
-- **Accès mobile/claude.ai** au bundle `myspy-kwiki` si le besoin de faire une séance hors du poste de Renaud se confirme (§B.2).
+- **Accès mobile/claude.ai** au bundle `mycoach-kwiki` si le besoin de faire une séance hors du poste de Renaud se confirme (§B.2).
 
 ## E. Limites à garder en tête
 
 - Aucun mécanisme technique de détection de crise (pas de classifieur) — repose sur l'attention du modèle, cadrée par les instructions du skill.
-- Le skill (WP2, `plugins/myspy/`) peut rester dans le dépôt marketplace public sans risque : aucune donnée personnelle, aucun contenu sous copyright. Le bundle `myspy-kwiki` (WP1) et les données de séance (hal) restent strictement privés.
-- MySpy est un outil de suivi personnel, pas un dispositif médical.
+- Le skill (WP2, `plugins/mycoach/`) peut rester dans le dépôt marketplace public sans risque : aucune donnée personnelle, aucun contenu sous copyright. Le bundle `mycoach-kwiki` (WP1) et les données de séance (hal) restent strictement privés.
+- MyCoach est un outil de suivi personnel, pas un dispositif médical.

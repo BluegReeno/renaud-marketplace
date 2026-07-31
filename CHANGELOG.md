@@ -66,6 +66,15 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
 
+## mycoach 0.3.0
+
+- Rename the plugin and its skill `myspy` → `mycoach` (directories, frontmatter,
+  triggers). The knowledge bundle moved to `mycoach-kwiki` and the skill now reads
+  it from `/Users/renaud/Projects/mycoach-kwiki`. hal writes use the `mycoach` tag
+  and the `mycoach-session` channel. No transition alias: the old trigger
+  "séance MySpy" is gone. Entries below keep their historical `myspy` heading
+  (closes #73).
+
 ## myspy 0.2.0
 
 - address hal-mcp tools as mcp__plugin_hal_hal-mcp__*
