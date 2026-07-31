@@ -85,10 +85,10 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.8.3 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.8.0 | `morning-briefing`, `mail-triage`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + tri de mails + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
-| `improve` | 0.1.2 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
-| `myspy` | 0.1.0 | `myspy` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
+| `jobsearch` | 0.9.0 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.10.2 | `morning-briefing`, `mail-triage`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + tri de mails + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
+| `improve` | 0.2.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
+| `mycoach` | 0.3.0 | `mycoach` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
 ---
 
@@ -100,7 +100,7 @@ Dépôt public — pas de token requis. Ajouter le marketplace puis installer le
 /plugin marketplace add BluegReeno/renaud-marketplace jobsearch
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
 /plugin marketplace add BluegReeno/renaud-marketplace improve
-/plugin marketplace add BluegReeno/renaud-marketplace myspy
+/plugin marketplace add BluegReeno/renaud-marketplace mycoach
 ```
 
 ### Connecting from Claude, Gemini, or OpenAI

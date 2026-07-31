@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.6.13",
+  "version": "0.6.14",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -45,10 +45,10 @@
       "repository": "https://github.com/BluegReeno/renaud-marketplace"
     },
     {
-      "name": "myspy",
-      "version": "0.2.0",
+      "name": "mycoach",
+      "version": "0.3.0",
       "description": "Personal weekly self-reflection check-in — CBT/SFBT-based structured session with a private OKF knowledge base",
-      "source": "./plugins/myspy",
+      "source": "./plugins/mycoach",
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"
