@@ -6,7 +6,7 @@
 # human does that after review.
 #
 # Usage: ./scripts/release.sh <plugin> <new-version> "<changelog line>" [--mcp-version <v>]
-#   <plugin>         plugin dir name under plugins/ (jobsearch | briefing | improve | myspy)
+#   <plugin>         plugin dir name under plugins/ (jobsearch | briefing | improve | mycoach)
 #   <new-version>    SemVer, MUST be strictly greater than the current one
 #   <changelog line> one-line summary for the CHANGELOG entry
 #   --mcp-version    optional: also bump plugins/<plugin>/.mcp.json server version
@@ -26,7 +26,7 @@ usage() {
   cat <<'EOF'
 Usage: ./scripts/release.sh <plugin> <new-version> "<changelog line>" [--mcp-version <v>]
 
-  <plugin>          plugin dir name under plugins/ (jobsearch | briefing | improve | myspy)
+  <plugin>          plugin dir name under plugins/ (jobsearch | briefing | improve | mycoach)
   <new-version>     SemVer, must be strictly greater than the current version
   <changelog line>  one-line summary for the CHANGELOG entry
   --mcp-version <v> optional: also bump plugins/<plugin>/.mcp.json server version

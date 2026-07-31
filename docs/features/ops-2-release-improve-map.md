@@ -3,7 +3,7 @@
 > **Context**: Ops 1 (merged) reduced the version invariant to two enforced fields.
 > Releases are still a manual multi-location bump, and the `/improve` skill routes
 > observations to repos via a hand-maintained lookup table that is already stale
-> (missing `log-cr`, `mail-triage`, `myspy`, `sprint-review`). The sibling repo
+> (missing `log-cr`, `mail-triage`, `mycoach`, `sprint-review`). The sibling repo
 > bluegreen-marketplace has an identical `scripts/release.sh` (its Ops 2, merged
 > first — mirror it). Part of a multi-repo ops track; self-contained.
 >
@@ -68,7 +68,7 @@ New-skill checklist gains one line: "run `scripts/generate_improve_map.py`".
 
 ```bash
 python3 scripts/generate_improve_map.py && git diff --exit-code   # idempotent
-grep -n "log-cr\|mail-triage\|myspy\|sprint-review" plugins/improve/skills/improve/SKILL.md
+grep -n "log-cr\|mail-triage\|mycoach\|sprint-review" plugins/improve/skills/improve/SKILL.md
 bash scripts/check_version_sync.sh                                 # green post-release
 bash scripts/release.sh; echo $?                                   # 1 + usage
 ```

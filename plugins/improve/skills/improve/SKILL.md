@@ -86,7 +86,7 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 | jobsearch-vault  | jobsearch | renaud-marketplace    |
 | log-application  | jobsearch | renaud-marketplace    |
 | log-cr           | jobsearch | renaud-marketplace    |
-| myspy            | myspy     | renaud-marketplace    |
+| mycoach          | mycoach   | renaud-marketplace    |
 | crm              | hal       | bluegreen-marketplace |
 | edifice          | hal       | bluegreen-marketplace |
 | linkedin         | hal       | bluegreen-marketplace |
