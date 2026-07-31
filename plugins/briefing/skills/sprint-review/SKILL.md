@@ -57,36 +57,42 @@ En **mode conversationnel** : comportement identique pour les étapes 0–4. Ét
 
 ---
 
-## ÉTAPE 0 — Charger le contexte (silencieux, pas affiché)
+## ÉTAPE 0 — Probe hal + résolution des workspaces (avant tout le reste)
 
-En parallèle :
+**En premier, avant de charger le moindre document ou sprint.** Appeler `mcp__plugin_hal_hal-mcp__whoami`. Asserter la **résolvabilité, jamais une identité** : il répond et retourne au moins un workspace dans `workspaces[]`. Sur échec d'appel → `hal:DOWN <raison>`, rendre `⚠️ hal DOWN — <raison>` et sauter les étapes qui lisent hal. S'il répond mais `workspaces[]` est vide → s'arrêter avec « aucun workspace — whoami a retourné `<payload effectivement reçu>` ». Ne jamais asserter un email ou un slug attendu — tout le skill itère sur ce que `whoami` retourne.
+
+**Ne retenir que les workspaces où `sprints_enabled` est vrai** — faire le bilan d'un sprint dans un workspace sans sprints n'a pas de sens. Nommer en une ligne visible ceux qu'on écarte : `↷ <name> — pas de sprints, ignoré`. Si le champ `sprints_enabled` est absent du payload (phase 1 pas encore déployée), rendre `⚠️ whoami sans champ sprints_enabled — tous les workspaces traités` et retenir tous les workspaces retournés. Si aucun workspace n'a `sprints_enabled` → s'arrêter et le dire.
+
+Dans toute la suite, « workspace retenu » = un workspace de cette liste filtrée.
+
+---
+
+## ÉTAPE 0.5 — Charger le contexte (silencieux, pas affiché)
+
+Pour **chaque** workspace retenu `w`, en parallèle, tenter de lire son document de calibrage (slugs conventionnels — utiliser ce qui existe) :
 
 ```
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug="renaud", slug="memory")
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=w.workspace_slug, slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=w.workspace_slug, slug="memory")
 ```
 
 Ne pas afficher le contenu brut. Utiliser pour calibrer le ton et les priorités.
-Si un document est absent (404), continuer sans bloquer.
+Un document absent (404) reste non bloquant.
 
 ---
 
 ## ÉTAPE 1 — Bilan des tâches sprint (hal)
 
-Probe hal : `mcp__plugin_hal_hal-mcp__whoami`. Si échec → marquer `hal:DOWN <raison>` et sauter cette étape en rendant `⚠️ hal DOWN — <raison>`.
-
-Lire en parallèle :
+Le probe hal est déjà fait (ÉTAPE 0). Pour **chaque** workspace retenu `w`, en parallèle :
 
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
 ```
 
 Pour chaque workspace : prendre le premier élément de la liste (un seul sprint actif possible). Si la liste est vide → utiliser `list_tasks` sans `sprint_id` et noter `(aucun sprint actif — tâches ouvertes)`.
 
 ```
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<sprint_id[w]>)
 ```
 
 Calculer par workspace :
@@ -94,17 +100,17 @@ Calculer par workspace :
 - `non_terminées` = tasks avec `status != "done"` (todo | in_progress | blocked)
 - `taux` = `len(done) / len(all) * 100` (0% si aucune tâche)
 
-Afficher :
+Afficher (une section `###` par workspace retenu, dans l'ordre de `whoami`, labellisée par le `name` du workspace — jamais un label figé `[business]`/`[perso]`) :
 
 ```
 ## Bilan Sprint [N] — Semaine du $CURR_D0_LABEL–$CURR_D4_LABEL
 
-### Blue Green [business] — X/Y terminées (Z%)
+### <nom du workspace> — X/Y terminées (Z%)
 ✅ [titre]
 ✅ [titre]
 ⏳ [titre] — [status] — bloqueur probable : [inférer si possible depuis description/tags]
 
-### Renaud [perso] — X/Y terminées (Z%)
+### <nom d'un autre workspace> — X/Y terminées (Z%)
 ✅ [titre]
 ⏳ [titre] — [status]
 
@@ -230,43 +236,38 @@ Déclencher si :
 
 ---
 
-## ÉTAPE 3 — Bilan Blue Green
+## ÉTAPE 3 — Bilan des projets (par workspace)
+
+Pour **chaque** workspace retenu `w`, en parallèle :
 
 ```
-mcp__plugin_hal_hal-mcp__list_projects(workspace_slug="blue-green")
+mcp__plugin_hal_hal-mcp__list_projects(workspace_slug=w.workspace_slug)
 ```
 
-Afficher les projets dont le stage n'est pas fermé/annulé :
+Afficher, une section par workspace ayant au moins un projet actif, les projets dont le stage n'est pas fermé/annulé :
 
 ```
-## Blue Green — Projets en cours
+## <nom du workspace> — Projets en cours
 - [Projet] — stage : [stage] — prochaine action : [inférer depuis description ou tags]
 ```
 
-Si aucun projet actif : "Pipeline BG vide — action à planifier semaine prochaine ?"
+Si un workspace n'a aucun projet actif : "Pipeline <nom du workspace> vide — action à planifier semaine prochaine ?"
 
 ---
 
 ## ÉTAPE 4 — Shortlist sprint suivant
 
-Scanner en parallèle :
+Scanner en parallèle. Les tâches : pour **chaque** workspace retenu `w`, `list_tasks(workspace_slug=w.workspace_slug)` → filtrer non terminées + sans sprint_id.
+
+Les calendriers : l'ensemble à lire est l'**union de chaque `calendar_id` et `member_calendar_id` non-null** sur tous les workspaces retournés par `whoami` (ÉTAPE 0), dédupliquée — jamais un ID littéral. Si aucun workspace ne déclare de calendrier (champs null/absents — ex. phase 1 pas déployée) → rendre `⚠️ Aucun calendrier déclaré sur tes workspaces` et poursuivre sans contrainte calendrier.
 
 ```
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green")  → filtrer non terminées + sans sprint_id
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")      → filtrer non terminées + sans sprint_id
+# pour chaque workspace retenu w :
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)  → filtrer non terminées + sans sprint_id
 
+# pour chaque calendrier de l'union :
 mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="renaud@bluegreen.ai",
-  timeMin="$NEXT_D0_ISOT00:00:00+02:00",
-  timeMax="$NEXT_D4_ISOT23:59:59+02:00"
-)
-mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="rlaborbe@gmail.com",
-  timeMin="$NEXT_D0_ISOT00:00:00+02:00",
-  timeMax="$NEXT_D4_ISOT23:59:59+02:00"
-)
-mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="hah0feg81cofndkov7derd6g00@group.calendar.google.com",
+  calendarId=<id de l'union>,
   timeMin="$NEXT_D0_ISOT00:00:00+02:00",
   timeMax="$NEXT_D4_ISOT23:59:59+02:00"
 )
@@ -307,19 +308,20 @@ Terminer par :
 
 ### 5a. Marquer les tâches terminées
 
-Pour chaque tâche déjà `done` dans hal — aucune action. Pour les tâches que Renaud confirme comme terminées :
+Pour chaque tâche déjà `done` dans hal — aucune action. Pour les tâches que Renaud confirme comme terminées, dans **leur propre** workspace :
 
 ```
-mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="blue-green", task_id=..., status="done")
-mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="renaud", task_id=..., status="done")
+mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug=<workspace de la tâche>, task_id=..., status="done")
 ```
 
 ### 5b. Sauvegarder le bilan dans hal
 
+Sauvegarder le bilan dans le workspace **dont les `allowed_tags` contiennent `jobsearch`** (le bilan est centré sur les métriques jobsearch). Si aucun workspace retenu ne porte le tag `jobsearch`, le sauvegarder dans le workspace par défaut (`is_default`).
+
 ```
 mcp__plugin_hal_hal-mcp__save_document(
-  workspace_slug="renaud",
-  slug="sprint-review-[sprint_number_rn]",
+  workspace_slug=<workspace de destination résolu ci-dessus>,
+  slug="sprint-review-[sprint_number de ce workspace]",
   domain="jobsearch",
   kind="sprint_review",
   title="Sprint Review [N] — Semaine du $CURR_D0_LABEL",
@@ -331,9 +333,9 @@ Confirmer :
 
 ```
 ✅ Sprint [N] clôturé.
-- Blue Green [sprint_name_bg] : [X] tâches marquées done
-- Renaud [sprint_name_rn] : [X] tâches marquées done
-- Bilan sauvegardé : hal/renaud/sprint-review-[N]
+- <nom du workspace> [sprint_name] : [X] tâches marquées done
+  (une ligne par workspace retenu)
+- Bilan sauvegardé : hal/<workspace de destination>/sprint-review-[N]
 
 Bonne semaine. Le sprint-planner prend le relais.
 ```

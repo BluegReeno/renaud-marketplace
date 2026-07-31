@@ -1,14 +1,13 @@
 ---
 name: morning-briefing
 description: >
-  Produce one morning briefing covering today's calendars (Pro Blue Green,
-  perso, family), current-sprint hal tasks across the `blue-green` and `renaud`
-  workspaces, Obsidian jobsearch state, both Gmail inboxes (perso + pro),
-  job-offer scoring from LinkedIn digests, and CRM/vault cross-reference —
-  then writes one daily-log entry per HAL workspace. Renders 6 blocks + an
-  ordered plan du jour. Use when the user asks "what's up for today",
-  "ma journée", "briefing du jour", "quel est mon planning", or any similar
-  daily-overview trigger.
+  Produce one morning briefing covering today's calendars (declared by your hal
+  workspaces), current-sprint hal tasks across every workspace you belong to,
+  Obsidian jobsearch state, both Gmail inboxes (perso + pro), job-offer scoring
+  from LinkedIn digests, and CRM/vault cross-reference — then writes one
+  daily-log entry per HAL workspace. Renders 6 blocks + an ordered plan du jour.
+  Use when the user asks "what's up for today", "ma journée", "briefing du
+  jour", "quel est mon planning", or any similar daily-overview trigger.
 allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
@@ -16,7 +15,7 @@ allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sp
 
 ## What this skill does
 
-Produce one morning briefing that merges **six sources** into a single structured view: hal tasks (two workspaces, sprint-aware), Obsidian jobsearch state, three Google Calendars, and two Gmail inboxes — then cross-references mails against the vault and CRM to update in-flight process status. It also runs a scoring pipeline on LinkedIn job alerts found in the perso inbox, surfaces the best 2-3 offers with fit rationale, and generates an **ordered plan du jour** as the final block. The rendered brief is read-only except for one daily-log write per hal workspace at the end of the run (Step 4), plus description-only updates to a dedicated hal task when routing idea capture out of the daily log (Step 5).
+Produce one morning briefing that merges **six sources** into a single structured view: hal tasks (every workspace you belong to, sprint-aware), Obsidian jobsearch state, the Google Calendars your workspaces declare, and two Gmail inboxes (perso + pro) — then cross-references mails against the vault and CRM to update in-flight process status. It also runs a scoring pipeline on LinkedIn job alerts found in the perso inbox, surfaces the best 2-3 offers with fit rationale, and generates an **ordered plan du jour** as the final block. The rendered brief is read-only except for one daily-log write per hal workspace at the end of the run (Step 4), plus description-only updates to a dedicated hal task when routing idea capture out of the daily log (Step 5).
 
 Any session that reviews or cleans up this skill's daily log or hal tasks — reordering, cancelling, merging duplicates, updating descriptions — is **log-only**: it must never execute a task inline (e.g. draft a LinkedIn post, write a CR). See Step 5.
 
@@ -36,7 +35,7 @@ This skill runs in two modes. **Interactive** (default, no flag) is the full beh
 | **Plan du jour** | Prompt the user to validate/modify before writing | Rendered with the `[proposé — non validé]` marker and **NOT written to hal**. |
 | **Daily-log writes (Step 4)** | Happen | **Still happen** — they are the whole point of the headless run. |
 | **Connector failure** (calendar, gmail, brightdata) | `⚠️ <source> DOWN — <reason>` line, run continues | Block states `<source>: UNAVAILABLE (<error>)`, run continues — visible degradation. |
-| **hal unreachable** | `hal:DOWN`, Steps 1a/1b/4 skipped, brief still renders | **ABORT with an error** — the daily-log write is the run's purpose, so a headless run with no hal has nothing to deliver. |
+| **hal unreachable** | `hal:DOWN`, Steps 1a/4 skipped, brief still renders | **ABORT with an error** — the daily-log write is the run's purpose, so a headless run with no hal has nothing to deliver. |
 
 The flag toggles only the five rows above. Everything else — sources pulled, block layout, scoring, ordering — is identical in both modes. Interactive behaviour is unchanged by the presence of this contract.
 
@@ -48,7 +47,7 @@ Probe each backend independently. Do NOT bail on the first failure — all probe
 
 In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise an error; do not render a partial brief — see Invocation modes). Any **other** failing probe ⇒ its block renders `<source>: UNAVAILABLE (<error>)` instead of the interactive `⚠️ <source> DOWN` line, and the run continues.
 
-- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Expected: `renaud@bluegreen.ai` with workspaces including `blue-green` and `renaud`. On failure → mark `hal:DOWN <reason>`, skip Steps 1a, 1b, 4. If workspace slugs differ, fail loud with actual slugs.
+- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a, 1b, 4. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip those steps; with no workspace there is nothing to brief. Never assert a specific email or slug — every downstream step iterates on whatever `whoami` returns.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures). On failure → mark `jobsearch:DOWN <reason>`, skip Step 1c.
 - **Google Calendar probe**: call `mcp__claude_ai_Google_Calendar__list_calendars`. On failure → mark `gcal:DOWN <reason>`, skip Step 1d. If the error suggests OAuth failure, include "reconnect at claude.ai/connectors" in the message.
 - **Gmail perso probe**: call `mcp__plugin_jobsearch_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
@@ -76,29 +75,29 @@ If `hal:DOWN`, skip entirely.
 
 No inter-step dependencies after Step 0. Issue tool calls in parallel for maximum speed.
 
-### 1a — hal tasks for `blue-green` workspace
+### 1a — hal tasks (one loop over every workspace `whoami` returned)
+
+Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`:
 
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-  → take the first entry's id
-if sprint.id is not None:
-  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<id>)
+if w.sprints_enabled:
+  mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
+    → take the first entry's id
+  if sprint.id is not None:
+    mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
+  else:
+    mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
 else:
-  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green")
-  → note "(no active sprint — showing open tasks)"
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
 ```
 
-Label every task `[business]`. Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : blue-green/<id>` (see Step 4's Liens block).
+A workspace without `sprints_enabled` is **not** a workspace missing a sprint — pull its open tasks with no sprint filter and render **no** "(no active sprint)" note. A `sprints_enabled` workspace with no `status="actuel"` sprint falls back to the unfiltered `list_tasks` and *does* note "(no active sprint — showing open tasks)".
 
-### 1b — hal tasks for `renaud` workspace
+If the enriched `whoami` payload does not carry `sprints_enabled` (phase 1 not yet deployed), render `⚠️ whoami sans champ sprints_enabled — sprint non résolu, tâches ouvertes affichées` for that workspace and fall back to the unfiltered `list_tasks`.
 
-Identical flow with `workspace_slug="renaud"`. Label every task `[perso]`. Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : renaud/<id>`.
+**Label** every task with the workspace's `name` (fall back to `workspace_slug` when `name` is null). Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : <workspace_slug>/<id>` (see Step 4's Liens block).
 
-**Tag grouping (renaud only).** Group returned tasks by their **first** tag. Tasks with no tag land under `other`. Fixed order:
-
-1. `jobsearch` 2. `rosaslaborbe` 3. `personal` 4. `finance` 5. `hr` 6. `laborbe` 7. `other`
-
-Skip groups with zero tasks.
+**Tag grouping (every workspace).** Group each workspace's returned tasks by their **first** tag, ordered by that workspace's own `allowed_tags` (from `whoami`); tasks with no tag land last, under `other`. Skip groups with zero tasks. If a workspace carries no `allowed_tags`, list its tasks flat (no tag subsection). Never assume a fixed tag list — a second user's workspace has entirely different tags.
 
 ### 1c — Obsidian jobsearch (via `jobsearch-vault` skill)
 
@@ -112,21 +111,23 @@ READ-ONLY — do not write the vault.
 
 The vault name for `obsidian://open?vault=<vault>&file=<path>` links is `SecondLife` (fixed — see the `jobsearch-vault` skill's vault-path resolution). Build the file part by URL-encoding the note path.
 
-### 1d — Google Calendars (three calendars, merged)
+### 1d — Google Calendars (union declared by the workspaces)
 
-For each calendar, call `mcp__claude_ai_Google_Calendar__list_events(calendarId=<id>, timeMin=<today 00:00 Europe/Paris>, timeMax=<tomorrow 00:00 Europe/Paris>)`:
+Build the calendar set from `whoami`, never from literals: the **union of every non-null `calendar_id` and `member_calendar_id`** across all workspaces, deduplicated. `calendar_id` is the calendar shared by the whole workspace (a household or site agenda); `member_calendar_id` is this member's own agenda for that workspace. Calendars the user owns but that no workspace declares are not read — no `#holiday`/import heuristic.
 
-- `renaud@bluegreen.ai` — pro Blue Green
-- `rlaborbe@gmail.com` — perso / job search
-- `hah0feg81cofndkov7derd6g00@group.calendar.google.com` — family
+If no workspace declares any calendar (all fields null or absent — e.g. phase 1 not yet deployed) → render `⚠️ Aucun calendrier déclaré sur tes workspaces` in the RDV block and skip the calendar pulls, but keep going. `mcp__claude_ai_Google_Calendar__list_calendars` stays the Step 0 health probe only; it never decides which calendars to read.
 
-`timeMin` and `timeMax` MUST be Europe/Paris local time, not UTC. If all three calendars return zero events, extend `timeMax` to +7 days to surface "next upcoming". Merge results, sort by `start`. Tag each event (`pro`, `perso`, `famille`).
+For each calendar id in the union, call `mcp__claude_ai_Google_Calendar__list_events(calendarId=<id>, timeMin=<today 00:00 Europe/Paris>, timeMax=<tomorrow 00:00 Europe/Paris>)`.
+
+`timeMin` and `timeMax` MUST be Europe/Paris local time, not UTC. If every calendar returns zero events, extend `timeMax` to +7 days to surface "next upcoming". Merge results, sort by `start`. Tag each event with the **name of the workspace** that declared its calendar (a calendar declared by several workspaces is tagged with the first workspace that declared it).
 
 Do not implement pagination — the default page is enough for a daily window.
 
 Keep each event's `hangoutLink` field, when present — Step 4 links it as the Meet URL for prep/follow-up entries anchored on that event.
 
-### 1e — Gmail perso `rlaborbe@gmail.com` (via `mcp__plugin_jobsearch_gmail-mcp__*`)
+### 1e — Gmail perso (via `mcp__plugin_jobsearch_gmail-mcp__*`)
+
+Which inbox is queried is decided by **which MCP server is called**, never by an address string. This block always targets the perso inbox because it calls the `mcp__plugin_jobsearch_gmail-mcp__*` server.
 
 Skip if `gmail-perso:DOWN`.
 
@@ -148,7 +149,7 @@ Issue up to three parallel searches:
    ```
    mcp__plugin_jobsearch_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
    ```
-   Run one search per active candidature (parallel). Read matching threads for context. Keep each matching email's `id` — Step 4 links it as `https://mail.google.com/mail/?authuser=rlaborbe@gmail.com#all/<messageId>`.
+   Run one search per active candidature (parallel). Read matching threads for context. Keep each matching email's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=` — see Step 4's Liens rule and the multi-account note there).
 
 3. **Inbound recruiters (last 48h)**:
    ```
@@ -161,7 +162,9 @@ Issue up to three parallel searches:
 
 Collect results into: `linkedin_offers[]` (raw, all offers), `candidature_threads[]` (matched to active process, each carrying its Gmail message `id`), `inbound_recruiters[]` (each carrying its Gmail message `id`).
 
-### 1f — Gmail pro `renaud@bluegreen.ai` (via `mcp__claude_ai_Gmail__*`)
+### 1f — Gmail pro (via `mcp__claude_ai_Gmail__*`)
+
+This block always targets the pro inbox because it calls the `mcp__claude_ai_Gmail__*` server — the address is never named.
 
 Skip if `gmail-pro:DOWN`.
 
@@ -171,7 +174,7 @@ Issue two parallel searches:
    ```
    mcp__claude_ai_Gmail__search_threads(query="newer_than:7d -label:newsletters", maxResults=20)
    ```
-   Cross-reference thread subjects/senders against active BG opportunities from the hal CRM context. Read threads that match. Keep each matching thread's `id` — Step 4 links it as `https://mail.google.com/mail/?authuser=renaud@bluegreen.ai#all/<messageId>`.
+   Cross-reference thread subjects/senders against active BG opportunities from the hal CRM context. Read threads that match. Keep each matching thread's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=` — see Step 4's Liens rule).
 
 2. **Inbound (new contacts, calls for tender)**:
    ```
@@ -248,8 +251,8 @@ Store these in `cv_fanout_results[]` for use in Step 3 rendering.
 ## Step 2 — Merge and label
 
 Assemble one ordered structure from all pulls:
-- hal tasks: `[business]` / `[perso]` labels per workspace
-- Calendar events: `[pro]` / `[perso]` / `[famille]` tags
+- hal tasks: labelled with each workspace's `name` (fallback `workspace_slug`)
+- Calendar events: tagged with the name of the workspace that declared the calendar
 - LinkedIn offers: scored list from Step 1g
 - Candidature cross-reference: vault stage + mail context from Step 1e
 - BG commercial: CRM stage + mail context from Step 1f
@@ -266,25 +269,24 @@ Render in **French** (Renaud's working language). Use the 6-block template below
 ```
 # Briefing — <date in French, e.g. mercredi 11 juin 2026>
 
-## 📅 RDV du jour (3 agendas fusionnés)
-HH:MM–HH:MM — <event title> [pro|perso|famille]
+## 📅 RDV du jour (agendas déclarés par tes workspaces, fusionnés)
+HH:MM–HH:MM — <event title> [<workspace name>]
 ...
-(aucun événement aujourd'hui — prochain : HH:MM <date> — <title> [<cal>])
-(or: ⚠️ Google Calendar DOWN — <reason>)
+(aucun événement aujourd'hui — prochain : HH:MM <date> — <title> [<workspace name>])
+(or: ⚠️ Google Calendar DOWN — <reason>  /  ⚠️ Aucun calendrier déclaré sur tes workspaces)
 
 ## ✅ Sprint en cours
-### Blue Green [business]
+### <workspace name>
+#### <tag>
 - [<status>] <title> · échéance <date>
 ...
-(⚠️ hal DOWN — <reason>  /  aucun sprint actif — tâches ouvertes : ...)
-
-### Renaud [perso]
-#### 🎯 jobsearch
-- [<status>] <title>
-...
-#### 🏡 rosaslaborbe / 🧍 personal / 💶 finance / 📋 hr / 👨‍👩‍👧 laborbe / 📌 other
-...
-(skip empty subsections)
+(one ### section per workspace `whoami` returned, in whoami's order; one #### subsection
+ per first-tag group, ordered by that workspace's allowed_tags, untagged tasks under `other`
+ last; skip empty tag subsections; if the workspace has no allowed_tags, list tasks flat
+ with no #### subsection)
+(⚠️ hal DOWN — <reason>  /  a `sprints_enabled` workspace with no active sprint shows its
+ open tasks noted "aucun sprint actif — tâches ouvertes" ; a sprintless workspace shows its
+ open tasks with no such note)
 
 ## 🎯 Jobsearch — Nouvelles offres
 🔥 <title> — <company> — <location>
@@ -330,8 +332,8 @@ Autres mails pro à regarder : <subjects not matched to CRM, sorted by relevance
 hal-mcp : ✅  |  ⚠️ DOWN (<reason>)
 jobsearch-vault : ✅  |  ⚠️ DOWN (<reason>)
 Google Calendar : ✅  |  ⚠️ DOWN (<reason>)
-Gmail perso (rlaborbe@gmail.com) : ✅  |  ⚠️ DOWN (<reason>)
-Gmail pro (renaud@bluegreen.ai) : ✅  |  ⚠️ DOWN (<reason>)
+Gmail perso : ✅  |  ⚠️ DOWN (<reason>)
+Gmail pro : ✅  |  ⚠️ DOWN (<reason>)
 ```
 
 The "Source status" footer is mandatory and ALWAYS renders all five lines — even when all sources are healthy.
@@ -344,7 +346,7 @@ Apply ordering rules in priority order:
 
 1. **MAR–VEN : jobsearch block 08:30–10:30 first** — if today is Tuesday–Friday and the slot is free, put jobsearch tasks first: vault relances, mail replies to recruiters, new 🔥/🟡 offer follow-ups. Exception: on Monday, the IC meeting comes first.
 2. **Calendar events as anchors** — add prep task 15–30 min before each event; add post-meeting follow-up immediately after.
-3. **Deep-work in open windows** — assign hal sprint tasks to remaining free slots, `[business]` (revenue-generating) before `[perso]`.
+3. **Deep-work in open windows** — assign hal sprint tasks to remaining free slots; where the user's workspaces split into revenue-generating vs personal, schedule the revenue-generating workspace's tasks first (see rule 4).
 4. **Revenue priority** — job + revenue tasks before admin before personal.
 
 **Plan du jour write policy (flag-driven — see Invocation modes).** In **`--headless`** mode, mark the plan `[proposé — non validé]` and do NOT write it to hal. In **interactive** mode (no flag), prompt the user to validate or modify before writing.
@@ -381,70 +383,38 @@ The daily log is a **hand-off document**: Renaud opens a fresh session per task 
 
 | Link type | Rendering |
 |---|---|
-| Gmail message | `` Gmail `https://mail.google.com/mail/?authuser=<compte>#all/<messageId>` `` |
+| Gmail message | `` Gmail `https://mail.google.com/mail/#all/<messageId>` `` |
 | LinkedIn offer | `` Offre `https://www.linkedin.com/jobs/view/<jobId>` `` |
 | Vault note | `` Vault `<vault-relative path>` (`obsidian://open?vault=SecondLife&file=<path, URL-encoded>`) `` |
 | Google Meet | `` Meet `<hangoutLink>` `` |
-| hal task/project | `` réf. hal `<workspace>/<id>` `` |
+| hal task/project | `` réf. hal `<workspace_slug>/<id>` `` |
+
+**Gmail link — multi-account limitation (accepted).** The Gmail link carries no `?authuser=<address>` parameter: the address must never be published in a public repo. Consequence: with several Google accounts signed into the same browser, the link opens the browser's *active* account, which may be the wrong tab. This is accepted — a wrong tab is cheaper than a published address.
 
 **Prochaines actions line.** One `  ▶️ prochaines actions : <one sentence>` sub-line per entry — the concrete next step, reusing the Step 3 plan-du-jour context brief where the entry also appears there.
 
-#### Workspace `blue-green`
+#### Uniform daily-log shape (every workspace `whoami` returned)
+
+There is no reference workspace. Write the **same shape** for every workspace, substituting the workspace's `name` (fallback `workspace_slug`) in the title and headers, and driving the tag subsections off that workspace's own `allowed_tags` (from `whoami`). Group sprint tasks by first tag in `allowed_tags` order; tasks with no tag land under `other`, last; skip empty groups; if the workspace declares no `allowed_tags`, list tasks flat with no `###` subsection.
 
 ```markdown
-# Daily log — blue-green — <date in French>
+# Daily log — <workspace name> — <date in French>
 
-## Sprint en cours [business]
+## Sprint en cours [<workspace name>]
+
+### <tag>            ← one ### per first-tag group, allowed_tags order; untagged under `other`, last
 - [ ] <task title> · priorité : <priority|none>
-  Liens : réf. hal `blue-green/<task_id>`
-  ▶️ prochaines actions : <one sentence>
-...
-(or "(aucune tâche en cours)")
-
-## Agenda du jour [pro]
-HH:MM — <event title> [pro]<space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
-...
-(or "(aucun événement pro aujourd'hui)")
-
-## Commercial — Process en cours [business]
-- **<company/contact>** — <opportunity title> — stage : <CRM stage>
-  Liens : <Gmail and/or réf. hal — whichever are available>
-  ▶️ prochaines actions : <one sentence>
-...
-(or "(aucun process commercial en cours)")
-
-## Notes
-(vide — à compléter en cours de journée ; les idées/angles capturés en cours de journée référencent une tâche hal dédiée — `réf. hal <workspace>/<id>` — plutôt que d'y recopier le texte, voir Step 5)
-```
-
-#### Workspace `renaud`
-
-Group sprint tasks by first tag (same order as Step 3). Skip empty groups. Tasks with no tag → `other`.
-
-```markdown
-# Daily log — renaud — <date in French>
-
-## Sprint en cours [perso]
-
-### 🎯 jobsearch
-- [ ] <task title>
-  Liens : <réf. hal, and Vault/Offre/Gmail when this task is tied to a candidature — whichever are available>
-  ▶️ prochaines actions : <one sentence>
-...
-
-### 🏡 rosaslaborbe / 🧍 personal / 💶 finance / 📋 hr / 👨‍👩‍👧 laborbe / 📌 other
-- [ ] <task title>
-  Liens : réf. hal `renaud/<task_id>`
+  Liens : réf. hal `<workspace_slug>/<task_id>` (+ Vault/Offre/Gmail/Meet when the task is tied to one — whichever were captured in Step 1)
   ▶️ prochaines actions : <one sentence>
 ...
 (skip empty subsections — or "(aucune tâche en cours)" if all empty)
 
-## Agenda du jour [perso + famille]
-HH:MM — <event title> [perso|famille]<space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
+## Agenda du jour [<workspace name>]
+HH:MM — <event title><space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
 ...
-(or "(aucun événement perso/famille aujourd'hui)")
+(or "(aucun événement aujourd'hui)")
 
-## 🎯 Jobsearch — Offres & process
+## 🎯 Jobsearch — Offres & process   ← render this section ONLY for the workspace whose allowed_tags contains `jobsearch`; omit it entirely for every other workspace
 🔥 <title> — <company>
   Liens : Offre `https://www.linkedin.com/jobs/view/<jobId>`
   ▶️ prochaines actions : <one sentence>
@@ -462,14 +432,9 @@ HH:MM — <event title> [perso|famille]<space>· Meet : `<hangoutLink>` (omit "�
 (vide — à compléter en cours de journée ; les idées/angles capturés en cours de journée référencent une tâche hal dédiée — `réf. hal <workspace>/<id>` — plutôt que d'y recopier le texte, voir Step 5)
 ```
 
-**Interview-prep example (illustrative, not a fixed schema).** A candidature entering interview prep — e.g. take-home + Meet scheduled — renders as one entry combining every link it has: `Liens : Vault \`CRM-JobSearch/Entretiens/<Title>.md\` (\`obsidian://open?vault=SecondLife&file=...\`) · Offre \`https://www.linkedin.com/jobs/view/<jobId>\` · Meet \`<hangoutLink>\` · réf. hal \`renaud/<task_id>\`` followed by `▶️ prochaines actions : terminer le take-home avant le <date>, relire la prep vault, rappeler <recruiter> sur Ashby si pas de nouvelles.` Only include the link types that were actually captured in Step 1 for that entry.
+The commercial process a workspace tracks (CRM opportunities matched to pro mails in Step 1f) renders as extra entries under **Sprint en cours** on that workspace's log, each carrying its `Gmail` / `réf. hal` links — there is no separate hardcoded "Commercial" section.
 
-#### Any other workspace returned by `whoami`
-
-Fall back to the `renaud` shape. Never crash on an unknown workspace — write a minimal log with whatever data is available, or skip with:
-```
-⚠️ Daily log <workspace-slug> — skipped: unknown workspace shape
-```
+**Interview-prep example (illustrative, not a fixed schema).** A candidature entering interview prep — e.g. take-home + Meet scheduled — renders as one entry combining every link it has: `Liens : Vault \`CRM-JobSearch/Entretiens/<Title>.md\` (\`obsidian://open?vault=SecondLife&file=...\`) · Offre \`https://www.linkedin.com/jobs/view/<jobId>\` · Meet \`<hangoutLink>\` · réf. hal \`<workspace_slug>/<task_id>\`` followed by `▶️ prochaines actions : terminer le take-home avant le <date>, relire la prep vault, rappeler le recruteur sur Ashby si pas de nouvelles.` Only include the link types that were actually captured in Step 1 for that entry.
 
 ---
 
@@ -482,7 +447,7 @@ Fall back to the `renaud` shape. Never crash on an unknown workspace — write a
 - **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
 - **Dedup offers against vault** — never surface an offer already logged as an active candidature.
 - **BrightData cap** — max 5 `web_data_linkedin_job_listings` calls per run. Prioritise 🔥 then 🟡 by location. Per-offer errors are silent — skip and continue.
-- **Label every hal task** — `[business]` for `blue-green`, `[perso]` for `renaud`, every time.
+- **Label every hal task** — with the workspace's `name` (fallback `workspace_slug`), every time. No hardcoded `[business]`/`[perso]` label.
 - **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
 - **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
 - **Agent fan-out cap** — max 3 `cv-log-worker` sub-agents per run. If >3 🔥 deduped offers exist, take the top 3 by score×proximity. Never spawn more than 3 Agent calls in Step 1h.

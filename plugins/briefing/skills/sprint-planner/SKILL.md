@@ -2,9 +2,9 @@
 name: sprint-planner
 description: >
   Planifie le sprint de la semaine prochaine pour Renaud Laborbe. Sources :
-  hal-mcp (tâches + sprints), vault Obsidian (jobsearch CRM), 3 calendriers
-  Google, Gmail alertes LinkedIn (rlaborbe@gmail.com via gmail-mcp du plugin
-  jobsearch). En mode conversationnel : reporte ou abandonne les tâches non
+  hal-mcp (tâches + sprints), vault Obsidian (jobsearch CRM), les calendriers
+  déclarés par tes workspaces, Gmail alertes LinkedIn (Gmail perso via gmail-mcp
+  du plugin jobsearch). En mode conversationnel : reporte ou abandonne les tâches non
   finies, pose des questions ciblées sur les contraintes calendrier détectées.
   En mode schedule (vendredi après-midi automatique) : s'exécute de façon
   autonome avec des décisions par défaut et présente un plan à valider avant
@@ -39,17 +39,27 @@ En **mode conversationnel** : pour les étapes 1c et 4, attendre les réponses d
 
 ---
 
-## ÉTAPE 0 — Charger le contexte (silencieux, pas affiché)
+## ÉTAPE 0 — Probe hal + résolution des workspaces (avant tout le reste)
 
-En parallèle :
+**En premier, avant de charger le moindre document ou sprint.** Appeler `mcp__plugin_hal_hal-mcp__whoami`. Asserter la **résolvabilité, jamais une identité** : il répond et retourne au moins un workspace dans `workspaces[]`. Sur échec d'appel → `hal:DOWN <raison>`, s'arrêter (sans hal, aucun sprint à planifier). S'il répond mais `workspaces[]` est vide → s'arrêter avec « aucun workspace — whoami a retourné `<payload effectivement reçu>` ». Ne jamais asserter un email ou un slug attendu — tout le skill itère sur ce que `whoami` retourne.
+
+**Ne retenir que les workspaces où `sprints_enabled` est vrai** — planifier un sprint dans un workspace sans sprints n'a pas de sens. Nommer en une ligne visible ceux qu'on écarte : `↷ <name> — pas de sprints, ignoré`. Si le champ `sprints_enabled` est absent du payload (phase 1 pas encore déployée), rendre `⚠️ whoami sans champ sprints_enabled — tous les workspaces traités` et retenir tous les workspaces retournés. Si aucun workspace n'a `sprints_enabled` → s'arrêter et le dire.
+
+Dans toute la suite, « workspace retenu » = un workspace de cette liste filtrée.
+
+---
+
+## ÉTAPE 0.5 — Charger le contexte (silencieux, pas affiché)
+
+Pour **chaque** workspace retenu `w`, en parallèle, tenter de lire son document de calibrage (slugs conventionnels — utiliser ce qui existe) :
 
 ```
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug="renaud", slug="memory")
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug="blue-green", slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=w.workspace_slug, slug="soul")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=w.workspace_slug, slug="memory")
 ```
 
 Ne pas afficher le contenu brut. Utiliser pour calibrer le ton et les priorités.
-Si un document est absent (404), continuer sans bloquer.
+Un document absent (404) reste non bloquant.
 
 ---
 
@@ -57,33 +67,27 @@ Si un document est absent (404), continuer sans bloquer.
 
 ### 1a. Lire le sprint actuel dans hal
 
-Probe hal : `mcp__plugin_hal_hal-mcp__whoami`. Si échec → `hal:DOWN <raison>`, sauter toute l'étape 1.
-
-En parallèle :
+Le probe hal est déjà fait (ÉTAPE 0). Pour **chaque** workspace retenu `w`, en parallèle :
 
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-  → sprint_id_bg, sprint_name_bg, sprint_number_bg
-
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
-  → sprint_id_rn, sprint_name_rn, sprint_number_rn
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
+  → sprint_id[w], sprint_name[w], sprint_number[w] (premier élément de la liste)
 ```
 
-Si aucun sprint actif dans un workspace → `sprint_id = null`, `sprint_number = 0`.
+Si aucun sprint actif dans un workspace → `sprint_id[w] = null`, `sprint_number[w] = 0`.
 
 ```
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="blue-green", sprint_id=<sprint_id_bg>)
-mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", sprint_id=<sprint_id_rn>)
+mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<sprint_id[w]>)
+  (sans sprint_id si aucun sprint actif)
 ```
 
 ### 1b. Calculer le taux de complétion
 
 ```
-terminées_bg = tasks blue-green où status == "done"
-non_terminées_bg = tasks blue-green où status != "done"
-terminées_rn = tasks renaud où status == "done"
-non_terminées_rn = tasks renaud où status != "done"
-taux_global = (len(terminées_bg) + len(terminées_rn)) / (len(all_bg) + len(all_rn)) * 100
+pour chaque workspace retenu w :
+  terminées[w]     = tasks[w] où status == "done"
+  non_terminées[w] = tasks[w] où status != "done"
+taux_global = somme_w(len(terminées[w])) / somme_w(len(all[w])) * 100
 ```
 
 ### 1c. Décision report/abandon pour les tâches non terminées
@@ -91,20 +95,22 @@ taux_global = (len(terminées_bg) + len(terminées_rn)) / (len(all_bg) + len(all
 Afficher :
 
 ```
-## Bilan sprint actuel — [sprint_name_bg] / [sprint_name_rn]
+## Bilan sprint actuel — [sprint_name par workspace retenu, séparés par « / »]
 
 Score : X/Y terminées (Z%)
 
 ✅ Terminées
-- [titre] [business|perso]
+- [titre] [<nom du workspace>]
 
 ⏳ Non terminées — à reporter dans le sprint suivant
-- [titre] [business|perso] — priorité [low|medium|high] — status : [status]
+- [titre] [<nom du workspace>] — priorité [low|medium|high] — status : [status]
 ```
+
+Le label entre crochets est le `name` du workspace (fallback `workspace_slug`) — jamais un label figé `[business]`/`[perso]`.
 
 **En mode conversationnel :** Pour chaque tâche non terminée, demander à Renaud :
 ```
-⏳ "[titre]" — [workspace] — priorité [low|medium|high]
+⏳ "[titre]" — [<nom du workspace>] — priorité [low|medium|high]
    → Reporter dans le sprint suivant ? (oui / non / transformer)
 ```
 Attendre la réponse avant de continuer. Ne pas poser toutes les questions en bloc.
@@ -171,7 +177,7 @@ Relances prévues semaine prochaine :
 
 ## ÉTAPE 3 — Scan LinkedIn Gmail
 
-Chercher dans rlaborbe@gmail.com les alertes LinkedIn de la semaine écoulée.
+Chercher dans la boîte perso les alertes LinkedIn de la semaine écoulée. Quelle boîte est interrogée est décidé par **le serveur MCP appelé** (`mcp__plugin_jobsearch_gmail-mcp__*` = boîte perso), jamais par une adresse.
 Cette étape requiert le plugin jobsearch (gmail-mcp) co-installé. Si le tool est indisponible, marquer `gmail:DOWN` et sauter.
 
 ```
@@ -203,21 +209,13 @@ Si aucune offre pertinente ou si gmail:DOWN : le noter et continuer.
 
 ## ÉTAPE 4 — Lire les calendriers + ajustements
 
-Lire les 3 calendriers Google pour la semaine prochaine (lundi→vendredi, Europe/Paris) :
+Lire les calendriers **déclarés par tes workspaces** pour la semaine prochaine (lundi→vendredi, Europe/Paris). L'ensemble à lire est l'**union de chaque `calendar_id` et `member_calendar_id` non-null** sur tous les workspaces retournés par `whoami` (ÉTAPE 0), dédupliquée — jamais un ID littéral. Si aucun workspace ne déclare de calendrier (champs null/absents — ex. phase 1 pas déployée) → rendre `⚠️ Aucun calendrier déclaré sur tes workspaces` et continuer sans contrainte calendrier.
+
+Pour chaque calendrier de l'union :
 
 ```
 mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="renaud@bluegreen.ai",
-  timeMin="[NEXT_MON]T00:00:00+02:00",
-  timeMax="[NEXT_FRI]T23:59:59+02:00"
-)
-mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="rlaborbe@gmail.com",
-  timeMin="[NEXT_MON]T00:00:00+02:00",
-  timeMax="[NEXT_FRI]T23:59:59+02:00"
-)
-mcp__claude_ai_Google_Calendar__list_events(
-  calendarId="hah0feg81cofndkov7derd6g00@group.calendar.google.com",
+  calendarId=<id de l'union>,
   timeMin="[NEXT_MON]T00:00:00+02:00",
   timeMax="[NEXT_FRI]T23:59:59+02:00"
 )
@@ -320,20 +318,23 @@ Terminer par :
 **UNIQUEMENT après validation explicite** ("valide", "go", "ok", "c'est bon", ou équivalent).
 **Ne jamais créer le sprint automatiquement, même en mode schedule.**
 
+Les étapes 6a–6e itèrent sur **chaque workspace retenu** `w` (ÉTAPE 0) — jamais deux appels figés. Un slug ne doit apparaître nulle part.
+
 ### 6a. Vérifier si un sprint suivant existe déjà (idempotence)
 
+Pour chaque workspace retenu `w`, en parallèle :
+
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status=<SPRINT_STATUS>)
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status=<SPRINT_STATUS>)
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status=<SPRINT_STATUS>)
 ```
 
-Si un sprint avec le statut cible existe déjà dans un workspace → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number_actuel + 1`.
+Si un sprint avec le statut cible existe déjà dans `w` → utiliser son `sprint_id` sans en créer un nouveau. Si absent → créer avec `sprint_number = sprint_number[w] + 1`.
 
 Si un sprint existe avec le **mauvais statut** (ex : `status="suivant"` alors que `SPRINT_STATUS="actuel"`), corriger via :
 
 ```
 mcp__plugin_hal_hal-mcp__update_sprint(
-  workspace_slug=<workspace>,
+  workspace_slug=w.workspace_slug,
   sprint_id=<sprint_id_existant>,
   status=<SPRINT_STATUS>
 )
@@ -343,23 +344,18 @@ Ne recréer le sprint que si aucun sprint n'est trouvé avec le statut cible ni 
 
 ### 6b. Clôturer les sprints actuel existants (si SPRINT_STATUS = "actuel")
 
-Si `SPRINT_STATUS = "actuel"` uniquement : avant de créer le nouveau sprint, clôturer tous les sprints encore en "actuel" pour éviter les doublons.
-
-En parallèle :
+Si `SPRINT_STATUS = "actuel"` uniquement : avant de créer le nouveau sprint, clôturer tous les sprints encore en "actuel" pour éviter les doublons. Pour chaque workspace retenu `w`, en parallèle :
 
 ```
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="blue-green", status="actuel")
-  → sprints_a_clore_bg (liste)
-
-mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug="renaud", status="actuel")
-  → sprints_a_clore_rn (liste)
+mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
+  → sprints_a_clore[w] (liste)
 ```
 
-Pour chaque sprint retourné (les deux workspaces) :
+Pour chaque sprint retourné (tous les workspaces retenus) :
 
 ```
 mcp__plugin_hal_hal-mcp__update_sprint(
-  workspace_slug=<workspace>,
+  workspace_slug=w.workspace_slug,
   sprint_id=<sprint_id>,
   status="passes"
 )
@@ -374,19 +370,11 @@ Si la liste est vide pour un workspace → rien à faire, continuer.
 ```
 # SPRINT_STATUS = "actuel" si NEXT_MON <= TODAY (lundi matin / rattrapage), sinon "suivant"
 
+pour chaque workspace retenu w :
 mcp__plugin_hal_hal-mcp__create_sprint(
-  workspace_slug="blue-green",
-  name="Sprint [N] — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
-  sprint_number=<sprint_number_bg_actuel + 1>,
-  status=<SPRINT_STATUS>,
-  starts_at="[NEXT_MON]",
-  ends_at="[NEXT_FRI]"
-)
-
-mcp__plugin_hal_hal-mcp__create_sprint(
-  workspace_slug="renaud",
-  name="Perso — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
-  sprint_number=<sprint_number_rn_actuel + 1>,
+  workspace_slug=w.workspace_slug,
+  name="<name du workspace> — semaine [NEXT_MON_SHORT]-[NEXT_FRI_SHORT]",
+  sprint_number=<sprint_number[w] + 1>,
   status=<SPRINT_STATUS>,
   starts_at="[NEXT_MON]",
   ends_at="[NEXT_FRI]"
@@ -395,40 +383,28 @@ mcp__plugin_hal_hal-mcp__create_sprint(
 
 ### 6d. Assigner les tâches reportées au nouveau sprint
 
-Pour chaque tâche non terminée reportée depuis l'étape 1c :
+Pour chaque tâche non terminée reportée depuis l'étape 1c, dans le sprint fraîchement créé de **son propre** workspace :
 
 ```
 mcp__plugin_hal_hal-mcp__assign_task_to_sprint(
-  workspace_slug=<workspace>,
+  workspace_slug=<workspace d'origine de la tâche>,
   task_id=<id>,
-  sprint_id=<nouveau_sprint_id>
+  sprint_id=<nouveau_sprint_id de ce workspace>
 )
 ```
 
 ### 6e. Créer les nouvelles tâches
 
-Pour les offres LinkedIn 🔥, relances à créer, post LinkedIn si pas encore dans hal :
+Router chaque nouvelle tâche vers le workspace qui la porte, jamais vers un slug figé. Les offres LinkedIn 🔥 et relances jobsearch vont dans le workspace **dont les `allowed_tags` contiennent `jobsearch`** ; les autres nouvelles tâches vont dans le workspace concerné. N'utiliser que des tags présents dans les `allowed_tags` de ce workspace.
 
 ```
 mcp__plugin_hal_hal-mcp__create_task(
-  workspace_slug="renaud",
+  workspace_slug=<workspace de destination>,
   title="[titre]",
-  sprint_id=<sprint_id_rn>,
-  tags=["jobsearch"],
+  sprint_id=<sprint_id de ce workspace>,
+  tags=[<un tag présent dans allowed_tags du workspace de destination>],
   due_date="[YYYY-MM-DD]",
-  priority="high"
-)
-```
-
-Pour les tâches BG :
-
-```
-mcp__plugin_hal_hal-mcp__create_task(
-  workspace_slug="blue-green",
-  title="[titre]",
-  sprint_id=<sprint_id_bg>,
-  tags=["commercial"|"product"|"finance"|"legal"|"marketing"|"operations"],
-  priority="medium"
+  priority="high"|"medium"
 )
 ```
 
@@ -436,8 +412,8 @@ mcp__plugin_hal_hal-mcp__create_task(
 
 ```
 ✅ Sprint créé.
-- Blue Green Sprint [N] : [X] tâches reportées + [Y] nouvelles
-- Renaud Perso Sprint [N] : [X] tâches reportées + [Y] nouvelles
+- <name du workspace> Sprint [N] : [X] tâches reportées + [Y] nouvelles
+  (une ligne par workspace retenu)
 - Blocs job search : [X]h planifiées
 - Prochain bloc : lundi [date] 11h00–13h00
 

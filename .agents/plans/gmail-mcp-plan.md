@@ -2,7 +2,7 @@
 
 ## Feature Description
 
-`gmail-mcp` is a remote MCP server hosted on Supabase Edge Functions that exposes 4 Gmail tools to Claude Code and claude.ai. It provides read-and-draft access to Renaud's personal Gmail account (`rlaborbe@gmail.com`) via the Gmail REST API, scoped to `gmail.modify` (no send). The server lives entirely in `servers/gmail-mcp/` inside `renaud-marketplace` — no separate repo.
+`gmail-mcp` is a remote MCP server hosted on Supabase Edge Functions that exposes 4 Gmail tools to Claude Code and claude.ai. It provides read-and-draft access to Renaud's personal Gmail account (`<mailbox-perso>`) via the Gmail REST API, scoped to `gmail.modify` (no send). The server lives entirely in `servers/gmail-mcp/` inside `renaud-marketplace` — no separate repo.
 
 The server replicates the exact auth architecture of HAL (the pro MCP server): `verifyAuth` from `@supabase/server` v1.1.0 with two modes — Supabase JWT (full OAuth 2.1 for claude.ai) and named API key bearer (for Claude Code / CLI). OAuth discovery is exposed via `/.well-known/oauth-protected-resource` pointing at Supabase Auth as the Authorization Server. No Supabase database is involved: the only runtime state is a Google access token obtained by refreshing `GOOGLE_REFRESH_TOKEN` from Supabase secrets on every request.
 
