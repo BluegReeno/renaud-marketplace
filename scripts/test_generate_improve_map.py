@@ -269,6 +269,23 @@ class TestDiePaths(unittest.TestCase):
         with self.assertRaises(SystemExit):
             gim.remote_skill_dirs("any-plugin")
 
+    # -- connector-only plugin: no skills/ directory ----------------------------
+
+    def test_missing_remote_skills_dir_yields_no_rows(self):
+        """A remote plugin with no skills/ directory (404) contributes nothing.
+
+        `hal` carries only the MCP connector since bluegreen-marketplace#66 —
+        a 404 on its skills/ path is the expected shape, not a failure.
+        """
+        gim.gh_api = lambda path: gim.MISSING
+        self.assertEqual(gim.remote_skill_dirs("hal"), [])
+
+    def test_missing_remote_file_aborts(self):
+        """A 404 on a file we require (the remote marketplace.json) still dies."""
+        gim.gh_api = lambda path: gim.MISSING
+        with self.assertRaises(SystemExit):
+            gim.remote_file(".claude-plugin/marketplace.json")
+
     # -- collect(): bad marketplace shapes -------------------------------------
 
     def test_plugins_not_list_aborts(self):
