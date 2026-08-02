@@ -42,7 +42,15 @@ def die(msg):
 # --- gh CLI helpers ----------------------------------------------------------
 
 
+MISSING = object()  # sentinel: the remote path does not exist (HTTP 404)
+
+
 def gh_api(path):
+    """Return the raw response body, or MISSING when the path does not exist.
+
+    Only a 404 yields MISSING — every other failure still aborts, so a broken
+    token or a renamed repo can never be mistaken for an absent directory.
+    """
     try:
         result = subprocess.run(
             ["gh", "api", path], capture_output=True, text=True, check=True
@@ -50,13 +58,19 @@ def gh_api(path):
     except FileNotFoundError:
         die("`gh` CLI not found — required to enumerate the remote marketplace")
     except subprocess.CalledProcessError as exc:
-        die(f"gh api {path} failed: {exc.stderr.strip()}")
+        stderr = (exc.stderr or "").strip()
+        if "HTTP 404" in stderr:
+            return MISSING
+        die(f"gh api {path} failed: {stderr}")
     return result.stdout
 
 
 def gh_api_json(path):
+    raw = gh_api(path)
+    if raw is MISSING:
+        return MISSING
     try:
-        return json.loads(gh_api(path))
+        return json.loads(raw)
     except json.JSONDecodeError as exc:
         die(f"gh api {path} returned invalid JSON: {exc}")
 
@@ -64,6 +78,8 @@ def gh_api_json(path):
 def remote_file(rel_path):
     """Fetch a text file from the remote repo via the Contents API."""
     data = gh_api_json(f"repos/{REMOTE_REPO}/contents/{rel_path}")
+    if data is MISSING:
+        die(f"remote {rel_path} not found in {REMOTE_REPO}")
     if not isinstance(data, dict) or "content" not in data:
         die(f"remote {rel_path} has no file content")
     try:
@@ -73,8 +89,15 @@ def remote_file(rel_path):
 
 
 def remote_skill_dirs(plugin):
-    """List skill directory names under the remote plugin's skills/ folder."""
+    """List skill directory names under the remote plugin's skills/ folder.
+
+    A plugin with no skills/ directory returns no rows instead of aborting —
+    `hal` is a connector-only plugin and carries no skill at all. Mirrors
+    local_skill_dirs(), which has always tolerated the directory being absent.
+    """
     data = gh_api_json(f"repos/{REMOTE_REPO}/contents/plugins/{plugin}/skills")
+    if data is MISSING:
+        return []
     if not isinstance(data, list):
         die(f"remote plugins/{plugin}/skills is not a directory listing")
     return sorted(d["name"] for d in data if d.get("type") == "dir")

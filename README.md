@@ -86,9 +86,9 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
 | `jobsearch` | 0.9.0 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.10.2 | `morning-briefing`, `mail-triage`, `sprint-review`, `sprint-planner` | `hal-mcp` (dédupliqué) | Briefing quotidien + tri de mails + sprint review + sprint planner (calendriers, hal tasks, jobsearch-vault) |
+| `briefing` | 0.12.0 | `morning-briefing`, `mail-triage` | `hal-mcp` (dédupliqué) | Briefing quotidien + tri de mails (calendriers, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
 | `improve` | 0.2.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
-| `mycoach` | 0.3.0 | `mycoach` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
+| `mycoach` | 0.4.0 | `mycoach` | `hal-mcp` | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
 ---
 

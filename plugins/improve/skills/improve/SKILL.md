@@ -77,8 +77,6 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 |------------------|-----------|-----------------------|
 | mail-triage      | briefing  | renaud-marketplace    |
 | morning-briefing | briefing  | renaud-marketplace    |
-| sprint-planner   | briefing  | renaud-marketplace    |
-| sprint-review    | briefing  | renaud-marketplace    |
 | improve          | improve   | renaud-marketplace    |
 | cover-letter     | jobsearch | renaud-marketplace    |
 | cv-generator     | jobsearch | renaud-marketplace    |
@@ -87,10 +85,12 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 | log-application  | jobsearch | renaud-marketplace    |
 | log-cr           | jobsearch | renaud-marketplace    |
 | mycoach          | mycoach   | renaud-marketplace    |
-| crm              | hal       | bluegreen-marketplace |
-| edifice          | hal       | bluegreen-marketplace |
-| linkedin         | hal       | bluegreen-marketplace |
-| pm               | hal       | bluegreen-marketplace |
+| edifice          | edifice   | bluegreen-marketplace |
+| crm              | gtm       | bluegreen-marketplace |
+| linkedin         | gtm       | bluegreen-marketplace |
+| pm               | pm        | bluegreen-marketplace |
+| sprint-planner   | pm        | bluegreen-marketplace |
+| sprint-review    | pm        | bluegreen-marketplace |
 
 <!-- improve-map:end -->
 
