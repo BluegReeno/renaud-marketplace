@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## jobsearch 0.9.1
+
+- gmail-mcp: allowlist Supabase user_id for JWT auth mode — closes security gap where any provisioned project user could read/draft from the mailbox (#80)
+
 ## jobsearch 0.9.0
 
 - address hal-mcp and gmail-mcp tools by their plugin-bundled names
