@@ -14,6 +14,15 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
+// Comma-separated Supabase auth user_id (UUID) allowlist for the "user" JWT auth mode.
+// Any other Supabase-project user who authenticates with a valid JWT is rejected —
+// verifyAuth only proves the caller is SOME provisioned user on this project, not
+// that they own this mailbox. Empty/unset means no "user"-mode caller is authorized
+// (fail closed), independent of the secret:gmail_api_key / ?key= paths below.
+const GMAIL_ALLOWED_USER_IDS = new Set(
+  (Deno.env.get("GMAIL_ALLOWED_USER_IDS") ?? "").split(",").map((id) => id.trim()).filter(Boolean),
+);
+
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
 // Token cached per isolate; cold starts refresh once, warm requests reuse until expiry.
@@ -317,6 +326,9 @@ const fetchHandler = async (req: Request): Promise<Response> => {
 
   // claude.ai / Cowork custom connectors cannot send custom headers — accept the
   // API key as a ?key= query param so those clients never hit the OAuth flow.
+  // Owner-only shared secret: it carries no per-user identity, so — like
+  // secret:gmail_api_key below — it cannot be checked against GMAIL_ALLOWED_USER_IDS.
+  // Rotate GMAIL_API_KEY if it is ever suspected to have leaked.
   let authToken = "";
   const queryKey = url.searchParams.get("key");
   if (queryKey !== null) {
@@ -338,6 +350,14 @@ const fetchHandler = async (req: Request): Promise<Response> => {
           status: authErr.status,
           headers: { ...corsHeaders, "WWW-Authenticate": `Bearer resource_metadata="${RESOURCE_METADATA_URL}"` },
         },
+      );
+    }
+    // verifyAuth only proves auth.userClaims.id is SOME user provisioned on this
+    // Supabase project, not that they own this mailbox — check the allowlist too.
+    if (auth.authMode === "user" && !GMAIL_ALLOWED_USER_IDS.has(auth.userClaims?.id ?? "")) {
+      return Response.json(
+        { error: "This Supabase account is not authorized for this mailbox" },
+        { status: 403, headers: corsHeaders },
       );
     }
     authToken = auth.token ?? "";
