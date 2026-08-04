@@ -53,6 +53,16 @@ echo "🔑 Generated GMAIL_API_KEY: $GMAIL_API_KEY"
 echo "   (save this in Bitwarden — needed for Claude Code / OpenClaw config)"
 echo ""
 
+# --- Allowlisted Supabase user_id(s) for the "user" JWT auth mode (from env or prompt) ---
+# A JWT only proves the caller is SOME user on this Supabase project, not that they
+# own this mailbox — the function rejects every "user"-mode request whose user_id
+# isn't in this list. Leave blank to disable "user" mode and rely on GMAIL_API_KEY only.
+if [[ -z "${GMAIL_ALLOWED_USER_IDS:-}" ]]; then
+  echo "📋 Comma-separated Supabase user_id(s) allowed via JWT (Authentication → Users"
+  echo "   on the $PROJECT_REF project) — leave blank to disable \"user\" mode:"
+  read -r GMAIL_ALLOWED_USER_IDS
+fi
+
 # --- Push secrets to Supabase ---
 echo "🚀 Pushing secrets to Supabase project $PROJECT_REF …"
 supabase secrets set \
@@ -60,7 +70,8 @@ supabase secrets set \
   GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
   GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
   GOOGLE_REFRESH_TOKEN="$GOOGLE_REFRESH_TOKEN" \
-  GMAIL_API_KEY="$GMAIL_API_KEY"
+  GMAIL_API_KEY="$GMAIL_API_KEY" \
+  GMAIL_ALLOWED_USER_IDS="$GMAIL_ALLOWED_USER_IDS"
 
 echo ""
 echo "✅ Done. Secrets set:"
@@ -68,6 +79,7 @@ echo "   GOOGLE_CLIENT_ID"
 echo "   GOOGLE_CLIENT_SECRET"
 echo "   GOOGLE_REFRESH_TOKEN"
 echo "   GMAIL_API_KEY = $GMAIL_API_KEY"
+echo "   GMAIL_ALLOWED_USER_IDS = ${GMAIL_ALLOWED_USER_IDS:-<empty — \"user\" mode disabled>}"
 echo ""
 echo "📌 Next steps:"
 echo "   1. Save GMAIL_API_KEY in Bitwarden (entry: gmail-mcp-perso)"
