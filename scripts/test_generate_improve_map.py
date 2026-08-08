@@ -286,6 +286,23 @@ class TestDiePaths(unittest.TestCase):
         with self.assertRaises(SystemExit):
             gim.remote_file(".claude-plugin/marketplace.json")
 
+    def test_missing_options_markers_aborts(self):
+        """The options markers are required just like the table markers."""
+        with _Tmp() as tmp:
+            mkt = os.path.join(tmp, "mkt.json")
+            with open(mkt, "w") as f:
+                json.dump(_mkt("local", []), f)
+            skill_md = os.path.join(tmp, "SKILL.md")
+            with open(skill_md, "w") as f:
+                f.write(f"# Improve\n\n{gim.START}\n\n{gim.END}\n")  # no options markers
+
+            gim.LOCAL_MARKETPLACE = mkt
+            gim.SKILL_MD = skill_md
+            gim.gh_api = _gh_stub(_mkt("remote", []))
+
+            with self.assertRaises(SystemExit):
+                gim.main()
+
     # -- collect(): bad marketplace shapes -------------------------------------
 
     def test_plugins_not_list_aborts(self):
@@ -318,6 +335,57 @@ class TestCollect(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         skill, plugin, repo = rows[0]
         self.assertEqual((skill, plugin, repo), ("myskill", "myplugin", "repo"))
+
+
+# ── 5. render_options() + EXTRA_TARGETS ──────────────────────────────────────
+
+class TestRenderOptions(unittest.TestCase):
+
+    def test_backtick_comma_join(self):
+        rows = [("a", "p", "r"), ("b", "p", "r")]
+        self.assertEqual(gim.render_options(rows), "`a`, `b`")
+
+    def test_extra_targets_are_valid_rows(self):
+        """EXTRA_TARGETS must be (skill, plugin, repo) triples like any other row."""
+        for row in gim.EXTRA_TARGETS:
+            self.assertEqual(len(row), 3)
+
+    def test_hal_is_an_extra_target(self):
+        skills = {skill for skill, _plugin, _repo in gim.EXTRA_TARGETS}
+        self.assertIn("hal", skills)
+
+
+# ── 6. main() end to end: EXTRA_TARGETS reach both markers, idempotently ────────
+
+class TestMainWithExtraTargets(unittest.TestCase):
+
+    def test_extra_targets_written_to_table_and_options_and_idempotent(self):
+        with _Tmp() as tmp:
+            mkt = os.path.join(tmp, "mkt.json")
+            with open(mkt, "w") as f:
+                json.dump(_mkt("local", []), f)
+            skill_md = os.path.join(tmp, "SKILL.md")
+            with open(skill_md, "w") as f:
+                f.write(
+                    "# Improve\n\n"
+                    f"{gim.START}\n\n{gim.END}\n\n"
+                    f"options: {gim.OPTIONS_START}{gim.OPTIONS_END}\n"
+                )
+
+            gim.LOCAL_MARKETPLACE = mkt
+            gim.SKILL_MD = skill_md
+            gim.gh_api = _gh_stub(_mkt("remote", []))
+
+            gim.main()
+            with open(skill_md) as f:
+                first = f.read()
+            self.assertIn("| hal", first)
+            self.assertIn("`hal`", first)
+
+            gim.main()
+            with open(skill_md) as f:
+                second = f.read()
+            self.assertEqual(first, second, "second run must be a no-op (idempotent)")
 
 
 # ── entry point ───────────────────────────────────────────────────────────────
