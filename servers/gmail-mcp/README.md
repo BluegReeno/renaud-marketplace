@@ -3,8 +3,14 @@
 A Supabase Edge Function exposing an MCP server over Gmail (search, read, label,
 draft) for the `mail-triage` and `briefing` skills. Deployed to Supabase project
 `isdyvrwnxqcfalmlkzui`, authenticated with a static `GMAIL_API_KEY` bearer, or a
-Supabase JWT (`user` mode, e.g. the claude.ai mobile connector's OAuth flow) gated
-by the `GMAIL_ALLOWED_USER_IDS` allowlist below.
+Supabase JWT (`user` mode) gated by the `GMAIL_ALLOWED_USER_IDS` allowlist below.
+
+**The JWT path is the one the `jobsearch` plugin actually uses**, not a mobile-only
+edge case: `plugins/jobsearch/.mcp.json` declares the bare URL, this function
+advertises its authorization server through `/.well-known/oauth-protected-resource`,
+and the project runs a full Supabase OAuth server (discovery + dynamic client
+registration, verified 2026-08-05). A Claude Code session therefore arrives in
+`user` mode. Changing the allowlist changes whether that plugin works.
 
 ## Access control
 
@@ -71,17 +77,53 @@ Before the first deploy, push the secrets once:
 Requires `client_secret_*.apps.googleusercontent.com.json` at the repo root and
 `supabase link --project-ref isdyvrwnxqcfalmlkzui` already done. Save the printed
 `GMAIL_API_KEY` in Bitwarden — clients need it for bearer auth. The script also
-prompts for `GMAIL_ALLOWED_USER_IDS` (see [Access control](#access-control)) —
-leave it blank to skip `user`-mode access entirely and rely on `GMAIL_API_KEY` only.
+prompts for `GMAIL_ALLOWED_USER_IDS` (see [Access control](#access-control)).
+Leaving it blank disables `user`-mode access entirely — which **breaks the
+`jobsearch` plugin**, since that is the mode it connects in. Blank is only viable
+for a key-only deployment.
 
 **Upgrading an existing deployment:** before this version, any Supabase JWT for
-`isdyvrwnxqcfalmlkzui` was accepted. After deploying it, `user`-mode callers
-(e.g. an existing claude.ai mobile connector) are rejected until you push your
-own user_id:
+`isdyvrwnxqcfalmlkzui` was accepted. After deploying it, `user`-mode callers are
+rejected until you push your own user_id:
 
 ```bash
 supabase secrets set --project-ref isdyvrwnxqcfalmlkzui GMAIL_ALLOWED_USER_IDS="<your-user-id>"
 ```
+
+⚠️ **The user_id belongs to this project.** It is `auth.users.id` on
+`isdyvrwnxqcfalmlkzui` — Authentication → Users, *not* the hal project. A UUID taken
+from the wrong project yields a clean `403 This Supabase account is not authorized
+for this mailbox`, which reads like a bug in the fix and is not one.
+
+⚠️ **The value is read at module load** (`index.ts` top level), so an already-warm
+isolate keeps the old allowlist. Redeploy after changing it rather than waiting for
+the isolate to recycle.
+
+### When the CLI refuses your token
+
+`supabase` (checked through 2.111.0) validates the access token locally against
+`/^sbp_(oauth_)?[a-f0-9]{40}$/` and rejects a new-format `sbp_v0_…` PAT with
+`Invalid access token format` — before any request leaves the machine. The account
+and its privileges are not in question. The same token works against the Management
+API, which is the way out for both operations:
+
+```bash
+# set a secret
+curl -X POST "https://api.supabase.com/v1/projects/isdyvrwnxqcfalmlkzui/secrets" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "content-type: application/json" \
+  -d '[{"name":"GMAIL_ALLOWED_USER_IDS","value":"<user-id>"}]'
+
+# deploy the function
+cd supabase/functions/gmail-mcp && curl -X POST \
+  "https://api.supabase.com/v1/projects/isdyvrwnxqcfalmlkzui/functions/deploy?slug=gmail-mcp" \
+  -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+  -F 'metadata={"entrypoint_path":"index.ts","import_map_path":"deno.json","name":"gmail-mcp","verify_jwt":false};type=application/json' \
+  -F "file=@index.ts;type=application/typescript" -F "file=@deno.json;type=application/json"
+```
+
+`verify_jwt:false` is not optional — it is what `deploy.sh` expresses as
+`--no-verify-jwt`, and dropping it makes the platform reject every call before the
+function's own auth ever runs.
 
 ## Prerequisites
 
