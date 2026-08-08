@@ -19,16 +19,30 @@ Cowork**. The chat apps only call a connector's tools — they can't run a skill
 
 | Plugin | MCP server | Project ref | Auth model |
 |--------|-----------|-------------|-----------|
-| `jobsearch` | `gmail-mcp` | `isdyvrwnxqcfalmlkzui` | **API key** via `?key=` query param + `apikey` header — **no OAuth server** |
+| `jobsearch` | `gmail-mcp` | `isdyvrwnxqcfalmlkzui` | **Two paths**: shared API key (`?key=` / `apikey` header) **or** OAuth 2.1 user JWT, gated by the `GMAIL_ALLOWED_USER_IDS` allowlist |
 | `briefing` | `hal-mcp` | `zgkvbjqlvebttbnkklpo` | **OAuth 2.1** (full discovery + DCR) — shared with bluegreen-marketplace |
 
-This split matters:
+Both projects run a Supabase OAuth server. Verified on 2026-08-05 against
+`https://isdyvrwnxqcfalmlkzui.supabase.co/auth/v1/.well-known/oauth-authorization-server`:
+issuer, authorization/token/userinfo endpoints and a `registration_endpoint` (dynamic
+client registration) are all live, and `gmail-mcp` advertises it through
+`/.well-known/oauth-protected-resource`. An MCP client that follows discovery — Claude Code
+does — completes the OAuth flow and calls in **`user` mode with a Supabase JWT**, never
+touching `GMAIL_API_KEY`.
 
-- **`hal-mcp`** runs a full OAuth server → connects to **every** provider (Claude, ChatGPT,
-  Gemini CLI by URL alone; Gemini Enterprise with manual endpoints).
-- **`gmail-mcp`** has **no OAuth server** → it authenticates with a shared secret passed as
-  `?key=<GMAIL_API_KEY>`. That works for Claude Code and claude.ai, but **limits the other
-  providers** (see §6).
+⚠️ **This document previously claimed `gmail-mcp` had no OAuth server. That was wrong**, and
+the error was not cosmetic: it made the `#80` allowlist look like it could not affect any
+client, when in fact it governs the path the `jobsearch` plugin actually uses. A JWT proves
+only that the caller is *some* provisioned user on the project — `GMAIL_ALLOWED_USER_IDS`
+is what proves they own this mailbox. Unset or empty ⇒ every `user`-mode call is rejected
+(fail closed). See `servers/gmail-mcp/README.md` §Access control.
+
+The remaining difference between the two servers:
+
+- **`hal-mcp`** — OAuth is the only path in.
+- **`gmail-mcp`** — OAuth *or* the shared `GMAIL_API_KEY`. The key path carries no per-user
+  identity and is therefore owner-only by construction; it exists because the claude.ai /
+  Cowork connector UI cannot send custom headers.
 
 URLs:
 - `gmail-mcp`: `https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp`
@@ -45,16 +59,19 @@ URLs:
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
 ```
 
-Installing a plugin registers its skills **and** its connector. For `gmail-mcp` the `apikey`
-header carries the secret:
+Installing a plugin registers its skills **and** its connector. `plugins/jobsearch/.mcp.json`
+declares the bare URL with **no header and no `?key=`**, so Claude Code follows OAuth
+discovery and authenticates as a user — run `/mcp` to complete the browser flow, exactly as
+for `hal-mcp`. Your Supabase `user_id` must be in `GMAIL_ALLOWED_USER_IDS` or every call
+returns `403 This Supabase account is not authorized for this mailbox`.
+
+The header path stays available for a manual registration outside the plugin:
 
 ```
 claude mcp add --transport http gmail-mcp \
   https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp \
   --header "apikey: <GMAIL_API_KEY>"
 ```
-
-`hal-mcp` (briefing) authenticates via OAuth — run `/mcp` to complete the browser flow.
 
 ### 1b. Claude Desktop / claude.ai (connectors only — no skills)
 
@@ -83,9 +100,11 @@ Status: **Preview** — UI labels drift.
     dynamic registration). Register Google's redirect URI
     `https://vertexaisearch.cloud.google.com/oauth-redirect` on the Supabase side.
   - Then **Login** to verify, **Continue**, and **enable the tools** (disabled by default).
-- **`gmail-mcp` does NOT work** here as-is: Gemini Enterprise's *only* auth mechanism is OAuth,
-  and gmail-mcp has no OAuth server (key mode only). To support it you'd first enable the
-  Supabase OAuth server on project `isdyvrwnxqcfalmlkzui` (same setup as hal-mcp).
+- **`gmail-mcp`**: the blocker written here — "no OAuth server" — no longer holds; project
+  `isdyvrwnxqcfalmlkzui` runs one. What remains is the same limit as `hal-mcp`: Gemini
+  Enterprise cannot do dynamic registration, so it needs a **pre-registered** Supabase OAuth
+  client with Google's redirect URI. ⚠️ Never actually attempted against gmail-mcp — treat as
+  plausible, not verified.
 
 **Workspace Admin enablement:** `admin.google.com` → Menu → **Generative AI** → **Gemini app**
 → **Apps** → allow access (Gemini Settings administrator privilege; up to 24 h to propagate).
@@ -95,8 +114,9 @@ Status: **Preview** — UI labels drift.
 OAuth **discovery** (no manual endpoints) and the `SKILL.md` standard. Edit
 `~/.gemini/settings.json` `mcpServers` with an `httpUrl` + `"oauth": { "enabled": true }`
 entry, then `/mcp auth <server>`. Skills live in `~/.gemini/skills/` (alias `~/.agents/skills/`),
-so the §4 symlinks apply. `hal-mcp` connects by URL; `gmail-mcp` would need the keyed URL or an
-OAuth server.
+so the §4 symlinks apply. Both servers advertise OAuth discovery, so both should connect by
+URL alone (`gmail-mcp` still requires the caller's `user_id` in the allowlist); the keyed URL
+remains the fallback. ⚠️ Not verified for `gmail-mcp`.
 
 ---
 
@@ -109,9 +129,10 @@ Needs **Developer Mode** for write tools.
 3. URL + **Authentication = OAuth** → **Create**.
 
 - **`hal-mcp` works**: ChatGPT discovers the auth server and self-registers (PKCE).
-- **`gmail-mcp`**: ⚠️ ChatGPT **rejects API keys in query params as unsafe** and prefers header
-  bearer auth, which the connector UI can't send. So gmail-mcp is **not reliably installable**
-  on ChatGPT until it has an OAuth server. Use Claude Code / Cowork for gmail-mcp.
+- **`gmail-mcp`**: ChatGPT **rejects API keys in query params as unsafe**, so the keyed URL is
+  out — but the OAuth path exists (project `isdyvrwnxqcfalmlkzui` supports discovery + DCR),
+  and the caller would additionally have to be in `GMAIL_ALLOWED_USER_IDS`. ⚠️ Never attempted.
+  Use Claude Code / Cowork for gmail-mcp until someone tries it.
 
 Available on Plus / Pro / Business / Enterprise / Edu — web only, beta (Free excluded).
 ⚠️ ChatGPT's dynamic registration is unstable mid-2026 — keep a static Supabase OAuth client
@@ -141,18 +162,19 @@ No frontmatter change needed. Chat apps ignore `.agents/skills/`.
 
 ## 5. Provider matrix (cheat sheet)
 
-| | `hal-mcp` (OAuth) | `gmail-mcp` (key) | Skills? |
+| | `hal-mcp` (OAuth) | `gmail-mcp` (OAuth + key) | Skills? |
 |---|---|---|---|
-| **Claude Code / Cowork** | ✅ OAuth or header | ✅ `apikey` header | ✅ native |
+| **Claude Code / Cowork** | ✅ OAuth or header | ✅ OAuth (what the plugin uses) or `apikey` header | ✅ native |
 | **Claude Desktop / claude.ai** | ✅ paste URL | ✅ paste `?key=` URL | ❌ |
-| **Gemini Enterprise** | ✅ manual OAuth fields | ❌ needs OAuth server | ❌ |
-| **Gemini CLI** | ✅ by URL | ⚠️ keyed URL | ✅ via `.agents/skills/` |
-| **ChatGPT (Dev Mode)** | ✅ OAuth | ❌ query-key rejected as unsafe | ❌ |
+| **Gemini Enterprise** | ✅ manual OAuth fields | ⚠️ pre-registered OAuth client — untried | ❌ |
+| **Gemini CLI** | ✅ by URL | ⚠️ OAuth by URL (untried) or keyed URL | ✅ via `.agents/skills/` |
+| **ChatGPT (Dev Mode)** | ✅ OAuth | ⚠️ OAuth untried; query-key rejected as unsafe | ❌ |
 | **OpenAI Codex** | ✅ | ⚠️ keyed URL | ✅ via `.agents/skills/` |
 
-**Takeaway:** for full multi-provider reach, `gmail-mcp` would need its own Supabase OAuth
-server (same setup as `hal-mcp`). Until then, treat `gmail-mcp` as a **Claude Code / Cowork**
-connector.
+**Takeaway:** `gmail-mcp` is only *proven* on Claude Code / Cowork (OAuth) and claude.ai
+(keyed URL). Everything marked ⚠️ became plausible the day the OAuth server was enabled on
+`isdyvrwnxqcfalmlkzui`, and nobody has tried any of it. Two callers on the OAuth path are
+never equivalent: authentication says *who*, `GMAIL_ALLOWED_USER_IDS` says *whether*.
 
 ---
 
@@ -165,6 +187,16 @@ curl https://zgkvbjqlvebttbnkklpo.supabase.co/functions/v1/hal-mcp/.well-known/o
 # gmail-mcp key mode — keyed URL should reach the MCP initialize (200), wrong key → 401
 npx @modelcontextprotocol/inspector \
   "https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp?key=<GMAIL_API_KEY>"
+
+# gmail-mcp OAuth path — the authorization server must answer with a registration_endpoint
+curl https://isdyvrwnxqcfalmlkzui.supabase.co/auth/v1/.well-known/oauth-authorization-server
+
+# gmail-mcp allowlist — a JWT for a user NOT in GMAIL_ALLOWED_USER_IDS must return 403
+# (401 instead means the deployed build predates the allowlist)
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp \
+  -H "Authorization: Bearer <supabase-user-jwt>" -H "content-type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
 Server-side OAuth / Edge Function implementation reference:
