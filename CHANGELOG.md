@@ -44,6 +44,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
   logging (`log-application`), interview prep (`interview-prep`), CR logging
   (`log-cr`), and job-search vault I/O (`jobsearch-vault`).
 
+## briefing 0.13.0
+
+- new skill `book-appointment`: create a Google Calendar event on the calendar resolved from a hal workspace (`calendar_id` shared → `member_calendar_id` own → stop if neither declared), never from a literal or a task tag. Always proposes title/date/time/duration/calendar and waits for explicit confirmation before writing. Dedup via `list_events` on the target calendar (`search_events` only covers the primary calendar, so it can't be used here). Create-only — no update/delete in this version. Interactive-only — refuses to run in `--headless`/scheduled mode, unlike `morning-briefing`'s read-mostly headless contract (#78)
+
 ## briefing 0.12.0
 
 - drop sprint-planner and sprint-review — they move to pm@bluegreen-marketplace
