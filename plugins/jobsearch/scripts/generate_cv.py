@@ -161,6 +161,31 @@ def load_cv_data(data_dir=None):
         return json.load(f)
 
 
+def load_contact_info(data_dir=None):
+    """Load phone/email/location from a gitignored local file — never committed.
+
+    See data/contact.example.json for the schema. Falls back to placeholder
+    values when the local file is absent (fresh clone, second user, CI).
+    """
+    if data_dir:
+        contact_path = Path(data_dir) / 'contact.local.json'
+    else:
+        contact_path = get_skill_dir() / 'data' / 'contact.local.json'
+
+    if contact_path.exists():
+        with open(contact_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+
+    print(f"INFO: No {contact_path.name} found — CV will render placeholder contact info.")
+    print("      To add: copy data/contact.example.json to that path and fill in real values.")
+    return {
+        'phone': '+33 (0)0 00 00 00 00',
+        'email': 'contact@example.com',
+        'location': 'France',
+        'location_url': None,
+    }
+
+
 def get_cell(cv_data, profile, company_type):
     try:
         return cv_data['matrix'][profile][company_type]
@@ -199,7 +224,7 @@ def count_pdf_pages(pdf_path):
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
                      output_dir=None, container_titles=None, bullet_overrides=None,
                      about_override=None, title_override=None,
-                     compact_level=0):
+                     compact_level=0, contact=None):
     """Generate customised HTML from template for the given profile×company_type cell."""
 
     template_path = get_skill_dir() / 'templates' / 'cv_template.html'
@@ -219,6 +244,17 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     html = html.replace('{{LABEL_EXPERIENCE}}', labels['experience'])
     html = html.replace('{{LABEL_EARLIER}}', labels['earlier'])
     html = html.replace('{{LABEL_EDUCATION}}', labels['education'])
+
+    # === CONTACT INFO ===
+    contact = contact or load_contact_info()
+    html = html.replace('{{CONTACT_PHONE}}', contact['phone'])
+    html = html.replace('{{CONTACT_EMAIL}}', contact['email'])
+    if contact.get('location_url'):
+        location_html = (f'<a href="{contact["location_url"]}" '
+                          f'style="color: inherit; text-decoration: none;">{contact["location"]}</a>')
+    else:
+        location_html = f'<span>{contact["location"]}</span>'
+    html = html.replace('{{CONTACT_LOCATION_HTML}}', location_html)
 
     # === TITLE ===
     html = html.replace('{{TITLE}}', title_override if title_override else cell['title'])
@@ -354,6 +390,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         print("      To add: place photo.jpeg in ~/.claude/assets/photo.jpeg")
 
     cv_data = load_cv_data(data_dir)
+    contact = load_contact_info(data_dir)
 
     # Build output filename
     if output_filename is None:
@@ -382,6 +419,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         about_override=about_override,
         title_override=title_override,
         compact_level=0,
+        contact=contact,
     )
 
     html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
@@ -402,6 +440,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
                 about_override=about_override,
                 title_override=title_override,
                 compact_level=level,
+                contact=contact,
             )
             html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
             pages = count_pdf_pages(output_pdf)

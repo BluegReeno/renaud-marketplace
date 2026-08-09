@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## jobsearch 0.9.2
+
+- cv-generator: drop personal email/phone/home-address (incl. a Google Maps street link) from the public repo — `cv-master.json` no longer carries them and `cv_template.html` renders them from a gitignored `data/contact.local.json` (schema in `data/contact.example.json`), with a placeholder fallback when that file is absent (#76)
+
 ## jobsearch 0.9.1
 
 - gmail-mcp: allowlist Supabase user_id for JWT auth mode — closes security gap where any provisioned project user could read/draft from the mailbox (#80)

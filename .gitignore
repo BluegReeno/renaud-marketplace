@@ -61,3 +61,6 @@ skills-lock.json
 
 # CV profiles — personal data
 plugins/jobsearch/profiles/
+
+# CV contact info — personal data (phone/email/address), see contact.example.json for the schema
+plugins/jobsearch/data/contact.local.json
