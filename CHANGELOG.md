@@ -7,6 +7,12 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## improve 0.3.0
+
+- `generate_improve_map.py`: add `EXTRA_TARGETS` for `/improve` destinations that carry no skill directory in either marketplace — `hal` now routes to `BluegReeno/hal` (its connector-only bluegreen-marketplace entry enumerates no skill rows by design) instead of falling back to the nearest marketplace wrapper (closes #83)
+- Step 1's skill options list is now rendered from the same table rows as Step 2's routing table, between `<!-- improve-options:start/end -->` markers — it can no longer drift from the table, and three phantom entries (`blue-green-proposal-generator`, `document-generator`, plus the missing `mail-triage`/`log-cr`/`mycoach`/`crm`/`linkedin`/`pm`) are gone
+- Step 3's issue body and Archon checklist omit the `Fichier`/`plugin.json`/`CHANGELOG.md` steps when the target has no marketplace `SKILL.md` (table's `Plugin` column is `—`)
+
 ## jobsearch 0.10.0
 
 - `log-cr`: reintroduce the `🪞 Lecture Renaud — Fit` body section (subjective read, distinct from the employer's BANT read) — was lost when the SynologyDrive `CLAUDE.md` was retired in favour of skill-owned content (#82)

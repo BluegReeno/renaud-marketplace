@@ -41,10 +41,9 @@ Inspecte d'abord `$ARGUMENTS` (ce que Renaud a tapé après `/improve`) :
 - **`/improve`** (sans args) → pose UNE question via `AskUserQuestion` :
   - `question`: "Quel skill améliorer ?"
   - `header`: "Skill"
-  - `options`: liste des skills connus (morning-briefing, sprint-planner,
-    sprint-review, cv-generator, cover-letter, log-application,
-    interview-prep, jobsearch-vault, improve, hal, edifice,
-    blue-green-proposal-generator, document-generator)
+  - `options`: liste des skills connus (verbatim — ne pas éditer à la main,
+    dérivée du même tableau qu'au Step 2, donc jamais en dérive avec lui) :
+    <!-- improve-options:start -->`mail-triage`, `morning-briefing`, `improve`, `cover-letter`, `cv-generator`, `interview-prep`, `jobsearch-vault`, `log-application`, `log-cr`, `mycoach`, `edifice`, `crm`, `linkedin`, `pm`, `sprint-planner`, `sprint-review`, `hal`<!-- improve-options:end -->
 
 Ne demande **jamais** le repo — il est déduit automatiquement du skill (Step 2).
 
@@ -91,6 +90,7 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 | pm               | pm        | bluegreen-marketplace |
 | sprint-planner   | pm        | bluegreen-marketplace |
 | sprint-review    | pm        | bluegreen-marketplace |
+| hal              | —         | hal                   |
 
 <!-- improve-map:end -->
 
@@ -131,13 +131,30 @@ Paramètres :
 
 Template du body (remplacer tous les `<placeholders>`) :
 
+Si le tableau du Step 2 donne un vrai nom de plugin (colonne `Plugin` ≠ `—`) :
+
 ```
 ## Skill concerné
 - Plugin : `<plugin>` (<repo>)
 - Fichier : `plugins/<plugin>/skills/<skill>/SKILL.md`
 - Skill : `<skill-name>`
 - Priorité : <high|medium|low>
+```
 
+Si le tableau donne `Plugin : —` (cible hors marketplace, ex. `hal` → code
+serveur dans `BluegReeno/hal`) : il n'existe pas de `SKILL.md` — omets la
+ligne Fichier plutôt que d'inventer un chemin :
+
+```
+## Skill concerné
+- Repo : `<repo>`
+- Skill : `<skill-name>`
+- Priorité : <high|medium|low>
+```
+
+Puis, dans les deux cas :
+
+```
 ## Comportement observé
 <verbatim depuis la phrase de Renaud — ce qui s'est passé>
 
@@ -153,12 +170,25 @@ archon workflow run skill-improve "#<ISSUE_NUMBER>"
 ```
 > Lancer depuis le répertoire local de `<repo>`
 
+<checklist ci-dessous : la variante marketplace si `Plugin` ≠ `—`, sinon la
+variante générique — ne mélange pas les deux>
+
 - [ ] Lire `plugins/<plugin>/skills/<skill>/SKILL.md`
 - [ ] Identifier la section à modifier
 - [ ] Corriger selon le comportement attendu
 - [ ] Bumper la version dans les 2 champs (plugin.json / marketplace.json plugins[].version)
 - [ ] Ajouter l'entrée `## <plugin> <version>` dans CHANGELOG.md
 - [ ] `bash scripts/check_version_sync.sh` passe (exit 0)
+- [ ] Ouvrir une PR avec `closes #<ISSUE_NUMBER>`
+```
+
+Variante pour `Plugin : —` (ex. `hal` — pas de marketplace, pas de
+`plugin.json`/`CHANGELOG.md` à bumper ici) :
+
+```
+- [ ] Localiser le code concerné dans `<repo>`
+- [ ] Corriger selon le comportement attendu
+- [ ] Suivre les conventions de versioning/changelog propres à `<repo>`
 - [ ] Ouvrir une PR avec `closes #<ISSUE_NUMBER>`
 ```
 
