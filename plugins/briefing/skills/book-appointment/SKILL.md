@@ -10,7 +10,7 @@ description: >
   visit", "crée un événement dans mon agenda", "ajoute ce rendez-vous au
   calendrier", or names a concrete appointment (e.g. ophthalmologist, site
   visit) that should land on a specific workspace's calendar.
-allowed-tools: "mcp__claude_ai_hal-mcp__whoami mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_Google_Calendar__create_event"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__claude_ai_Google_Calendar__create_event"
 ---
 
 # Book Appointment — Skill Instructions
@@ -59,7 +59,7 @@ The workspace decides the calendar (Step 1) — never a task's tag. Resolve it f
 3. **Ask** — otherwise, list the candidate workspaces (`whoami.workspaces[].name`)
    and ask which one this appointment belongs to. Do not guess.
 
-Call `mcp__claude_ai_hal-mcp__whoami`. On failure, stop: `hal unreachable — cannot
+Call `mcp__plugin_hal_hal-mcp__whoami`. On failure, stop: `hal unreachable — cannot
 resolve a calendar without a workspace: <reason>`.
 
 ---
