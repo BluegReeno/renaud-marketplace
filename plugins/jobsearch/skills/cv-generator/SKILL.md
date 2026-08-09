@@ -201,6 +201,8 @@ Load cv-master.json from a custom directory (useful if the plugin dir is read-on
 
 > **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
+> **Contact info** (phone/email/address): read from `data/contact.local.json`, gitignored — never committed, since this repo is public. Copy `data/contact.example.json` to `data/contact.local.json` and fill in real values (or the directory passed via `--data-dir`). If the file is absent, the CV renders with placeholder contact info and the script prints an INFO line telling you where to put it.
+
 ---
 
 ## Step 5 — Report to the user
