@@ -7,6 +7,15 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## jobsearch 0.10.0
+
+- `log-cr`: reintroduce the `🪞 Lecture Renaud — Fit` body section (subjective read, distinct from the employer's BANT read) — was lost when the SynologyDrive `CLAUDE.md` was retired in favour of skill-owned content (#82)
+- `log-cr`: rephrase the BANT body section as directive questions instead of blank fields, and rename it `🏢 Lecture employeur — BANT` (#82)
+- `log-cr`: collect and write `format`/`heure` frontmatter fields (non-schematized, same warning contract as `prep`) (#82)
+- `log-cr`: write `prochain_rdv` on the opportunité when the interview produces a confirmed next-step date (#82)
+- `log-cr`: arbitrate the `feeling` enum to `🔥`/`🟡`/`❌` (intensity read, was `😊`/`😐`/`😟`); `type_entretien` stays `RH`/`Technique`/`Manager`/`Final` to match `interview-prep` (#82)
+- `log-cr`: add `docs/bant-cr-template.md` as the canonical body template and single source of truth for these enums — was referenced but missing (#82)
+
 ## jobsearch 0.9.2
 
 - cv-generator: drop personal email/phone/home-address (incl. a Google Maps street link) from the public repo — `cv-master.json` no longer carries them and `cv_template.html` renders them from a gitignored `data/contact.local.json` (schema in `data/contact.example.json`), with a placeholder fallback when that file is absent (#76)
