@@ -5,10 +5,15 @@ Enumerates every skill from:
   - this repo (local): .claude-plugin/marketplace.json plugin entries UNION the
     plugins/*/skills/* directory names;
   - bluegreen-marketplace (remote): its marketplace.json plugin entries UNION the
-    plugins/<plugin>/skills/ directory listings, fetched via the `gh` CLI.
+    plugins/<plugin>/skills/ directory listings, fetched via the `gh` CLI;
+  - EXTRA_TARGETS: valid `/improve` destinations that carry no skill directory
+    in either marketplace, because the real code lives in a third repo.
 
-It then rewrites the table between the `<!-- improve-map:start -->` and
-`<!-- improve-map:end -->` markers in plugins/improve/skills/improve/SKILL.md.
+It then rewrites, in plugins/improve/skills/improve/SKILL.md:
+  - the routing table between `<!-- improve-map:start -->` / `:end`;
+  - the Step 1 `AskUserQuestion` options list between
+    `<!-- improve-options:start -->` / `:end`, rendered from the same rows so
+    it cannot drift from the table.
 
 Contract:
   - any network / parse / missing-marker failure aborts with a non-zero exit and
@@ -33,6 +38,18 @@ SKILL_MD = os.path.join(
 REMOTE_REPO = "BluegReeno/bluegreen-marketplace"
 START = "<!-- improve-map:start -->"
 END = "<!-- improve-map:end -->"
+OPTIONS_START = "<!-- improve-options:start -->"
+OPTIONS_END = "<!-- improve-options:end -->"
+
+# Targets that are valid `/improve` destinations but carry no skill directory
+# in either marketplace — the real code lives in a third repo entirely.
+# `hal` is connector-only in bluegreen-marketplace (remote_skill_dirs() below
+# returns no rows for it by design), but the MCP server it wraps lives in
+# BluegReeno/hal (see hal-mcp#94) — without this entry, `/improve hal` has
+# nowhere to land and falls back to the nearest marketplace wrapper.
+EXTRA_TARGETS = [
+    ("hal", "—", "hal"),
+]
 
 
 def die(msg):
@@ -163,6 +180,15 @@ def render_table(rows):
     return "\n".join(lines)
 
 
+def render_options(rows):
+    """Render the Step 1 `AskUserQuestion` skill list from the same rows as the table.
+
+    Single source of truth: this list can no longer drift from the routing
+    table, because both are rendered from the same `rows`.
+    """
+    return ", ".join(f"`{skill}`" for skill, _plugin, _repo in rows)
+
+
 def main():
     local = load_local_marketplace()
     local_name = local.get("name", "renaud-marketplace")
@@ -177,7 +203,11 @@ def main():
     # (plugin, skill). Guarantees idempotency regardless of set iteration order.
     rows.sort(key=lambda r: (0 if r[2] == local_name else 1, r[1], r[0]))
 
+    # Non-marketplace targets are appended last, in their own group.
+    rows += EXTRA_TARGETS
+
     table = render_table(rows)
+    options = render_options(rows)
 
     try:
         with open(SKILL_MD, encoding="utf-8") as handle:
@@ -187,10 +217,20 @@ def main():
 
     if START not in content or END not in content:
         die(f"markers {START} / {END} not found in {SKILL_MD}")
+    if OPTIONS_START not in content or OPTIONS_END not in content:
+        die(f"markers {OPTIONS_START} / {OPTIONS_END} not found in {SKILL_MD}")
 
-    pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
-    replacement = f"{START}\n\n{table}\n\n{END}"
-    new_content = pattern.sub(lambda _m: replacement, content, count=1)
+    table_pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
+    new_content = table_pattern.sub(
+        lambda _m: f"{START}\n\n{table}\n\n{END}", content, count=1
+    )
+
+    options_pattern = re.compile(
+        re.escape(OPTIONS_START) + r".*?" + re.escape(OPTIONS_END), re.DOTALL
+    )
+    new_content = options_pattern.sub(
+        lambda _m: f"{OPTIONS_START}{options}{OPTIONS_END}", new_content, count=1
+    )
 
     if new_content != content:
         with open(SKILL_MD, "w", encoding="utf-8") as handle:

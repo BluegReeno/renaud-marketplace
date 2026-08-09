@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.6.19",
+  "version": "0.6.20",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -34,7 +34,7 @@
     },
     {
       "name": "improve",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Skill improvement capture — formalise une observation en GitHub Issue en ≤30s depuis Cowork",
       "source": "./plugins/improve",
       "author": {
