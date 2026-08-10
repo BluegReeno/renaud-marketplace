@@ -111,7 +111,7 @@ home = pathlib.Path.home()
 env = os.environ.get('CV_GENERATOR_DIR', '')
 if env and pathlib.Path(env, 'scripts', 'generate_cv.py').exists():
     print(env); sys.exit(0)
-cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'cv-generator'
+cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/scripts/generate_cv.py'), key=lambda p: p.stat().st_mtime, reverse=True)
     if candidates:
@@ -120,7 +120,7 @@ for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py']:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
-dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'cv-generator'
+dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
 if dev.joinpath('scripts', 'generate_cv.py').exists():
     print(str(dev)); sys.exit(0)
 print('PLUGIN_DIR_NOT_FOUND')
@@ -201,7 +201,7 @@ Load cv-master.json from a custom directory (useful if the plugin dir is read-on
 
 > **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
-> **Contact info** (phone/email/address): read from `data/contact.local.json`, gitignored — never committed, since this repo is public. Copy `data/contact.example.json` to `data/contact.local.json` and fill in real values (or the directory passed via `--data-dir`). If the file is absent, the CV renders with placeholder contact info and the script prints an INFO line telling you where to put it.
+> **Contact info** (phone/email/address): never committed, since this repo is public. The master copy lives in the mounted Drive folder — `SynologyDrive-MyAssistant/jobsearch/private/contact.local.json` — which the script finds on its own, on the workstation and in the Cowork sandbox alike. That location is deliberate: the plugin cache is version-numbered, so anything left there is wiped by the next `plugin update`. Resolution order is `--data-dir`, then the mounted folder, then the plugin's own `data/`. Schema in `data/contact.example.json`. If no copy is found, the CV renders placeholder contact info and the script prints the list of paths it searched.
 
 ---
 
@@ -247,7 +247,7 @@ home = pathlib.Path.home()
 env = os.environ.get('CV_GENERATOR_DIR', '')
 if env and pathlib.Path(env, 'scripts', 'generate_cv.py').exists():
     print(env); sys.exit(0)
-cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'cv-generator'
+cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/scripts/generate_cv.py'), key=lambda p: p.stat().st_mtime, reverse=True)
     if candidates:
@@ -256,7 +256,7 @@ for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py']:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
-dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'cv-generator'
+dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
 if dev.joinpath('scripts', 'generate_cv.py').exists():
     print(str(dev)); sys.exit(0)
 print('PLUGIN_DIR_NOT_FOUND')

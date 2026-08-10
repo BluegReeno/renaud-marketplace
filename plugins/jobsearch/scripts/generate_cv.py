@@ -14,6 +14,7 @@ Usage:
 
 import json
 import os
+import glob
 import re
 import shutil
 import argparse
@@ -103,6 +104,29 @@ def get_skill_dir():
     return Path(__file__).parent.parent
 
 
+# Personal data (contact details, CV profiles) is deliberately NOT shipped with the plugin:
+# this repository is public. It lives in the synced Drive folder instead, which is mounted
+# both on the workstation and in the Cowork sandbox — unlike the plugin cache, which is
+# version-numbered and wiped by every `plugin update`.
+PRIVATE_DIR_PATTERNS = [
+    '/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private',
+    '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private',
+    '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private',
+]
+
+
+def find_private_dir():
+    """Locate the mounted private data folder, or None when the Drive is not mounted."""
+    env = os.environ.get('JOBSEARCH_PRIVATE_DIR', '')
+    if env and Path(env).is_dir():
+        return Path(env)
+    for pattern in PRIVATE_DIR_PATTERNS:
+        for match in sorted(glob.glob(pattern)):
+            if Path(match).is_dir():
+                return Path(match)
+    return None
+
+
 ACCENT_REPLACEMENTS = [
     ('é', 'e'), ('è', 'e'), ('ê', 'e'), ('ë', 'e'),
     ('à', 'a'), ('â', 'a'), ('ä', 'a'),
@@ -162,22 +186,34 @@ def load_cv_data(data_dir=None):
 
 
 def load_contact_info(data_dir=None):
-    """Load phone/email/location from a gitignored local file — never committed.
+    """Load phone/email/location from a file that is never committed.
 
-    See data/contact.example.json for the schema. Falls back to placeholder
-    values when the local file is absent (fresh clone, second user, CI).
+    Resolution order, first hit wins:
+      1. --data-dir, when the caller stages the file explicitly
+      2. the mounted private folder (see find_private_dir) — the only location that
+         survives a `plugin update` and is readable from the Cowork sandbox
+      3. the plugin's own data/ directory — dev workstation fallback
+
+    See data/contact.example.json for the schema. Falls back to placeholder values
+    when no copy is found (fresh clone, second user, CI, Drive not mounted).
     """
+    candidates = []
     if data_dir:
-        contact_path = Path(data_dir) / 'contact.local.json'
-    else:
-        contact_path = get_skill_dir() / 'data' / 'contact.local.json'
+        candidates.append(Path(data_dir) / 'contact.local.json')
+    private_dir = find_private_dir()
+    if private_dir:
+        candidates.append(private_dir / 'contact.local.json')
+    candidates.append(get_skill_dir() / 'data' / 'contact.local.json')
 
-    if contact_path.exists():
-        with open(contact_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+    for contact_path in candidates:
+        if contact_path.exists():
+            with open(contact_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
 
-    print(f"INFO: No {contact_path.name} found — CV will render placeholder contact info.")
-    print("      To add: copy data/contact.example.json to that path and fill in real values.")
+    searched = ', '.join(str(p) for p in candidates)
+    print("INFO: No contact.local.json found — CV will render placeholder contact info.")
+    print(f"      Looked in: {searched}")
+    print("      To add: copy data/contact.example.json to one of those paths and fill it in.")
     return {
         'phone': '+33 (0)0 00 00 00 00',
         'email': 'contact@example.com',

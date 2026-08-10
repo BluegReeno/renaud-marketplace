@@ -1,5 +1,28 @@
 # jobsearch — Changelog
 
+## [0.11.0] — 2026-08-10
+
+### Fixed (cv-generator SKILL.md)
+
+- **PLUGIN_DIR resolver looked for a plugin that no longer exists.** Both resolver blocks
+  probed `.../cache/renaud-marketplace/cv-generator` and `~/Projects/renaud-marketplace/plugins/cv-generator`,
+  names left over from the rename to `jobsearch`. Every local tier missed, so the skill
+  exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was exported.
+
+### Changed (generate_cv.py, cv-generator + interview-prep SKILL.md)
+
+- **Personal data moved to the mounted Drive folder** —
+  `SynologyDrive-MyAssistant/jobsearch/private/`, holding `contact.local.json` and
+  `profiles/p1..p5`. Both are untracked (this repository is public), and the plugin cache
+  is version-numbered, so every `plugin update` silently wiped them. The failure mode was
+  not an error: a CV rendered with placeholder contact details, and `interview-prep`
+  produced an unpositioned pitch. The mounted folder is readable from the workstation and
+  from the Cowork sandbox, and survives updates.
+- `load_contact_info()` resolves `--data-dir` → mounted folder → plugin `data/`, and now
+  prints every path it searched when it falls back to placeholders.
+- `interview-prep`'s PLUGIN_DIR resolver gained a mounted-folder tier ahead of the plugin
+  tiers, which could only ever match on a workstation holding the untracked source.
+
 ## [0.8.2] — 2026-07-02
 
 ### Changed (cv-generator SKILL.md)
