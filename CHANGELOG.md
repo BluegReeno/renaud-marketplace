@@ -7,6 +7,23 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## jobsearch 0.11.0
+
+- Personal data moved out of the plugin package and into the mounted Drive folder
+  `SynologyDrive-MyAssistant/jobsearch/private/` — `contact.local.json` plus `profiles/p1..p5`.
+  Both are untracked (this repository is public) and the plugin cache is version-numbered, so
+  every `plugin update` silently wiped them. The failure mode was not an error: a CV rendered
+  with placeholder contact details, and `interview-prep` produced an unpositioned pitch because
+  its profile files had never reached the installed package at all. The mounted folder is
+  readable from the workstation and from the Cowork sandbox, and survives updates
+- `generate_cv.py`: `find_private_dir()` added; `load_contact_info()` now resolves
+  `--data-dir` → mounted folder → plugin `data/`, and reports every path it searched when it
+  falls back to placeholders
+- `interview-prep`: PLUGIN_DIR resolver gained a mounted-folder tier ahead of the plugin tiers
+- `cv-generator`: fixed a PLUGIN_DIR resolver that still probed the pre-rename `cv-generator`
+  paths in both the marketplace cache and the dev checkout — every local tier missed, so the
+  skill exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was set
+
 ## improve 0.3.0
 
 - `generate_improve_map.py`: add `EXTRA_TARGETS` for `/improve` destinations that carry no skill directory in either marketplace — `hal` now routes to `BluegReeno/hal` (its connector-only bluegreen-marketplace entry enumerates no skill rows by design) instead of falling back to the nearest marketplace wrapper (closes #83)

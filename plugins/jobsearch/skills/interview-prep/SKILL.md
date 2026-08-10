@@ -25,7 +25,7 @@ Given a candidature (resolved by company name + role title, or a free-text refer
 4. **Cas du parcours pertinents**
 5. **Questions probables de l'interlocuteur**
 
-The Pitch section is grounded in the matching `profiles/p<n>_*.md` narrative file — concrete proofs, not generic claims. All vault I/O goes through the `jobsearch-vault` skill; the profile narrative files (which live in this plugin's source tree, NOT in the Obsidian vault) are read with the standard `Read` tool.
+The Pitch section is grounded in the matching `profiles/p<n>_*.md` narrative file — concrete proofs, not generic claims. All vault I/O goes through the `jobsearch-vault` skill; the profile narrative files (which live in the mounted private folder, NOT in the Obsidian vault and NOT in the plugin package) are read with the standard `Read` tool.
 
 ## Step 0 — Inputs you need from the user
 
@@ -56,7 +56,7 @@ Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise`
 
 Read the file `profiles/p<n>_*.md` from this plugin's source tree, where `<n>` is the digit from `target_profile` (e.g. `P3` → `profiles/p3_cto.md`).
 
-These files live in the **plugin source tree**, NOT in the Obsidian vault — that is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (dev workstation, marketplace cache, Cowork sandbox):
+These files live in the **mounted private folder** (`SynologyDrive-MyAssistant/jobsearch/private/profiles/`), NOT in the Obsidian vault and NOT in the plugin package — this repository is public, so they are untracked. That is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (mounted folder, dev workstation, marketplace cache, Cowork sandbox):
 
 ```bash
 PLUGIN_DIR=$(python3 - <<'PYEOF'
@@ -69,6 +69,19 @@ if env:
         log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} ACCEPTED")
         print(env); sys.exit(0)
     log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} REJECTED (no profiles/p1_architecte.md) — falling through")
+# The profiles carry personal narrative material and this repository is public, so they are
+# NOT shipped with the plugin. They live in the synced Drive folder, mounted both on the
+# workstation and in the Cowork sandbox. Checked before the plugin tiers below, which can
+# only ever match on a dev workstation holding the untracked source.
+for pat in ['/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md']:
+    matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
+    if matches:
+        plug = os.path.dirname(os.path.dirname(matches[0]))
+        log(f"[plugin-dir] mounted private folder ACCEPTED {plug}")
+        print(plug); sys.exit(0)
+log("[plugin-dir] mounted private folder no match — falling through")
 cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/profiles/p1_architecte.md'), key=lambda p: p.stat().st_mtime, reverse=True)
