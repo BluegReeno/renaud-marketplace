@@ -82,20 +82,34 @@ Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`:
 ```
 if w.sprints_enabled:
   mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
-    → take the first entry's id
-  if sprint.id is not None:
-    mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
-  else:
-    mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
+    → 0 entries  : no current sprint          → unfiltered list_tasks + LOUD line (see below)
+    → 1 entry    : the current sprint         → check ends_at, then filter by its id
+    → 2+ entries : ambiguous                  → unfiltered list_tasks + LOUD line (see below)
+  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
 else:
   mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
 ```
 
-A workspace without `sprints_enabled` is **not** a workspace missing a sprint — pull its open tasks with no sprint filter and render **no** "(no active sprint)" note. A `sprints_enabled` workspace with no `status="actuel"` sprint falls back to the unfiltered `list_tasks` and *does* note "(no active sprint — showing open tasks)".
+A workspace without `sprints_enabled` is **not** a workspace missing a sprint — pull its open tasks with no sprint filter and render **no** "(no active sprint)" note.
+
+**The sprint is the selection — so never guess it silently.** `status="actuel"` is declarative: a
+human sets it when they plan the week, and hal enforces nothing about its dates. The three
+failure modes below each render a **loud line** in that workspace's block AND in the
+source-status footer. Never fall back quietly to unfiltered tasks — a briefing that shows the
+leftovers of a closed sprint while looking exactly like a normal one is the failure this rule
+exists to prevent.
+
+| Condition | Line to render | Tasks shown |
+|---|---|---|
+| 0 sprints `actuel` | `⚠️ <workspace> — aucun sprint actuel : la semaine n'a pas été planifiée. Tâches ouvertes affichées à défaut.` | unfiltered `list_tasks` |
+| 1 sprint, `ends_at` < today | `⚠️ <workspace> — sprint « <name> » toujours actuel mais clos depuis le <ends_at> (J+<n>). Ce sont des restes, pas un sprint vivant.` | that sprint's tasks |
+| 2+ sprints `actuel` | `⚠️ <workspace> — <n> sprints marqués actuel (<names>) : sélection ambiguë, aucun filtre appliqué.` | unfiltered `list_tasks` |
+
+`ends_at` may be null — an undated sprint cannot be stale, so render no line for it.
 
 If the enriched `whoami` payload does not carry `sprints_enabled` (phase 1 not yet deployed), render `⚠️ whoami sans champ sprints_enabled — sprint non résolu, tâches ouvertes affichées` for that workspace and fall back to the unfiltered `list_tasks`.
 
-**Label** every task with the workspace's `name` (fall back to `workspace_slug` when `name` is null). Keep each task's `id` — Step 4 daily-log entries reference it as `réf. hal : <workspace_slug>/<id>` (see Step 4's Liens block).
+**Label** every task with the workspace's `name` (fall back to `workspace_slug` when `name` is null). Keep each task's **full** `id` — Step 4 daily-log entries reference it as `réf. hal : <workspace_slug>/<id>`, and that reference is the join key the Command Center uses to resolve the task's live state. Never abbreviate it (see Step 5).
 
 **Tag grouping (every workspace).** Group each workspace's returned tasks by their **first** tag, ordered by that workspace's own `allowed_tags` (from `whoami`); tasks with no tag land last, under `other`. Skip groups with zero tasks. If a workspace carries no `allowed_tags`, list its tasks flat (no tag subsection). Never assume a fixed tag list — a second user's workspace has entirely different tags.
 
@@ -379,6 +393,23 @@ A write failure for one workspace MUST NOT block the write for the other(s).
 
 The daily log is a **hand-off document**: Renaud opens a fresh session per task and must not have to re-search for context. Every task, offer, and process entry therefore carries a **Liens** sub-line and a **▶️ prochaines actions** sub-line — this is what makes the log exhaustive even though the chat-rendered brief (Step 3) stays synthetic.
 
+**The log carries the selection, never the state.** Two different things used to be stacked in
+this document: *which tasks today, in what order, and why* — which only this skill can produce,
+from mails, calendar and sprint — and *todo / done*, which belongs to `halcrm_tasks` alone. The
+first stays. The second is a copy that rots within the hour: the log is written once at dawn and
+every action taken afterwards diverges from it, with nothing to detect it.
+
+So the log lists tasks, with all their context, as a **numbered list — never a `- [ ]`
+checkbox**. Ticking is done against hal (Command Center, or `update_task_status` in session),
+and the Command Center resolves each line's live state by joining on the `réf. hal` id. Two
+consequences, both load-bearing:
+
+- **One line = exactly one task.** Never merge several tasks into a single entry carrying
+  several `réf. hal` refs — such a line cannot be resolved, ticked, or counted. Related tasks
+  get one line each; put the shared framing in `▶️ prochaines actions`.
+- **The id is never abbreviated.** `renaud/7f8158bb` is not a task id; `renaud/7f8158bb…` is
+  worse. Print the full 32-character id returned by `list_tasks`, always.
+
 **Liens line — format and rule.** One `  Liens : ` sub-line per entry, listing only the links/refs actually available for that entry, space-separated. **Never fabricate an ID or URL that wasn't captured in Step 1** — omit a link type entirely (do not print a placeholder) when its source ID is missing. Available link types:
 
 | Link type | Rendering |
@@ -387,7 +418,7 @@ The daily log is a **hand-off document**: Renaud opens a fresh session per task 
 | LinkedIn offer | `` Offre `https://www.linkedin.com/jobs/view/<jobId>` `` |
 | Vault note | `` Vault `<vault-relative path>` (`obsidian://open?vault=SecondLife&file=<path, URL-encoded>`) `` |
 | Google Meet | `` Meet `<hangoutLink>` `` |
-| hal task/project | `` réf. hal `<workspace_slug>/<id>` `` |
+| hal task/project | `` réf. hal `<workspace_slug>/<id>` `` — full id, never truncated |
 
 **Gmail link — multi-account limitation (accepted).** The Gmail link carries no `?authuser=<address>` parameter: the address must never be published in a public repo. Consequence: with several Google accounts signed into the same browser, the link opens the browser's *active* account, which may be the wrong tab. This is accepted — a wrong tab is cheaper than a published address.
 
@@ -401,11 +432,13 @@ There is no reference workspace. Write the **same shape** for every workspace, s
 # Daily log — <workspace name> — <date in French>
 
 ## Sprint en cours [<workspace name>]
+<the ⚠️ sprint line from Step 1a, when the sprint is missing, stale or ambiguous — omit when the sprint is healthy>
 
 ### <tag>            ← one ### per first-tag group, allowed_tags order; untagged under `other`, last
-- [ ] <task title> · priorité : <priority|none>
-  Liens : réf. hal `<workspace_slug>/<task_id>` (+ Vault/Offre/Gmail/Meet when the task is tied to one — whichever were captured in Step 1)
+1. <task title> · priorité : <priority|none> · échéance <due_date, with (**en retard**) when past>
+  Liens : réf. hal `<workspace_slug>/<full 32-char task_id>` (+ Vault/Offre/Gmail/Meet when the task is tied to one — whichever were captured in Step 1)
   ▶️ prochaines actions : <one sentence>
+2. <one entry per task — never several tasks on one line>
 ...
 (skip empty subsections — or "(aucune tâche en cours)" if all empty)
 
@@ -457,5 +490,8 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **Relationship with `mail-triage`** — Steps 1e/1f do a lightweight, context-integrated mail pass for the daily briefing. The `mail-triage` skill (also in this plugin) provides a deeper, on-demand triage with explicit per-thread classification. Do NOT call `Skill(mail-triage)` from inside this skill — the shallow pass here is intentionally faster and context-lighter. Users who want full triage run `/mail` separately.
 - **Daily log is the hand-off, not the chat brief** — every task/offer/process entry written in Step 4 carries a `Liens` sub-line and a `▶️ prochaines actions` sub-line, so Renaud can work each entry in a fresh session without re-collecting context. The Step 3 chat brief can stay synthetic; Step 4 may not.
 - **Never fabricate a link** — a `Liens` sub-line lists only link types whose source ID/URL was actually captured in Step 1 (Gmail message id, LinkedIn job id, vault note path, `hangoutLink`, hal task id). Omit a link type silently rather than guessing or printing a placeholder.
+- **The daily log never carries task state** — no `- [ ]`, no `- [x]`, anywhere, in any section. `halcrm_tasks` is the single source of truth for status; the log holds the day's selection and its context. Writing a checkbox creates a second, editable copy of the state that nothing reconciles — the exact divergence this skill is forbidden from producing. Ticking happens via `update_task_status` (Command Center, or in session), never by editing this document.
+- **One line = one task, with its full id** — never merge several tasks into one entry carrying several `réf. hal` refs, and never abbreviate an id. The `<workspace_slug>/<id>` pair is the join key the Command Center uses to resolve live state; a merged line or an 8-character prefix breaks it silently.
+- **A missing, stale or ambiguous sprint is loud** — the sprint is the day's selection, and hal enforces nothing about it: `status="actuel"` is set by hand and stays until someone moves it. Zero `actuel`, several `actuel`, or one whose `ends_at` has passed each render the Step 1a `⚠️` line in the workspace's block AND in the source-status footer. Never present the leftovers of a closed sprint as if they were this week's plan.
 - **Daily-log / task-cleanup sessions are log-only, never execution** — this applies whenever a session reviews or maintains this skill's daily log or hal tasks (updating status, cancelling, merging duplicates, editing a description), whether that happens inside a Step 4 run or in a later, separate conversation looking at the daily log / Command Center dashboard. In that context, only list, log, and update task bookkeeping — never execute a task (e.g. draft the LinkedIn post, write the CR) inline, and never offer "I'll do X now — which option do you want?". Executing a task happens in its own dedicated session, started separately.
 - **Route idea capture to a dedicated hal task, not into the daily log** — when a task-cleanup session surfaces an idea/angle worth capturing (e.g. LinkedIn post angles with stats from the last post), first look for an existing dedicated hal task for that topic via `mcp__plugin_hal_hal-mcp__list_tasks`. There is no full-text search — filter by tag (use an allowed workspace tag such as `marketing`, never a hardcoded `linkedin` tag <!-- TODO: verify in Cowork: exact tag/title convention the workspace uses for the dedicated LinkedIn-idea task --> ) and match the title client-side. If found, call `mcp__plugin_hal_hal-mcp__update_task` to append the idea to that task's `description` (append, never overwrite prior content) and reference only `réf. hal <workspace>/<id>` from the daily log's Notes section — do not paste the narrative content into the daily log itself. If no dedicated task exists, say so and ask before creating one (`create_task` is not in this skill's allowed-tools).

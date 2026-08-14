@@ -7,6 +7,32 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.14.0
+
+`morning-briefing` — the daily log carries the day's selection, never task state.
+
+- **Checkboxes removed from the daily log.** Sprint tasks render as a numbered list, one line
+  per task. `halcrm_tasks` is the single source of truth for status; a `- [ ]` in the log was a
+  second, editable copy that nothing reconciled — the log is written once at dawn and every
+  later action diverged from it silently. Ticking goes through `update_task_status`.
+- **hal task ids are never truncated.** Each entry carries the full 32-character id;
+  `<workspace_slug>/<id>` is the join key the Command Center uses to resolve a line's live state
+  and to tick it. The 2026-08-12 `renaud` log printed 8-character prefixes, unique across the
+  current 311 rows by luck rather than by contract.
+- **One line = one task.** Merging several tasks into a single entry carrying several `réf. hal`
+  refs is forbidden — that line cannot be resolved, ticked or counted. The same log had one
+  entry covering five tasks.
+- **Step 1a guards the current sprint** instead of taking the first `actuel` entry returned.
+  Zero `actuel`, several `actuel`, or one whose `ends_at` has passed each render a loud line in
+  the workspace block and in the source-status footer. On 2026-08-13 `renaud #7` had been
+  `actuel` for six days past its close, and the briefing presented its leftovers as the week's
+  plan.
+
+`status="actuel"` is declarative — a human sets it when planning the week and hal enforces
+nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
+`actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
+guard therefore belongs on the consumer side.
+
 ## jobsearch 0.11.0
 
 - Personal data moved out of the plugin package and into the mounted Drive folder
