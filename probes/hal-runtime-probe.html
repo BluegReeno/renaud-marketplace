@@ -1,0 +1,486 @@
+<title>Une page publiée peut-elle parler à hal ?</title>
+
+<style>
+  :root {
+    --bg:        #F4F6F9;
+    --surface:   #FFFFFF;
+    --surface-2: #EDF0F5;
+    --ink:       #131820;
+    --muted:     #5B6675;
+    --line:      #DCE1E9;
+    --accent:    #1F5FA8;
+    --pass:      #146B3A;
+    --warn:      #94540B;
+    --fail:      #A81E12;
+    --pass-bg:   #E4F2E9;
+    --warn-bg:   #FAF0DD;
+    --fail-bg:   #FBE9E7;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0D1117;
+      --surface:   #151B23;
+      --surface-2: #1C242E;
+      --ink:       #E4E9F0;
+      --muted:     #909CAC;
+      --line:      #252D38;
+      --accent:    #62A6E8;
+      --pass:      #57D68A;
+      --warn:      #E8B44C;
+      --fail:      #F08B80;
+      --pass-bg:   #12251A;
+      --warn-bg:   #2A2113;
+      --fail-bg:   #2B1614;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #0D1117;
+    --surface:   #151B23;
+    --surface-2: #1C242E;
+    --ink:       #E4E9F0;
+    --muted:     #909CAC;
+    --line:      #252D38;
+    --accent:    #62A6E8;
+    --pass:      #57D68A;
+    --warn:      #E8B44C;
+    --fail:      #F08B80;
+    --pass-bg:   #12251A;
+    --warn-bg:   #2A2113;
+    --fail-bg:   #2B1614;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    margin: 0;
+    padding: 2rem 1.25rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  header { display: flex; flex-direction: column; gap: .5rem; }
+  h1 {
+    font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.9rem);
+    line-height: 1.2; margin: 0; text-wrap: balance; font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+  .sub { color: var(--muted); font-size: .95rem; max-width: 58ch; margin: 0; }
+  .stamp {
+    font-family: var(--mono); font-size: .72rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .09em;
+  }
+
+  .verdict {
+    border: 1px solid var(--line); border-left: 4px solid var(--muted);
+    background: var(--surface); border-radius: 3px;
+    padding: 1rem 1.15rem; display: flex; flex-direction: column; gap: .3rem;
+  }
+  .verdict[data-v="pass"] { border-left-color: var(--pass); background: var(--pass-bg); }
+  .verdict[data-v="fail"] { border-left-color: var(--fail); background: var(--fail-bg); }
+  .verdict[data-v="warn"] { border-left-color: var(--warn); background: var(--warn-bg); }
+  .verdict h2 { margin: 0; font-size: 1.05rem; font-weight: 620; }
+  .verdict p  { margin: 0; font-size: .9rem; color: var(--ink); }
+
+  .steps { display: flex; flex-direction: column; gap: .75rem; }
+  .step {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
+    display: grid; grid-template-columns: 2.1rem 1fr; align-items: start;
+  }
+  .num {
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    padding: .95rem 0 0 .8rem; font-variant-numeric: tabular-nums;
+  }
+  .body { padding: .85rem 1rem 1rem 0; display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+  .head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+  .name { font-weight: 580; font-size: .96rem; }
+  .ms { font-family: var(--mono); font-size: .74rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .pill {
+    font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .07em;
+    padding: .12rem .45rem; border-radius: 2px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .pill[data-s="wait"] { color: var(--muted); }
+  .pill[data-s="run"]  { color: var(--accent); }
+  .pill[data-s="pass"] { color: var(--pass); }
+  .pill[data-s="fail"] { color: var(--fail); }
+  .pill[data-s="warn"] { color: var(--warn); }
+  .pill[data-s="skip"] { color: var(--muted); opacity: .65; }
+
+  .detail { font-size: .88rem; color: var(--muted); margin: 0; }
+  .detail strong { color: var(--ink); font-weight: 580; }
+  code, .code { font-family: var(--mono); font-size: .82em; }
+  .errcode {
+    font-family: var(--mono); font-size: .8rem; color: var(--fail);
+    background: var(--fail-bg); padding: .1rem .4rem; border-radius: 2px;
+  }
+  pre {
+    font-family: var(--mono); font-size: .76rem; line-height: 1.45;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: .7rem .8rem; margin: 0; overflow-x: auto; max-height: 22rem; overflow-y: auto;
+  }
+  details summary {
+    cursor: pointer; font-family: var(--mono); font-size: .76rem; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .06em; padding: .15rem 0;
+  }
+  details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  details[open] summary { margin-bottom: .45rem; }
+
+  .log { display: flex; flex-direction: column; gap: .55rem; }
+  .log-head { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+  h2.sec {
+    font-size: .8rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--muted); margin: 0; font-family: var(--mono); font-weight: 500;
+  }
+  button {
+    font-family: var(--mono); font-size: .76rem; color: var(--accent);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
+    padding: .3rem .7rem; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  textarea#raw {
+    font-family: var(--mono); font-size: .76rem; line-height: 1.45;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--accent); border-radius: 3px;
+    padding: .7rem .8rem; width: 100%; min-height: 9rem; resize: vertical;
+  }
+  textarea#raw:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  footer { color: var(--muted); font-size: .82rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+  footer p { margin: 0 0 .4rem; max-width: 62ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="stamp" id="stamp">build 1 · sonde de connexion</p>
+    <h1>Une page publiée peut-elle parler à hal ?</h1>
+    <p class="sub">Cette page ne fait que lire. Elle ne modifie aucune tâche. Chaque étape dépend de la précédente : si l'une échoue, les suivantes n'ont plus de sens et sont marquées ignorées.</p>
+  </header>
+
+  <div class="verdict" id="verdict" data-v="">
+    <h2 id="verdict-title">Test en cours…</h2>
+    <p id="verdict-body">Les cinq étapes s'exécutent au chargement.</p>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="log">
+    <div class="log-head">
+      <h2 class="sec">Journal d'exécution</h2>
+      <button id="copy">Sélectionner le journal</button>
+      <span class="stamp" id="copied" hidden></span>
+    </div>
+    <pre id="log">…</pre>
+    <textarea id="raw" readonly hidden aria-label="Journal sélectionnable"></textarea>
+  </div>
+
+  <footer>
+    <p>Si une étape échoue, le code d'erreur exact est affiché tel quel — c'est lui qui dit quoi faire, pas le message.</p>
+    <p><strong>server_not_connected</strong> sur tous les candidats signifie que le nom du connecteur n'est pas celui qu'on a deviné. Le nom exact se lit dans Réglages → Connecteurs ; il suffit alors de republier avec le bon.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var BUILD = 2;
+  var CANDIDATES = ["hal-mcp", "hal"];
+  var WORKSPACE = "blue-green";
+
+  var STEPS = [
+    { id: "bridge",  name: "Le pont vers les connecteurs existe" },
+    { id: "list",    name: "Quels connecteurs répondent" },
+    { id: "resolve", name: "Lequel est hal (whoami)" },
+    { id: "read",    name: "Lire les tâches (list_tasks)" },
+    { id: "shape",   name: "Le résultat a la forme attendue" }
+  ];
+
+  var log = [];
+  var t0 = Date.now();
+  var state = {};
+
+  function rel() {
+    var d = Date.now() - t0;
+    return ("+" + (d / 1000).toFixed(2) + "s").padStart(8, " ");
+  }
+  function note(msg) {
+    log.push(rel() + "  " + msg);
+    var el = document.getElementById("log");
+    if (el) el.textContent = log.join("\n");
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function render() {
+    var host = document.getElementById("steps");
+    host.innerHTML = STEPS.map(function (s, i) {
+      var st = state[s.id] || { status: "wait" };
+      var ms = st.ms != null ? st.ms + " ms" : "";
+      var parts = [];
+      parts.push('<div class="step"><div class="num">' + (i + 1) + '</div><div class="body">');
+      parts.push('<div class="head"><span class="name">' + esc(s.name) + '</span>');
+      parts.push('<span class="pill" data-s="' + st.status + '">' + st.status + "</span>");
+      if (ms) parts.push('<span class="ms">' + ms + "</span>");
+      parts.push("</div>");
+      if (st.detail) parts.push('<p class="detail">' + st.detail + "</p>");
+      if (st.raw) {
+        parts.push("<details><summary>données brutes</summary><pre>" + esc(st.raw) + "</pre></details>");
+      }
+      parts.push("</div></div>");
+      return parts.join("");
+    }).join("");
+  }
+
+  function set(id, status, detail, raw, ms) {
+    state[id] = { status: status, detail: detail, raw: raw, ms: ms };
+    render();
+  }
+
+  function verdict(v, title, body) {
+    var el = document.getElementById("verdict");
+    el.setAttribute("data-v", v);
+    document.getElementById("verdict-title").textContent = title;
+    document.getElementById("verdict-body").innerHTML = body;
+  }
+
+  function skipRest(from) {
+    var seen = false;
+    STEPS.forEach(function (s) {
+      if (s.id === from) { seen = true; return; }
+      if (seen && !state[s.id]) set(s.id, "skip", "L'étape précédente n'a pas abouti.");
+    });
+  }
+
+  // An McpError carries a stable `code`; branch on it, never on the message text.
+  function describe(e) {
+    var code = e && e.code ? e.code : "(sans code)";
+    var msg = e && e.message ? e.message : String(e);
+    var extra = [];
+    if (e && e.server) extra.push("server=" + e.server);
+    if (e && e.retryable) extra.push("retryable");
+    if (e && e.retryAfterMs != null) extra.push("retryAfterMs=" + e.retryAfterMs);
+    return {
+      code: code,
+      html: '<span class="errcode">' + esc(code) + "</span> " + esc(msg) +
+            (extra.length ? ' <span class="code">(' + esc(extra.join(", ")) + ")</span>" : ""),
+      text: code + " — " + msg + (extra.length ? " (" + extra.join(", ") + ")" : "")
+    };
+  }
+
+  function fixFor(code) {
+    switch (code) {
+      case "server_not_connected":
+        return "Aucun connecteur de ce nom pour ce compte. Le nom est probablement différent — à lire dans Réglages → Connecteurs.";
+      case "needs_reauth":
+        return "Le connecteur existe mais ses identifiants ont expiré. À reconnecter dans Réglages → Connecteurs.";
+      case "not_in_manifest":
+        return "Ce couple (connecteur, outil) n'est pas dans ce que la page a déclaré, ou pas dans ce qui a été autorisé.";
+      case "selection_required":
+        return "Plusieurs connecteurs portent ce nom et aucun n'a été choisi.";
+      case "blocked_by_policy":
+      case "approval_required":
+        return "Une politique bloque cet appel pour ce compte.";
+      case "server_unavailable":
+        return "Le serveur hal est momentanément injoignable — c'est transitoire, pas structurel.";
+      case "not_granted":
+      case "capability_disabled":
+      case "capability_removed":
+        return "La page n'a pas reçu l'accès aux connecteurs dans cette vue.";
+      case "tool_error":
+        return "hal a répondu, mais l'outil a signalé une erreur. La connexion, elle, fonctionne.";
+      default:
+        return "";
+    }
+  }
+
+  function timed(fn) {
+    var start = Date.now();
+    return Promise.resolve()
+      .then(fn)
+      .then(function (v) { return { ok: true, value: v, ms: Date.now() - start }; })
+      .catch(function (e) { return { ok: false, error: e, ms: Date.now() - start }; });
+  }
+
+  function run() {
+    render();
+    note("build " + BUILD + " — démarrage");
+
+    // 1 — the member check is the canonical gate and cannot throw.
+    var hasClaude = typeof window.claude !== "undefined" && window.claude !== null;
+    var hasMcp = hasClaude && typeof window.claude.mcp !== "undefined";
+    var hasCowork = typeof window.cowork !== "undefined" && window.cowork !== null;
+
+    var env = "window.claude " + (hasClaude ? "présent" : "absent") +
+              " · window.claude.mcp " + (hasMcp ? "présent" : "absent") +
+              " · window.cowork " + (hasCowork ? "présent" : "absent");
+    note("1 " + env);
+
+    if (!hasMcp) {
+      set("bridge", "fail", "Aucun pont vers les connecteurs dans cette vue. <br><span class=\"code\">" + esc(env) + "</span>");
+      skipRest("bridge");
+      verdict("fail", "Non — la page n'a aucun accès aux connecteurs",
+        "Le test s'arrête à l'étape 1 : rien à joindre. C'est un verdict sur le mode de publication, pas sur hal.");
+      return;
+    }
+    set("bridge", "pass", "Le pont est là. <span class=\"code\">" + esc(env) + "</span>");
+
+    // 2 — listTools: the manifest intersected with what the viewer actually has.
+    timed(function () { return window.claude.mcp.listTools(); }).then(function (r) {
+      if (!r.ok) {
+        var d = describe(r.error);
+        note("2 listTools ÉCHEC " + d.text);
+        set("list", "fail", d.html + (fixFor(d.code) ? "<br>" + esc(fixFor(d.code)) : ""), null, r.ms);
+        skipRest("list");
+        verdict("fail", "Non — impossible de lister les connecteurs", "Code : <code>" + esc(d.code) + "</code>.");
+        return;
+      }
+      var servers = (r.value && r.value.servers) || [];
+      note("2 listTools OK — " + servers.length + " connecteur(s)");
+      servers.forEach(function (s) {
+        note("     · " + s.server + " [" + s.authStatus + "] " + ((s.tools || []).length) + " outil(s)");
+      });
+
+      var summary = servers.length
+        ? servers.map(function (s) {
+            return "<strong>" + esc(s.server) + "</strong> — " + esc(s.authStatus) +
+                   ", " + ((s.tools || []).length) + " outil(s)";
+          }).join("<br>")
+        : "Aucun connecteur ne répond. Les noms déclarés par cette page sont : <code>" +
+          esc(CANDIDATES.join("</code>, <code>")) + "</code>.";
+
+      set("list", servers.length ? "pass" : "warn", summary, JSON.stringify(r.value, null, 2), r.ms);
+
+      // 3 — try each candidate name until one answers whoami.
+      var i = 0, attempts = [];
+      (function next() {
+        if (i >= CANDIDATES.length) {
+          var last = attempts.length ? attempts[attempts.length - 1].code : "(aucun essai)";
+          set("resolve", "fail",
+            "Aucun des noms essayés n'a répondu.<br>" +
+            attempts.map(function (a) { return "<code>" + esc(a.name) + "</code> → " + a.html; }).join("<br>") +
+            "<br>" + esc(fixFor(last)));
+          skipRest("resolve");
+          verdict("fail", "Non — aucun connecteur hal joignable sous ces noms",
+            "La page a essayé <code>" + esc(CANDIDATES.join("</code>, <code>")) + "</code>. " +
+            "Le nom exact se lit dans Réglages → Connecteurs — avec lui, il suffit de republier.");
+          return;
+        }
+        var name = CANDIDATES[i++];
+        note("3 essai « " + name + " » → whoami");
+        timed(function () { return window.claude.mcp.callTool(name, "whoami"); }).then(function (w) {
+          if (!w.ok) {
+            var d = describe(w.error);
+            note("     « " + name + " » ÉCHEC " + d.text);
+            attempts.push({ name: name, code: d.code, html: d.html });
+            next();
+            return;
+          }
+          note("     « " + name + " » RÉPOND en " + w.ms + " ms");
+          var p = w.value && w.value.payload;
+          var ws = (p && p.workspaces) || [];
+          set("resolve", "pass",
+            "Le connecteur <strong>" + esc(name) + "</strong> répond. " +
+            (p && p.user_email ? "Identité reconnue, " : "") +
+            ws.length + " workspace(s) accessible(s).",
+            JSON.stringify(p, null, 2), w.ms);
+
+          // 4 — a real read.
+          note("4 list_tasks workspace_slug=" + WORKSPACE);
+          timed(function () {
+            return window.claude.mcp.callTool(name, "list_tasks", { workspace_slug: WORKSPACE });
+          }).then(function (t) {
+            if (!t.ok) {
+              var d2 = describe(t.error);
+              note("     list_tasks ÉCHEC " + d2.text);
+              set("read", "fail", d2.html + (fixFor(d2.code) ? "<br>" + esc(fixFor(d2.code)) : ""), null, t.ms);
+              skipRest("read");
+              verdict("warn", "À moitié — hal répond, mais la lecture échoue",
+                "Le connecteur est joignable (<code>whoami</code> a répondu) et <code>list_tasks</code> renvoie <code>" +
+                esc(d2.code) + "</code>.");
+              return;
+            }
+            var tasks = t.value && t.value.payload;
+            var n = Array.isArray(tasks) ? tasks.length : null;
+            note("     list_tasks OK — " + (n === null ? "forme inattendue" : n + " tâche(s)") + " en " + t.ms + " ms");
+            set("read", "pass",
+              (n === null ? "Réponse reçue." : "<strong>" + n + "</strong> tâche(s) lue(s) dans " + esc(WORKSPACE) + "."),
+              null, t.ms);
+
+            // 5 — shape check: the join key must survive the trip.
+            if (n === null) {
+              set("shape", "warn", "La réponse n'est pas une liste — structure à inspecter.",
+                JSON.stringify(tasks, null, 2).slice(0, 4000));
+              verdict("warn", "Presque — hal répond, la forme est inattendue",
+                "La connexion fonctionne. Reste à comprendre l'encodage du résultat.");
+              return;
+            }
+            var first = tasks[0] || null;
+            var keys = first ? Object.keys(first) : [];
+            var hasId = keys.indexOf("id") !== -1;
+            var idLen = first && first.id ? String(first.id).length : 0;
+            var okShape = hasId && idLen === 32;
+            note("5 forme — " + keys.length + " champ(s), id " + (hasId ? idLen + " car." : "absent"));
+            set("shape", okShape ? "pass" : "warn",
+              first
+                ? "Champs reçus : <code>" + esc(keys.join(", ")) + "</code>.<br>" +
+                  (okShape
+                    ? "L'identifiant fait bien 32 caractères — la clé de jointure survit au transport."
+                    : "L'identifiant est " + (hasId ? "long de " + idLen + " caractères" : "absent") + " : à vérifier.")
+                : "Aucune tâche dans ce workspace — forme non vérifiable, ce n'est pas un échec.",
+              first ? JSON.stringify(keys, null, 2) : null);
+
+            verdict("pass", "Oui — une page publiée parle à hal",
+              "Connecteur <code>" + esc(name) + "</code>, " + n + " tâche(s) lue(s)." +
+              (okShape ? " Identifiants complets." : "") +
+              " Reste à confirmer que republier ne change pas l'adresse.");
+          });
+        });
+      })();
+    });
+  }
+
+  // The frame is sandboxed: navigator.clipboard is refused without clipboard-write,
+  // and prompt() is blocked too — a failing clipboard call left the button silent.
+  // Selecting the text in a textarea needs no permission and always works.
+  document.getElementById("copy").addEventListener("click", function () {
+    var text = "hal-runtime-probe build " + BUILD + "\n" + log.join("\n");
+    var box = document.getElementById("raw");
+    var flag = document.getElementById("copied");
+
+    box.value = text;
+    box.hidden = false;
+    box.focus();
+    box.select();
+    box.setSelectionRange(0, text.length);
+
+    var say = function (msg) {
+      flag.textContent = msg;
+      flag.hidden = false;
+    };
+    say("sélectionné — ⌘C pour copier");
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { say("copié dans le presse-papier"); },
+        function () { /* selection stays: nothing more to do */ }
+      );
+    }
+  });
+
+  document.getElementById("stamp").textContent =
+    "build " + BUILD + " · sonde de connexion · copie du journal réparée";
+  run();
+})();
+</script>
