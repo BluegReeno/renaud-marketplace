@@ -1,6 +1,6 @@
 {
   "name": "briefing",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Morning briefing + sprint planning — daily dashboard (hal tasks, Obsidian jobsearch, Google Calendars declared by your hal workspaces) + weekly sprint review and planner",
   "author": {
     "name": "Renaud Laborbe",
