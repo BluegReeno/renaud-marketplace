@@ -1,0 +1,1174 @@
+<title>Command Center</title>
+
+<style>
+/* Dark-first: the bare :root carries the complete dark palette.
+   Light is redefined twice — once for a light OS on an unstamped document,
+   once for an explicit [data-theme="light"] choice. */
+:root{
+  color-scheme: dark;
+  --ground:#0C0E11; --surface:#14171B; --surface-2:#1B1F24; --sunken:#0A0C0F;
+  --line:#262B32; --line-soft:#1E232A;
+  --ink:#ECEFF3; --ink-2:#B4BCC6; --muted:#7E8791;
+  --accent:#4C8FD8; --accent-soft:rgba(76,143,216,.15); --accent-line:rgba(76,143,216,.45);
+  --good:#3FA06A; --good-soft:rgba(63,160,106,.14);
+  --warn:#D8A03C;
+  --serious:#E0834E; --serious-soft:rgba(224,131,78,.14);
+  --crit:#D8544A; --crit-soft:rgba(216,84,74,.14);
+  --blocked:#9B87CF;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme: light;
+    --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EDF0F4; --sunken:#E7EBF0;
+    --line:#DCE1E8; --line-soft:#E8ECF1;
+    --ink:#10141A; --ink-2:#48515C; --muted:#737C87;
+    --accent:#2A6FB8; --accent-soft:rgba(42,111,184,.10); --accent-line:rgba(42,111,184,.40);
+    --good:#1E7A46; --good-soft:rgba(30,122,70,.10);
+    --warn:#8A6410;
+    --serious:#B85A22; --serious-soft:rgba(184,90,34,.10);
+    --crit:#B02F26; --crit-soft:rgba(176,47,38,.10);
+    --blocked:#6B54A0;
+    --shadow:0 1px 2px rgba(16,20,26,.06);
+  }
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EDF0F4; --sunken:#E7EBF0;
+  --line:#DCE1E8; --line-soft:#E8ECF1;
+  --ink:#10141A; --ink-2:#48515C; --muted:#737C87;
+  --accent:#2A6FB8; --accent-soft:rgba(42,111,184,.10); --accent-line:rgba(42,111,184,.40);
+  --good:#1E7A46; --good-soft:rgba(30,122,70,.10);
+  --warn:#8A6410;
+  --serious:#B85A22; --serious-soft:rgba(184,90,34,.10);
+  --crit:#B02F26; --crit-soft:rgba(176,47,38,.10);
+  --blocked:#6B54A0;
+  --shadow:0 1px 2px rgba(16,20,26,.06);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+.wrap{max-width:1220px;margin:0 auto;padding:22px 20px 80px;display:flex;flex-direction:column;gap:18px}
+
+/* ── header ─────────────────────────────────────────────── */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{font-size:21px;margin:0;letter-spacing:-.015em;font-weight:640}
+.hsub{margin:3px 0 0;color:var(--muted);font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hact{display:flex;gap:8px;align-items:center}
+button{font-family:inherit;font-size:13px;cursor:pointer}
+.btn{
+  background:var(--surface);color:var(--ink-2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 12px;
+}
+.btn:hover{border-color:var(--accent-line);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+:where(button,select,input,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;border-radius:5px;
+}
+
+/* ── connector state ────────────────────────────────────── */
+.conn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
+.dot.live{background:var(--good)} .dot.down{background:var(--crit)} .dot.busy{background:var(--warn)}
+
+/* ── notices ────────────────────────────────────────────── */
+.notice{
+  border:1px solid var(--line);border-left:3px solid var(--muted);background:var(--surface);
+  border-radius:8px;padding:12px 15px;display:flex;flex-direction:column;gap:4px;
+}
+.notice[data-kind="crit"]{border-left-color:var(--crit);background:var(--crit-soft)}
+.notice[data-kind="warn"]{border-left-color:var(--serious);background:var(--serious-soft)}
+.notice[data-kind="info"]{border-left-color:var(--accent);background:var(--accent-soft)}
+.notice .nt{font-weight:600;font-size:14px}
+.notice .nf{font-size:13px;color:var(--ink-2)}
+.notice .nf code{font-size:12px}
+
+/* ── tabs ───────────────────────────────────────────────── */
+nav{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+nav button{
+  background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);
+  font-size:14px;padding:9px 13px;white-space:nowrap;display:flex;align-items:center;gap:7px;
+}
+nav button:hover{color:var(--ink-2)}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+nav .count{
+  background:var(--surface-2);border-radius:999px;padding:1px 7px;font-size:11px;
+  color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums;
+}
+nav button[aria-selected="true"] .count{background:var(--accent-soft);color:var(--accent)}
+.panel{display:none;flex-direction:column;gap:16px}
+.panel.on{display:flex}
+
+/* ── sprint band ────────────────────────────────────────── */
+.sprint{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);
+}
+.sprint[data-state="guard"]{border-color:var(--serious);background:var(--serious-soft)}
+.sprint .sname{font-weight:600;font-size:14px}
+.sprint .sdate{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sprint .sguard{font-size:13px;color:var(--serious)}
+
+/* ── kpis ───────────────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:11px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 15px;box-shadow:var(--shadow)}
+.kpi .lab{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.kpi .val{font-size:27px;font-weight:640;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .note{font-size:11.5px;color:var(--muted);margin-top:5px}
+.kpi[data-tone="crit"] .val{color:var(--crit)}
+.kpi[data-tone="warn"] .val{color:var(--serious)}
+
+/* ── cards ──────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;box-shadow:var(--shadow)}
+.card > h3{
+  font-size:11px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);font-weight:600;display:flex;align-items:center;gap:9px;
+}
+.card > h3 .stale{text-transform:none;letter-spacing:0;font-weight:400;color:var(--serious)}
+
+/* ── tag bars ───────────────────────────────────────────── */
+.bar{display:grid;grid-template-columns:132px 1fr 34px;align-items:center;gap:10px;margin-bottom:6px}
+.bar .lab{font-size:12.5px;color:var(--ink-2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{background:var(--surface-2);border-radius:4px;height:18px;position:relative;overflow:hidden}
+.bar .fill{background:var(--accent);height:100%;border-radius:0 4px 4px 0}
+.bar .late{position:absolute;inset:0 auto 0 0;background:var(--crit);border-radius:0 4px 4px 0}
+.bar .n{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:15px;font-size:11.5px;color:var(--muted);margin:9px 0 0 142px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* ── filters ────────────────────────────────────────────── */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);
+  border-radius:999px;padding:4px 12px;font-size:12.5px;
+}
+.filters button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--ink)}
+
+/* ── task rows ──────────────────────────────────────────── */
+.grp{margin-bottom:16px}
+.grp:last-child{margin-bottom:0}
+.grp > h4{
+  font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
+  margin:0 0 4px;padding-bottom:5px;border-bottom:1px solid var(--line-soft);font-weight:600;
+}
+.task{
+  display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:start;
+  padding:8px 0;border-bottom:1px solid var(--line-soft);
+}
+.task:last-child{border-bottom:none}
+.task[data-busy="1"]{opacity:.55}
+.task .tick{
+  appearance:none;width:16px;height:16px;margin:2px 0 0;flex:none;border:1.5px solid var(--muted);
+  border-radius:4px;background:var(--surface);cursor:pointer;position:relative;
+}
+.task .tick:hover{border-color:var(--accent)}
+.task .tick:checked{background:var(--good);border-color:var(--good)}
+.task .tick:checked::after{
+  content:"";position:absolute;left:4.5px;top:1px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+.task .tick:disabled{cursor:default;opacity:.6}
+.task .mid{min-width:0}
+.task .ttl{font-size:13.5px;color:var(--ink);cursor:pointer}
+.task[data-status="done"] .ttl,.task[data-status="cancelled"] .ttl{color:var(--muted);text-decoration:line-through}
+.task .desc{
+  font-size:12.5px;color:var(--ink-2);margin-top:6px;padding:9px 11px;background:var(--sunken);
+  border-radius:6px;white-space:pre-wrap;max-height:15rem;overflow:auto;
+}
+.task .right{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.chip{
+  font-size:11px;border-radius:999px;padding:1.5px 8px;border:1px solid var(--line);
+  color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.chip.late{color:var(--crit);border-color:var(--crit)}
+.chip.soon{color:var(--serious);border-color:var(--serious)}
+.chip.hi{color:var(--ink-2);border-color:var(--muted)}
+.chip.prog{color:var(--accent);border-color:var(--accent-line)}
+.chip.blk{color:var(--blocked);border-color:var(--blocked)}
+.chip.done{color:var(--good);border-color:var(--good)}
+select.st{
+  background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line);
+  border-radius:6px;padding:3px 6px;font-size:12px;font-family:inherit;
+}
+select.st:hover{border-color:var(--accent-line)}
+
+/* write feedback, per row */
+.wstate{grid-column:1/-1;font-size:12.5px;display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;padding:2px 0 1px 27px}
+.wstate[data-p="busy"]{color:var(--muted)}
+.wstate[data-p="ok"]{color:var(--good)}
+.wstate[data-p="warn"]{color:var(--serious)}
+.wstate[data-p="err"]{color:var(--crit)}
+.wstate .fix{color:var(--ink-2)}
+.linkbtn{background:none;border:none;color:var(--accent);text-decoration:underline;padding:0;font-size:12.5px}
+
+/* cancel form */
+.cancelform{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0 4px 27px}
+.cancelform input{
+  flex:1 1 320px;background:var(--sunken);color:var(--ink);border:1px solid var(--line);
+  border-radius:6px;padding:6px 10px;font-family:inherit;font-size:13px;
+}
+.cancelform input:focus{border-color:var(--accent)}
+.btn.danger{border-color:var(--crit);color:var(--crit)}
+.btn.danger:hover{background:var(--crit-soft)}
+
+.empty{color:var(--muted);font-size:13.5px;font-style:italic;margin:0}
+
+/* ── daily log ──────────────────────────────────────────── */
+.logbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.logbar select{
+  background:var(--surface);color:var(--ink);border:1px solid var(--line);
+  border-radius:7px;padding:6px 10px;font-family:inherit;font-size:13px;
+}
+.logsec{margin-bottom:20px}
+.logsec:last-child{margin-bottom:0}
+.logsec > h4{font-size:13px;margin:0 0 9px;color:var(--ink);font-weight:640}
+.entry{
+  display:grid;grid-template-columns:1fr auto;gap:10px 14px;align-items:start;
+  padding:10px 0;border-bottom:1px solid var(--line-soft);
+}
+.entry:last-child{border-bottom:none}
+.entry .said{font-size:13.5px;color:var(--ink)}
+.entry .next{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+.entry .join{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.entry .join .id{font-size:11px}
+.entry[data-drift="1"]{background:var(--serious-soft);border-radius:6px;padding-left:10px;padding-right:10px}
+.entry .drift{color:var(--serious);font-size:12px}
+.prose{font-size:13.5px;color:var(--ink-2);white-space:pre-wrap}
+
+@media(max-width:720px){
+  .bar{grid-template-columns:86px 1fr 30px}
+  .legend{margin-left:0}
+  .task{grid-template-columns:auto 1fr}
+  .task .right{grid-column:2;justify-content:flex-start}
+  .entry{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Command Center</h1>
+      <p class="hsub">
+        <span class="conn"><span class="dot" id="dot"></span><span id="connTxt">connexion…</span></span>
+        <span id="freshTxt"></span>
+      </p>
+    </div>
+    <div class="hact">
+      <button class="btn" id="refresh" disabled>Rafraîchir</button>
+      <button class="btn" id="theme">Thème</button>
+    </div>
+  </header>
+
+  <div id="pageNotice"></div>
+  <nav id="tabs" role="tablist" hidden></nav>
+  <div id="panels"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SERVER = "hal-mcp";                       // connector display name — established by probe, twice
+  var OPEN = ["todo", "in_progress", "blocked"]; // what a workspace tab shows
+  var CLOSED = ["done", "cancelled"];            // loaded lazily, for the daily-log join
+  var ALL_STATUSES = OPEN.concat(CLOSED);
+  var HAL_ROW_CAP = 100;                         // list_tasks LIMIT 100, silent — hal#105
+  var READ_STALE = 60000;
+
+  var STATUS_LABEL = {
+    todo: "à faire", in_progress: "en cours", done: "faite",
+    blocked: "bloquée", cancelled: "annulée"
+  };
+
+  var mcp = null;
+  var S = {
+    ws: [],            // whoami workspaces
+    tasks: {},         // slug -> status -> {rows, err, stamp, capped}
+    sprint: {},        // slug -> {state, ...}
+    filter: {},        // slug -> all|late|soon|hi
+    open: {},          // taskId -> true (description expanded)
+    write: {},         // taskId -> {phase, msg, fix, action}
+    cancelling: null,  // {taskId, reason}
+    active: null,
+    log: { slug: null, slugs: {}, chosen: {}, doc: null, loading: false, err: null, loadedClosed: {} },
+    unsub: []
+  };
+
+  var TODAY = startOfDay(new Date());
+
+  // ── small helpers ────────────────────────────────────────
+  function startOfDay(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function daysTo(iso) {
+    if (!iso) return null;
+    var p = String(iso).slice(0, 10).split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    if (isNaN(d)) return null;
+    return Math.round((startOfDay(d) - TODAY) / 86400000);
+  }
+  function shortDate(iso) {
+    if (!iso) return "";
+    var p = String(iso).slice(0, 10).split("-");
+    return p.length === 3 ? p[2] + "/" + p[1] : String(iso);
+  }
+  function clockOf(ms) {
+    var d = new Date(ms);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function el(id) { return document.getElementById(id); }
+
+  // ── error copy: one branch per code, never one banner ────
+  // `retract` marks the authz denials that must drop rendered data.
+  function errorCopy(e) {
+    var code = (e && e.code) || "upstream_error";
+    var srv = (e && e.server) || SERVER;
+    var m = {
+      needs_reauth: ["Connexion à hal expirée",
+        "Reconnectez « " + srv + " » dans claude.ai → Réglages → Connecteurs.", true],
+      server_not_connected: ["Connecteur hal absent",
+        "Ajoutez « " + srv + " » dans claude.ai → Réglages → Connecteurs.", true],
+      selection_required: ["Plusieurs connecteurs « " + srv + " »",
+        "Choisissez lequel utiliser quand claude.ai vous le demande, puis rechargez.", true],
+      server_not_found: ["Le connecteur hal n'existe plus",
+        "Il a été supprimé côté compte. Re-créez-le pour retrouver les données.", true],
+      server_unavailable: ["hal est momentanément injoignable",
+        "C'est transitoire. Réessayez dans un instant.", false],
+      not_in_manifest: ["Cet appel n'est pas dans ce que la page a déclaré",
+        "Republier la page avec l'outil manquant est le seul correctif.", true],
+      blocked_by_policy: ["Une règle du compte bloque cet appel",
+        "Rien à réparer dans la page : la politique s'applique en amont.", true],
+      approval_required: ["Cet appel demande une approbation",
+        "L'approbation par appel n'existe pas encore dans un artefact.", true],
+      tool_error: ["hal a répondu et refusé l'opération",
+        (e && e.message) || "Aucun détail renvoyé.", false],
+      bad_request: ["Appel mal formé — c'est un défaut de cette page",
+        (e && e.message) || "", false],
+      transform_error: ["Arguments impossibles à préparer — défaut de cette page",
+        (e && e.message) || "", false],
+      cancelled: ["Appel interrompu", "Le résultat côté hal est inconnu.", false],
+      rate_limited: ["Trop d'appels au connecteur",
+        "Patientez quelques secondes avant de réessayer.", false],
+      not_granted: ["Cette vue n'a pas accès aux connecteurs",
+        "Ouvrez la page depuis claude.ai pour lui donner accès à hal.", true],
+      capability_disabled: ["Les connecteurs ne sont pas utilisables ici",
+        "Cette vue ne porte pas le pont vers hal.", true],
+      capability_removed: ["Les connecteurs ne sont pas utilisables ici",
+        "Cette vue ne porte pas le pont vers hal.", true]
+    };
+    var hit = m[code] || ["hal n'a pas répondu comme attendu",
+      (e && e.message) || "Erreur inattendue.", false];
+    return { code: code, title: hit[0], fix: hit[1], retract: hit[2] };
+  }
+
+  function notice(host, kind, title, fix, extra) {
+    host.innerHTML = '<div class="notice" data-kind="' + kind + '">' +
+      '<div class="nt">' + esc(title) + "</div>" +
+      (fix ? '<div class="nf">' + esc(fix) + "</div>" : "") +
+      (extra ? '<div class="nf">' + extra + "</div>" : "") + "</div>";
+  }
+
+  // ── boot ─────────────────────────────────────────────────
+  function boot() {
+    el("theme").addEventListener("click", function () {
+      var r = document.documentElement;
+      var dark = r.getAttribute("data-theme")
+        ? r.getAttribute("data-theme") === "dark"
+        : !window.matchMedia("(prefers-color-scheme: light)").matches;
+      r.setAttribute("data-theme", dark ? "light" : "dark");
+    });
+    el("refresh").addEventListener("click", refreshAll);
+
+    var use = (typeof claude !== "undefined" && claude && typeof claude.use === "function")
+      ? claude.use("mcp")
+      // Older runtime that predates claude.use(): the namespace sits on window.claude.
+      : Promise.resolve((typeof claude !== "undefined" && claude && claude.mcp) || null);
+
+    use.then(start, function () { start(null); });
+  }
+
+  function start(ns) {
+    mcp = ns;
+    if (!mcp) {
+      setConn("down", "connecteurs indisponibles");
+      notice(el("pageNotice"), "crit", "Cette page ne peut pas joindre hal",
+        "Elle n'a reçu aucun accès aux connecteurs dans cette vue. Ouverte depuis claude.ai, " +
+        "avec le connecteur hal-mcp branché, elle affiche les tâches et permet de les cocher.");
+      return;
+    }
+    setConn("busy", "lecture de hal…");
+    mcp.listTools().then(function (r) {
+      var found = (r.servers || []).filter(function (s) { return s.server === SERVER; })[0];
+      if (!found) {
+        setConn("down", "hal absent");
+        notice(el("pageNotice"), "crit", "Le connecteur « " + SERVER + " » n'est pas branché sur ce compte",
+          "Ajoutez-le dans claude.ai → Réglages → Connecteurs, puis rechargez la page.");
+        return;
+      }
+      if (found.authStatus === "needs_reauth") {
+        setConn("down", "hal à reconnecter");
+        notice(el("pageNotice"), "crit", "La connexion à hal a expiré",
+          "Reconnectez « " + SERVER + " » dans claude.ai → Réglages → Connecteurs.");
+        return;
+      }
+      loadWhoami();
+    }, function (e) {
+      var c = errorCopy(e);
+      setConn("down", c.code);
+      notice(el("pageNotice"), "crit", c.title, c.fix);
+    });
+  }
+
+  function setConn(state, txt) {
+    el("dot").className = "dot " + state;
+    el("connTxt").textContent = txt;
+  }
+
+  function loadWhoami() {
+    mcp.callTool(SERVER, "whoami", {}, { cache: { staleTime: READ_STALE } }).then(function (r) {
+      var p = r.payload || {};
+      S.ws = (p.workspaces || []).slice();
+      if (!S.ws.length) {
+        setConn("down", "aucun workspace");
+        notice(el("pageNotice"), "warn", "hal répond, mais ce compte n'a aucun workspace",
+          "Il n'y a donc rien à afficher.");
+        return;
+      }
+      el("pageNotice").innerHTML = "";
+      setConn("live", (p.user_email || "connecté") + " · " + S.ws.length + " workspaces");
+      el("refresh").disabled = false;
+      buildTabs();
+      S.ws.forEach(function (w) {
+        S.filter[w.workspace_slug] = "all";
+        watchOpen(w.workspace_slug);
+        if (w.sprints_enabled) loadSprint(w.workspace_slug);
+      });
+      loadLogIndex();
+    }, function (e) {
+      var c = errorCopy(e);
+      setConn("down", c.code);
+      notice(el("pageNotice"), "crit", c.title, c.fix);
+    });
+  }
+
+  // ── reads ────────────────────────────────────────────────
+  function bucket(slug, status) {
+    if (!S.tasks[slug]) S.tasks[slug] = {};
+    if (!S.tasks[slug][status]) S.tasks[slug][status] = { rows: [], err: null, stamp: null, capped: false };
+    return S.tasks[slug][status];
+  }
+
+  function watchStatus(slug, status) {
+    var input = { workspace_slug: slug, status: status };
+    var stop = mcp.watchTool(SERVER, "list_tasks", input, function (ev) {
+      var b = bucket(slug, status);
+      if (ev.type === "data") {
+        var rows = Array.isArray(ev.result.payload) ? ev.result.payload : [];
+        b.rows = rows;
+        b.err = null;
+        b.capped = rows.length >= HAL_ROW_CAP;
+        // A cached result carries when it was produced; a fresh one is stamped on arrival.
+        b.stamp = (ev.result.cache && ev.result.cache.storedAt) || Date.now();
+      } else {
+        var c = errorCopy(ev.error);
+        b.err = c;
+        if (c.retract) { b.rows = []; b.stamp = null; }  // authz denial: drop what's shown
+      }
+      renderActive();
+      renderFresh();
+    }, { cache: { staleTime: READ_STALE } });
+    S.unsub.push(stop);
+  }
+
+  function watchOpen(slug) { OPEN.forEach(function (s) { watchStatus(slug, s); }); }
+
+  function watchClosed(slug) {
+    if (S.log.loadedClosed[slug]) return;
+    S.log.loadedClosed[slug] = true;
+    CLOSED.forEach(function (s) { watchStatus(slug, s); });
+  }
+
+  function loadSprint(slug) {
+    mcp.callTool(SERVER, "list_sprints", { workspace_slug: slug, status: "actuel" },
+      { cache: { staleTime: READ_STALE } }).then(function (r) {
+        var rows = Array.isArray(r.payload) ? r.payload : [];
+        if (!rows.length) {
+          S.sprint[slug] = { state: "guard", msg: "Aucun sprint marqué « actuel » — les tâches ci-dessous sont un backlog, pas un sprint." };
+        } else if (rows.length > 1) {
+          S.sprint[slug] = {
+            state: "guard",
+            msg: rows.length + " sprints sont marqués « actuel » (" +
+              rows.map(function (s) { return s.name; }).join(" · ") + ") — impossible de dire lequel court."
+          };
+        } else {
+          var sp = rows[0], over = daysTo(sp.ends_at);
+          if (over !== null && over < 0) {
+            S.sprint[slug] = {
+              state: "guard", name: sp.name, starts: sp.starts_at, ends: sp.ends_at,
+              msg: "clos depuis " + (-over) + " jour" + (-over > 1 ? "s" : "") +
+                   " et toujours marqué « actuel » — ce sont des restes de sprint."
+            };
+          } else {
+            S.sprint[slug] = { state: "ok", name: sp.name, starts: sp.starts_at, ends: sp.ends_at };
+          }
+        }
+      }, function (e) {
+        S.sprint[slug] = { state: "err", err: errorCopy(e) };
+      }).then(function () { renderActive(); });
+  }
+
+  function refreshAll() {
+    var b = el("refresh");
+    b.disabled = true; b.textContent = "Rafraîchissement…";
+    setConn("busy", "relecture de hal…");
+    // Dropping the cached reads makes every watcher re-execute and deliver.
+    Promise.resolve(mcp.invalidate ? mcp.invalidate(SERVER) : null)["catch"](function () { })
+      .then(function () {
+        S.ws.forEach(function (w) { if (w.sprints_enabled) loadSprint(w.workspace_slug); });
+        if (S.log.slug) loadLogDoc(S.log.slug, S.log.chosen[S.log.slug]);
+        setTimeout(function () {
+          b.disabled = false; b.textContent = "Rafraîchir";
+          setConn("live", "à jour");
+        }, 900);
+      });
+  }
+
+  // ── the write ────────────────────────────────────────────
+  function findTask(slug, id) {
+    var byStatus = S.tasks[slug] || {};
+    for (var i = 0; i < ALL_STATUSES.length; i++) {
+      var rows = (byStatus[ALL_STATUSES[i]] || {}).rows || [];
+      for (var j = 0; j < rows.length; j++) if (rows[j].id === id) return rows[j];
+    }
+    return null;
+  }
+
+  function setWrite(id, phase, msg, fix, action) {
+    S.write[id] = { phase: phase, msg: msg, fix: fix || "", action: action || null };
+    renderActive();
+  }
+
+  function setStatus(slug, id, next, reason) {
+    var task = findTask(slug, id);
+    if (!task) return;
+    var previous = task.status;
+    if (next === previous && next !== "cancelled") return;
+
+    S.cancelling = null;
+    setWrite(id, "busy", "Écriture dans hal…");
+
+    var input = { workspace_slug: slug, task_id: id, status: next };
+    if (next === "cancelled" && reason) input.cancelled_reason = reason;
+
+    // No cache option: update_task_status declares no readOnlyHint, so it never caches.
+    mcp.callTool(SERVER, "update_task_status", input).then(function (r) {
+      var saved = r.payload && r.payload.status ? r.payload : null;
+      var landed = saved ? saved.status : next;
+      // Move the row locally so the UI matches hal before the re-read lands.
+      moveLocally(slug, id, previous, landed, saved);
+      setWrite(id, "busy", "Écrit — vérification dans hal…");
+      Promise.resolve(mcp.invalidate ? mcp.invalidate(SERVER, "list_tasks") : null)["catch"](function () { })
+        .then(function () { verify(slug, id, landed, previous); });
+    }, function (e) {
+      var c = errorCopy(e);
+      // server_unavailable / upstream_error / cancelled are AMBIGUOUS for a write:
+      // the rejection is not proof the task did not move. Never roll back, never retry.
+      if (c.code === "server_unavailable" || c.code === "upstream_error" || c.code === "cancelled") {
+        setWrite(id, "warn", "Issue inconnue — hal n'a pas confirmé.",
+          "La tâche a peut-être changé de statut malgré tout. Relisez son état plutôt que de réécrire.",
+          { label: "Relire l'état", fn: function () { verify(slug, id, next, previous); } });
+      } else {
+        setWrite(id, "err", c.title, c.fix);
+      }
+    });
+  }
+
+  function moveLocally(slug, id, from, to, saved) {
+    var fromB = bucket(slug, from);
+    var row = null;
+    fromB.rows = fromB.rows.filter(function (r) {
+      if (r.id === id) { row = r; return false; }
+      return true;
+    });
+    if (!row) return;
+    var merged = saved || Object.assign({}, row, { status: to });
+    if (S.tasks[slug] && S.tasks[slug][to]) S.tasks[slug][to].rows.unshift(merged);
+  }
+
+  // Read the task back from hal — the UI is not the proof (AC 1 & 2).
+  function verify(slug, id, expected, previous) {
+    setWrite(id, "busy", "Vérification dans hal…");
+    mcp.callTool(SERVER, "list_tasks", { workspace_slug: slug, status: expected },
+      { cache: { refresh: true } }).then(function (r) {
+        var rows = Array.isArray(r.payload) ? r.payload : [];
+        var hit = rows.filter(function (t) { return t.id === id; })[0];
+        var b = bucket(slug, expected);
+        b.rows = rows; b.err = null; b.capped = rows.length >= HAL_ROW_CAP;
+        b.stamp = (r.cache && r.cache.storedAt) || Date.now();
+        if (hit) {
+          setWrite(id, "ok", "Vérifié dans hal : " + STATUS_LABEL[expected] + ".");
+          setTimeout(function () { delete S.write[id]; renderActive(); }, 4000);
+        } else if (rows.length >= HAL_ROW_CAP) {
+          setWrite(id, "warn", "Non confirmé — hal a renvoyé 100 lignes exactement.",
+            "La tâche est peut-être au-delà du plafond de lecture. Rafraîchissez pour trancher.");
+        } else {
+          setWrite(id, "warn", "Non confirmé — la tâche n'est pas revenue en « " + STATUS_LABEL[expected] + " ».",
+            "Rafraîchissez la page pour lire son état réel." +
+            (previous ? " Elle était « " + STATUS_LABEL[previous] + " » avant l'appel." : ""));
+        }
+        renderActive();
+      }, function (e) {
+        var c = errorCopy(e);
+        setWrite(id, "warn", "Écriture faite, vérification impossible : " + c.title, c.fix,
+          { label: "Réessayer la vérification", fn: function () { verify(slug, id, expected, previous); } });
+      });
+  }
+
+  // ── stats & grouping ─────────────────────────────────────
+  function openRows(slug) {
+    var out = [];
+    OPEN.forEach(function (s) { out = out.concat((bucket(slug, s)).rows); });
+    return out;
+  }
+  function isLate(t) { var n = daysTo(t.due_date); return n !== null && n < 0; }
+  function isSoon(t) { var n = daysTo(t.due_date); return n !== null && n >= 0 && n <= 7; }
+  function isHigh(t) { return t.priority === "high" || t.priority === "urgent"; }
+
+  function stats(rows) {
+    return {
+      open: rows.length,
+      late: rows.filter(isLate).length,
+      soon: rows.filter(isSoon).length,
+      hi: rows.filter(isHigh).length
+    };
+  }
+
+  function groupByTag(rows, order) {
+    var by = {};
+    rows.forEach(function (r) {
+      var t = (r.tags && r.tags[0]) || "sans tag";
+      (by[t] = by[t] || []).push(r);
+    });
+    var keys = Object.keys(by).sort(function (a, b) {
+      var ia = order.indexOf(a), ib = order.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
+    return { by: by, keys: keys };
+  }
+
+  // ── render ───────────────────────────────────────────────
+  function buildTabs() {
+    var nav = el("tabs"), panels = el("panels");
+    nav.hidden = false;
+    nav.innerHTML = ""; panels.innerHTML = "";
+    S.ws.forEach(function (w) {
+      var b = document.createElement("button");
+      b.setAttribute("role", "tab");
+      b.dataset.k = w.workspace_slug;
+      b.innerHTML = esc(w.name || w.workspace_slug) + '<span class="count" data-c="' + esc(w.workspace_slug) + '">·</span>';
+      nav.appendChild(b);
+      var p = document.createElement("section");
+      p.className = "panel"; p.dataset.k = w.workspace_slug;
+      panels.appendChild(p);
+    });
+    var lb = document.createElement("button");
+    lb.setAttribute("role", "tab"); lb.dataset.k = "__log"; lb.textContent = "Daily log";
+    nav.appendChild(lb);
+    var lp = document.createElement("section");
+    lp.className = "panel"; lp.dataset.k = "__log";
+    panels.appendChild(lp);
+
+    nav.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-k]");
+      if (b) show(b.dataset.k);
+    });
+    panels.addEventListener("click", onPanelClick);
+    panels.addEventListener("change", onPanelChange);
+    panels.addEventListener("input", onPanelInput);
+
+    var def = (S.ws.filter(function (w) { return w.is_default; })[0] || S.ws[0]).workspace_slug;
+    show(def);
+  }
+
+  function show(k) {
+    S.active = k;
+    [].forEach.call(el("tabs").children, function (b) {
+      b.setAttribute("aria-selected", b.dataset.k === k ? "true" : "false");
+    });
+    [].forEach.call(el("panels").children, function (p) {
+      p.classList.toggle("on", p.dataset.k === k);
+    });
+    renderActive();
+  }
+
+  function renderActive() {
+    renderCounts();
+    if (!S.active) return;
+    var host = el("panels").querySelector('.panel[data-k="' + cssEsc(S.active) + '"]');
+    if (!host) return;
+    if (S.active === "__log") renderLog(host);
+    else renderWorkspace(host, S.active);
+  }
+  function cssEsc(s) { return String(s).replace(/"/g, '\\"'); }
+
+  function renderCounts() {
+    S.ws.forEach(function (w) {
+      var c = el("tabs").querySelector('.count[data-c="' + cssEsc(w.workspace_slug) + '"]');
+      if (!c) return;
+      var b = S.tasks[w.workspace_slug];
+      c.textContent = b ? String(openRows(w.workspace_slug).length) : "·";
+    });
+  }
+
+  function renderFresh() {
+    var stamps = [];
+    Object.keys(S.tasks).forEach(function (slug) {
+      Object.keys(S.tasks[slug]).forEach(function (st) {
+        var s = S.tasks[slug][st].stamp;
+        if (s) stamps.push(s);
+      });
+    });
+    el("freshTxt").textContent = stamps.length ? "· données de " + clockOf(Math.min.apply(null, stamps)) : "";
+  }
+
+  function renderWorkspace(host, slug) {
+    var w = S.ws.filter(function (x) { return x.workspace_slug === slug; })[0] || {};
+    var rows = openRows(slug);
+    var st = stats(rows);
+    var order = w.allowed_tags || [];
+    var f = S.filter[slug] || "all";
+    var h = "";
+
+    // Every read failed the same way → one page-level message, not three identical ones.
+    var errs = OPEN.map(function (s) { return bucket(slug, s).err; }).filter(Boolean);
+    if (errs.length === OPEN.length) {
+      var same = errs.every(function (e) { return e.code === errs[0].code; });
+      if (same) {
+        host.innerHTML = '<div class="notice" data-kind="crit"><div class="nt">' + esc(errs[0].title) +
+          '</div><div class="nf">' + esc(errs[0].fix) + "</div></div>";
+        return;
+      }
+    }
+
+    // sprint band — only for workspaces that use sprints
+    if (w.sprints_enabled) {
+      var sp = S.sprint[slug];
+      if (sp && sp.state === "ok") {
+        h += '<div class="sprint" data-state="ok"><span class="sname">' + esc(sp.name) + "</span>" +
+          '<span class="sdate mono">' + esc(sp.starts || "?") + " → " + esc(sp.ends || "?") + "</span></div>";
+      } else if (sp && sp.state === "guard") {
+        h += '<div class="sprint" data-state="guard">' +
+          (sp.name ? '<span class="sname">' + esc(sp.name) + "</span>" : "") +
+          '<span class="sguard">⚠ ' + esc(sp.msg) + "</span></div>";
+      } else if (sp && sp.state === "err") {
+        h += '<div class="sprint" data-state="guard"><span class="sguard">⚠ Sprint illisible — ' +
+          esc(sp.err.title) + "</span></div>";
+      } else {
+        h += '<div class="sprint"><span class="sdate">Lecture du sprint…</span></div>';
+      }
+    }
+
+    h += '<div class="kpis">' +
+      kpi("Tâches ouvertes", st.open, "", "") +
+      kpi("Échéance dépassée", st.late, st.open ? Math.round(st.late / st.open * 100) + " % du backlog" : "", st.late ? "crit" : "") +
+      kpi("Dans les 7 jours", st.soon, "", st.soon ? "warn" : "") +
+      kpi("Priorité haute", st.hi, "", "") +
+      "</div>";
+
+    // stale / transient read failures, contained in their own line
+    var soft = OPEN.filter(function (s) { return bucket(slug, s).err; });
+    if (soft.length && soft.length < OPEN.length) {
+      h += '<div class="notice" data-kind="warn"><div class="nt">Lecture partielle — statut « ' +
+        soft.map(function (s) { return STATUS_LABEL[s]; }).join(" », « ") + ' »</div><div class="nf">' +
+        esc(bucket(slug, soft[0]).err.fix) + "</div></div>";
+    }
+    var capped = OPEN.filter(function (s) { return bucket(slug, s).capped; });
+    if (capped.length) {
+      h += '<div class="notice" data-kind="warn"><div class="nt">hal a renvoyé exactement 100 lignes</div>' +
+        '<div class="nf">La lecture de « ' + capped.map(function (s) { return STATUS_LABEL[s]; }).join(" », « ") +
+        ' » plafonne à 100 sans le dire, et la coupe emporte les plus anciennes. ' +
+        "Ce qui manque est invisible ici (hal#105).</div></div>";
+    }
+
+    h += '<div class="card"><h3>Ouvertes par tag</h3>' + barChart(rows, order) + "</div>";
+
+    h += '<div class="card"><h3>Le détail</h3><div class="filters" data-k="' + esc(slug) + '">' +
+      fbtn("all", "Toutes", st.open, f) + fbtn("late", "En retard", st.late, f) +
+      fbtn("soon", "≤ 7 jours", st.soon, f) + fbtn("hi", "Priorité haute", st.hi, f) +
+      "</div>" + taskList(slug, rows, order, f) + "</div>";
+
+    host.innerHTML = h;
+  }
+
+  function kpi(lab, val, note, tone) {
+    return '<div class="kpi"' + (tone ? ' data-tone="' + tone + '"' : "") + '><div class="lab">' +
+      esc(lab) + '</div><div class="val">' + val + "</div>" +
+      (note ? '<div class="note">' + esc(note) + "</div>" : "") + "</div>";
+  }
+  function fbtn(k, lab, n, cur) {
+    return '<button data-f="' + k + '" aria-pressed="' + (cur === k) + '">' + esc(lab) + " (" + n + ")</button>";
+  }
+
+  function barChart(rows, order) {
+    if (!rows.length) return '<p class="empty">Aucune tâche ouverte.</p>';
+    var g = groupByTag(rows, order);
+    var max = Math.max.apply(null, g.keys.map(function (k) { return g.by[k].length; }));
+    var h = "";
+    g.keys.forEach(function (k) {
+      var n = g.by[k].length, l = g.by[k].filter(isLate).length;
+      h += '<div class="bar"><div class="lab">' + esc(k) + '</div><div class="track">' +
+        '<div class="fill" style="width:' + (n / max * 100).toFixed(1) + '%"></div>' +
+        (l ? '<div class="late" style="width:' + (l / max * 100).toFixed(1) + '%"></div>' : "") +
+        '</div><div class="n">' + n + "</div></div>";
+    });
+    return h + '<div class="legend">' +
+      '<span><i class="sw" style="background:var(--crit)"></i>échéance dépassée</span>' +
+      '<span><i class="sw" style="background:var(--accent)"></i>à venir ou sans date</span></div>';
+  }
+
+  function taskList(slug, rows, order, f) {
+    var list = rows.slice();
+    if (f === "late") list = list.filter(isLate);
+    if (f === "soon") list = list.filter(isSoon);
+    if (f === "hi") list = list.filter(isHigh);
+    if (!list.length) return '<p class="empty">Rien dans ce filtre.</p>';
+    var g = groupByTag(list, order), h = "";
+    g.keys.forEach(function (k) {
+      var items = g.by[k].sort(function (a, b) {
+        var da = daysTo(a.due_date), db = daysTo(b.due_date);
+        if (da === null && db === null) return 0;
+        if (da === null) return 1;
+        if (db === null) return -1;
+        return da - db;
+      });
+      h += '<div class="grp"><h4>' + esc(k) + " · " + items.length + "</h4>";
+      items.forEach(function (t) { h += taskRow(slug, t); });
+      h += "</div>";
+    });
+    return h;
+  }
+
+  function taskRow(slug, t) {
+    var w = S.write[t.id];
+    var busy = w && w.phase === "busy";
+    var n = daysTo(t.due_date);
+    var chips = "";
+    if (t.status === "in_progress") chips += '<span class="chip prog">en cours</span>';
+    if (t.status === "blocked") chips += '<span class="chip blk">bloquée</span>';
+    if (t.status === "done") chips += '<span class="chip done">faite</span>';
+    if (t.status === "cancelled") chips += '<span class="chip">annulée</span>';
+    if (isHigh(t)) chips += '<span class="chip hi">' + (t.priority === "urgent" ? "urgente" : "↑ haute") + "</span>";
+    if (n !== null) {
+      var cls = n < 0 ? "late" : (n <= 7 ? "soon" : "");
+      var lab = n < 0 ? "⚠ " + shortDate(t.due_date) + " · J" + n
+        : (n === 0 ? "aujourd'hui" : (n <= 7 ? shortDate(t.due_date) + " · J+" + n : shortDate(t.due_date)));
+      chips += '<span class="chip ' + cls + '">' + esc(lab) + "</span>";
+    }
+
+    var sel = '<select class="st" data-id="' + esc(t.id) + '" data-slug="' + esc(slug) + '"' +
+      (busy ? " disabled" : "") + ' aria-label="Statut de la tâche">' +
+      ALL_STATUSES.map(function (s) {
+        return '<option value="' + s + '"' + (s === t.status ? " selected" : "") + ">" + STATUS_LABEL[s] + "</option>";
+      }).join("") + "</select>";
+
+    var h = '<div class="task" data-status="' + esc(t.status) + '" data-busy="' + (busy ? 1 : 0) + '">' +
+      '<input class="tick" type="checkbox" data-id="' + esc(t.id) + '" data-slug="' + esc(slug) + '"' +
+      (t.status === "done" ? " checked" : "") + (busy ? " disabled" : "") +
+      ' aria-label="Marquer « ' + esc(t.title) + ' » comme faite">' +
+      '<div class="mid"><div class="ttl" data-toggle="' + esc(t.id) + '" role="button" tabindex="0">' +
+      esc(t.title) + "</div>" +
+      (S.open[t.id] && t.description ? '<div class="desc">' + esc(t.description) + "</div>" : "") +
+      (t.cancelled_reason ? '<div class="join">motif : ' + esc(t.cancelled_reason) + "</div>" : "") +
+      '</div><div class="right">' + chips + sel + "</div>";
+
+    if (S.cancelling && S.cancelling.taskId === t.id) {
+      h += '<div class="cancelform"><input type="text" data-reason="' + esc(t.id) + '" ' +
+        'placeholder="Pourquoi cette tâche est abandonnée (facultatif)" value="' + esc(S.cancelling.reason || "") + '">' +
+        '<button class="btn danger" data-docancel="' + esc(t.id) + '" data-slug="' + esc(slug) + '">Annuler la tâche</button>' +
+        '<button class="btn" data-nocancel="1">Renoncer</button></div>';
+    }
+    if (w) {
+      h += '<div class="wstate" data-p="' + w.phase + '"><span>' + esc(w.msg) + "</span>" +
+        (w.fix ? '<span class="fix">' + esc(w.fix) + "</span>" : "") +
+        (w.action ? '<button class="linkbtn" data-act="' + esc(t.id) + '">' + esc(w.action.label) + "</button>" : "") +
+        "</div>";
+    }
+    return h + "</div>";
+  }
+
+  // ── events ───────────────────────────────────────────────
+  function onPanelClick(e) {
+    var fb = e.target.closest(".filters button");
+    if (fb) { S.filter[fb.parentElement.dataset.k] = fb.dataset.f; renderActive(); return; }
+
+    var tg = e.target.closest("[data-toggle]");
+    if (tg) { var id = tg.dataset.toggle; S.open[id] = !S.open[id]; renderActive(); return; }
+
+    var act = e.target.closest("[data-act]");
+    if (act) { var w = S.write[act.dataset.act]; if (w && w.action) w.action.fn(); return; }
+
+    if (e.target.closest("[data-nocancel]")) { S.cancelling = null; renderActive(); return; }
+
+    var dc = e.target.closest("[data-docancel]");
+    if (dc) {
+      var rid = dc.dataset.docancel;
+      setStatus(dc.dataset.slug, rid, "cancelled", (S.cancelling && S.cancelling.reason) || "");
+      return;
+    }
+
+    var lw = e.target.closest("[data-logws]");
+    if (lw) { S.log.slug = lw.dataset.logws; watchClosed(S.log.slug); loadLogDoc(S.log.slug, S.log.chosen[S.log.slug]); return; }
+  }
+
+  function onPanelChange(e) {
+    var tick = e.target.closest(".tick");
+    if (tick) {
+      setStatus(tick.dataset.slug, tick.dataset.id, tick.checked ? "done" : "todo");
+      return;
+    }
+    var sel = e.target.closest("select.st");
+    if (sel) {
+      var next = sel.value, id = sel.dataset.id;
+      if (next === "cancelled") { S.cancelling = { taskId: id, reason: "" }; renderActive(); return; }
+      setStatus(sel.dataset.slug, id, next);
+      return;
+    }
+    var ls = e.target.closest("[data-logpick]");
+    if (ls) { S.log.chosen[S.log.slug] = ls.value; loadLogDoc(S.log.slug, ls.value); return; }
+    var lws = e.target.closest("[data-logwspick]");
+    if (lws) {
+      S.log.slug = lws.value; watchClosed(S.log.slug);
+      loadLogDoc(S.log.slug, S.log.chosen[S.log.slug]);
+      return;
+    }
+  }
+
+  function onPanelInput(e) {
+    var r = e.target.closest("[data-reason]");
+    if (r && S.cancelling) S.cancelling.reason = r.value;  // keep the field across re-renders
+  }
+
+  // ── daily log ────────────────────────────────────────────
+  function loadLogIndex() {
+    S.ws.forEach(function (w) {
+      mcp.callTool(SERVER, "list_documents", { workspace_slug: w.workspace_slug, domain: "memory" },
+        { cache: { staleTime: READ_STALE } }).then(function (r) {
+          var rows = Array.isArray(r.payload) ? r.payload : [];
+          S.log.slugs[w.workspace_slug] = rows
+            .filter(function (d) { return d.kind === "daily-log"; })
+            .map(function (d) { return { slug: d.slug, title: d.title }; })
+            .sort(function (a, b) { return a.slug < b.slug ? 1 : -1; });
+          if (S.active === "__log") renderActive();
+        }, function (e) {
+          S.log.slugs[w.workspace_slug] = { err: errorCopy(e) };
+          if (S.active === "__log") renderActive();
+        });
+    });
+  }
+
+  function loadLogDoc(slug, docSlug) {
+    var list = S.log.slugs[slug];
+    if (!list || list.err || !list.length) { S.log.doc = null; renderActive(); return; }
+    var target = docSlug || list[0].slug;
+    S.log.chosen[slug] = target;
+    S.log.loading = true; S.log.err = null; S.log.doc = null;
+    renderActive();
+    mcp.callTool(SERVER, "get_document", { workspace_slug: slug, slug: target },
+      { cache: { staleTime: READ_STALE } }).then(function (r) {
+        S.log.loading = false;
+        S.log.doc = r.payload || null;
+        renderActive();
+      }, function (e) {
+        S.log.loading = false; S.log.err = errorCopy(e);
+        renderActive();
+      });
+  }
+
+  // Parse the log's SELECTION. The markdown is never rewritten — hal carries the state.
+  function parseLog(md) {
+    var lines = String(md || "").split("\n");
+    var sections = [], cur = null;
+    lines.forEach(function (raw) {
+      var line = raw.replace(/\s+$/, "");
+      var mh = /^##\s+(.*)$/.exec(line);
+      if (mh) { cur = { title: mh[1].trim(), entries: [], prose: [] }; sections.push(cur); return; }
+      if (!cur) return;
+      var msub = /^###\s+(.*)$/.exec(line);
+      if (msub) { cur.entries.push({ sub: msub[1].trim() }); return; }
+
+      var isEntry = /^\s*(?:\d+\.|[-*]\s*\[[ xX]\]|[-*]|🔥|🟡)\s+/.test(line);
+      var isLinks = /^\s+Liens\s*:/.test(line) || /^\s*Liens\s*:/.test(line);
+      var isNext = /▶️/.test(line);
+
+      if (isEntry && !isLinks && !isNext) {
+        cur.entries.push({
+          said: line.replace(/^\s*(?:\d+\.|[-*]\s*\[[ xX]\]|[-*])\s+/, "").trim(),
+          refs: refsIn(line), next: ""
+        });
+        return;
+      }
+      var last = cur.entries[cur.entries.length - 1];
+      if (last && !last.sub && (isLinks || isNext)) {
+        if (isNext) last.next = line.replace(/^\s*▶️\s*/, "").replace(/^prochaines actions\s*:\s*/i, "").trim();
+        else last.refs = last.refs.concat(refsIn(line));
+        return;
+      }
+      if (line.trim()) cur.prose.push(line);
+    });
+    return sections;
+  }
+
+  // A "réf. hal" marker opens a run of `<slug>/<id>` pairs: pre-0.14.0 logs merged several
+  // onto one line, and only the first carried the marker. Read the whole run, but stop at the
+  // next link label — a LinkedIn URL ends in digits and would otherwise pass for a task id.
+  function refsIn(line) {
+    var out = [], seen = {}, m;
+    var marker = /réf\.\s*hal\s*:?\s*/gi;
+    while ((m = marker.exec(line))) {
+      var rest = line.slice(m.index + m[0].length);
+      var stop = /\b(?:Vault|Offre|Gmail|Meet)\b/.exec(rest);
+      var chunk = stop ? rest.slice(0, stop.index) : rest;
+      var pair = /([a-z][a-z0-9-]*)\/([0-9a-f]{6,32})\b/g, p;
+      while ((p = pair.exec(chunk))) {
+        var key = p[1] + "/" + p[2];
+        if (!seen[key]) { seen[key] = 1; out.push({ slug: p[1], id: p[2] }); }
+      }
+    }
+    return out;
+  }
+
+  // Full 32-char id joins exactly. A truncated one resolves only when a single task matches
+  // the prefix — and says so, rather than pretending the join was clean.
+  function resolveRef(ref) {
+    var byStatus = S.tasks[ref.slug] || {};
+    var pool = [];
+    ALL_STATUSES.forEach(function (s) { pool = pool.concat((byStatus[s] || {}).rows || []); });
+    if (!pool.length) return { state: "unloaded" };
+    if (ref.id.length === 32) {
+      var exact = pool.filter(function (t) { return t.id === ref.id; })[0];
+      return exact ? { state: "exact", task: exact } : { state: "missing" };
+    }
+    var hits = pool.filter(function (t) { return t.id.indexOf(ref.id) === 0; });
+    if (hits.length === 1) return { state: "prefix", task: hits[0] };
+    if (hits.length > 1) return { state: "ambiguous", n: hits.length };
+    return { state: "missing" };
+  }
+
+  function renderLog(host) {
+    var h = "";
+    if (!S.log.slug) S.log.slug = (S.ws.filter(function (w) { return w.is_default; })[0] || S.ws[0]).workspace_slug;
+    watchClosed(S.log.slug);
+
+    h += '<div class="logbar"><select data-logwspick aria-label="Workspace du log">' +
+      S.ws.map(function (w) {
+        return '<option value="' + esc(w.workspace_slug) + '"' +
+          (w.workspace_slug === S.log.slug ? " selected" : "") + ">" + esc(w.name || w.workspace_slug) + "</option>";
+      }).join("") + "</select>";
+
+    var list = S.log.slugs[S.log.slug];
+    if (list && list.length && !list.err) {
+      h += '<select data-logpick aria-label="Date du log">' + list.slice(0, 40).map(function (d) {
+        return '<option value="' + esc(d.slug) + '"' +
+          (d.slug === S.log.chosen[S.log.slug] ? " selected" : "") + ">" + esc(d.slug.replace("daily-log-", "")) + "</option>";
+      }).join("") + "</select>";
+    }
+    h += "</div>";
+
+    h += '<div class="notice" data-kind="info"><div class="nt">Cet onglet ne modifie jamais le log</div>' +
+      "<div class=\"nf\">Le document porte la sélection du jour — quelles tâches, dans quel ordre, pourquoi. " +
+      "L'état, lui, vient de hal : chaque ligne est jointe à sa tâche par son identifiant. " +
+      "Cocher se fait dans l'onglet du workspace, jamais ici.</div></div>";
+
+    if (!list) { h += '<p class="empty">Lecture de l\'index des documents…</p>'; host.innerHTML = h; return; }
+    if (list.err) {
+      h += '<div class="notice" data-kind="crit"><div class="nt">' + esc(list.err.title) +
+        '</div><div class="nf">' + esc(list.err.fix) + "</div></div>";
+      host.innerHTML = h; return;
+    }
+    if (!list.length) {
+      h += '<p class="empty">Aucun daily log dans ce workspace.</p>'; host.innerHTML = h; return;
+    }
+    if (!S.log.doc && !S.log.loading && !S.log.err) { loadLogDoc(S.log.slug, S.log.chosen[S.log.slug]); }
+    if (S.log.loading) { h += '<p class="empty">Lecture du log…</p>'; host.innerHTML = h; return; }
+    if (S.log.err) {
+      h += '<div class="notice" data-kind="crit"><div class="nt">' + esc(S.log.err.title) +
+        '</div><div class="nf">' + esc(S.log.err.fix) + "</div></div>";
+      host.innerHTML = h; return;
+    }
+    if (!S.log.doc) { host.innerHTML = h; return; }
+
+    var doc = S.log.doc;
+    var secs = parseLog(doc.content_md);
+    h += '<div class="card"><h3>' + esc(doc.title || doc.slug) + "</h3>";
+
+    var joined = 0, drifted = 0, unresolved = 0;
+    var body = "";
+    secs.forEach(function (sec) {
+      body += '<div class="logsec"><h4>' + esc(sec.title) + "</h4>";
+      var any = false;
+      sec.entries.forEach(function (en) {
+        if (en.sub) { body += '<div class="grp"><h4>' + esc(en.sub) + "</h4></div>"; any = true; return; }
+        any = true;
+        var right = "", note = "", drift = 0;
+        (en.refs || []).forEach(function (ref) {
+          var r = resolveRef(ref);
+          if (r.state === "exact" || r.state === "prefix") {
+            joined++;
+            var t = r.task;
+            right += '<span class="chip ' +
+              (t.status === "done" ? "done" : t.status === "in_progress" ? "prog" :
+                t.status === "blocked" ? "blk" : "") + '">' + STATUS_LABEL[t.status] + "</span>";
+            var late = isLate(t);
+            if (late) right += '<span class="chip late">⚠ ' + esc(shortDate(t.due_date)) + "</span>";
+            else if (t.due_date) right += '<span class="chip">' + esc(shortDate(t.due_date)) + "</span>";
+            note += '<span class="id mono">' + esc(ref.slug) + "/" + esc(ref.id.slice(0, 8)) + "…</span>";
+            if (r.state === "prefix") note += '<span class="drift">identifiant tronqué dans le log, résolu par préfixe</span>';
+            if (t.status === "done" || t.status === "cancelled") {
+              drift = 1; drifted++;
+              note += '<span class="drift">le log la présentait à faire — elle est ' + STATUS_LABEL[t.status] + " dans hal</span>";
+            }
+          } else if (r.state === "ambiguous") {
+            unresolved++;
+            note += '<span class="drift">identifiant tronqué ambigu (' + r.n + " tâches) — non résolu</span>";
+          } else if (r.state === "unloaded") {
+            note += '<span class="drift">tâches de ' + esc(ref.slug) + " non chargées</span>";
+          } else {
+            unresolved++;
+            note += '<span class="drift">aucune tâche hal pour cet identifiant</span>';
+          }
+        });
+        body += '<div class="entry"' + (drift ? ' data-drift="1"' : "") + '><div>' +
+          '<div class="said">' + esc(en.said) + "</div>" +
+          (en.next ? '<div class="next">▶️ ' + esc(en.next) + "</div>" : "") +
+          (note ? '<div class="join">' + note + "</div>" : "") +
+          '</div><div class="right">' + right + "</div></div>";
+      });
+      if (sec.prose.length) body += '<div class="prose">' + esc(sec.prose.join("\n")) + "</div>";
+      if (!any && !sec.prose.length) body += '<p class="empty">(vide)</p>';
+      body += "</div>";
+    });
+
+    h += '<div class="join" style="margin-bottom:14px">' + joined + " ligne(s) jointes à hal · " +
+      drifted + " en écart avec ce que disait le log · " + unresolved + " non résolue(s)</div>";
+    h += body + "</div>";
+    host.innerHTML = h;
+  }
+
+  if (typeof document !== "undefined") boot();
+  // Pure helpers, exercised by tests/test_command_center_parser.js — no DOM, no connector.
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = { parseLog: parseLog, refsIn: refsIn, resolveRef: resolveRef, __state: S };
+  }
+})();
+</script>
