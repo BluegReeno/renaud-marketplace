@@ -1,0 +1,536 @@
+<!doctype html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Cowork peut-il écrire dans hal ?",
+  "schemaVersion": 1,
+  "description": "Sonde d'écriture. Établit si un artefact Cowork peut appeler update_task_status sur hal, et pas seulement lire. Les lectures partent au chargement ; l'écriture attend un clic. La cible est une tâche jetable retrouvée par son titre — aucune donnée réelle n'est touchée, et l'état initial est restauré à la fin. Question laissée ouverte par l'issue #69 : la sonde du 14/08 a prouvé le runtime claude.ai, jamais celui de Cowork.",
+  "mcpTools": [
+    "mcp__hal-mcp__whoami",
+    "mcp__hal-mcp__list_tasks",
+    "mcp__hal-mcp__update_task_status",
+    "mcp__hal-mcp__create_task",
+    "mcp__7898d523-5bb3-4502-b704-16db78ae0a8c__whoami",
+    "mcp__7898d523-5bb3-4502-b704-16db78ae0a8c__list_tasks",
+    "mcp__7898d523-5bb3-4502-b704-16db78ae0a8c__update_task_status",
+    "mcp__7898d523-5bb3-4502-b704-16db78ae0a8c__create_task"
+  ],
+  "mcpServerNames": [
+    "hal-mcp", "hal-mcp", "hal-mcp", "hal-mcp",
+    "hal-mcp", "hal-mcp", "hal-mcp", "hal-mcp"
+  ]
+}
+</script>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cowork peut-il écrire dans hal ?</title>
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --surface-2:#EDF0F5;
+  --ink:#131820; --muted:#5B6675; --line:#DCE1E9;
+  --accent:#1F5FA8; --pass:#146B3A; --warn:#94540B; --fail:#A81E12;
+  --pass-bg:#E4F2E9; --warn-bg:#FAF0DD; --fail-bg:#FBE9E7;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1117; --surface:#151B23; --surface-2:#1C242E;
+    --ink:#E4E9F0; --muted:#909CAC; --line:#252D38;
+    --accent:#62A6E8; --pass:#57D68A; --warn:#E8B44C; --fail:#F08B80;
+    --pass-bg:#12251A; --warn-bg:#2A2113; --fail-bg:#2B1614;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1117; --surface:#151B23; --surface-2:#1C242E;
+  --ink:#E4E9F0; --muted:#909CAC; --line:#252D38;
+  --accent:#62A6E8; --pass:#57D68A; --warn:#E8B44C; --fail:#F08B80;
+  --pass-bg:#12251A; --warn-bg:#2A2113; --fail-bg:#2B1614;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans);
+  line-height:1.55; margin:0; padding:2rem 1.25rem 4rem; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:62rem;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+header{display:flex;flex-direction:column;gap:.5rem}
+h1{font-size:clamp(1.35rem,1.1rem + 1.1vw,1.9rem);line-height:1.2;margin:0;text-wrap:balance;
+  font-weight:620;letter-spacing:-.015em}
+.sub{color:var(--muted);font-size:.95rem;max-width:60ch;margin:0}
+.stamp{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.09em}
+.verdict{border:1px solid var(--line);border-left:4px solid var(--muted);background:var(--surface);
+  border-radius:3px;padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.3rem}
+.verdict[data-v="pass"]{border-left-color:var(--pass);background:var(--pass-bg)}
+.verdict[data-v="fail"]{border-left-color:var(--fail);background:var(--fail-bg)}
+.verdict[data-v="warn"]{border-left-color:var(--warn);background:var(--warn-bg)}
+.verdict h2{margin:0;font-size:1.05rem;font-weight:620}
+.verdict p{margin:0;font-size:.9rem;color:var(--ink)}
+.gate{border:1px solid var(--accent);background:var(--surface);border-radius:3px;
+  padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.6rem}
+.gate p{margin:0;font-size:.9rem;color:var(--ink);max-width:64ch}
+.gate .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.steps{display:flex;flex-direction:column;gap:.75rem}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  display:grid;grid-template-columns:2.1rem 1fr;align-items:start}
+.num{font-family:var(--mono);font-size:.78rem;color:var(--muted);padding:.95rem 0 0 .8rem;
+  font-variant-numeric:tabular-nums}
+.body{padding:.85rem 1rem 1rem 0;display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.head{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.name{font-weight:580;font-size:.96rem}
+.ms{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin-left:auto;
+  font-variant-numeric:tabular-nums}
+.pill{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;
+  padding:.12rem .45rem;border-radius:2px;border:1px solid currentColor;white-space:nowrap}
+.pill[data-s="wait"]{color:var(--muted)}
+.pill[data-s="run"]{color:var(--accent)}
+.pill[data-s="pass"]{color:var(--pass)}
+.pill[data-s="fail"]{color:var(--fail)}
+.pill[data-s="warn"]{color:var(--warn)}
+.pill[data-s="skip"]{color:var(--muted);opacity:.65}
+.detail{font-size:.88rem;color:var(--muted);margin:0}
+.detail strong{color:var(--ink);font-weight:580}
+code,.code{font-family:var(--mono);font-size:.82em}
+pre{font-family:var(--mono);font-size:.76rem;line-height:1.45;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:.7rem .8rem;margin:0;
+  overflow-x:auto;max-height:22rem;overflow-y:auto}
+details summary{cursor:pointer;font-family:var(--mono);font-size:.76rem;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.06em;padding:.15rem 0}
+details summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+details[open] summary{margin-bottom:.45rem}
+.log{display:flex;flex-direction:column;gap:.55rem}
+.log-head{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+h2.sec{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0;
+  font-family:var(--mono);font-weight:500}
+button{font-family:var(--mono);font-size:.76rem;color:var(--accent);background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;padding:.3rem .7rem;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+button.go{border-color:var(--accent);color:var(--accent);font-size:.82rem;padding:.45rem 1rem}
+textarea#raw{font-family:var(--mono);font-size:.76rem;line-height:1.45;background:var(--surface-2);
+  color:var(--ink);border:1px solid var(--accent);border-radius:3px;padding:.7rem .8rem;
+  width:100%;min-height:9rem;resize:vertical}
+footer{color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:1rem}
+footer p{margin:0 0 .4rem;max-width:64ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="stamp" id="stamp">build 1 · sonde d'écriture cowork</p>
+    <h1>Cowork peut-il écrire dans hal ?</h1>
+    <p class="sub">La sonde du 14 août a prouvé qu'une page publiée depuis Claude Code atteint hal.
+      Elle n'a jamais testé Cowork. Or <code>command-center-quotidien</code> lisait déjà hal d'ici :
+      ce qui reste inconnu, c'est l'écriture. Cette page tranche cette question-là, et rien d'autre.</p>
+  </header>
+
+  <div class="verdict" id="verdict" data-v="">
+    <h2 id="verdict-title">Lecture en cours…</h2>
+    <p id="verdict-body">Les trois premières étapes ne font que lire. L'écriture attend un clic.</p>
+  </div>
+
+  <div class="gate" id="gate" hidden>
+    <p id="gate-text"></p>
+    <div class="row">
+      <button class="go" id="go" disabled>Lancer l'aller-retour d'écriture</button>
+      <span class="stamp" id="gate-note"></span>
+    </div>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="log">
+    <div class="log-head">
+      <h2 class="sec">Journal d'exécution</h2>
+      <button id="copy">Sélectionner le journal</button>
+      <span class="stamp" id="copied" hidden></span>
+    </div>
+    <pre id="log">…</pre>
+    <textarea id="raw" readonly hidden aria-label="Journal sélectionnable"></textarea>
+  </div>
+
+  <footer>
+    <p>Ce runtime ne renvoie pas de code d'erreur stable : un échec d'outil arrive avec
+      <code>isError: true</code> et un texte libre. Chaque étape affiche donc la réponse brute —
+      c'est la seule information exploitable, et elle est à lire telle quelle.</p>
+    <p>La cible de l'écriture est une tâche jetable retrouvée <strong>par son titre</strong>
+      (<code>[TEST #69]</code>), jamais par un identifiant gravé dans cette page. Son état est
+      restauré à la fin de l'aller-retour.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var BUILD = 1;
+  // The connector has gone by two names in this runtime; the working Cowork artifacts still
+  // declare both and probe. Whichever answers whoami wins.
+  var PREFIXES = ["mcp__hal-mcp__", "mcp__7898d523-5bb3-4502-b704-16db78ae0a8c__"];
+  var PROBE_TITLE = "[TEST #69]";
+  var RESTORE_REASON = "Sonde d'observation terminée — forme de update_task_status relevée pour #69.";
+
+  var STEPS = [
+    { id: "bridge",  name: "Le pont Cowork existe" },
+    { id: "resolve", name: "Quel nom de connecteur répond (whoami)" },
+    { id: "find",    name: "Trouver la tâche jetable (list_tasks)" },
+    { id: "write",   name: "Écrire — update_task_status → à faire" },
+    { id: "reread",  name: "Relire : l'écriture a-t-elle pris ?" },
+    { id: "restore", name: "Restaurer l'état initial → annulée" }
+  ];
+
+  var log = [], t0 = Date.now(), state = {};
+  var PREFIX = null, TARGET = null, INITIAL = null, FALLBACK_SLUG = null;
+
+  function rel() { return ("+" + ((Date.now() - t0) / 1000).toFixed(2) + "s").padStart(8, " "); }
+  function note(m) {
+    log.push(rel() + "  " + m);
+    var el = document.getElementById("log");
+    if (el) el.textContent = log.join("\n");
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function el(id) { return document.getElementById(id); }
+
+  function render() {
+    el("steps").innerHTML = STEPS.map(function (s, i) {
+      var st = state[s.id] || { status: "wait" };
+      var p = [];
+      p.push('<div class="step"><div class="num">' + (i + 1) + '</div><div class="body">');
+      p.push('<div class="head"><span class="name">' + esc(s.name) + "</span>");
+      p.push('<span class="pill" data-s="' + st.status + '">' + st.status + "</span>");
+      if (st.ms != null) p.push('<span class="ms">' + st.ms + " ms</span>");
+      p.push("</div>");
+      if (st.detail) p.push('<p class="detail">' + st.detail + "</p>");
+      if (st.raw) p.push("<details><summary>réponse brute</summary><pre>" + esc(st.raw) + "</pre></details>");
+      p.push("</div></div>");
+      return p.join("");
+    }).join("");
+  }
+  function set(id, status, detail, raw, ms) {
+    state[id] = { status: status, detail: detail, raw: raw, ms: ms };
+    render();
+  }
+  function verdict(v, title, body) {
+    el("verdict").setAttribute("data-v", v);
+    el("verdict-title").textContent = title;
+    el("verdict-body").innerHTML = body;
+  }
+  function skipFrom(from) {
+    var seen = false;
+    STEPS.forEach(function (s) {
+      if (s.id === from) { seen = true; return; }
+      if (seen && !state[s.id]) set(s.id, "skip", "L'étape précédente n'a pas abouti.");
+    });
+  }
+
+  // ── the Cowork call surface ───────────────────────────────────────────────
+  // Unlike the claude.ai contract, a tool failure RESOLVES with isError:true and a free-text
+  // message. Some failures also throw. Both paths land here as one shape.
+  function textOf(r) {
+    if (!r) return "";
+    if (r.content && r.content[0] && typeof r.content[0].text === "string") return r.content[0].text;
+    return JSON.stringify(r);
+  }
+  function payloadOf(r) {
+    if (r && r.structuredContent != null) return r.structuredContent;
+    var t = textOf(r);
+    try { return JSON.parse(t); } catch (e) { return t; }
+  }
+  function call(prefix, tool, args) {
+    var start = Date.now();
+    return Promise.resolve()
+      .then(function () { return window.cowork.callMcpTool(prefix + tool, args || {}); })
+      .then(function (r) {
+        var ms = Date.now() - start;
+        if (r && r.isError) {
+          return { ok: false, ms: ms, text: textOf(r), raw: JSON.stringify(r, null, 2) };
+        }
+        return { ok: true, ms: ms, value: payloadOf(r), raw: JSON.stringify(r, null, 2) };
+      })
+      ["catch"](function (e) {
+        return {
+          ok: false, ms: Date.now() - start, threw: true,
+          text: (e && e.message) ? e.message : String(e),
+          raw: JSON.stringify(e && e.message ? { message: e.message } : e, null, 2)
+        };
+      });
+  }
+
+  // ── steps 1-3: read only ──────────────────────────────────────────────────
+  function run() {
+    render();
+    note("build " + BUILD + " — démarrage (lectures seules)");
+
+    var hasCowork = typeof window.cowork !== "undefined" && window.cowork !== null;
+    var hasCall = hasCowork && typeof window.cowork.callMcpTool === "function";
+    var hasClaudeMcp = typeof window.claude !== "undefined" && window.claude &&
+      typeof window.claude.mcp !== "undefined";
+    var surface = hasCowork
+      ? Object.keys(window.cowork).map(function (k) {
+          return k + ":" + typeof window.cowork[k];
+        }).join(" · ")
+      : "(absent)";
+
+    note("1 window.cowork " + (hasCowork ? "présent" : "ABSENT") +
+         " · callMcpTool " + (hasCall ? "présent" : "ABSENT") +
+         " · window.claude.mcp " + (hasClaudeMcp ? "présent" : "absent"));
+    note("     surface : " + surface);
+
+    if (!hasCall) {
+      set("bridge", "fail",
+        "Pas de <code>window.cowork.callMcpTool</code> dans cette vue." +
+        (hasClaudeMcp ? " En revanche <code>window.claude.mcp</code> est là — c'est l'autre runtime." : ""),
+        "surface de window.cowork : " + surface);
+      skipFrom("bridge");
+      verdict("fail", "Cette page ne tourne pas dans Cowork",
+        hasClaudeMcp
+          ? "Elle a été ouverte dans le runtime claude.ai, qui expose <code>window.claude.mcp</code>. " +
+            "Pour répondre à la question, il faut la publier depuis une session Cowork."
+          : "Aucun pont MCP n'est exposé ici. Le verdict porte sur le mode d'ouverture, pas sur hal.");
+      return;
+    }
+    set("bridge", "pass", "<code>callMcpTool</code> est là." +
+      (hasClaudeMcp ? " <strong>Et</strong> <code>window.claude.mcp</code> aussi — les deux ponts coexistent." : ""),
+      "surface de window.cowork : " + surface);
+
+    resolvePrefix(0, []);
+  }
+
+  function resolvePrefix(i, tried) {
+    if (i >= PREFIXES.length) {
+      set("resolve", "fail",
+        "Aucun nom de connecteur n'a répondu.<br>" +
+        tried.map(function (t) { return "<code>" + esc(t.p) + "</code> → " + esc(t.text); }).join("<br>"),
+        null);
+      skipFrom("resolve");
+      verdict("fail", "hal n'est joignable sous aucun des noms déclarés",
+        "Le nom exact se lit dans les réglages de connecteurs. Avec lui, il suffit de republier " +
+        "cette page en l'ajoutant à <code>mcpTools</code> — le manifeste est une allowlist, " +
+        "un nom non déclaré est refusé.");
+      return;
+    }
+    var p = PREFIXES[i];
+    note("2 essai « " + p + "whoami »");
+    call(p, "whoami").then(function (r) {
+      if (!r.ok) {
+        note("     échec : " + r.text);
+        tried.push({ p: p, text: r.text });
+        resolvePrefix(i + 1, tried);
+        return;
+      }
+      PREFIX = p;
+      var ws = (r.value && r.value.workspaces) || [];
+      // Where a probe task would be created, if none exists — resolved, never hardcoded.
+      FALLBACK_SLUG = (r.value && r.value.default_workspace_slug) ||
+        (ws[0] && ws[0].workspace_slug) || null;
+      note("     RÉPOND en " + r.ms + " ms — " + ws.length + " workspace(s)");
+      set("resolve", "pass",
+        "Le connecteur <strong>" + esc(p) + "</strong> répond. " + ws.length + " workspace(s) lisible(s).",
+        r.raw, r.ms);
+      findTarget(ws.map(function (w) { return w.workspace_slug; }), 0);
+    });
+  }
+
+  // Look for the throwaway task by TITLE, across every workspace whoami returned.
+  // No id is hardcoded in this page.
+  function findTarget(slugs, i) {
+    if (i >= slugs.length) {
+      set("find", "warn",
+        "Aucune tâche dont le titre commence par <code>" + esc(PROBE_TITLE) + "</code> " +
+        "dans les workspaces lisibles. L'écriture peut quand même être testée : le bouton crée " +
+        "la tâche via <code>create_task</code> — ce qui est déjà une écriture, et donc déjà " +
+        "une partie de la réponse.");
+      openGate(null);
+      return;
+    }
+    var slug = slugs[i];
+    note("3 list_tasks " + slug + " (annulées)");
+    call(PREFIX, "list_tasks", { workspace_slug: slug, status: "cancelled" }).then(function (r) {
+      if (!r.ok) {
+        note("     échec sur " + slug + " : " + r.text);
+        findTarget(slugs, i + 1);
+        return;
+      }
+      var rows = Array.isArray(r.value) ? r.value : [];
+      var hit = rows.filter(function (t) {
+        return t && typeof t.title === "string" && t.title.indexOf(PROBE_TITLE) === 0;
+      })[0];
+      if (!hit) { findTarget(slugs, i + 1); return; }
+      TARGET = { slug: slug, id: hit.id, title: hit.title };
+      INITIAL = hit.status;
+      note("     TROUVÉE dans " + slug + " — statut initial « " + hit.status + " »");
+      set("find", "pass",
+        "Tâche jetable trouvée dans <strong>" + esc(slug) + "</strong> : « " + esc(hit.title) +
+        " », statut initial <code>" + esc(hit.status) + "</code>. La lecture fonctionne donc " +
+        "aussi depuis Cowork — ce qui était déjà connu.", null, r.ms);
+      openGate(TARGET);
+    });
+  }
+
+  function openGate(target) {
+    el("gate").hidden = false;
+    el("go").disabled = false;
+    el("gate-text").innerHTML = target
+      ? "Le clic suivant <strong>écrit dans hal</strong> : la tâche jetable passe en « à faire », " +
+        "la page relit son état, puis la remet en « annulée » avec son motif d'origine. " +
+        "Aucune autre tâche n'est touchée."
+      : "Le clic suivant <strong>écrit dans hal</strong> : il crée une tâche de sonde, la passe " +
+        "en « à faire », relit, puis l'annule. hal n'expose aucune suppression — la tâche restera, " +
+        "annulée.";
+    verdict("warn", "Lecture faite. L'écriture attend ton clic.",
+      "C'est la seule question ouverte : ce runtime peut-il appeler <code>update_task_status</code> ?");
+  }
+
+  // ── steps 4-6: the write ──────────────────────────────────────────────────
+  function runWrite() {
+    el("go").disabled = true;
+    el("gate-note").textContent = "en cours…";
+    if (TARGET) { writeTo("todo"); return; }
+
+    if (!FALLBACK_SLUG) {
+      set("write", "fail", "Aucun workspace où créer la tâche de sonde — <code>whoami</code> " +
+        "n'en a renvoyé aucun.");
+      skipFrom("write");
+      el("gate-note").textContent = "";
+      return;
+    }
+    note("3b create_task dans " + FALLBACK_SLUG + " — pas de tâche jetable, on la crée");
+    call(PREFIX, "create_task", {
+      workspace_slug: FALLBACK_SLUG,
+      title: PROBE_TITLE + " Sonde d'écriture Cowork — à ignorer",
+      description: "Créée par probes/cowork-write-probe.html pour établir si un artefact Cowork " +
+                   "peut écrire dans hal (issue #69). Sera passée en cancelled à la fin.",
+      priority: "low"
+    }).then(function (r) {
+      if (!r.ok) {
+        set("write", "fail",
+          "<code>create_task</code> a échoué : " + esc(r.text) + (r.threw ? " <em>(exception)</em>" : ""),
+          r.raw, r.ms);
+        skipFrom("write");
+        verdict("fail", "Non — ce runtime n'a pas pu écrire dans hal",
+          "L'appel d'écriture n'aboutit pas. Message renvoyé : <code>" + esc(r.text) + "</code>");
+        el("gate-note").textContent = "";
+        return;
+      }
+      var t = r.value || {};
+      TARGET = { slug: t.workspace_slug || "renaud", id: t.id, title: t.title };
+      INITIAL = "cancelled";
+      note("     créée : " + t.id);
+      writeTo("todo");
+    });
+  }
+
+  function writeTo(status) {
+    note("4 update_task_status " + TARGET.id + " → " + status);
+    call(PREFIX, "update_task_status", {
+      workspace_slug: TARGET.slug, task_id: TARGET.id, status: status
+    }).then(function (r) {
+      if (!r.ok) {
+        set("write", "fail",
+          "L'écriture a échoué : " + esc(r.text) + (r.threw ? " <em>(exception)</em>" : "") +
+          "<br>C'est la réponse à la question posée.", r.raw, r.ms);
+        skipFrom("write");
+        verdict("fail", "Non — un artefact Cowork ne peut pas écrire dans hal",
+          "La lecture passe, l'écriture non. Message renvoyé : <code>" + esc(r.text) + "</code>. " +
+          "Le Command Center doit donc rester sur le runtime claude.ai.");
+        el("gate-note").textContent = "";
+        return;
+      }
+      var t = r.value || {};
+      note("     ACCEPTÉE en " + r.ms + " ms — statut renvoyé « " + t.status + " »");
+      set("write", "pass",
+        "hal a accepté l'écriture et renvoie <code>" + esc(t.status) + "</code>" +
+        (t.completed_at ? ", <code>completed_at</code> stampé" : "") + ".", r.raw, r.ms);
+      reread(status);
+    });
+  }
+
+  function reread(expected) {
+    note("5 relecture list_tasks " + TARGET.slug + " (" + expected + ")");
+    call(PREFIX, "list_tasks", { workspace_slug: TARGET.slug, status: expected }).then(function (r) {
+      if (!r.ok) {
+        set("reread", "warn",
+          "Écriture acceptée, relecture impossible : " + esc(r.text) +
+          "<br>L'écriture a probablement pris — mais cette page ne peut pas le prouver.", r.raw, r.ms);
+        verdict("warn", "Presque — l'écriture est acceptée, la preuve manque",
+          "Relance la sonde pour retenter la relecture.");
+        restore();
+        return;
+      }
+      var rows = Array.isArray(r.value) ? r.value : [];
+      var hit = rows.filter(function (t) { return t.id === TARGET.id; })[0];
+      if (hit) {
+        note("     CONFIRMÉ — la tâche est bien en « " + expected + " »");
+        set("reread", "pass",
+          "La tâche est revenue en <code>" + esc(expected) + "</code> : l'écriture a atteint la base, " +
+          "ce n'est pas un accusé de réception de complaisance.", null, r.ms);
+        verdict("pass", "Oui — un artefact Cowork écrit dans hal",
+          "<code>update_task_status</code> passe par <code>window.cowork.callMcpTool</code>, et la " +
+          "relecture le confirme. Le Command Center peut donc être porté dans Cowork — au prix " +
+          "connu : ce runtime n'offre ni cache attesté, ni rafraîchissement automatique, ni codes " +
+          "d'erreur.");
+      } else {
+        note("     NON CONFIRMÉ — absente de « " + expected + " »");
+        set("reread", "warn",
+          "hal avait accepté l'appel, mais la tâche n'est pas dans <code>" + esc(expected) +
+          "</code> à la relecture. Une acceptation qui ne se retrouve pas en base est le pire des " +
+          "deux mondes : à creuser avant de s'y fier.", null, r.ms);
+        verdict("warn", "Ambigu — accepté à l'écriture, introuvable à la relecture",
+          "Ne pas conclure que Cowork écrit sur cette base.");
+      }
+      restore();
+    });
+  }
+
+  function restore() {
+    if (!TARGET || INITIAL !== "cancelled") {
+      set("restore", "skip", "Rien à restaurer — l'état initial n'était pas « annulée ».");
+      el("gate-note").textContent = "terminé";
+      return;
+    }
+    note("6 restauration → cancelled");
+    call(PREFIX, "update_task_status", {
+      workspace_slug: TARGET.slug, task_id: TARGET.id,
+      status: "cancelled", cancelled_reason: RESTORE_REASON
+    }).then(function (r) {
+      if (!r.ok) {
+        set("restore", "warn",
+          "La restauration a échoué : " + esc(r.text) + "<br>La tâche jetable reste en « à faire ». " +
+          "Sans conséquence — c'est une tâche de sonde —  mais à remettre à la main si ça gêne.",
+          r.raw, r.ms);
+      } else {
+        note("     restaurée");
+        set("restore", "pass", "État initial rétabli : la tâche est de nouveau annulée, avec son motif.",
+          null, r.ms);
+      }
+      el("gate-note").textContent = "terminé";
+    });
+  }
+
+  // The frame is sandboxed: navigator.clipboard and prompt() are both refused.
+  // Selecting text in a textarea needs no permission.
+  el("copy").addEventListener("click", function () {
+    var text = "cowork-write-probe build " + BUILD + "\n" + log.join("\n");
+    var box = el("raw"), flag = el("copied");
+    box.value = text; box.hidden = false; box.focus(); box.select();
+    box.setSelectionRange(0, text.length);
+    flag.textContent = "sélectionné — ⌘C pour copier"; flag.hidden = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        flag.textContent = "copié dans le presse-papier";
+      }, function () { /* selection stays */ });
+    }
+  });
+
+  el("go").addEventListener("click", runWrite);
+  run();
+})();
+</script>
+</body>
+</html>
