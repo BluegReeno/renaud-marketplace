@@ -16,8 +16,7 @@ renaud-marketplace/
 │   ├── jobsearch/                ← plugin umbrella job search
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json       ← (VERSION ICI)
-│   │   ├── .mcp.json             ← déclaration serveur MCP (url + version MCP)
-│   │   ├── skills/
+│   │   ├── skills/                ← PAS de .mcp.json : gmail-mcp appartient au plugin `briefing`
 │   │   │   ├── cv-generator/SKILL.md       ← skill (pas de version dans le frontmatter)
 │   │   │   ├── cover-letter/SKILL.md       ← skill
 │   │   │   ├── log-application/SKILL.md    ← skill
@@ -35,7 +34,8 @@ renaud-marketplace/
 │   ├── briefing/                 ← plugin briefing quotidien
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json       ← (VERSION ICI)
-│   │   ├── skills/               ← PAS de .mcp.json : hal-mcp appartient au plugin `hal`
+│   │   ├── .mcp.json             ← déclaration serveur MCP gmail-mcp (url + version MCP) — hal-mcp reste au plugin `hal`
+│   │   ├── skills/
 │   │   │   ├── morning-briefing/SKILL.md   ← skill (pas de version dans le frontmatter)
 │   │   │   ├── mail-triage/SKILL.md        ← skill
 │   │   │   └── book-appointment/SKILL.md   ← écriture calendrier (create-only, interactif)
@@ -110,13 +110,15 @@ Versions à jour au 2026-08-18 — source de vérité : `plugins/<plugin>/.claud
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.11.0 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` (déclaré ici) | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.14.1 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `hal-mcp` **via le plugin `hal`** | Briefing quotidien, tri de mails et prise de rendez-vous (calendriers résolus depuis les workspaces hal, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
+| `jobsearch` | 0.11.1 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **via le plugin `briefing`** | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.15.0 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (déclaré ici), `hal-mcp` **via le plugin `hal`** | Briefing quotidien, tri de mails et prise de rendez-vous (calendriers résolus depuis les workspaces hal, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
 | `improve` | 0.3.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
 | `mycoach` | 0.4.0 | `mycoach` | `hal-mcp` **via le plugin `hal`** | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
-`briefing` et `mycoach` **exigent le plugin `hal`** (`bluegreen-marketplace`) installé : ils ne
-déclarent aucun serveur, ils appellent `mcp__plugin_hal_hal-mcp__*`.
+`briefing` et `mycoach` **exigent le plugin `hal`** (`bluegreen-marketplace`) installé pour leurs
+appels `mcp__plugin_hal_hal-mcp__*` — ni l'un ni l'autre ne déclare ce serveur. `jobsearch`
+exige quant à lui le plugin `briefing` installé pour son unique appel gmail-mcp
+(`cover-letter` → `mcp__plugin_briefing_gmail-mcp__draft_email`).
 
 ---
 
@@ -141,7 +143,7 @@ The MCP servers (**connectors**) and the `SKILL.md` files (**skills**) install d
 a connector works on all three providers, but skills only run on the agent/CLI surfaces
 (Claude Code, Gemini CLI, Codex). Both servers run an OAuth 2.1 authorization server, so both
 connect by URL alone; `gmail-mcp` additionally accepts a shared API key (`?key=`) for headerless
-clients like claude.ai. The `jobsearch` plugin itself takes the **OAuth path** — its `.mcp.json`
+clients like claude.ai. The `briefing` plugin itself takes the **OAuth path** — its `.mcp.json`
 carries the bare URL — and every caller, keyed or OAuth, is gated by the `GMAIL_ALLOWED_USER_IDS`
 allowlist.
 

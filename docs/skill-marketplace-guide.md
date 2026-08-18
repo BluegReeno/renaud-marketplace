@@ -223,26 +223,27 @@ automatically when the plugin is installed.
 connector in their Claude Code settings — a friction point at onboarding that was
 eliminated by the bundle approach.
 
-### Sharing an MCP server across plugins (dedup convention)
+### Sharing an MCP server across plugins — don't (one plugin owns it)
 
-When the same MCP server is bundled by two plugins (e.g. `hal-mcp` declared in both
-`bluegreen-marketplace/plugins/hal/.mcp.json` and
-`renaud-marketplace/plugins/briefing/.mcp.json`), Claude Code dedupes the two
-declarations into a single connection **only if** the entries match on three fields:
+**Never declare the same MCP server in more than one `.mcp.json`.** An earlier version of
+this guide described a "dedup convention" — the theory that Claude Code would merge two
+`.mcp.json` declarations of the same server into one connection if the key, URL and version
+matched byte-for-byte. That was never true in practice.
 
-| Field | Must match across all declarations |
-|-------|-----------------------------------|
-| `mcpServers.<name>` key | Same string (e.g. `"hal-mcp"`) |
-| `url` | Byte-identical URL |
-| `version` | Identical version string |
+`hal-mcp` was declared in both `bluegreen-marketplace/plugins/hal/.mcp.json` and
+`renaud-marketplace/plugins/briefing/.mcp.json` from bootstrap until 2026-07-23. Claude Code
+deduped by URL alone and mounted **whichever declaration won arbitrarily**, so the resolved
+tool prefix (`mcp__plugin_hal_hal-mcp__*` vs `mcp__plugin_briefing_hal-mcp__*`) was
+non-deterministic across sessions — 88 tool references across both repos broke silently
+depending on which plugin happened to win. Fix: `plugins/briefing/.mcp.json` was dropped;
+`hal` is the sole owner of `hal-mcp` (commit `16d22a7`). The same rule drove `gmail-mcp`'s
+move from `jobsearch` to `briefing` (`renaud#93`) — the migration was a straight one-release
+cutover, never a period of dual declaration.
 
-If any of the three drifts, the user gets two parallel sessions — double OAuth prompt,
-double tool listings, double quota.
-
-**The dedup `version` is not the upstream server version — it's a coordination token.**
-Pick the value once, document it in both `.mcp.json` files, and bump in both
-simultaneously. A reader who "corrects" `hal-mcp` dedup version `"0.1.0"` to the upstream
-`"38.0.0"` will silently break dedup.
+**Rule**: exactly one plugin declares a given MCP server's `.mcp.json`. Every other plugin
+that needs its tools calls them under that plugin's resolved prefix
+(`mcp__plugin_<owning-plugin>_<server>__*`) and documents the dependency in its own
+description/README row — it does not re-declare the server.
 
 ---
 

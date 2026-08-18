@@ -6,7 +6,7 @@ description: >
   and projects plus the Obsidian jobsearch vault, then classify each thread into
   domain-specific categories and recommend a concrete action per thread. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
 ---
 
 # Mail Triage — Skill Instructions
@@ -37,7 +37,7 @@ omission is a critical failure.
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
 
 - **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip Steps 1a-1c: with no workspace there is no CRM context to load. Never assert a specific email or slug — Step 1 iterates on whatever `whoami` returns.
-- **Gmail perso probe**: call `mcp__plugin_jobsearch_gmail-mcp__search_emails` with a minimal query (`after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a.
+- **Gmail perso probe**: call `mcp__plugin_briefing_gmail-mcp__search_emails` with a minimal query (`after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 2b.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures via `Skill(jobsearch-vault)`). On failure → mark `jobsearch:DOWN <reason>`, skip vault matching in Step 3.
 
@@ -83,20 +83,20 @@ Collect: `active_candidatures[]` (company, role, stage, recruiter_email if any).
 
 Run 2a and 2b in parallel.
 
-### 2a — Gmail perso (via `mcp__plugin_jobsearch_gmail-mcp__*`)
+### 2a — Gmail perso (via `mcp__plugin_briefing_gmail-mcp__*`)
 
-Which inbox is scanned is decided by **which MCP server is called**, never by an address string — this block always targets the perso inbox because it calls `mcp__plugin_jobsearch_gmail-mcp__*`.
+Which inbox is scanned is decided by **which MCP server is called**, never by an address string — this block always targets the perso inbox because it calls `mcp__plugin_briefing_gmail-mcp__*`.
 
 Skip if `gmail-perso:DOWN`.
 
 ```
-mcp__plugin_jobsearch_gmail-mcp__search_emails(
+mcp__plugin_briefing_gmail-mcp__search_emails(
   query="newer_than:<N>d -label:newsletters -category:promotions",
   maxResults=50
 )
 ```
 
-For each result, call `mcp__plugin_jobsearch_gmail-mcp__read_email(id=<email_id>)` to get sender,
+For each result, call `mcp__plugin_briefing_gmail-mcp__read_email(id=<email_id>)` to get sender,
 subject, snippet, and body. Automated digests (from no-reply addresses) — subject + sender +
 snippet is sufficient for classification; skip full body read.
 

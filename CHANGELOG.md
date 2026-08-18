@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.15.0
+
+- gmail-mcp connector now declared here (moved from jobsearch, renaud#93) — briefing.mcp.json bundles gmail-mcp, tools resolve as mcp__plugin_briefing_gmail-mcp__*
+
 ## briefing 0.14.1
 
 - plugin manifest description no longer advertises sprint-planner and sprint-review — both moved to `pm@bluegreen-marketplace` in 0.12.0. Metadata only: no skill, script or behaviour changed.
@@ -36,6 +40,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
+
+## jobsearch 0.11.1
+
+- gmail-mcp connector no longer declared here — moved to briefing (renaud#93); cover-letter's draft_email call now resolves as mcp__plugin_briefing_gmail-mcp__draft_email
 
 ## jobsearch 0.11.0
 

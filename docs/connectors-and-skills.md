@@ -19,7 +19,7 @@ Cowork**. The chat apps only call a connector's tools — they can't run a skill
 
 | Plugin | MCP server | Project ref | Auth model |
 |--------|-----------|-------------|-----------|
-| `jobsearch` | `gmail-mcp` | `isdyvrwnxqcfalmlkzui` | **Two paths**: shared API key (`?key=` / `apikey` header) **or** OAuth 2.1 user JWT, gated by the `GMAIL_ALLOWED_USER_IDS` allowlist |
+| `briefing` | `gmail-mcp` | `isdyvrwnxqcfalmlkzui` | **Two paths**: shared API key (`?key=` / `apikey` header) **or** OAuth 2.1 user JWT, gated by the `GMAIL_ALLOWED_USER_IDS` allowlist |
 | `briefing` | `hal-mcp` | `zgkvbjqlvebttbnkklpo` | **OAuth 2.1** (full discovery + DCR) — shared with bluegreen-marketplace |
 
 Both projects run a Supabase OAuth server. Verified on 2026-08-05 against
@@ -32,7 +32,7 @@ touching `GMAIL_API_KEY`.
 
 ⚠️ **This document previously claimed `gmail-mcp` had no OAuth server. That was wrong**, and
 the error was not cosmetic: it made the `#80` allowlist look like it could not affect any
-client, when in fact it governs the path the `jobsearch` plugin actually uses. A JWT proves
+client, when in fact it governs the path the `briefing` plugin actually uses. A JWT proves
 only that the caller is *some* provisioned user on the project — `GMAIL_ALLOWED_USER_IDS`
 is what proves they own this mailbox. Unset or empty ⇒ every `user`-mode call is rejected
 (fail closed). See `servers/gmail-mcp/README.md` §Access control.
@@ -59,7 +59,7 @@ URLs:
 /plugin marketplace add BluegReeno/renaud-marketplace briefing
 ```
 
-Installing a plugin registers its skills **and** its connector. `plugins/jobsearch/.mcp.json`
+Installing a plugin registers its skills **and** its connector. `plugins/briefing/.mcp.json`
 declares the bare URL with **no header and no `?key=`**, so Claude Code follows OAuth
 discovery and authenticates as a user — run `/mcp` to complete the browser flow, exactly as
 for `hal-mcp`. Your Supabase `user_id` must be in `GMAIL_ALLOWED_USER_IDS` or every call
