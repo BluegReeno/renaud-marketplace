@@ -8,7 +8,7 @@ description: >
   daily-log entry per HAL workspace. Renders 6 blocks + an ordered plan du jour.
   Use when the user asks "what's up for today", "ma journée", "briefing du
   jour", "quel est mon planning", or any similar daily-overview trigger.
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_jobsearch_gmail-mcp__search_emails mcp__plugin_jobsearch_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
 # Morning Briefing — Skill Instructions
@@ -50,7 +50,7 @@ In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise a
 - **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a, 4. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip those steps; with no workspace there is nothing to brief. Never assert a specific email or slug — every downstream step iterates on whatever `whoami` returns.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures). On failure → mark `jobsearch:DOWN <reason>`, skip Step 1c.
 - **Google Calendar probe**: call `mcp__claude_ai_Google_Calendar__list_calendars`. On failure → mark `gcal:DOWN <reason>`, skip Step 1d. If the error suggests OAuth failure, include "reconnect at claude.ai/connectors" in the message.
-- **Gmail perso probe**: call `mcp__plugin_jobsearch_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
+- **Gmail perso probe**: call `mcp__plugin_briefing_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 1f.
 
 ---
@@ -139,9 +139,9 @@ Do not implement pagination — the default page is enough for a daily window.
 
 Keep each event's `hangoutLink` field, when present — Step 4 links it as the Meet URL for prep/follow-up entries anchored on that event.
 
-### 1e — Gmail perso (via `mcp__plugin_jobsearch_gmail-mcp__*`)
+### 1e — Gmail perso (via `mcp__plugin_briefing_gmail-mcp__*`)
 
-Which inbox is queried is decided by **which MCP server is called**, never by an address string. This block always targets the perso inbox because it calls the `mcp__plugin_jobsearch_gmail-mcp__*` server.
+Which inbox is queried is decided by **which MCP server is called**, never by an address string. This block always targets the perso inbox because it calls the `mcp__plugin_briefing_gmail-mcp__*` server.
 
 Skip if `gmail-perso:DOWN`.
 
@@ -149,25 +149,25 @@ Issue up to three parallel searches:
 
 1. **LinkedIn digests (last 24h)**:
    ```
-   mcp__plugin_jobsearch_gmail-mcp__search_emails(
+   mcp__plugin_briefing_gmail-mcp__search_emails(
      query="from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com newer_than:1d",
      maxResults=20
    )
    ```
-   For each matching email, call `mcp__plugin_jobsearch_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
+   For each matching email, call `mcp__plugin_briefing_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
 
    **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer — this URL survives through Step 1g scoring and Step 1h fan-out all the way to the Step 4 daily log; do not discard it after Step 3 rendering.
 
 2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
    For each active candidature, search:
    ```
-   mcp__plugin_jobsearch_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
+   mcp__plugin_briefing_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
    ```
    Run one search per active candidature (parallel). Read matching threads for context. Keep each matching email's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=` — see Step 4's Liens rule and the multi-account note there).
 
 3. **Inbound recruiters (last 48h)**:
    ```
-   mcp__plugin_jobsearch_gmail-mcp__search_emails(
+   mcp__plugin_briefing_gmail-mcp__search_emails(
      query="(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position) newer_than:2d -from:jobalerts-noreply@linkedin.com",
      maxResults=10
    )
