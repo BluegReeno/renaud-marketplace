@@ -41,6 +41,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.11.1
+
+- gmail-mcp connector no longer declared here — moved to briefing (renaud#93); cover-letter's draft_email call now resolves as mcp__plugin_briefing_gmail-mcp__draft_email
+
 ## jobsearch 0.11.0
 
 - Personal data moved out of the plugin package and into the mounted Drive folder
