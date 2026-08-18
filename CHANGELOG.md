@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.14.1
+
+- plugin manifest description no longer advertises sprint-planner and sprint-review — both moved to `pm@bluegreen-marketplace` in 0.12.0. Metadata only: no skill, script or behaviour changed.
+
 ## briefing 0.14.0
 
 `morning-briefing` — the daily log carries the day's selection, never task state.
