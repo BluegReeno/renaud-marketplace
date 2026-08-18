@@ -17,6 +17,7 @@ import os
 import glob
 import re
 import shutil
+import sys
 import argparse
 from pathlib import Path
 
@@ -185,7 +186,7 @@ def load_cv_data(data_dir=None):
         return json.load(f)
 
 
-def load_contact_info(data_dir=None):
+def load_contact_info(data_dir=None, require_contact=False):
     """Load phone/email/location from a file that is never committed.
 
     Resolution order, first hit wins:
@@ -195,7 +196,9 @@ def load_contact_info(data_dir=None):
       3. the plugin's own data/ directory — dev workstation fallback
 
     See data/contact.example.json for the schema. Falls back to placeholder values
-    when no copy is found (fresh clone, second user, CI, Drive not mounted).
+    when no copy is found (fresh clone, second user, CI, Drive not mounted) — unless
+    require_contact is set, in which case that fallback is refused (exit 1) instead
+    of silently producing a CV with contact@example.com.
     """
     candidates = []
     if data_dir:
@@ -211,9 +214,15 @@ def load_contact_info(data_dir=None):
                 return json.load(f)
 
     searched = ', '.join(str(p) for p in candidates)
-    print("INFO: No contact.local.json found — CV will render placeholder contact info.")
-    print(f"      Looked in: {searched}")
-    print("      To add: copy data/contact.example.json to one of those paths and fill it in.")
+    if require_contact:
+        print("ERROR: --require-contact set but no contact.local.json found — refusing to generate a CV with placeholder contact info.")
+        print(f"       Looked in: {searched}")
+        print("       To add: copy data/contact.example.json to one of those paths and fill it in.")
+        sys.exit(1)
+
+    print("WARNING: No contact.local.json found — CV will render placeholder contact info.")
+    print(f"         Looked in: {searched}")
+    print("         To add: copy data/contact.example.json to one of those paths and fill it in.")
     return {
         'phone': '+33 (0)0 00 00 00 00',
         'email': 'contact@example.com',
@@ -400,7 +409,8 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
                 output_filename=None, output_dir=None, data_dir=None,
                 company=None, job_title=None,
                 container_titles=None, bullet_overrides=None,
-                about_override=None, title_override=None):
+                about_override=None, title_override=None,
+                require_contact=False):
     """Generate a CV PDF for the given profile × company_type cell."""
 
     skill_dir = get_skill_dir()
@@ -426,7 +436,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         print("      To add: place photo.jpeg in ~/.claude/assets/photo.jpeg")
 
     cv_data = load_cv_data(data_dir)
-    contact = load_contact_info(data_dir)
+    contact = load_contact_info(data_dir, require_contact=require_contact)
 
     # Build output filename
     if output_filename is None:
@@ -535,6 +545,10 @@ Examples:
                         help='JSON array of exactly 3 strings — replaces the about section')
     parser.add_argument('--title-override',
                         help='Plain string — replaces the job title line on the CV')
+    parser.add_argument('--require-contact', action='store_true',
+                        help='Exit non-zero without rendering a PDF if no real '
+                             'contact.local.json resolves (default: fall back to '
+                             'placeholder contact info)')
     # Hidden retro-compat flag
     parser.add_argument('--positioning',
                         help=argparse.SUPPRESS)
@@ -597,6 +611,7 @@ Examples:
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=args.title_override,
+        require_contact=args.require_contact,
     )
 
     print(f"\nCV ready: {pdf_path}")
