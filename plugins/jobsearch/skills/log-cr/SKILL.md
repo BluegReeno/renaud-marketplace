@@ -197,7 +197,7 @@ Note: the title uses the **interview date** (not the candidature date) — this 
 ```
 ⚠️  Half-state — CR logué, relance NON créée dans hal.
     Erreur     : <error>
-    Impact     : la relance n'apparaîtra pas dans /briefing.
+    Impact     : la relance n'apparaîtra pas dans /morning-briefing.
     Recovery A : re-run /log-cr (Steps 4–6 idempotency court-circuite le vault)
     Recovery B : créer manuellement une tâche hal renaud
                  · tags: ["jobsearch"]
@@ -217,7 +217,7 @@ Do NOT fire Step 9's success report on a full half-state (Step 5 OK + Step 8 fai
    🗓️ Prochain rdv : <YYYY-MM-DD> (omettre cette ligne si Step 1.10 n'a rien capturé)
    ✓  Tâche prep : "Entretien <type> — <Entreprise> — …" clôturée dans hal
                    (omettre cette ligne si tâche non trouvée)
-   📋 Relance    : due <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /briefing
+   📋 Relance    : due <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /morning-briefing
 ```
 
 If `suivi_envoye: false` (always the case after creation), suggest:

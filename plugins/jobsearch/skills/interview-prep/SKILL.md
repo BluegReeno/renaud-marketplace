@@ -183,7 +183,7 @@ The `entretien` note does NOT carry its own `target_profile` field — the profi
 
 ## Step 4b — Mirror the interview into hal (tagged `jobsearch`)
 
-Create a hal task in the `renaud` workspace so the upcoming interview surfaces in the `jobsearch` section of `/briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
+Create a hal task in the `renaud` workspace so the upcoming interview surfaces in the `jobsearch` section of `/morning-briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
 
 Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 
@@ -197,7 +197,7 @@ mcp__plugin_hal_hal-mcp__create_task(
 )
 ```
 
-No `sprint_id` — interviews are sprint-less by design (tracked by tag, surfaced in `/briefing` until passed).
+No `sprint_id` — interviews are sprint-less by design (tracked by tag, surfaced in `/morning-briefing` until passed).
 
 **Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality, not substring, against `.tasks`. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
 
@@ -208,13 +208,13 @@ Then apply the standard failure handling below if `create_task` also fails.
 **If `truncated` is `true`**, the pre-check only searched the newest `returned` of `total` tasks — proceed with `create_task` anyway (a missed duplicate is a lesser failure than blocking prep), but prepend:
 `⚠️ idempotency pre-check was partial (<returned>/<total> tasks read) — a duplicate beyond the cut would not have been caught.`
 
-**Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 4 succeeded, this is a **partial half-state**: the prep note is in Obsidian, the hal mirror is missing, `/briefing` will under-count the day's prep load. Report explicitly:
+**Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 4 succeeded, this is a **partial half-state**: the prep note is in Obsidian, the hal mirror is missing, `/morning-briefing` will under-count the day's prep load. Report explicitly:
 
 ```
 ⚠️  hal mirror NON créé (prep Obsidian OK).
     Stderr        : <error>
     Impact        : la prep est dans Obsidian (canonical), mais pas dans la sous-section 🎯 jobsearch
-                    de la section Renaud de /briefing.
+                    de la section Renaud de /morning-briefing.
     Recovery      : re-run /interview-prep (Step 4's idempotency overwrites the prep note; Step 4b retries)
 ```
 
@@ -241,7 +241,7 @@ Render a concise summary, in French:
 - **`target_profile` missing → ASK.** Never silently pick a profile. (Step 1.)
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
 - **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__create_task` is allow-listed exclusively for the Step 4b hal mirror.
-- **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
+- **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/morning-briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.
 - **`categorie` is `"Préparation"`** (verbatim, with accent). The other valid value is `"Compte-rendu"` for debriefs — out of scope for this skill.
 - **Compose, do not reimplement.** This skill is orchestration: locate, read, classify, compose, call. It does not re-implement vault writes or profile-narrative logic.
