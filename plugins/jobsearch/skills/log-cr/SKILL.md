@@ -149,10 +149,15 @@ Ask `jobsearch-vault` to update the candidature note (`update_frontmatter`) sett
 
 The prep task was created by `interview-prep` with title `"Entretien <type_entretien> — <Entreprise> — <DD-MM-YYYY>"`.
 
-**Find it:** `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Search the result for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
+**Find it:** `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — search `.tasks`, not the raw response, for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
 
 - **Found** → `mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="renaud", task_id=<id>, status="done")`.
-- **Not found** → silently skip (already closed, or never created — both are normal).
+- **Not found and `truncated` is `false`** → silently skip (already closed, or never created — both are normal).
+- **Not found and `truncated` is `true`** → the search only covered the newest `returned` of `total` tasks; do not assume the prep task never existed. Skip closing it, but prepend to the Step 9 report:
+
+```
+⚠️  Tâche hal prep introuvable dans une lecture tronquée (<returned>/<total>) — non clôturée, à vérifier manuellement.
+```
 - **`update_task_status` fails** → prepend to the Step 9 report and continue:
 
 ```
@@ -161,10 +166,16 @@ The prep task was created by `interview-prep` with title `"Entretien <type_entre
 
 ## Step 8 — Create the post-interview relance hal task
 
-**Idempotency:** call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
+**Idempotency:** call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. As in Step 7, read tasks from `.tasks`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
 
 ```
 ⚠️ idempotency pre-check failed (<error>) — attempting create; may duplicate if already present.
+```
+
+If `truncated` is `true`, the pre-check may have missed an older duplicate beyond the cut — proceed with `create_task` anyway and prepend:
+
+```
+⚠️ idempotency pre-check was partial (<returned>/<total> tasks read) — a duplicate beyond the cut would not have been caught.
 ```
 
 Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once:
