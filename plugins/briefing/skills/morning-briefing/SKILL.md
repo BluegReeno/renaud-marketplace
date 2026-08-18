@@ -27,7 +27,7 @@ Any backend that is unreachable renders a loud `⚠️ <source> DOWN — <reason
 
 This skill runs in two modes. **Interactive** (default, no flag) is the full behaviour described in the steps below, run inside a live session with a human present. **`--headless`** is an explicit, unattended-safe mode for scheduled / `claude -p` runs (e.g. a nightly scheduler that has no one to answer prompts or validate output).
 
-`/briefing --headless` differs from interactive exactly as follows — every difference is a **visible** change in the rendered brief, never a silent one:
+`/morning-briefing --headless` differs from interactive exactly as follows — every difference is a **visible** change in the rendered brief, never a silent one:
 
 | Aspect | Interactive (no flag) | `--headless` |
 |--------|-----------------------|--------------|

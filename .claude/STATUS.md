@@ -1,6 +1,6 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-08-14
+Last updated: 2026-08-18
 
 ## Current Focus
 
@@ -160,6 +160,18 @@ Second utilisateur humain : Cris a un compte hal depuis le 2026-07-31 et partage
       ([#69](https://github.com/BluegReeno/renaud-marketplace/issues/69)). Reste : accorder le
       connecteur à la page, exercer les 10 critères d'acceptation, puis retirer
       `command-center-quotidien`.
+
+## Done (2026-08-18)
+
+- [x] **Commande `/briefing` retirée — `morning-briefing` s'invoque directement** — 2026-08-18.
+  - `plugins/briefing/commands/briefing.md` supprimé : simple pass-through vers le skill, dont la
+    description avait dérivé (« read-only, 3 sources » pour un skill qui en lit 6 et écrit un daily
+    log par workspace hal).
+  - Contrat headless réécrit `/morning-briefing --headless` (SKILL.md:30) ; aucune étape, source ni
+    rendu modifié.
+  - 12 mentions `/briefing` réécrites dans `log-application`, `interview-prep`, `log-cr`
+    (messages utilisateur + justification du miroir hal).
+  - briefing 0.16.0 · jobsearch 0.11.2 · marketplace 0.6.27.
 
 ## Done (2026-08-14)
 

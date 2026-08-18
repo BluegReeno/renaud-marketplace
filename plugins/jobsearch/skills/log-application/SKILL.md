@@ -7,7 +7,7 @@ description: >
   fixed fields (`entreprise`, `statut`, `source`, `target_profile`,
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and
   create one hal task (relance) tagged `jobsearch` with `due_date: today + 7d`
-  so it surfaces in `/briefing` on its due date. The `opportunite-js` note stays
+  so it surfaces in `/morning-briefing` on its due date. The `opportunite-js` note stays
   in the vault; the relance task lives in hal (`renaud` workspace) like all
   other tasks. Use when the user says "log application", "j'ai postulé",
   "candidature envoyée", "je viens de candidater", "track application",
@@ -156,14 +156,14 @@ mcp__plugin_hal_hal-mcp__create_task(
 )
 ```
 
-No `sprint_id` — jobsearch tasks track tags, not sprints; `/briefing` falls back to open tasks when no active sprint is set on the workspace.
+No `sprint_id` — jobsearch tasks track tags, not sprints; `/morning-briefing` falls back to open tasks when no active sprint is set on the workspace.
 
-**Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 3 succeeded, the vault is in a **half-state**: the candidature note exists, the relance task does not, `/briefing` will silently miss the relance. Report explicitly:
+**Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 3 succeeded, the vault is in a **half-state**: the candidature note exists, the relance task does not, `/morning-briefing` will silently miss the relance. Report explicitly:
 
 ```
 ⚠️  Half-state — candidature loguée, relance NON créée dans hal.
     Erreur        : <error>
-    Impact        : la relance n'apparaîtra pas dans /briefing ni dans hal renaud/jobsearch.
+    Impact        : la relance n'apparaîtra pas dans /morning-briefing ni dans hal renaud/jobsearch.
     Recovery A    : re-run /log-application (Step 3 idempotency court-circuite vers Step 4)
     Recovery B    : créer manuellement une tâche hal renaud avec
                     tags: ["jobsearch"] · due_date: <YYYY-MM-DD +7d>
@@ -180,7 +180,7 @@ Render a concise summary, in French:
 ✅ Candidature loguée — <Poste> chez <Entreprise>
    📁 Note     : CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
-   🔄 Relance  : <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /briefing
+   🔄 Relance  : <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /morning-briefing
    🔗 Source   : <source> (<source_detail if present, else omit>)
    📌 Statut   : <statut>
 ```
