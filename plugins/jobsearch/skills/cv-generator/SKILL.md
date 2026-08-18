@@ -170,10 +170,13 @@ uv run --with weasyprint python3 "$PLUGIN_DIR/scripts/generate_cv.py" \
   --profile {profile} --company-type {company_type} --lang {lang} \
   --company "{company_name}" \
   --job-title "{job_title}" \
-  --output-dir ~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/
+  --output-dir ~/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/ \
+  --require-contact
 ```
 
 Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}` with the detected values. Output filename is auto-built: `CV_Renaud-Laborbe_{company_slug}_{title_slug}_{LANG}.pdf` — where `{company_slug}` is the company name (original case, accents stripped, truncated to 2 words), and `{title_slug}` applies known abbreviations before slugifying (FDE, SA, SE, CTO, AE, BDM…) with hyphens as word separators. Example: `--company "Orasio" --job-title "Forward Deployed Engineer Lead"` → `CV_Renaud-Laborbe_Orasio_FDE-Lead_EN.pdf`.
+
+**Always pass `--require-contact`** on this path — a CV generated here is for an actual application and must never carry the `contact@example.com` placeholder. If the script exits non-zero with `ERROR: --require-contact set but no contact.local.json found`, stop and report it — do not retry without the flag. Omit `--require-contact` only for batch validation or a demo CV explicitly not meant to be sent (see below).
 
 **Optional flags:**
 
