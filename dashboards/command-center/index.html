@@ -279,7 +279,6 @@ select.st:hover{border-color:var(--accent-line)}
   var OPEN = ["todo", "in_progress", "blocked"]; // what a workspace tab shows
   var CLOSED = ["done", "cancelled"];            // loaded lazily, for the daily-log join
   var ALL_STATUSES = OPEN.concat(CLOSED);
-  var HAL_ROW_CAP = 100;                         // list_tasks LIMIT 100, silent — hal#105
   var READ_STALE = 60000;
 
   var STATUS_LABEL = {
@@ -465,7 +464,7 @@ select.st:hover{border-color:var(--accent-line)}
   // ── reads ────────────────────────────────────────────────
   function bucket(slug, status) {
     if (!S.tasks[slug]) S.tasks[slug] = {};
-    if (!S.tasks[slug][status]) S.tasks[slug][status] = { rows: [], err: null, stamp: null, capped: false };
+    if (!S.tasks[slug][status]) S.tasks[slug][status] = { rows: [], err: null, stamp: null, capped: false, total: null };
     return S.tasks[slug][status];
   }
 
@@ -474,10 +473,13 @@ select.st:hover{border-color:var(--accent-line)}
     var stop = mcp.watchTool(SERVER, "list_tasks", input, function (ev) {
       var b = bucket(slug, status);
       if (ev.type === "data") {
-        var rows = Array.isArray(ev.result.payload) ? ev.result.payload : [];
+        // hal-mcp list_tasks returns { tasks, total, returned, truncated } — hal#105.
+        var payload = ev.result.payload || {};
+        var rows = Array.isArray(payload.tasks) ? payload.tasks : [];
         b.rows = rows;
         b.err = null;
-        b.capped = rows.length >= HAL_ROW_CAP;
+        b.capped = !!payload.truncated;
+        b.total = typeof payload.total === "number" ? payload.total : null;
         // A cached result carries when it was produced; a fresh one is stamped on arrival.
         b.stamp = (ev.result.cache && ev.result.cache.storedAt) || Date.now();
       } else {
@@ -611,17 +613,21 @@ select.st:hover{border-color:var(--accent-line)}
     setWrite(id, "busy", "Vérification dans hal…");
     mcp.callTool(SERVER, "list_tasks", { workspace_slug: slug, status: expected },
       { cache: { refresh: true } }).then(function (r) {
-        var rows = Array.isArray(r.payload) ? r.payload : [];
+        // hal-mcp list_tasks returns { tasks, total, returned, truncated } — hal#105.
+        var payload = r.payload || {};
+        var rows = Array.isArray(payload.tasks) ? payload.tasks : [];
         var hit = rows.filter(function (t) { return t.id === id; })[0];
         var b = bucket(slug, expected);
-        b.rows = rows; b.err = null; b.capped = rows.length >= HAL_ROW_CAP;
+        b.rows = rows; b.err = null; b.capped = !!payload.truncated;
+        b.total = typeof payload.total === "number" ? payload.total : null;
         b.stamp = (r.cache && r.cache.storedAt) || Date.now();
         if (hit) {
           setWrite(id, "ok", "Vérifié dans hal : " + STATUS_LABEL[expected] + ".");
           setTimeout(function () { delete S.write[id]; renderActive(); }, 4000);
-        } else if (rows.length >= HAL_ROW_CAP) {
-          setWrite(id, "warn", "Non confirmé — hal a renvoyé 100 lignes exactement.",
-            "La tâche est peut-être au-delà du plafond de lecture. Rafraîchissez pour trancher.");
+        } else if (payload.truncated) {
+          setWrite(id, "warn", "Non confirmé — hal a tronqué la lecture (" + rows.length +
+            (b.total != null ? " sur " + b.total : "") + ").",
+            "La tâche est peut-être au-delà de la coupe. Rafraîchissez pour trancher.");
         } else {
           setWrite(id, "warn", "Non confirmé — la tâche n'est pas revenue en « " + STATUS_LABEL[expected] + " ».",
             "Rafraîchissez la page pour lire son état réel." +
@@ -795,10 +801,14 @@ select.st:hover{border-color:var(--accent-line)}
     }
     var capped = OPEN.filter(function (s) { return bucket(slug, s).capped; });
     if (capped.length) {
-      h += '<div class="notice" data-kind="warn"><div class="nt">hal a renvoyé exactement 100 lignes</div>' +
-        '<div class="nf">La lecture de « ' + capped.map(function (s) { return STATUS_LABEL[s]; }).join(" », « ") +
-        ' » plafonne à 100 sans le dire, et la coupe emporte les plus anciennes. ' +
-        "Ce qui manque est invisible ici (hal#105).</div></div>";
+      var cappedDetail = capped.map(function (s) {
+        var b = bucket(slug, s);
+        var missing = b.total != null ? b.total - b.rows.length : null;
+        return STATUS_LABEL[s] + (missing != null && missing > 0 ? " (" + missing + " en plus, non affichées)" : "");
+      }).join(" · ");
+      h += '<div class="notice" data-kind="warn"><div class="nt">hal a tronqué la lecture</div>' +
+        '<div class="nf">« ' + cappedDetail +
+        ' » — la coupe emporte les plus anciennes. Ce qui manque est invisible ici (hal#105).</div></div>';
     }
 
     h += '<div class="card"><h3>Ouvertes par tag</h3>' + barChart(rows, order) + "</div>";

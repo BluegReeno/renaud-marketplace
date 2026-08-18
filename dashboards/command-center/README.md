@@ -44,8 +44,10 @@ remainder against this file.
 
 - The `hal-mcp` connector, connected on the claude.ai account. Without it the page renders a
   plain explanation instead of data — it never shows an empty dashboard as if hal were empty.
-- `list_tasks` truncates at 100 rows; the page tracks this (`HAL_ROW_CAP`) and says so rather
-  than pretending the list is complete. See [hal#105](https://github.com/BluegReeno/hal/issues/105).
+- `list_tasks` returns `{ tasks, total, returned, truncated }` (see
+  [hal#105](https://github.com/BluegReeno/hal/issues/105)). The page reads `truncated` and
+  `total` straight from the payload rather than guessing from a row-count cap, and says how many
+  rows were withheld instead of pretending the list is complete.
 
 ## Rules that outlived `#69`
 

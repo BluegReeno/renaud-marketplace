@@ -68,6 +68,11 @@ mcp__plugin_hal_hal-mcp__list_companies(workspace_slug=w.workspace_slug)
 
 <!-- TODO: verify in Cowork — list_projects may accept a kind="opportunity" filter. Not confirmed in tool schema. If it does, use kind="opportunity" to narrow results. -->
 
+`list_tasks` returns `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}`, not a bare
+array — read the task list from `.tasks`. If `truncated` is `true`, note it alongside
+`tasks_by_ws[w]` (e.g. `tasks_by_ws[w].truncated = true`) so Step 5 can flag that the workspace's
+task view was partial instead of silently matching mails against an incomplete list.
+
 Collect, keyed by workspace: `projects_by_ws[w]` (title, stage, key contacts), `tasks_by_ws[w]` (title, tags), and a lookup map `email → {name, company, linked_project_title, workspace_name}` merged across all workspaces for use in Step 3 matching. When two workspaces resolve the same sender email, keep both and prefer the match whose workspace also owns the thread's inbox signal (Step 3).
 
 ### 1b — Active jobsearch candidatures

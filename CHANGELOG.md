@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.15.1
+
+- morning-briefing, mail-triage: `list_tasks` documented and handled as `{tasks, total, returned, truncated}`, not a bare array — matches hal#105/hal#107. Truncated reads now surface a loud line instead of silently under-counting a workspace's tasks (renaud#99)
+
 ## briefing 0.15.0
 
 - gmail-mcp connector now declared here (moved from jobsearch, renaud#93) — briefing.mcp.json bundles gmail-mcp, tools resolve as mcp__plugin_briefing_gmail-mcp__*
@@ -40,6 +44,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
+
+## jobsearch 0.11.3
+
+- log-application, log-cr, interview-prep: `list_tasks` documented and handled as `{tasks, total, returned, truncated}`, not a bare array — matches hal#105/hal#107. A truncated idempotency pre-check now reports itself as partial instead of silently trusting an incomplete read (renaud#99)
 
 ## jobsearch 0.11.2
 
@@ -161,6 +169,10 @@ guard therefore belongs on the consumer side.
 
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
+
+## mycoach 0.4.1
+
+- `list_tasks` documented and handled as `{tasks, total, returned, truncated}`, not a bare array — matches hal#105/hal#107 (renaud#99)
 
 ## mycoach 0.4.0
 
