@@ -31,8 +31,7 @@ renaud-marketplace/
 │   │   ├── profiles/             ← p1–p5 narrative files (lus par cv-generator + interview-prep)
 │   │   ├── scripts/              ← Python — generate_cv.py, batch_validate.py
 │   │   ├── data/                 ← cv-master.json
-│   │   ├── templates/            ← cv_template.html
-│   │   └── CHANGELOG.md
+│   │   └── templates/            ← cv_template.html
 │   ├── briefing/                 ← plugin briefing quotidien
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json       ← (VERSION ICI)
@@ -42,9 +41,8 @@ renaud-marketplace/
 │   │   │   └── book-appointment/SKILL.md   ← écriture calendrier (create-only, interactif)
 │   │   ├── agents/
 │   │   │   └── cv-log-worker.md  ← sous-agent fan-out appelé par morning-briefing
-│   │   ├── commands/
-│   │   │   └── briefing.md       ← slash command de déclenchement
-│   │   └── CHANGELOG.md
+│   │   └── commands/
+│   │       └── briefing.md       ← slash command de déclenchement
 │   ├── improve/                  ← capture d'observation → GitHub Issue
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/improve/SKILL.md

@@ -43,9 +43,8 @@ renaud-marketplace/
         │   └── generate_cv.py    # PDF generator
         ├── data/
         │   └── cv-master.json    # CV content + 5×5 matrix
-        ├── templates/
-        │   └── cv_template.html  # HTML/CSS → PDF
-        └── CHANGELOG.md
+        └── templates/
+            └── cv_template.html  # HTML/CSS → PDF
 ```
 
 ---
