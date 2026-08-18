@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.15.0
+
+- gmail-mcp connector now declared here (moved from jobsearch, renaud#93) — briefing.mcp.json bundles gmail-mcp, tools resolve as mcp__plugin_briefing_gmail-mcp__*
+
 ## briefing 0.14.1
 
 - plugin manifest description no longer advertises sprint-planner and sprint-review — both moved to `pm@bluegreen-marketplace` in 0.12.0. Metadata only: no skill, script or behaviour changed.
