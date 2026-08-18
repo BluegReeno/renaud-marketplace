@@ -1,5 +1,12 @@
 # Brief — Ops 2 (renaud-marketplace): /briefing --headless + gmail-mcp deploy script
 
+> ⚠️ **Superseded on 2026-08-18 — `/briefing` no longer exists.** `briefing` 0.16.0 removed the
+> pass-through command; the skill is invoked directly as `/morning-briefing`, and the headless
+> contract now reads `/morning-briefing --headless`. **Read every `/briefing` below as
+> `/morning-briefing`.** Nothing else in this brief changed — no step, source or rendering was
+> affected, only the entry point. Kept as written rather than rewritten: it records what was
+> true when the work was specified.
+
 > **Context**: the morning-briefing skill already anticipates scheduled runs (plan
 > marked `[proposé — non validé]`), but the mode is inferred, not contracted, and
 > two `TODO: verify in Cowork` questions linger around the CV fan-out. A nightly
