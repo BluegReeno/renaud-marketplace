@@ -90,6 +90,13 @@ else:
   mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
 ```
 
+`list_tasks` returns `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}`, not a bare
+array — read the task list from `.tasks`. When `truncated` is `true`, `.tasks` holds only the
+newest `returned` of `total` matching tasks; render a loud line in that workspace's block —
+`⚠️ <workspace> — hal a tronqué la lecture (<returned>/<total> tâches) : les plus anciennes
+manquent.` — rather than silently briefing on a partial list. This matters most here: the tag
+grouping below assumes it is grouping **every** open task in the workspace.
+
 A workspace without `sprints_enabled` is **not** a workspace missing a sprint — pull its open tasks with no sprint filter and render **no** "(no active sprint)" note.
 
 **The sprint is the selection — so never guess it silently.** `status="actuel"` is declarative: a

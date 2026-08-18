@@ -32,7 +32,8 @@ Ce skill **écrit** dans hal. Il doit d'abord résoudre **quel** workspace est a
    Le champ `description` du projet = **profil vivant** : patterns connus, objectifs de fond, dernières techniques utilisées (slugs du bundle mycoach-kwiki utilisés récemment).
 
 2. Appeler `mcp__plugin_hal_hal-mcp__list_tasks` avec `workspace_slug=WS`, `project_id=<id du projet MyCoach>` et `status='todo'` pour relire l'action engagée la semaine précédente.
-   Si la liste est vide : première séance ou action déjà archivée — demander directement à l'utilisateur quelle était son intention de la semaine.
+   La réponse a la forme `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — lire les tâches dans `.tasks`, pas à la racine.
+   Si `.tasks` est vide : première séance ou action déjà archivée — demander directement à l'utilisateur quelle était son intention de la semaine.
 
 **Si le tag `mycoach` est déclaré mais que le projet MyCoach n'existe pas encore dans `WS`** : informer l'utilisateur que l'initialisation (création du projet + ajout du tag `mycoach` aux `allowed_tags` du workspace) doit être faite avant la première séance. Ne pas tenter de le créer depuis ce skill.
 

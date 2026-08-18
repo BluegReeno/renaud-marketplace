@@ -199,11 +199,14 @@ mcp__plugin_hal_hal-mcp__create_task(
 
 No `sprint_id` — interviews are sprint-less by design (tracked by tag, surfaced in `/briefing` until passed).
 
-**Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). Match on title equality, not substring. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
+**Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality, not substring, against `.tasks`. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
 
 **If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
 `⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
 Then apply the standard failure handling below if `create_task` also fails.
+
+**If `truncated` is `true`**, the pre-check only searched the newest `returned` of `total` tasks — proceed with `create_task` anyway (a missed duplicate is a lesser failure than blocking prep), but prepend:
+`⚠️ idempotency pre-check was partial (<returned>/<total> tasks read) — a duplicate beyond the cut would not have been caught.`
 
 **Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 4 succeeded, this is a **partial half-state**: the prep note is in Obsidian, the hal mirror is missing, `/briefing` will under-count the day's prep load. Report explicitly:
 
