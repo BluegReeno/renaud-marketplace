@@ -65,8 +65,7 @@ my-marketplace/
 │   │   │       └── SKILL.md      # The skill instructions (frontmatter + body)
 │   │   ├── scripts/              # Python scripts invoked by skills
 │   │   ├── templates/            # Any assets (DOCX, HTML, etc.)
-│   │   ├── data/                 # Static data files (JSON, etc.)
-│   │   └── CHANGELOG.md
+│   │   └── data/                 # Static data files (JSON, etc.)
 │   └── another-plugin/
 │       └── .gitkeep              # Placeholder for future plugin
 └── docs/
@@ -405,5 +404,5 @@ Manual bump → commit → push; CI (check_version_sync.sh + deno check) runs on
 - [ ] `marketplace.json` version synced to `plugin.json` version
 - [ ] Scripts use stdlib or `uv run --with` (no pip install)
 - [ ] Plugin directory resolver in SKILL.md covers: env var → cache → Cowork → dev path
-- [ ] `CHANGELOG.md` created with initial entry
+- [ ] `## <plugin> <version>` entry added to the root `CHANGELOG.md` (this repo has no per-plugin changelog)
 - [ ] `.mcp.json` added if plugin uses an MCP server
