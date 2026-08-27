@@ -297,7 +297,12 @@ Any attempt to build a consent page as an Edge Function results in a blank or br
 
 Setup for `renaud-marketplace`:
 1. Consent page: `oauth/consent/index.html` at the repo root → `https://BluegReeno.github.io/renaud-marketplace/oauth/consent`
-2. GitHub → Settings → Pages → Source: branch `main`, folder `/ (root)`
+2. GitHub → Settings → Pages → Source: branch `main`, folder `/ (root)`.
+   **Verify it, never assume it** — `gh api repos/<owner>/<repo>/pages` returns 404 when Pages
+   is off, and the whole OAuth flow then dies on GitHub's "There isn't a GitHub Pages site here"
+   *after* Supabase has issued a valid `authorization_id`. That failure reads like broken auth
+   and is not. Enable headlessly with:
+   `gh api -X POST repos/<owner>/<repo>/pages -f 'source[branch]=main' -f 'source[path]=/'`
 3. Supabase → Authentication → URL Configuration:
    - Site URL: `https://BluegReeno.github.io/renaud-marketplace`
    - Additional Redirect URLs: `https://BluegReeno.github.io/renaud-marketplace/**`

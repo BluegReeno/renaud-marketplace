@@ -4,6 +4,31 @@ Last updated: 2026-08-27
 
 ## Current Focus
 
+### 2026-08-27 — gmail-mcp OAuth works from OpenClaw: GitHub Pages was never enabled
+
+The consent page had been committed since June (`oauth/consent/index.html`) and the task file
+claimed GitHub Pages was enabled on 2026-06-10. It was not — `gh api repos/BluegReeno/renaud-marketplace/pages`
+returned 404. Every OAuth attempt therefore ended on GitHub's "There isn't a GitHub Pages site
+here" *after* Supabase Auth had correctly issued an `authorization_id`, which reads like an
+authentication failure and is not one.
+
+Enabled on `main` / root. Verified rather than assumed: the page returns 200 with
+`content-type: text/html`, the served SHA256 matches `oauth/consent/index.html` byte for byte,
+and `/oauth/consent` → 301 → `/oauth/consent/` **preserves the query string**, so the
+`authorization_id` survives the redirect. Flow confirmed end to end from OpenClaw.
+
+The false checkbox is corrected in `.claude/tasks/gmail-mcp-oauth-github-pages.md`, and
+`docs/mcp-server-supabase-edge.md` §10 now carries the one-command check instead of a
+declarative "enable Pages" step.
+
+**Known limit, unchanged:** one deployment = one mailbox. `GOOGLE_REFRESH_TOKEN` is a single
+project-level secret read at `servers/gmail-mcp/supabase/functions/gmail-mcp/index.ts:37`; the
+bearer only authorises (`index.ts:357`), it never selects an account, and no tool takes an
+`account` parameter. Two Supabase users would still share one inbox. Separating perso from pro
+needs either a second deployment reading a distinct secret name (project-level secrets are
+shared across a project's functions) or a per-account token map — the latter also requires
+keying the `cachedToken` singleton (`index.ts:26`) per account.
+
 ### 2026-08-27 — the identity guard covers all four plugins, and reads the index instead of the tree
 
 `#101` closed via [PR #104](https://github.com/BluegReeno/renaud-marketplace/pull/104).
