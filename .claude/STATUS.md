@@ -1,8 +1,27 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-08-18
+Last updated: 2026-08-27
 
 ## Current Focus
+
+### 2026-08-27 — the identity guard covers all four plugins, and reads the index instead of the tree
+
+`#101` closed via [PR #104](https://github.com/BluegReeno/renaud-marketplace/pull/104).
+`scripts/check_no_identity_literals.sh` now enumerates candidates with `git ls-files` rather
+than walking the filesystem, and its `SCOPE` covers `briefing`, `mycoach`, `jobsearch` and
+`improve` — it covered the first two.
+
+Reading the index rather than the tree is what made widening the scope safe:
+`plugins/jobsearch/data/contact.local.json` is gitignored by design, holds real contact data,
+and a filesystem walk would have failed CI on a file that is deliberately never committed.
+It is now a test case, so the property stays true.
+
+Re-measured locally after the merge, not taken from the run's report: `test_check_no_identity_literals.sh`
+→ **7 passed, 0 failed**; the guard itself → `OK: no identity literal in plugins/briefing
+plugins/mycoach plugins/jobsearch plugins/improve`, exit 0.
+
+Companion still open: `#89` — the values already readable in this repo's git history. This
+issue stops new ones landing; `#89` is the purge, and needs a human-authorised force-push.
 
 ### ✅ Command Center — forme arrêtée le 2026-08-18 : c'est une page web, `#69` est close
 
