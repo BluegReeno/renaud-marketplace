@@ -32,6 +32,14 @@ jobs:
       - name: Check for hardcoded slugs, calendars and mailboxes
         run: bash scripts/check_no_identity_literals.sh
 
+  test-identity-guard:
+    name: Offline tests — check_no_identity_literals.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline tests
+        run: bash scripts/test_check_no_identity_literals.sh
+
   marketplace-schema:
     name: Marketplace schema validation
     runs-on: ubuntu-latest
