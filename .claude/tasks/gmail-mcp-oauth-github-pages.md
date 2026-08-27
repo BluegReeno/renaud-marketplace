@@ -18,7 +18,11 @@ Héberger la consent page OAuth sur GitHub Pages car les Edge Functions Supabase
 - [x] Créer `oauth/consent/index.html` (HTML standalone, SDK Supabase via CDN) ✓ 2026-06-10
 
 ### Phase 3: Actions manuelles (user)
-- [x] Activer GitHub Pages (Settings → Pages → branch main, root) ✓ 2026-06-10
+- [x] Activer GitHub Pages (Settings → Pages → branch main, root) ✓ 2026-08-27
+      ⚠️ Cochée à tort le 2026-06-10 : Pages n'a jamais été activé à cette date.
+      Découvert le 2026-08-27 quand le flow OAuth OpenClaw a fini sur un 404 GitHub
+      avec un `authorization_id` valide. Activé via
+      `gh api -X POST repos/BluegReeno/renaud-marketplace/pages -f 'source[branch]=main' -f 'source[path]=/'`.
 - [x] Mettre à jour Supabase URL config (Site URL + redirect URLs, lowercase) ✓ 2026-06-10
 - [x] Corriger Google Client ID + Client Secret dans Supabase Auth → Providers → Google ✓ 2026-06-10
 - [x] Ajouter redirect URI Supabase dans Google Cloud Console ✓ 2026-06-10
