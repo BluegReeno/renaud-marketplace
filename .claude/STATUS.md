@@ -17,9 +17,12 @@ Enabled on `main` / root. Verified rather than assumed: the page returns 200 wit
 and `/oauth/consent` → 301 → `/oauth/consent/` **preserves the query string**, so the
 `authorization_id` survives the redirect. Flow confirmed end to end from OpenClaw.
 
-The false checkbox is corrected in `.claude/tasks/gmail-mcp-oauth-github-pages.md`, and
+The false checkbox is corrected in `.claude/tasks/_archive/gmail-mcp-oauth-github-pages.md`
+(both OAuth task files are archived — the feature is done and validated end to end), and
 `docs/mcp-server-supabase-edge.md` §10 now carries the one-command check instead of a
-declarative "enable Pages" step.
+declarative "enable Pages" step. `servers/gmail-mcp/README.md` gained the two sections it was
+missing: the `user` mode's dependency on the GitHub Pages consent page, and the one-mailbox
+-per-deployment limit.
 
 **Known limit, unchanged:** one deployment = one mailbox. `GOOGLE_REFRESH_TOKEN` is a single
 project-level secret read at `servers/gmail-mcp/supabase/functions/gmail-mcp/index.ts:37`; the
