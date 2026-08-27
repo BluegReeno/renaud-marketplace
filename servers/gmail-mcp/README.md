@@ -12,6 +12,42 @@ and the project runs a full Supabase OAuth server (discovery + dynamic client
 registration, verified 2026-08-05). A Claude Code session therefore arrives in
 `user` mode. Changing the allowlist changes whether that plugin works.
 
+## The `user` mode depends on a consent page this repo hosts
+
+The JWT path above cannot complete without a consent page, and that page is **not** part of
+this function: a Supabase Edge Function cannot serve interactive HTML to a browser (the CDN
+forces `Content-Type: text/plain` + `CSP: default-src 'none'; sandbox`). Supabase Auth
+redirects to `oauth/consent/index.html`, served at the repo root by **GitHub Pages**:
+
+    https://bluegreeno.github.io/renaud-marketplace/oauth/consent
+
+If GitHub Pages is disabled, the OAuth flow dies on GitHub's *"There isn't a GitHub Pages
+site here"* **after** Supabase has issued a valid `authorization_id` — a failure that reads
+like broken authentication and is not one. It cost a full session on 2026-08-27, with the
+task file wrongly claiming Pages had been enabled back in June. Check it, don't assume it:
+
+```bash
+gh api repos/BluegReeno/renaud-marketplace/pages          # 404 ⇒ Pages is off
+gh api -X POST repos/BluegReeno/renaud-marketplace/pages \
+  -f 'source[branch]=main' -f 'source[path]=/'            # enable it
+```
+
+`/oauth/consent` 301s to `/oauth/consent/` preserving the query string, so the
+`authorization_id` survives the redirect. Full setup — Site URL, redirect URLs, authorization
+path — in `docs/mcp-server-supabase-edge.md` §10.
+
+## One deployment serves exactly one mailbox
+
+`GOOGLE_REFRESH_TOKEN` is a single secret read at `index.ts:37`, and Supabase secrets are
+scoped to the **project**, not the function. The bearer only authorises the caller
+(`index.ts:357`); it never selects an account, and no tool takes an `account` argument.
+
+Two Supabase users would therefore share one inbox — provisioning a second user does not
+separate mailboxes. Adding a second mailbox means either a second deployment reading a
+distinct secret name (`GOOGLE_REFRESH_TOKEN_PRO`) or a per-account token map, and the map
+also requires keying the `cachedToken` singleton (`index.ts:26`) per account, since it is
+currently one value per isolate.
+
 ## Access control
 
 `GMAIL_API_KEY` and `GMAIL_ALLOWED_USER_IDS` are the only two ways into this
