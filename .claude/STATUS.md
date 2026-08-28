@@ -4,7 +4,7 @@ Last updated: 2026-08-28
 
 ## Current Focus
 
-### 2026-08-28 — mycoach stops writing an about-to-be-rejected channel (PR #110, open)
+### 2026-08-28 — mycoach stops writing an about-to-be-rejected channel (shipped)
 
 [PR #110](https://github.com/BluegReeno/renaud-marketplace/pull/110) closes
 [#109](https://github.com/BluegReeno/renaud-marketplace/issues/109): `mycoach` writes
@@ -28,17 +28,31 @@ Verified against the branch, not the run report: 4 files, +8/−4; `git grep myc
 trap did not fire; `mycoach` 0.4.2 → 0.4.3 in both `plugin.json` and `marketplace.json`, top-level
 0.6.29 → 0.6.30, CHANGELOG written, `check_version_sync.sh` exit 0, 7 CI checks green.
 
+**Shipped and verified the same evening.** PR #110 merged as a real merge commit (`b29d87e`),
+#109 auto-closed by its `closes` line. `/plugin marketplace update` then landed **`mycoach`
+0.4.3** in the client — checked in the cache, not taken from the command's "3 plugins bumped":
+
+```
+~/.claude/plugins/cache/renaud-marketplace/mycoach/
+  0.3.0/…/SKILL.md   channel='mycoach-session'   ← what the client had been running
+  0.4.0/…/SKILL.md   channel='mycoach-session'
+  0.4.3/…/SKILL.md   channel='note'              ✅
+```
+
+Only then was `hal#124` deployed (`hal-mcp` v67). A live probe against the deployed function now
+refuses the old value — `log_interaction(renaud, channel="mycoach-session")` →
+*Channel 'mycoach-session' not allowed* — while the shipped skill writes `note`. The ordering
+bought exactly what it was meant to: zero broken sessions.
+
+`archon-gc.sh --apply` removed the worktree, as it must for `skill-improve`: the environment is
+registered as `archon/task-skill-improve-<ts>` while the work happens on `fix/skill-issue-109`, so
+`archon complete` refuses with "branch has never been pushed to remote". `BLUEGREEN_MAP.md`
+updated from `archon-workflows` (`mycoach` 0.4.3, top-level 0.6.30).
+
 ## In Progress
 
-- [ ] Merge #110 as a **merge commit** (never a squash).
-- [ ] **`/plugin marketplace update` in every client** (Code, Desktop, Cowork) — this is the step
-      that actually deploys the skill. A merged version bump changes nothing on its own, and
-      hal#124 must not be deployed before it lands.
-- [ ] Update the `BLUEGREEN_MAP.md` version table (`mycoach` 0.4.3, top-level 0.6.30) — the file
-      is owned by `archon-workflows`, so the edit is committed from there.
-- [ ] `archon-gc.sh --apply` on `archon/task-skill-improve-1787932864647`: for `skill-improve` the
-      worktree name is never the PR branch name (`fix/skill-issue-109`), so `archon complete`
-      refuses with "branch has never been pushed to remote".
+- [ ] Nothing on the vocabulary contract. 10 stale local `fix/skill-issue-*` branches could be
+      swept whenever convenient.
 
 
 ### 2026-08-27 — gmail-mcp OAuth works from OpenClaw: GitHub Pages was never enabled
