@@ -182,6 +182,10 @@ guard therefore belongs on the consumer side.
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
 
+## mycoach 0.4.3
+
+- fix: channel='mycoach-session' rejected by hal's controlled vocabulary (hal#124) — write 'note' instead
+
 ## mycoach 0.4.2
 
 - added the `Tags.` rule — `tags` is functional domain, picked only from the calling workspace's `allowed_tags` (via `whoami`), never invented, never used for what `company_id`/`role`/`channel`/`project_id` already carry (renaud#107)
