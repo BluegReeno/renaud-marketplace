@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.16.1
+
+- morning-briefing, mail-triage: added the `Tags.` rule — `tags` is functional domain, picked only from the calling workspace's `allowed_tags` (via `whoami`), never invented, never used for what `company_id`/`role`/`channel`/`project_id` already carry (renaud#107)
+
 ## briefing 0.16.0
 
 - the `/briefing` slash command is removed — `morning-briefing` is invoked directly as `/morning-briefing`. The command was a pass-through wrapper whose description had drifted (it still advertised "read-only, 3 sources" for a skill that reads 6 and writes one daily log per hal workspace). The `--headless` contract now reads `/morning-briefing --headless`; no step, source or rendering changed.
@@ -48,6 +52,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
+
+## jobsearch 0.11.5
+
+- log-application, log-cr, interview-prep: added the `Tags.` rule — `tags` is functional domain, picked only from the calling workspace's `allowed_tags` (via `whoami`), never invented, never used for what `company_id`/`role`/`channel`/`project_id` already carry (renaud#107)
 
 ## jobsearch 0.11.4
 
@@ -173,6 +181,10 @@ guard therefore belongs on the consumer side.
 
 - Skill improvement capture (`improve`) — turn an observation into a GitHub
   issue in ≤30s from Cowork.
+
+## mycoach 0.4.2
+
+- added the `Tags.` rule — `tags` is functional domain, picked only from the calling workspace's `allowed_tags` (via `whoami`), never invented, never used for what `company_id`/`role`/`channel`/`project_id` already carry (renaud#107)
 
 ## mycoach 0.4.1
 
