@@ -1,8 +1,45 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 ## Current Focus
+
+### 2026-08-28 — mycoach stops writing an about-to-be-rejected channel (PR #110, open)
+
+[PR #110](https://github.com/BluegReeno/renaud-marketplace/pull/110) closes
+[#109](https://github.com/BluegReeno/renaud-marketplace/issues/109): `mycoach` writes
+`channel='note'` instead of `channel='mycoach-session'`, and the SKILL.md line that described
+`channel` as free text now says the opposite — it is a controlled vocabulary, like `tags`.
+
+The value was never free text for much longer: [hal#124](https://github.com/BluegReeno/hal/issues/124)
+gives `halcrm_interactions.channel` a controlled vocabulary (`email · call · meeting · whatsapp ·
+linkedin · note · other`) in which `mycoach-session` is deliberately absent — it names a *kind of
+session*, not a channel. Once hal deploys it, a `mycoach` still writing the old value fails its
+`log_interaction` silently, week after week, because the skill degrades gracefully.
+
+**Nothing is lost by the change, and it was measured rather than assumed.** The skill never reads
+its own interactions (`allowed-tools` has no interaction-read tool, and `list_interactions` does
+not exist server-side — hal#106). Two stronger retrieval keys already sit on all four historical
+rows: `project_id` on "MyCoach — Développement personnel", and `tags = ["mycoach"]`, a conforming
+tag. No replacement discriminator was invented.
+
+Verified against the branch, not the run report: 4 files, +8/−4; `git grep mycoach-session` under
+`plugins/` returns nothing; **zero `+version:` front-matter lines** — the known `skill-improve`
+trap did not fire; `mycoach` 0.4.2 → 0.4.3 in both `plugin.json` and `marketplace.json`, top-level
+0.6.29 → 0.6.30, CHANGELOG written, `check_version_sync.sh` exit 0, 7 CI checks green.
+
+## In Progress
+
+- [ ] Merge #110 as a **merge commit** (never a squash).
+- [ ] **`/plugin marketplace update` in every client** (Code, Desktop, Cowork) — this is the step
+      that actually deploys the skill. A merged version bump changes nothing on its own, and
+      hal#124 must not be deployed before it lands.
+- [ ] Update the `BLUEGREEN_MAP.md` version table (`mycoach` 0.4.3, top-level 0.6.30) — the file
+      is owned by `archon-workflows`, so the edit is committed from there.
+- [ ] `archon-gc.sh --apply` on `archon/task-skill-improve-1787932864647`: for `skill-improve` the
+      worktree name is never the PR branch name (`fix/skill-issue-109`), so `archon complete`
+      refuses with "branch has never been pushed to remote".
+
 
 ### 2026-08-27 — gmail-mcp OAuth works from OpenClaw: GitHub Pages was never enabled
 
