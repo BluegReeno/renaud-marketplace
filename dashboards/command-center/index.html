@@ -974,8 +974,19 @@ select.st:hover{border-color:var(--accent-line)}
     S.ws.forEach(function (w) {
       mcp.callTool(SERVER, "list_documents", { workspace_slug: w.workspace_slug, domain: "memory" },
         { cache: { staleTime: READ_STALE } }).then(function (r) {
-          var rows = Array.isArray(r.payload) ? r.payload : [];
-          S.log.slugs[w.workspace_slug] = rows
+          // hal-mcp list_documents returns { documents, total, returned, truncated } — hal#119.
+          // No silent [] on an unexpected shape: that fallback is what turned the #119 deploy
+          // into an empty daily-log list instead of a visible error.
+          var payload = r.payload || {};
+          if (!Array.isArray(payload.documents)) {
+            S.log.slugs[w.workspace_slug] = { err: {
+              title: "list_documents a répondu dans une forme inattendue",
+              fix: "La page attend {documents, total, returned, truncated} (hal#119). Republier la page contre la forme réellement servie est le seul correctif."
+            } };
+            if (S.active === "__log") renderActive();
+            return;
+          }
+          S.log.slugs[w.workspace_slug] = payload.documents
             .filter(function (d) { return d.kind === "daily-log"; })
             .map(function (d) { return { slug: d.slug, title: d.title }; })
             .sort(function (a, b) { return a.slug < b.slug ? 1 : -1; });
