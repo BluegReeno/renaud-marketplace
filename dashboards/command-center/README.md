@@ -48,6 +48,13 @@ remainder against this file.
   [hal#105](https://github.com/BluegReeno/hal/issues/105)). The page reads `truncated` and
   `total` straight from the payload rather than guessing from a row-count cap, and says how many
   rows were withheld instead of pretending the list is complete.
+- `list_documents` returns `{ documents, total, returned, truncated }` (see
+  [hal#119](https://github.com/BluegReeno/hal/issues/119), deployed 2026-08-28). The daily-log
+  index reads `payload.documents` and **fails visibly** on any other shape. It used to guard with
+  `Array.isArray(r.payload) ? r.payload : []`, which turned the hal#119 deploy into an empty
+  daily-log list with no error — the shape change was invisible precisely because the guard was
+  written to be forgiving.
+- `list_sprints` still returns a bare array; hal#119 did not touch it.
 
 ## Rules that outlived `#69`
 
