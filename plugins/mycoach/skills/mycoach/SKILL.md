@@ -85,7 +85,7 @@ Dans les deux cas, **exclure les techniques récemment utilisées** (voir profil
 Puis écrire dans hal :
 
 1. `mcp__plugin_hal_hal-mcp__log_interaction` :
-   - `workspace_slug=WS`, `project_id=<id>`, `channel='mycoach-session'` (valeur libre, aucune configuration préalable requise côté hal — contrairement aux `tags`, qui doivent être déclarés dans `allowed_tags` du workspace)
+   - `workspace_slug=WS`, `project_id=<id>`, `channel='note'` (vocabulaire contrôlé côté hal, au même titre que `tags` — `note` = observation enregistrée sans échange externe)
    - `summary` = résumé court
    - `transcript` = compte-rendu structuré complet (score d'échelle + méthode utilisée)
    - `tags=['mycoach']`, `occurred_at` = date du jour au format ISO 8601 (ex. `2026-07-05`)
