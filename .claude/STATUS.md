@@ -4,23 +4,34 @@ Last updated: 2026-08-29
 
 ## Current Focus
 
-### 2026-08-29 (next session) — lot D: `#111`, **second step** of the plan
+### 2026-08-29 — lot D shipped: `#111` merged, briefing **0.16.2** / jobsearch **0.11.6** / mycoach **0.4.4**
 
-[`#111`](https://github.com/BluegReeno/renaud-marketplace/issues/111) — scope D of
-[`hal#135`](https://github.com/BluegReeno/hal/issues/135). 6 files here (`briefing`, `jobsearch`,
-`mycoach`) still promise `hal://vocabulary`, a resource that was **cancelled**: the 523-character
-doctrine paragraph shrinks to a one-line pointer that must carry the enforceable minimum **on its
-own**, since claude.ai never renders an MCP server's `instructions`. Required bumps: `briefing`
-0.16.1, `jobsearch` 0.11.5, `mycoach` 0.4.3 — `plugin.json` + `marketplace.json` + `CHANGELOG.md`.
+[`#111`](https://github.com/BluegReeno/renaud-marketplace/issues/111) →
+[PR #112](https://github.com/BluegReeno/renaud-marketplace/pull/112), merged as a **merge commit**
+(`33ae4be`), 7/7 CI checks green including `Version sync + CHANGELOG`. The 6 files carry the
+one-line pointer, each keeping its own formatting (bulleted for the five `briefing`/`jobsearch`
+copies, plain paragraph for `mycoach`); `git grep 'hal://vocabulary' -- 'plugins/*.md'` returns
+nothing. Top-level **0.6.31**. Ran in parallel with
+[`bluegreen-marketplace#89`](https://github.com/BluegReeno/bluegreen-marketplace/issues/89) rather
+than after it: the replacement wording was written verbatim into both issues, so the first run had
+nothing left to teach the second. **`hal#135` is closed.**
 
-Run [`bluegreen-marketplace#89`](https://github.com/BluegReeno/bluegreen-marketplace/issues/89)
-**first**: the replacement wording gets validated there (8 files, 2 plugins), then this repo applies
-the same pattern. The `kind_stages` trap written into `#89` does **not** apply here — `kind_stages`
-appears nowhere under `plugins/`.
+⚠️ **The issue body had to be corrected before launching.** It asked for "a `CHANGELOG.md` entry",
+which in this repo means the **single root** `CHANGELOG.md` grouped per plugin under
+`## <plugin> <version>` — the shape `scripts/check_version_sync.sh` parses. There are no per-plugin
+CHANGELOGs here (that is [`#102`](https://github.com/BluegReeno/renaud-marketplace/issues/102)), and
+a run told only "add a CHANGELOG entry" creates three new files and fails the check. The correction
+went into the **issue body**, not the run prompt: the prompt is consumed once, the issue is re-read
+by every later run.
 
-**Archon**, one run on this issue. `BLUEGREEN_MAP.md` lives in `archon-workflows`, out of a run's
-reach: its version table is updated **by hand** after the merge. Full ordering of the remaining work
-is in `hal/.claude/STATUS.md`.
+⚠️ **`skill-improve` still enforces the `version:` frontmatter of `SKILL.md`**, a field this repo
+dropped (`CLAUDE.md` l.57), and its `verify-all-versions` node is told to repair divergence and
+push. The run refused; the workflow did not. Filed as
+[`archon-workflows#30`](https://github.com/BluegReeno/archon-workflows/issues/30). It also ignores
+`scripts/release.sh`, which does the whole bump in one validated pass.
+
+Left by hand: `/plugin marketplace update` in Cowork to confirm the bump is picked up.
+`BLUEGREEN_MAP.md` (in `archon-workflows`) is up to date.
 
 ### 2026-08-28 — mycoach stops writing an about-to-be-rejected channel (shipped)
 
