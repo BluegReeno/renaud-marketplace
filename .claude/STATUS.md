@@ -1,8 +1,26 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 
 ## Current Focus
+
+### 2026-08-29 (next session) — lot D: `#111`, **second step** of the plan
+
+[`#111`](https://github.com/BluegReeno/renaud-marketplace/issues/111) — scope D of
+[`hal#135`](https://github.com/BluegReeno/hal/issues/135). 6 files here (`briefing`, `jobsearch`,
+`mycoach`) still promise `hal://vocabulary`, a resource that was **cancelled**: the 523-character
+doctrine paragraph shrinks to a one-line pointer that must carry the enforceable minimum **on its
+own**, since claude.ai never renders an MCP server's `instructions`. Required bumps: `briefing`
+0.16.1, `jobsearch` 0.11.5, `mycoach` 0.4.3 — `plugin.json` + `marketplace.json` + `CHANGELOG.md`.
+
+Run [`bluegreen-marketplace#89`](https://github.com/BluegReeno/bluegreen-marketplace/issues/89)
+**first**: the replacement wording gets validated there (8 files, 2 plugins), then this repo applies
+the same pattern. The `kind_stages` trap written into `#89` does **not** apply here — `kind_stages`
+appears nowhere under `plugins/`.
+
+**Archon**, one run on this issue. `BLUEGREEN_MAP.md` lives in `archon-workflows`, out of a run's
+reach: its version table is updated **by hand** after the merge. Full ordering of the remaining work
+is in `hal/.claude/STATUS.md`.
 
 ### 2026-08-28 — mycoach stops writing an about-to-be-rejected channel (shipped)
 
