@@ -106,14 +106,16 @@ Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
 
 ## Plugins
 
-Versions à jour au 2026-08-18 — source de vérité : `plugins/<plugin>/.claude-plugin/plugin.json`.
+Snapshot au 2026-08-30 — source de vérité : `.claude-plugin/marketplace.json` et
+`plugins/<plugin>/.claude-plugin/plugin.json`, que `scripts/check_version_sync.sh` maintient
+identiques. Ne jamais citer une version depuis ce tableau sans la relire là-bas.
 
 | Plugin | Version | Skills | Serveur MCP | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.11.1 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **via le plugin `briefing`** | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.15.0 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (déclaré ici), `hal-mcp` **via le plugin `hal`** | Briefing quotidien, tri de mails et prise de rendez-vous (calendriers résolus depuis les workspaces hal, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
+| `jobsearch` | 0.11.6 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **via le plugin `briefing`** | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
+| `briefing` | 0.16.2 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (déclaré ici), `hal-mcp` **via le plugin `hal`** | Briefing quotidien, tri de mails et prise de rendez-vous (calendriers résolus depuis les workspaces hal, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
 | `improve` | 0.3.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
-| `mycoach` | 0.4.0 | `mycoach` | `hal-mcp` **via le plugin `hal`** | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
+| `mycoach` | 0.4.4 | `mycoach` | `hal-mcp` **via le plugin `hal`** | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
 
 `briefing` et `mycoach` **exigent le plugin `hal`** (`bluegreen-marketplace`) installé pour leurs
 appels `mcp__plugin_hal_hal-mcp__*` — ni l'un ni l'autre ne déclare ce serveur. `jobsearch`
