@@ -6,47 +6,47 @@ Powered by [hal](https://github.com/BluegReeno/hal) (CRM + morning briefing) and
 
 ---
 
-## Structure du dépôt
+## Repository layout
 
 ```
 renaud-marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json          ← point d'entrée Cowork (top-level version = compteur monotone, +0.0.1 par release)
+│   └── marketplace.json          ← Cowork entry point (top-level version = monotonic counter, +0.0.1 per release)
 ├── plugins/
-│   ├── jobsearch/                ← plugin umbrella job search
+│   ├── jobsearch/                ← job-search umbrella plugin
 │   │   ├── .claude-plugin/
-│   │   │   └── plugin.json       ← (VERSION ICI)
-│   │   ├── skills/                ← PAS de .mcp.json : gmail-mcp appartient au plugin `briefing`
-│   │   │   ├── cv-generator/SKILL.md       ← skill (pas de version dans le frontmatter)
+│   │   │   └── plugin.json       ← (VERSION LIVES HERE)
+│   │   ├── skills/                ← NO .mcp.json here: gmail-mcp belongs to the `briefing` plugin
+│   │   │   ├── cv-generator/SKILL.md       ← skill (no version in the frontmatter)
 │   │   │   ├── cover-letter/SKILL.md       ← skill
 │   │   │   ├── log-application/SKILL.md    ← skill
 │   │   │   ├── interview-prep/SKILL.md     ← skill
-│   │   │   ├── log-cr/SKILL.md             ← compte-rendu d'entretien (template BANT)
-│   │   │   └── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (lib partagée)
+│   │   │   ├── log-cr/SKILL.md             ← post-interview debrief (BANT template)
+│   │   │   └── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (shared library)
 │   │   ├── commands/             ← slash commands
 │   │   │   ├── cover-letter.md
 │   │   │   ├── interview-prep.md
 │   │   │   └── log-application.md
-│   │   ├── profiles/             ← p1–p5 narrative files (lus par cv-generator + interview-prep)
-│   │   ├── scripts/              ← Python — generate_cv.py, batch_validate.py
+│   │   ├── profiles/             ← p1-p5 narrative files (read by cv-generator + interview-prep)
+│   │   ├── scripts/              ← Python - generate_cv.py, batch_validate.py
 │   │   ├── data/                 ← cv-master.json
 │   │   └── templates/            ← cv_template.html
-│   ├── briefing/                 ← plugin briefing quotidien
+│   ├── briefing/                 ← daily briefing plugin
 │   │   ├── .claude-plugin/
-│   │   │   └── plugin.json       ← (VERSION ICI)
-│   │   ├── .mcp.json             ← déclaration serveur MCP gmail-mcp (url + version MCP) — hal-mcp reste au plugin `hal`
+│   │   │   └── plugin.json       ← (VERSION LIVES HERE)
+│   │   ├── .mcp.json             ← gmail-mcp MCP server declaration (url + MCP version) - hal-mcp stays with the `hal` plugin
 │   │   ├── skills/
-│   │   │   ├── morning-briefing/SKILL.md   ← skill (pas de version dans le frontmatter)
+│   │   │   ├── morning-briefing/SKILL.md   ← skill (no version in the frontmatter)
 │   │   │   ├── mail-triage/SKILL.md        ← skill
-│   │   │   └── book-appointment/SKILL.md   ← écriture calendrier (create-only, interactif)
+│   │   │   └── book-appointment/SKILL.md   ← calendar write (create-only, interactive)
 │   │   ├── agents/
-│   │   │   └── cv-log-worker.md  ← sous-agent fan-out appelé par morning-briefing
+│   │   │   └── cv-log-worker.md  ← fan-out subagent called by morning-briefing
 │   │   └── commands/
-│   │       └── briefing.md       ← slash command de déclenchement
-│   ├── improve/                  ← capture d'observation → GitHub Issue
+│   │       └── briefing.md       ← trigger slash command
+│   ├── improve/                  ← capture an observation → GitHub Issue
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/improve/SKILL.md
-│   └── mycoach/                  ← check-in hebdo (écrit dans hal)
+│   └── mycoach/                  ← weekly check-in (writes to hal)
 │       ├── .claude-plugin/plugin.json
 │       └── skills/mycoach/SKILL.md
 ├── servers/
@@ -56,37 +56,37 @@ renaud-marketplace/
 │           ├── config.toml
 │           └── functions/gmail-mcp/
 │               ├── deno.json
-│               └── index.ts     ← McpServer version ici (indépendant du plugin)
-├── scripts/                     ← outillage de release + gardes CI
-│   ├── release.sh               ← bump 4 champs + CHANGELOG en un passage
+│               └── index.ts     ← McpServer version lives here (independent of the plugin)
+├── scripts/                     ← release tooling + CI guards
+│   ├── release.sh               ← bump 4 fields + CHANGELOG in one pass
 │   ├── check_version_sync.sh    ← drift plugin.json ↔ marketplace.json ↔ CHANGELOG
 │   ├── check_marketplace_schema.sh
-│   ├── check_no_identity_literals.sh  ← aucun calendar_id / mail / workspace_slug en dur
-│   └── generate_improve_map.py  ← table skill→plugin→repo du skill `improve`
-├── probes/                      ← sondes de runtime rejouables (hal-runtime-probe.html)
+│   ├── check_no_identity_literals.sh  ← no hardcoded calendar_id / mail / workspace_slug
+│   └── generate_improve_map.py  ← skill→plugin→repo table for the `improve` skill
+├── probes/                      ← replayable runtime probes (hal-runtime-probe.html)
 └── docs/
     ├── skill-marketplace-guide.md
     ├── connectors-and-skills.md
     └── mcp-server-supabase-edge.md
 ```
 
-### Anatomie d'un plugin
+### Anatomy of a plugin
 
 ```
 plugins/<plugin>/
-├── .claude-plugin/plugin.json   ← name + version (= entrée plugins[] de marketplace.json)
-├── .mcp.json                    ← optionnel — { "mcpServers": { "<name>": { "type":"http", "url":"...", "version":"..." } } }
-├── skills/<skill>/SKILL.md      ← frontmatter: name, description (pas de version)
-└── scripts/                     ← invoqués par SKILL.md via uv run --with
+├── .claude-plugin/plugin.json   ← name + version (= the plugins[] entry in marketplace.json)
+├── .mcp.json                    ← optional - { "mcpServers": { "<name>": { "type":"http", "url":"...", "version":"..." } } }
+├── skills/<skill>/SKILL.md      ← frontmatter: name, description (no version)
+└── scripts/                     ← invoked from SKILL.md through uv run --with
 ```
 
-⚠️ **Un seul plugin déclare un serveur MCP donné.** Claude Code déduplique par URL : deux
-`.mcp.json` pointant la même adresse montent arbitrairement l'un ou l'autre, et le nom d'outil
-résolu devient non déterministe. `plugins/briefing/.mcp.json` a été supprimé pour cette raison le
-2026-07-23 — `hal-mcp` appartient au plugin `hal` de `bluegreen-marketplace`, et les outils se
-nomment `mcp__plugin_hal_hal-mcp__*`.
+⚠️ **Exactly one plugin declares a given MCP server.** Claude Code deduplicates by URL: two
+`.mcp.json` files pointing at the same address mount one or the other arbitrarily, and the
+resolved tool name becomes non-deterministic. `plugins/briefing/.mcp.json` was removed for that
+reason on 2026-07-23 — `hal-mcp` belongs to the `hal` plugin in `bluegreen-marketplace`, and its
+tools are named `mcp__plugin_hal_hal-mcp__*`.
 
-### .mcp.json — format exact
+### .mcp.json — exact format
 
 ```json
 {
@@ -100,39 +100,39 @@ nomment `mcp__plugin_hal_hal-mcp__*`.
 }
 ```
 
-Sans ce fichier, Cowork ne sait pas qu'un serveur MCP est associé au plugin.
+Without this file, Cowork does not know an MCP server is attached to the plugin.
 
 ---
 
 ## Plugins
 
-Snapshot au 2026-08-30 — source de vérité : `.claude-plugin/marketplace.json` et
-`plugins/<plugin>/.claude-plugin/plugin.json`, que `scripts/check_version_sync.sh` maintient
-identiques. Ne jamais citer une version depuis ce tableau sans la relire là-bas.
+Snapshot as of 2026-08-30 — source of truth: `.claude-plugin/marketplace.json` and
+`plugins/<plugin>/.claude-plugin/plugin.json`, which `scripts/check_version_sync.sh` keeps
+identical. Never quote a version from this table without re-reading it there.
 
-| Plugin | Version | Skills | Serveur MCP | Description |
+| Plugin | Version | Skills | MCP server | Description |
 |--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.11.6 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **via le plugin `briefing`** | CV génération, lettre de motivation, log candidature, prep d'entretien, log CR, et I/O vault job-search (filesystem-only, lib partagée) |
-| `briefing` | 0.16.2 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (déclaré ici), `hal-mcp` **via le plugin `hal`** | Briefing quotidien, tri de mails et prise de rendez-vous (calendriers résolus depuis les workspaces hal, hal tasks, jobsearch-vault). Depuis 0.12.0, `sprint-planner` et `sprint-review` vivent dans `pm@bluegreen-marketplace` |
-| `improve` | 0.3.0 | `improve` | — | Capture d'observation sur un skill → GitHub Issue en ≤30s depuis Cowork (`/improve`) |
-| `mycoach` | 0.4.4 | `mycoach` | `hal-mcp` **via le plugin `hal`** | Check-in hebdomadaire de développement personnel — séance structurée CBT/SFBT avec base de connaissance OKF privée |
+| `jobsearch` | 0.11.6 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **through the `briefing` plugin** | CV generation, cover letter, application logging, interview prep, debrief logging, and job-search vault I/O (filesystem-only, shared library) |
+| `briefing` | 0.16.2 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
+| `improve` | 0.3.0 | `improve` | — | Capture an observation about a skill → GitHub Issue in ≤30 s from Cowork (`/improve`) |
+| `mycoach` | 0.4.4 | `mycoach` | `hal-mcp` **through the `hal` plugin** | Weekly personal-development check-in — a structured CBT/SFBT session backed by a private OKF knowledge base |
 
-`briefing` et `mycoach` **exigent le plugin `hal`** (`bluegreen-marketplace`) installé pour leurs
-appels `mcp__plugin_hal_hal-mcp__*` — ni l'un ni l'autre ne déclare ce serveur. `jobsearch`
-exige quant à lui le plugin `briefing` installé pour son unique appel gmail-mcp
+`briefing` and `mycoach` **require the `hal` plugin** (`bluegreen-marketplace`) to be installed
+for their `mcp__plugin_hal_hal-mcp__*` calls — neither declares that server. `jobsearch` in turn
+requires the `briefing` plugin for its single gmail-mcp call
 (`cover-letter` → `mcp__plugin_briefing_gmail-mcp__draft_email`).
 
 ---
 
 ## Install
 
-Dépôt public — pas de token requis. Ajouter le marketplace puis installer les plugins voulus :
+Public repository — no token needed. Add the marketplace, then install the plugins you want:
 
 ```bash
-# 1. enregistrer le marketplace (une fois)
+# 1. register the marketplace (once)
 /plugin marketplace add BluegReeno/renaud-marketplace
 
-# 2. installer les plugins voulus
+# 2. install the plugins you want
 /plugin install jobsearch@renaud-marketplace
 /plugin install briefing@renaud-marketplace
 /plugin install improve@renaud-marketplace
@@ -157,27 +157,27 @@ Full step-by-step per provider, the auth model, and the cross-client skills setu
 ## Deploy gmail-mcp
 
 ```bash
-# 1. Configurer les secrets (à faire une fois)
+# 1. Configure the secrets (once)
 bash servers/gmail-mcp/scripts/setup_secrets.sh
 
-# 2. Déployer la fonction
+# 2. Deploy the function
 cd servers/gmail-mcp
 supabase link --project-ref isdyvrwnxqcfalmlkzui
 supabase functions deploy --no-verify-jwt gmail-mcp
 ```
 
-⚠️ **Le compte Supabase dépend du répertoire, via direnv.** `renaud-marketplace/.envrc` porte le
-token du compte perso, propriétaire de `isdyvrwnxqcfalmlkzui` ; lancer une commande `supabase`
-depuis `~/Projects/hal` viserait le bon projet avec le mauvais compte. Si le CLI refuse un PAT au
-format `sbp_v0_…`, voir `servers/gmail-mcp/README.md` §*When the CLI refuses your token*.
+⚠️ **The Supabase account depends on the directory, through direnv.** `renaud-marketplace/.envrc`
+carries the personal account's token, which owns `isdyvrwnxqcfalmlkzui`; running a `supabase`
+command from `~/Projects/hal` would target the right project with the wrong account. If the CLI
+refuses a `sbp_v0_…` PAT, see `servers/gmail-mcp/README.md` §*When the CLI refuses your token*.
 
-Voir `docs/mcp-server-supabase-edge.md` pour l'architecture complète, et
-`docs/connectors-and-skills.md` pour le modèle d'authentification par client.
+See `docs/mcp-server-supabase-edge.md` for the full architecture, and
+`docs/connectors-and-skills.md` for the per-client authentication model.
 
 ---
 
-## Conventions code
+## Code conventions
 
-- **Pas de `pip install`** dans les skills — `uv run --with <pkg>` uniquement (contrainte Cowork)
-- **Pas de secrets en clair** — `.gitignore` couvre `tmp`, `*.json` OAuth, `.env`, `.temp/`
-- Code/commits/filenames : **anglais**. Conversations : français OK.
+- **No `pip install`** inside skills — `uv run --with <pkg>` only (a Cowork constraint)
+- **No secrets in the clear** — `.gitignore` covers `tmp`, OAuth `*.json`, `.env`, `.temp/`
+- Code, commits, filenames and docs: **English**. Conversations: French is fine.
