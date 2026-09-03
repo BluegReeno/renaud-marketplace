@@ -57,6 +57,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.12.0
+
+- new skill read-job-offer — LinkedIn JD read primitive (cached dataset, then the jobs-guest endpoint), shared by morning-briefing and the pasted-URL path
+
 ## jobsearch 0.11.6
 
 - log-application, log-cr, interview-prep: the `Tags.` rule no longer promises a `hal://vocabulary` MCP resource — hal#135 decided it will never ship. The doctrine now lives in hal-mcp's server `instructions`; the skill carries a one-line enforceable pointer instead of the full paragraph (renaud#111)
