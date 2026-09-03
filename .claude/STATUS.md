@@ -7,14 +7,16 @@ Last updated: 2026-09-03
 
 ## Current Focus
 
-Four plugins published — `briefing` **0.16.2**, `jobsearch` **0.11.6**, `mycoach` **0.4.4**,
-`improve` **0.3.0**, marketplace top-level **0.6.31** (read from `marketplace.json`). Work has moved
-to the offer→CV pipeline: `#115` then `#117` then `#105`, in that order, one fresh session each.
-The `cv-generator` content defects and the PII purge stay open behind them.
+`#115` shipped: reading a LinkedIn JD now lives in one primitive, `jobsearch/read-job-offer`
+(`jobsearch` **0.12.0**, `briefing` **0.16.3**, `improve` **0.3.1**, marketplace top-level
+**0.6.34**). It is unvalidated on a real run — that run is tomorrow morning, and `#117`, which
+consumes the primitive, starts once it is clean.
 
 ## In Progress
 
-- [ ] Nothing in flight.
+- [ ] Validate `read-job-offer` live: one `morning-briefing` run on a digest carrying a posting
+      published under an hour ago. It must be scored from its full JD instead of skipped, and **no
+      macOS keychain prompt may appear**. Both are the failure modes `#115` existed to remove.
 
 ## Backlog
 
@@ -23,14 +25,10 @@ The `cv-generator` content defects and the PII purge stay open behind them.
 Decided 2026-09-03. Each step is a prerequisite of the next; do not start one before the previous
 merges.
 
-- [ ] [#115](https://github.com/BluegReeno/renaud-marketplace/issues/115) — read a LinkedIn JD via
-      the `jobs-guest` endpoint. **Proved live on a 32-minute-old posting** (ChapsVision
-      `4461607259`, 2026-09-03): one call, full JD, no login, no keychain prompt. The cached-dataset
-      path cannot serve a fresh posting — the freshness bias is structural. Ship it as a **reusable
-      primitive**, not a second inline branch in `Step 1g`; `#117` consumes it.
 - [ ] [#117](https://github.com/BluegReeno/renaud-marketplace/issues/117) — one offer-processing
       path, two triggers. `cv-log-worker` stays an agent (only `Agent` spawns in parallel) but takes
-      `JOB_URL` alone; new `apply-to-offer` skill gives the pasted-URL path a trigger. Lifts the
+      `JOB_URL` alone — it now reads the JD itself through `Skill(read-job-offer)`; a new
+      `apply-to-offer` skill gives the pasted-URL path a trigger over the same primitive. Lifts the
       3-offer fan-out cap — **which is coupled to the 5-call BrightData cap**: raise only the first
       and the 6th offer yields a CV built from a digest snippet, unmarked.
 - [ ] [#105](https://github.com/BluegReeno/renaud-marketplace/issues/105) — must land before the
@@ -38,6 +36,8 @@ merges.
       truthful.
 - [ ] [#116](https://github.com/BluegReeno/renaud-marketplace/issues/116) — two-round judge loop and
       fit × freshness ordering. After `#117`, so the judge sits on a single consolidated path.
+      `read-job-offer` already returns `freshness` and `applicant_count`, so the ordering signal is
+      available.
 
 **`cv-generator` — remaining defects, same skill**
 
@@ -61,6 +61,8 @@ merges.
 
 - [ ] [#95](https://github.com/BluegReeno/renaud-marketplace/issues/95) — add the Google Drive tools
       to `gmail-mcp`, then rename the server to `google-mcp`
+- [ ] [#119](https://github.com/BluegReeno/renaud-marketplace/issues/119) — `jobsearch-vault`: make
+      the opportunité ↔ entretien link navigable in both directions
 
 **Known limits, not bugs — decided, do not re-litigate**
 
@@ -81,6 +83,12 @@ merges.
 
 ## Done (current sprint)
 
+- [x] [#115](https://github.com/BluegReeno/renaud-marketplace/issues/115) — LinkedIn JD read via the
+      `jobs-guest` endpoint, extracted as the shared skill `jobsearch/read-job-offer`
+      ([PR #118](https://github.com/BluegReeno/renaud-marketplace/pull/118)) — 2026-09-03
+- [x] [archon-workflows#32](https://github.com/BluegReeno/archon-workflows/issues/32) filed —
+      `skill-improve.yaml` enforces a release contract this repo no longer has, so it was **not**
+      used for `#115`. Fix it before routing any further issue through it — 2026-09-03
 - [x] `#111` / PR #112 — `hal#135` lot D: the tag doctrine became a one-line pointer in six files;
       briefing **0.16.2** / jobsearch **0.11.6** / mycoach **0.4.4** — 2026-08-29
 - [x] `#109` / PR #110 — `mycoach` writes `channel='note'`, shipped **before** hal deployed the
