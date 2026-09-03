@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.17.0
+
+- cv-log-worker takes JOB_URL alone and reads its own JD; fan-out product cap removed (safety bound 8, announced when it bites); enrichment ceiling raised to match so no worker gets a snippet
+
 ## briefing 0.16.3
 
 - morning-briefing Step 1g delegates the JD read to Skill(read-job-offer); no more silent skip on a fresh posting, no browser on LinkedIn
