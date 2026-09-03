@@ -110,6 +110,10 @@ guard therefore belongs on the consumer side.
   paths in both the marketplace cache and the dev checkout — every local tier missed, so the
   skill exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was set
 
+## improve 0.3.2
+
+- regenerated the skill→plugin→repo map: apply-to-offer
+
 ## improve 0.3.1
 
 - regenerated the skill→plugin→repo map: read-job-offer
