@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.16.3
+
+- morning-briefing Step 1g delegates the JD read to Skill(read-job-offer); no more silent skip on a fresh posting, no browser on LinkedIn
+
 ## briefing 0.16.2
 
 - mail-triage, morning-briefing: the `Tags.` rule no longer promises a `hal://vocabulary` MCP resource — hal#135 decided it will never ship. The doctrine now lives in hal-mcp's server `instructions`; the skill carries a one-line enforceable pointer instead of the full paragraph (renaud#111)
@@ -57,6 +61,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.12.0
+
+- new skill read-job-offer — LinkedIn JD read primitive (cached dataset, then the jobs-guest endpoint), shared by morning-briefing and the pasted-URL path
+
 ## jobsearch 0.11.6
 
 - log-application, log-cr, interview-prep: the `Tags.` rule no longer promises a `hal://vocabulary` MCP resource — hal#135 decided it will never ship. The doctrine now lives in hal-mcp's server `instructions`; the skill carries a one-line enforceable pointer instead of the full paragraph (renaud#111)
@@ -93,6 +101,10 @@ guard therefore belongs on the consumer side.
 - `cv-generator`: fixed a PLUGIN_DIR resolver that still probed the pre-rename `cv-generator`
   paths in both the marketplace cache and the dev checkout — every local tier missed, so the
   skill exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was set
+
+## improve 0.3.1
+
+- regenerated the skill→plugin→repo map: read-job-offer
 
 ## improve 0.3.0
 

@@ -22,7 +22,7 @@ Your prompt contains the following fields (one per line, `KEY: value` format):
 
 - `JOB_TITLE` — job title from the digest
 - `COMPANY` — company name
-- `JD_TEXT` — full job description text (BrightData response if available; digest snippet otherwise)
+- `JD_TEXT` — full job description text (`jd_text` from `read-job-offer` if available; digest snippet otherwise)
 - `SENDER_EMAIL` — email address that sent the LinkedIn digest
 - `JOB_URL` — LinkedIn job URL (`https://www.linkedin.com/jobs/view/<job_id>`) or empty string
 - `DATE` — today's date in `YYYY-MM-DD` format (Europe/Paris)
