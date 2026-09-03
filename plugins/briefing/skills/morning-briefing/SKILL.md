@@ -8,7 +8,7 @@ description: >
   daily-log entry per HAL workspace. Renders 6 blocks + an ordered plan du jour.
   Use when the user asks "what's up for today", "ma journée", "briefing du
   jour", "quel est mon planning", or any similar daily-overview trigger.
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings mcp__brightdata__scrape_as_markdown Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
 # Morning Briefing — Skill Instructions
@@ -224,21 +224,34 @@ Skip if `linkedin_offers[]` is empty.
 
 Aspiration axis: prefer **builder AI-native** over COMEX direction.
 
-**BrightData enrichment** (🔥/🟡 only — max 5 calls per run):
+**JD enrichment via `read-job-offer`** (🔥/🟡 only — max 5 offers per run):
 
-For each 🔥 and 🟡 offer that has a `job_id` (extracted in Step 1e), call:
+For each 🔥 and 🟡 offer that has a `job_id` (extracted in Step 1e), invoke the shared primitive:
+
 ```
-mcp__brightdata__web_data_linkedin_job_listings(
-  url="https://www.linkedin.com/jobs/view/<job_id>"
-)
+Skill(read-job-offer)  — input: the offer's job_id
 ```
-Extract the `job_summary` field from the JSON response. Use this full JD text (inline, no external model call) to refine the score and write the "pourquoi" line.
 
-**Cap at 5 BrightData calls per run** — if there are more than 5 🔥/🟡 offers, prioritise 🔥 first, then 🟡 by closest location match. Offers beyond the cap are scored from title+snippet only (no annotation needed — just surface fewer offers).
+`read-job-offer` owns the read: it tries the cached BrightData dataset first and falls back to the
+LinkedIn guest endpoint, which answers on postings published minutes earlier. It returns a
+structured block (`status`, `jd_text`, `freshness`, `applicant_count`, `seniority_level`, …).
 
-If `web_data_linkedin_job_listings` returns an error for a specific offer, skip that offer silently and move to the next — do not fail the whole pipeline.
+Use `jd_text` (inline, no external model call) to refine the score and write the "pourquoi" line.
+Keep `freshness` and `applicant_count` alongside the offer — they are the sharpest ordering signals
+this pipeline has, and Step 1h carries them forward.
 
-Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or title+snippet if BrightData failed for that offer).
+**Never read a LinkedIn JD any other way from this skill** — no direct scrape of
+`linkedin.com/jobs/view/<id>`, no built-in browser. See Step 5.
+
+**Cap at 5 enriched offers per run** — one `read-job-offer` invocation counts as one BrightData
+call whichever branch of its cascade answered. If there are more than 5 🔥/🟡 offers, prioritise 🔥
+first, then 🟡 by closest location match. Offers beyond the cap are scored from title+snippet only
+(no annotation needed — just surface fewer offers).
+
+If `read-job-offer` returns `status: unavailable` for a specific offer — both branches failed — skip
+that offer and move to the next; do not fail the whole pipeline.
+
+Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an offer left beyond the 5-offer enrichment cap).
 
 ### 1h — CV fan-out (spawn sub-agents for 🔥 offers)
 
@@ -252,7 +265,7 @@ For each 🔥 offer **not already in the vault**, up to a **cap of 3 per run**, 
 Agent(cv-log-worker, prompt="""
 JOB_TITLE: <title>
 COMPANY: <company>
-JD_TEXT: <full JD text from BrightData response if available; digest snippet otherwise>
+JD_TEXT: <`jd_text` from `read-job-offer` if the offer was enriched; digest snippet otherwise>
 SENDER_EMAIL: <from address of the LinkedIn digest email that contained this offer>
 JOB_URL: <https://www.linkedin.com/jobs/view/<job_id> or empty string if no job_id>
 DATE: <YYYY-MM-DD today, Europe/Paris>
@@ -486,7 +499,8 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **Never silently omit a source** — any probe or Step 1 call failure renders `⚠️` in the section AND in the source-status footer.
 - **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
 - **Dedup offers against vault** — never surface an offer already logged as an active candidature.
-- **BrightData cap** — max 5 `web_data_linkedin_job_listings` calls per run. Prioritise 🔥 then 🟡 by location. Per-offer errors are silent — skip and continue.
+- **BrightData cap** — max 5 `read-job-offer` invocations per run; the skill's internal dataset→guest cascade counts as one call. Prioritise 🔥 then 🟡 by location. An `unavailable` verdict is silent — skip that offer and continue.
+- **One way to read a LinkedIn JD: `Skill(read-job-offer)`** — never scrape `linkedin.com/jobs/view/<id>` (login wall), and never open the built-in browser on LinkedIn. LinkedIn answers a browser with its sign-up page, which raises a macOS keychain prompt at Renaud (2026-09-02). Reading a JD inline here is also what makes this path and the pasted-URL path drift apart.
 - **Label every hal task** — with the workspace's `name` (fallback `workspace_slug`), every time. No hardcoded `[business]`/`[perso]` label.
 - **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
 - **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
