@@ -61,6 +61,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.13.0
+
+- new skill apply-to-offer (pasted-URL path to a CV); comp thresholds get a single definition site in data/comp-thresholds.json; log-application accepts source=manual
+
 ## jobsearch 0.12.0
 
 - new skill read-job-offer — LinkedIn JD read primitive (cached dataset, then the jobs-guest endpoint), shared by morning-briefing and the pasted-URL path
