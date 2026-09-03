@@ -102,6 +102,10 @@ guard therefore belongs on the consumer side.
   paths in both the marketplace cache and the dev checkout — every local tier missed, so the
   skill exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was set
 
+## improve 0.3.1
+
+- regenerated the skill→plugin→repo map: read-job-offer
+
 ## improve 0.3.0
 
 - `generate_improve_map.py`: add `EXTRA_TARGETS` for `/improve` destinations that carry no skill directory in either marketplace — `hal` now routes to `BluegReeno/hal` (its connector-only bluegreen-marketplace entry enumerates no skill rows by design) instead of falling back to the nearest marketplace wrapper (closes #83)
