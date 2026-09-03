@@ -8,7 +8,7 @@ description: >
   daily-log entry per HAL workspace. Renders 6 blocks + an ordered plan du jour.
   Use when the user asks "what's up for today", "ma journée", "briefing du
   jour", "quel est mon planning", or any similar daily-overview trigger.
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings mcp__brightdata__scrape_as_markdown Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings mcp__brightdata__scrape_as_markdown Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
 # Morning Briefing — Skill Instructions
@@ -214,13 +214,28 @@ Skip if `linkedin_offers[]` is empty.
 
 **Dedup**: Remove any offer whose company + role already exists in the vault's active candidatures list (from Step 1c). Do not re-surface already-logged offers.
 
+**Read the compensation thresholds first.** Every figure below comes from one file — never write
+one inline, never carry one over from a previous run:
+
+```bash
+cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/comp-thresholds.json 2>/dev/null \
+  || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/comp-thresholds.json 2>/dev/null
+```
+
+Take `fire_tier_min_eur` (🔥 tier boundary) and `comp_floor_eur` (❌ boundary). If neither path
+resolves, score on the qualitative criteria alone and render `⚠️ seuils rému illisibles` in the
+offers block — never substitute a remembered figure.
+
 **Score each remaining offer** using title + company + location + snippet (cheap score — no full JD at this stage):
 
 | Score | Criteria |
 |-------|----------|
-| 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng — at AI lab / IA editor / scale-up, Paris, ≥85K, builder hands-on |
-| 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context — Paris or remote-ok |
-| ❌ | Outside Paris (strict), no AI, <80K, pure PM, governance without hands-on |
+| 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng — at AI lab / IA editor / scale-up, Paris, stated comp ≥ `fire_tier_min_eur`, builder hands-on |
+| 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context — Paris or remote-ok, or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
+| ❌ | Outside Paris (strict), no AI, stated comp < `comp_floor_eur`, pure PM, governance without hands-on |
+
+An offer that states no compensation is never ❌ on that ground — the comp gate in `cv-log-worker`
+is the only place a figure rejects anything.
 
 Aspiration axis: prefer **builder AI-native** over COMEX direction.
 
@@ -243,15 +258,19 @@ this pipeline has, and Step 1h carries them forward.
 **Never read a LinkedIn JD any other way from this skill** — no direct scrape of
 `linkedin.com/jobs/view/<id>`, no built-in browser. See Step 5.
 
-**Cap at 5 enriched offers per run** — one `read-job-offer` invocation counts as one BrightData
-call whichever branch of its cascade answered. If there are more than 5 🔥/🟡 offers, prioritise 🔥
-first, then 🟡 by closest location match. Offers beyond the cap are scored from title+snippet only
-(no annotation needed — just surface fewer offers).
+**Enrich every 🔥 offer, and 🟡 offers up to a safety bound of 8 invocations per run** — one
+`read-job-offer` invocation counts as one BrightData call whichever branch of its cascade answered.
+The ceiling matches the Step 1h fan-out bound on purpose: **no worker may ever be spawned with a
+digest snippet in place of a JD.** 🔥 offers are enriched first, then 🟡 by closest location match.
+
+If the bound is reached, 🟡 offers beyond it are scored from title+snippet and **surfaced without a
+CV** — they are never handed to a worker. Say it in the offers block rather than dropping them:
+`N offres enrichies, M scorées sur titre seul`.
 
 If `read-job-offer` returns `status: unavailable` for a specific offer — both branches failed — skip
 that offer and move to the next; do not fail the whole pipeline.
 
-Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an offer left beyond the 5-offer enrichment cap).
+Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an offer left beyond the enrichment bound — say which).
 
 ### 1h — CV fan-out (spawn sub-agents for 🔥 offers)
 
@@ -259,23 +278,38 @@ Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score em
 
 Skip if there are no 🔥 offers after the Step 1g dedup pass.
 
-For each 🔥 offer **not already in the vault**, up to a **cap of 3 per run**, spawn one `cv-log-worker` sub-agent **in parallel** using the `Agent` tool:
+For **every** 🔥 offer not already in the vault, spawn one `cv-log-worker` sub-agent **in parallel**
+using the `Agent` tool. There is no product cap: five strong offers in a morning means five CVs.
 
 ```
 Agent(cv-log-worker, prompt="""
 JOB_TITLE: <title>
 COMPANY: <company>
-JD_TEXT: <`jd_text` from `read-job-offer` if the offer was enriched; digest snippet otherwise>
+JD_TEXT: <`jd_text` from `read-job-offer`>
 SENDER_EMAIL: <from address of the LinkedIn digest email that contained this offer>
 JOB_URL: <https://www.linkedin.com/jobs/view/<job_id> or empty string if no job_id>
 DATE: <YYYY-MM-DD today, Europe/Paris>
 """)
 ```
 
-If more than 3 🔥 deduped offers exist, select the top 3 by: score (🔥 first) then closest location to Paris.
+**Never spawn a worker for an offer that was not enriched in Step 1g.** If `JD_TEXT` would be a
+digest snippet, the offer is surfaced without a CV instead — the worker would otherwise produce a
+plausible CV built on one line of text, indistinguishable from a real one.
+
+**Safety bound: 8 workers per run**, against runaway only — not a product limit. When it bites, say
+so in the brief on its own line, never truncate silently:
+
+```
+11 offres 🔥 — 8 traitées, 3 listées sans CV
+```
+
+Beyond the bound, order by score then freshness (`freshness` from Step 1g), then closest location
+to Paris. The offers left out are still surfaced in the offers block with their "pourquoi", flagged
+`sans CV`.
 
 Collect each sub-agent's result — one line per offer:
 - Success: `CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <filename> | Source : <source>`
+- Degraded: the same line with a trailing `| ⚠️ <what was degraded>` — surface it as-is, never strip the marker
 - Failure: `ÉCHEC | <JOB_TITLE> — <COMPANY> | <reason>`
 
 Store these in `cv_fanout_results[]` for use in Step 3 rendering.
@@ -499,12 +533,14 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **Never silently omit a source** — any probe or Step 1 call failure renders `⚠️` in the section AND in the source-status footer.
 - **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
 - **Dedup offers against vault** — never surface an offer already logged as an active candidature.
-- **BrightData cap** — max 5 `read-job-offer` invocations per run; the skill's internal dataset→guest cascade counts as one call. Prioritise 🔥 then 🟡 by location. An `unavailable` verdict is silent — skip that offer and continue.
+- **BrightData bound** — max 8 `read-job-offer` invocations per run, matching the Step 1h fan-out bound so no worker is ever handed a snippet; the skill's internal dataset→guest cascade counts as one call. 🔥 first, then 🟡 by location. An `unavailable` verdict is silent for that offer — skip it and continue.
 - **One way to read a LinkedIn JD: `Skill(read-job-offer)`** — never scrape `linkedin.com/jobs/view/<id>` (login wall), and never open the built-in browser on LinkedIn. LinkedIn answers a browser with its sign-up page, which raises a macOS keychain prompt at Renaud (2026-09-02). Reading a JD inline here is also what makes this path and the pasted-URL path drift apart.
 - **Label every hal task** — with the workspace's `name` (fallback `workspace_slug`), every time. No hardcoded `[business]`/`[perso]` label.
 - **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
 - **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
-- **Agent fan-out cap** — max 3 `cv-log-worker` sub-agents per run. If >3 🔥 deduped offers exist, take the top 3 by score×proximity. Never spawn more than 3 Agent calls in Step 1h.
+- **Agent fan-out: no product cap, one safety bound of 8** — every 🔥 deduped offer gets a worker. The bound exists against runaway, and **it is never silent**: when it bites, the brief carries `N offres 🔥 — 8 traitées, M listées sans CV`. Truncating without saying so is the same failure class as the silent skip removed in `#115`.
+- **A worker is never spawned without a real JD** — an offer that Step 1g could not enrich is surfaced without a CV. A CV built from a digest snippet is worse than no CV: it is plausible, hollow, and unmarked.
+- **No compensation figure is written in this file** — `fire_tier_min_eur` and `comp_floor_eur` are read from `jobsearch/data/comp-thresholds.json` at Step 1g. One definition site, changed there and nowhere else.
 - **Sub-agent failures are loud** — if a `cv-log-worker` returns `ÉCHEC`, surface `⚠️ CV non généré — <company> : <reason>` in the "CVs préparés ce run" section. Never silently drop a sub-agent failure.
 - **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
 - **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
