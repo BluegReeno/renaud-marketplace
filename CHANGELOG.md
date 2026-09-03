@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.16.3
+
+- morning-briefing Step 1g delegates the JD read to Skill(read-job-offer); no more silent skip on a fresh posting, no browser on LinkedIn
+
 ## briefing 0.16.2
 
 - mail-triage, morning-briefing: the `Tags.` rule no longer promises a `hal://vocabulary` MCP resource — hal#135 decided it will never ship. The doctrine now lives in hal-mcp's server `instructions`; the skill carries a one-line enforceable pointer instead of the full paragraph (renaud#111)
