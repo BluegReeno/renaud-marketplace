@@ -1,6 +1,6 @@
 {
   "name": "briefing",
-  "version": "0.16.2",
+  "version": "0.16.3",
   "description": "Morning briefing, mail triage and appointment booking — daily dashboard (hal tasks, Obsidian jobsearch, Google Calendars declared by your hal workspaces, both inboxes), on-demand mail classification with HAL CRM context, and workspace-resolved calendar booking",
   "author": {
     "name": "Renaud Laborbe",
