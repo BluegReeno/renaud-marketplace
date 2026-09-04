@@ -55,17 +55,22 @@ In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise a
 
 ---
 
-## Step 0.5 — Read yesterday's daily logs (cross-session context)
+## Step 0.5 — Read the recent daily logs (cross-session context)
 
-If `hal:UP`: for each workspace returned by `whoami`, call:
+If `hal:UP`: for each workspace returned by `whoami`, call `get_document` **twice** — today first, then yesterday:
 
 ```
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of today>")
 mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of yesterday>")
 ```
 
-When the document exists, extract its `## Notes` section and keep it as **silent internal context** — do NOT echo it in the rendered brief. It is a hand-off from the previous day for the agent's own awareness, not user-facing output.
+**Today's log is the one that must not be lost.** A headless run may already have written it hours earlier: on 2026-09-04 the automatic run wrote all four logs at 06h17 and an interactive run replaced one of them at 13h38, destroying the morning's version. When today's document exists, hold its **entire `content_md`, verbatim** — Step 4 needs the whole thing in order not to overwrite it, not just one section.
 
-If the document does not exist (404 or empty), ignore silently — first-day-of-use and skipped days are normal.
+From **yesterday's** document, extract its `## Notes` section only.
+
+Both are **silent internal context** — do NOT echo them in the rendered brief. They are a hand-off for the agent's own awareness, not user-facing output.
+
+If a document does not exist (404 or empty), ignore it silently — first-day-of-use, skipped days, and a first run of the day are all normal.
 
 If `hal:DOWN`, skip entirely.
 
@@ -83,7 +88,7 @@ Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`:
 if w.sprints_enabled:
   mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
     → 0 entries  : no current sprint          → unfiltered list_tasks + LOUD line (see below)
-    → 1 entry    : the current sprint         → check ends_at, then filter by its id
+    → 1 entry    : the current sprint         → check ends_at; filter by its id ONLY if not closed
     → 2+ entries : ambiguous                  → unfiltered list_tasks + LOUD line (see below)
   mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
 else:
@@ -109,8 +114,17 @@ exists to prevent.
 | Condition | Line to render | Tasks shown |
 |---|---|---|
 | 0 sprints `actuel` | `⚠️ <workspace> — aucun sprint actuel : la semaine n'a pas été planifiée. Tâches ouvertes affichées à défaut.` | unfiltered `list_tasks` |
-| 1 sprint, `ends_at` < today | `⚠️ <workspace> — sprint « <name> » toujours actuel mais clos depuis le <ends_at> (J+<n>). Ce sont des restes, pas un sprint vivant.` | that sprint's tasks |
+| 1 sprint, `ends_at` < today | `⚠️ <workspace> — sprint « <name> » toujours actuel mais clos depuis le <ends_at> (J+<n>). Ce sont des restes, pas un sprint vivant. Tâches ouvertes affichées à défaut.` | unfiltered `list_tasks` |
 | 2+ sprints `actuel` | `⚠️ <workspace> — <n> sprints marqués actuel (<names>) : sélection ambiguë, aucun filtre appliqué.` | unfiltered `list_tasks` |
+
+**A closed sprint never filters.** It is the worst filter of the three failure modes: it does not just show leftovers, it *hides the living work*. On 2026-09-03 `Renaud-11`, closed on 09-01, surfaced 6 tasks out of some fifty open in the workspace — the day's relances, the Dust replies and the Knowledge Center spec were all masked, and the session had to disobey this skill to render a usable brief. So all three rows above show the unfiltered list; the sprint id is used only when `ends_at` is today or later (or null).
+
+**When the current sprint is closed, name its successor.** A closed `actuel` sprint is a missing `transition_sprint`, not a missing plan: on 2026-09-04 `Renaud-12` already covered the week in status `suivant` and had simply never been promoted. In that case only, call `list_sprints(workspace_slug=w.workspace_slug, status="suivant")` and, if it returns nothing, again with `status="a_venir"`; keep the sprint whose `starts_at`–`ends_at` interval contains today. Then append to that workspace's `⚠️` line:
+
+- one was found → `→ « <name> » (<starts_at>–<ends_at>) couvre aujourd'hui mais est resté « <status> » : transition_sprint(workspace_slug="<slug>", incoming_sprint_id="<full id>").`
+- none was found → `→ aucun sprint ne couvre aujourd'hui : /sprint-planner.`
+
+The lookup is **diagnostic only**. Never call `transition_sprint` from this skill — outside Step 4 the brief writes nothing; it names the one call that fixes the state and lets Renaud make it.
 
 `ends_at` may be null — an undated sprint cannot be stale, so render no line for it.
 
@@ -434,7 +448,22 @@ If `hal:UP`: for **each** workspace returned by `whoami` (do NOT hardcode slugs 
 - `title`: `"Daily log — <workspace-slug> — <date in French>"`
 - `content_md`: structured markdown (see templates below)
 
-The upsert key is `(workspace_slug, slug)` — re-running the brief overwrites the existing log. These are the **only** write calls allowed in this skill.
+**Never overwrite a log written earlier today.** The upsert key is `(workspace_slug, slug)`, and `save_document` signals nothing when it replaces existing content — the loss is silent and total. So before writing, take that workspace's today's-log document as fetched in Step 0.5 (re-fetch it here if Step 0.5 was skipped):
+
+- **absent** → write the log as described below. This is the normal first run of the day.
+- **present** → do NOT replace it. Send its existing `content_md` back **verbatim and in full**, with this run's content appended under a dated separator:
+
+```
+---
+
+## Run <HH:MM> (Europe/Paris)
+
+<the content this run would have written>
+```
+
+Never rewrite, summarise, deduplicate or re-order what an earlier run wrote. A later run cannot know what the earlier one observed, and that earlier version is the only record of the morning's state; repeated entries cost a few lines, a destroyed entry costs the day.
+
+These are the **only** write calls allowed in this skill.
 
 If `save_document` fails for a workspace, render a loud line after the source-status footer:
 ```
