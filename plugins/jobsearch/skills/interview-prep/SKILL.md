@@ -56,7 +56,7 @@ Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise`
 
 Read the file `profiles/p<n>_*.md` from this plugin's source tree, where `<n>` is the digit from `target_profile` (e.g. `P3` → `profiles/p3_cto.md`).
 
-These files live in the **mounted private folder** (`SynologyDrive-MyAssistant/jobsearch/private/profiles/`), NOT in the Obsidian vault and NOT in the plugin package — this repository is public, so they are untracked. That is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (mounted folder, dev workstation, marketplace cache, Cowork sandbox):
+These files are **versioned in this plugin**, under `profiles/p1`–`p5`. They are not in the Obsidian vault. A copy also sits in the mounted private folder (`SynologyDrive-MyAssistant/jobsearch/private/profiles/`) — that copy is a **mirror**, not the source, and the resolver checks it last so a stale mirror can never mask a committed fix. That is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (marketplace cache, Cowork sandbox, dev workstation, mounted mirror):
 
 ```bash
 PLUGIN_DIR=$(python3 - <<'PYEOF'
@@ -69,19 +69,6 @@ if env:
         log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} ACCEPTED")
         print(env); sys.exit(0)
     log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} REJECTED (no profiles/p1_architecte.md) — falling through")
-# The profiles carry personal narrative material and this repository is public, so they are
-# NOT shipped with the plugin. They live in the synced Drive folder, mounted both on the
-# workstation and in the Cowork sandbox. Checked before the plugin tiers below, which can
-# only ever match on a dev workstation holding the untracked source.
-for pat in ['/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
-            '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
-            '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md']:
-    matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
-    if matches:
-        plug = os.path.dirname(os.path.dirname(matches[0]))
-        log(f"[plugin-dir] mounted private folder ACCEPTED {plug}")
-        print(plug); sys.exit(0)
-log("[plugin-dir] mounted private folder no match — falling through")
 cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/profiles/p1_architecte.md'), key=lambda p: p.stat().st_mtime, reverse=True)
@@ -92,7 +79,8 @@ if cache_root.exists():
     log(f"[plugin-dir] marketplace cache {cache_root} exists but no profiles match — falling through")
 else:
     log(f"[plugin-dir] marketplace cache {cache_root} missing — falling through")
-for pat in ['/sessions/*/mnt/.remote-plugins/*/profiles/p1_architecte.md']:
+for pat in ['/sessions/*/mnt/.remote-plugins/*/profiles/p1_architecte.md',
+            str(home / '.claude/plugins/synced/*/jobsearch/profiles/p1_architecte.md')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         plug = os.path.dirname(os.path.dirname(matches[0]))
@@ -103,7 +91,21 @@ dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
 if dev.joinpath('profiles', 'p1_architecte.md').exists():
     log(f"[plugin-dir] dev path ACCEPTED {dev}")
     print(str(dev)); sys.exit(0)
-log(f"[plugin-dir] dev path {dev} no match — no resolver tier matched")
+log(f"[plugin-dir] dev path {dev} no match — falling through")
+# LAST tier, deliberately. The five profiles are versioned in this repo under profiles/, so the
+# plugin is the source and the mounted Drive copy is a mirror. It used to be checked FIRST, back
+# when the profiles were untracked — which meant a fix committed here never reached a workstation
+# where the mirror existed, and the stale copy silently won (renaud#121). Kept last so an
+# environment that mounts only the Drive still resolves.
+for pat in ['/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md']:
+    matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
+    if matches:
+        plug = os.path.dirname(os.path.dirname(matches[0]))
+        log(f"[plugin-dir] mounted private mirror ACCEPTED {plug} (last-resort tier)")
+        print(plug); sys.exit(0)
+log("[plugin-dir] mounted private mirror no match — no resolver tier matched")
 print('PLUGIN_DIR_NOT_FOUND')
 PYEOF
 )

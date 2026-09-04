@@ -69,9 +69,9 @@ for mkt in ['renaud-marketplace']:
         if cands:
             print(cands[0]); sys.exit(0)
 
-matches = sorted(_glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}'),
-                 key=os.path.getmtime, reverse=True)
-for m in matches:
+sandbox = _glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}')
+sandbox += _glob.glob(str(home / '.claude/plugins/synced/*/jobsearch' / rel))
+for m in sorted(sandbox, key=os.path.getmtime, reverse=True):
     if 'jobsearch' in m:
         print(m); sys.exit(0)
 
@@ -85,10 +85,21 @@ PYEOF
 [ "$THRESHOLDS" = "THRESHOLDS_NOT_FOUND" ] || cat "$THRESHOLDS"
 ```
 
-Read `comp_floor_eur` and `target_comp_eur` from the result. If the file cannot be resolved,
-**do not fall back to a remembered figure** — skip the comp gate entirely, continue to Step B, and
-carry `comp gate skipped (thresholds unreadable)` into your Step D summary. A silently wrong floor
-rejects real offers; a skipped gate is visible.
+Read `comp_floor_eur` and `target_comp_eur` from the result.
+
+**If the file cannot be resolved, stop the worker.** Do not fall back to a remembered figure, and
+do not continue with the gate skipped: generate no CV, log no candidature, and return
+
+```
+❌ <company> — <role> : abandon, seuils de rémunération illisibles (THRESHOLDS_NOT_FOUND).
+   Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
+```
+
+This used to say "skip the comp gate — a skipped gate is visible". It was not. On 2026-09-04 all
+three workers hit `THRESHOLDS_NOT_FOUND` because the resolver ignored the `synced/` layout, and the
+50–60 k€ Albatross offer was rejected only because a human ran `find` by hand. A run that trusted
+the resolver would have produced a CV and logged an application 33 % under target, unprompted and
+unmarked. An abandoned offer costs one re-run; a false application is sent to a recruiter.
 
 ### 0.2 — Resolve the job description
 
