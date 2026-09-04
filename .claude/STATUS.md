@@ -7,9 +7,9 @@ Last updated: 2026-09-04
 
 ## Current Focus
 
-The offer→CV pipeline is **validated end to end and fail-open on the comp gate**. The 2026-09-04 run
-produced 3 CVs from real JDs — and only rejected a 50–60 k€ offer because the workers found the
-thresholds with a manual `find`. Order of work: the six lots in the Backlog, in order.
+The `briefing` lot shipped (**0.17.1**): a second run of the day no longer destroys the first one's
+daily log, and a closed sprint no longer filters the task list. The offer→CV pipeline is still
+**fail-open on the comp gate** — next lot closes it (`#125`, `#106`, `#98`).
 
 ## In Progress
 
@@ -20,26 +20,11 @@ thresholds with a manual `find`. Order of work: the six lots in the Backlog, in 
 
 ## Backlog
 
-**Ordered 2026-09-04, after the first real `morning-briefing` run.** Six lots, in sequence. Each lot
-is one release per plugin touched. Do not reorder without a reason written here.
+**Ordered 2026-09-04, after the first real `morning-briefing` run.** Five lots left, in sequence —
+the `briefing` lot that opened the queue shipped the same day, the order below is otherwise
+unchanged. Each lot is one release per plugin touched. Do not reorder without a reason written here.
 
-**Lot 1 — `briefing`: the two defects that cost something every day**
-
-Same file (`morning-briefing/SKILL.md`), two short fixes, one release. Best ratio of the queue.
-
-- [ ] [#123](https://github.com/BluegReeno/renaud-marketplace/issues/123) — read today's daily log
-      before overwriting it. A headless run wrote the four logs at 06h17 on 2026-09-04; the 13h38
-      interactive run replaced `renaud/daily-log-2026-09-04` without reading it, and the morning
-      version is gone. Step 0.5 (`:63`) reads **yesterday** only; Step 4 (`:437`) documents the
-      overwrite as intended — an assumption that held while one author wrote per day, and that the
-      headless + interactive pair broke.
-- [ ] [#124](https://github.com/BluegReeno/renaud-marketplace/issues/124) — a closed sprint must not
-      filter. Step 1a `:112` shows `that sprint's tasks` when `ends_at` is past; on 2026-09-03 that
-      surfaced 6 tasks out of ~50 open. The 2026-09-04 session had to disobey the skill to render a
-      usable brief. Also name the `suivant` sprint covering today (`Renaud-12` existed, never
-      transitioned) so the fix reads as `transition_sprint`, not a replan.
-
-**Lot 2 — `jobsearch`: make the unattended path fail closed**
+**Lot 1 — `jobsearch`: make the unattended path fail closed**
 
 One release. `#125` first — it is the only open defect that produces a *false application*.
 
@@ -66,15 +51,17 @@ One release. `#125` first — it is the only open defect that produces a *false 
       `plugins/jobsearch/profiles/p4_cs_fde.md:13`, versioned here — a one-line PR, not the
       out-of-repo edit the first draft described. Resync the private mirror afterwards.
 
-**Lot 3 — `#89`, its own session, with the queue empty**
+**Lot 2 — `#89`, its own session, with the queue empty**
 
 - [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — purge personal contact PII
       from this public repo's git history. Re-verified reachable on 2026-09-04 (`84189dc`, `f642f7d`,
-      `d7b18b1`, …). Needs a human-authorised force-push, so: no PR in flight, the ten stale
-      `fix/skill-issue-*` branches swept first, and the GitHub Support request filed after — the
-      rewrite alone does not purge the cached SHAs.
+      `d7b18b1`, …). Needs a human-authorised force-push, so: no PR in flight, the stale
+      branches swept first, and the GitHub Support request filed after — the rewrite alone does not
+      purge the cached SHAs. **16 stale remote branches counted 2026-09-04** (8 `fix/skill-issue-*`,
+      6 `archon/*`, `claude/gemini-connector-skill-setup-exupqr`, `feat/capture-improve-skills`) —
+      the earlier "ten" was wrong.
 
-**Lot 4 — the offer→CV path gets judgement**
+**Lot 3 — the offer→CV path gets judgement**
 
 `#129` before `#116`: the gate sits upstream of the judge, and on the Stakha case the CV should never
 have been written at all.
@@ -90,7 +77,7 @@ have been written at all.
       2026-09-04, and gave it its best argument — 3 CVs generated unreviewed. `read-job-offer`
       already returns `freshness` and `applicant_count`.
 
-**Lot 5 — `jobsearch-vault`**
+**Lot 4 — `jobsearch-vault`**
 
 - [ ] [#127](https://github.com/BluegReeno/renaud-marketplace/issues/127) — the `statut` enum rejects
       what the vault and the process use. `note_schemas.py:74` lists 9 values; **29 of 118 notes carry
@@ -101,7 +88,7 @@ have been written at all.
       navigable both ways. A decision session first (options A–E), then the implementation; 22 of 25
       linked opportunities have no back-link today.
 
-**Lot 6 — debt, on no clock**
+**Lot 5 — debt, on no clock**
 
 - [ ] [#103](https://github.com/BluegReeno/renaud-marketplace/issues/103) — `jobsearch` hardcodes
       `workspace_slug="renaud"` in three skills; 11 occurrences, never covered by `#77`. A real design
@@ -134,6 +121,19 @@ have been written at all.
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] [#123](https://github.com/BluegReeno/renaud-marketplace/issues/123) +
+      [#124](https://github.com/BluegReeno/renaud-marketplace/issues/124) — the two `morning-briefing`
+      defects that cost something every day, one release
+      ([PR #130](https://github.com/BluegReeno/renaud-marketplace/pull/130), briefing **0.17.1**).
+      Step 0.5 now reads today's daily log too and holds it verbatim in full; Step 4 appends under a
+      dated `## Run <HH:MM>` separator instead of replacing it. A closed `actuel` sprint no longer
+      filters — all three failure rows show the unfiltered list — and the skill resolves the
+      `suivant`/`a_venir` sprint covering today, naming `transition_sprint` with its id (diagnostic
+      only, never called from the brief). Archon was **not** used: `skill-improve.yaml` still
+      enforces the removed `SKILL.md` `version:` field and ignores `CHANGELOG.md` and `release.sh` —
+      [archon-workflows#30](https://github.com/BluegReeno/archon-workflows/issues/30) is open, and
+      `#32` was closed as its duplicate without a fix — 2026-09-04
 
 - [x] **First real `morning-briefing` run** — the validation three merges waited on. `jobs-guest`
       reads a fresh JD in the real flow (`#115`); `Agent(cv-log-worker)` resolves across plugins and
