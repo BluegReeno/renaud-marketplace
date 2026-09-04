@@ -323,6 +323,53 @@ Apply these rules when reviewing or editing any content in `cv-master.json`.
 3. What **differentiates** you (true for Renaud, false for most candidates)
 - No third person, no "passionné", "dynamique", "orienté résultats"
 
+### Factual source of truth — `renaud/parcours` (mandatory)
+
+`cv-master.json` is a **rendering** of the career, never its record. The record is the hal document
+`parcours` in workspace `renaud`:
+
+```
+# 1. Resolve the workspace from whoami — the one whose `allowed_tags` contain `jobsearch`.
+#    Never hardcode a slug: it is per-user and this repository is public (see #77, #103).
+mcp__plugin_hal_hal-mcp__whoami()
+# 2. Read the record from that workspace.
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<resolved slug>, slug="parcours")
+```
+
+**Read it before changing any title, date, employer or attribution in `cv-master.json`**, and align
+on it when they disagree — it wins, always.
+
+Three defects it caught on 2026-08-28, all of them shipped to real recruiters:
+
+| `cv-master.json` said | `renaud/parcours` says |
+|---|---|
+| `Product Developer — SAT OCEAN (2006-2010)` | **R&D Engineer — SAT-OCEAN (2005-2011)** |
+| Open Ocean: `Co-Founder & Managing Director` | **Co-founder & CTO** |
+| `Personally led every commercial cycle for 8 years` | complex B2B sales was carried by the sales director |
+
+The third is the one that matters: a CV claiming someone else's work does not survive a reference
+call. A positioning choice may select *which* true facts to surface; it may never invent a title,
+stretch a date, or reassign someone else's results.
+
+---
+
+### Blue Green product names — where they may and may not appear
+
+`HAL`, `BlueWind`, `Edifice`, `WattCast`, `EnerCast` mean nothing to a recruiter: they read as
+noise where a competency was expected.
+
+- ❌ **Never in `containers`.** A container item is a competency. `HAL: 27-tool MCP platform` is a
+  product, not a skill — and it pushed Python, TypeScript and SQL off a page that a keyword filter
+  then rejected.
+- ❌ **Never opening the `about`.** Line 1 must say what the candidate does, in plain English.
+- ✅ **In an experience bullet, with its result** — "built the field assistant that lets inspectors
+  leave a site with the report already drafted", not "built Edifice (PWA offline-first)".
+
+Same rule for artefact counters (`27 tools`, `22,812 chunks`, `91 docs`, `5 agents`): they are
+internal engineering pride, unreadable by the first human who screens the CV.
+
+---
+
 ### English about & bullets — readability rules (critical)
 
 **The first reader is HR, not an engineer.** Every sentence must pass the non-specialist test: a smart person with no AI background must understand it immediately.
@@ -386,6 +433,13 @@ Format: `[Action verb] + [what you built / for whom] — [result in plain Englis
 - [ ] "Business Angels" → "institutional investors (Seventure Partners, Cap Décisif/FNA)"
 - [ ] "DCNS" → "Naval Group (ex-DCNS)"
 - [ ] "delivery" (FR bullets) → "livraison"
+- [ ] Titles, dates and attributions checked against `renaud/parcours` (hal, workspace `renaud`)
+- [ ] No Blue Green product name in `containers`, none opening the `about`
+- [ ] No artefact counter (tools, chunks, docs, agents) in the `about`
+- [ ] Named languages (Python / TypeScript / SQL) appear in `containers` for engineering-facing cells
+- [ ] Contact links are clickable in the PDF — one `/URI` annotation per entry (email, LinkedIn, GitHub),
+      and the CV is 1 page. Both are checked by:
+      `uv run --with pypdf python3 $PLUGIN_DIR/scripts/check_pdf_links.py <generated.pdf>`
 
 ---
 
