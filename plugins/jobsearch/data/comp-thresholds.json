@@ -1,0 +1,11 @@
+{
+  "_doc": "Single definition site for every compensation figure used by the offer→CV path. morning-briefing (tier scoring), cv-log-worker (comp gate) and apply-to-offer all read THIS file — none of them may restate a figure inline. Amounts are gross annual base+variable in EUR, for a Paris-based role.",
+  "_owner": "renaud-marketplace / plugins/jobsearch",
+  "target_comp_eur": 90000,
+  "target_comp_doc": "The package Renaud is aiming for. Display only — never rejects an offer.",
+  "comp_floor_eur": 80000,
+  "comp_floor_doc": "Absolute rejection floor. Reject ONLY when an explicit figure is found AND is below this. Unknown compensation never blocks.",
+  "fire_tier_min_eur": 85000,
+  "fire_tier_min_doc": "Minimum stated compensation for the 🔥 tier in the cheap title+snippet pre-score. It is a tier boundary, not a rejection threshold: an offer between the floor and this value is 🟡, not ❌.",
+  "last_reviewed": "2026-09-03"
+}

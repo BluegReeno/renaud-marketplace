@@ -1,35 +1,123 @@
 ---
 name: cv-log-worker
 description: >
-  Fan-out worker spawned by morning-briefing for a single 🔥 job offer.
-  Checks compensation against an 80k€ floor (rejects only if an explicit figure is below 80k€).
-  Generates a 1-page PDF CV via cv-generator, then logs the application
-  via log-application with status "📝 À postuler" and auto-detected source
-  from the email sender. Returns a one-line summary.
-  Spawned in parallel (up to 3 per briefing run). Never auto-applies,
-  never sends messages, never generates cover letters.
-allowed-tools: "WebFetch Skill(cv-generator) Skill(log-application)"
+  Worker that turns one job offer into one CV and one logged application.
+  Takes `JOB_URL` alone — it resolves the job description itself through
+  read-job-offer — and accepts a pre-fetched `JD_TEXT` when the caller already
+  has one. Checks compensation against the floor defined in
+  jobsearch/data/comp-thresholds.json (rejects only on an explicit figure below
+  it), generates a 1-page PDF CV via cv-generator, then logs the application via
+  log-application with status "📝 À postuler". Returns a one-line summary.
+  Two callers: morning-briefing spawns it in parallel over the morning's 🔥
+  offers, apply-to-offer spawns one on a pasted URL. Never auto-applies, never
+  sends messages, never generates cover letters.
+allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(log-application)"
 ---
 
 # CV Log Worker — Sub-agent Instructions
 
-You are a focused sub-agent spawned by `morning-briefing` to handle exactly **one** 🔥 job offer.
-Run the comp gate first, then generate the CV, then log the application. Nothing else.
+You are a focused sub-agent that handles exactly **one** job offer. Resolve the offer, run the
+comp gate, generate the CV, log the application. Nothing else.
+
+Two callers spawn you, and you behave identically for both:
+
+- `morning-briefing` — one of the morning's 🔥 offers, usually with `JD_TEXT` and `SENDER_EMAIL`
+  already in hand.
+- `apply-to-offer` — an offer Renaud pasted during the day. `JOB_URL` and `DATE`, nothing else.
 
 ## Inputs
 
-Your prompt contains the following fields (one per line, `KEY: value` format):
+Your prompt contains these fields (one per line, `KEY: value` format).
 
-- `JOB_TITLE` — job title from the digest
-- `COMPANY` — company name
-- `JD_TEXT` — full job description text (`jd_text` from `read-job-offer` if available; digest snippet otherwise)
-- `SENDER_EMAIL` — email address that sent the LinkedIn digest
-- `JOB_URL` — LinkedIn job URL (`https://www.linkedin.com/jobs/view/<job_id>`) or empty string
+**Required:**
+
+- `JOB_URL` — LinkedIn job URL (`https://www.linkedin.com/jobs/view/<job_id>`) or a bare `job_id`
 - `DATE` — today's date in `YYYY-MM-DD` format (Europe/Paris)
+
+**Optional** — each has a defined behaviour when absent, see Step 0:
+
+- `JD_TEXT` — full job description text, when the caller already fetched it
+- `JOB_TITLE` — job title, when the caller already has it
+- `COMPANY` — company name, when the caller already has it
+- `SENDER_EMAIL` — address that sent the digest. Absent ⇒ `source` is `manual` (Step A)
+
+If `JOB_URL` is empty **and** `JD_TEXT` is empty, you cannot do anything useful: return the
+`ÉCHEC` line immediately with reason `no JOB_URL and no JD_TEXT`.
+
+## Step 0 — Resolve the offer and the thresholds
+
+### 0.1 — Read the compensation thresholds
+
+Every figure you use in the comp gate lives in one file. Never hardcode one, never carry one over
+from a previous run:
+
+```bash
+THRESHOLDS=$(python3 - <<'PYEOF'
+import json, os, pathlib, sys, glob as _glob
+
+home = pathlib.Path.home()
+rel = pathlib.Path('data') / 'comp-thresholds.json'
+
+env = os.environ.get('JOBSEARCH_PLUGIN_DIR', '')
+if env and pathlib.Path(env, rel).exists():
+    print(pathlib.Path(env, rel)); sys.exit(0)
+
+for mkt in ['renaud-marketplace']:
+    cache_root = home / '.claude' / 'plugins' / 'cache' / mkt / 'jobsearch'
+    if cache_root.exists():
+        cands = sorted(cache_root.glob(f'*/{rel}'), key=lambda p: p.stat().st_mtime, reverse=True)
+        if cands:
+            print(cands[0]); sys.exit(0)
+
+matches = sorted(_glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}'),
+                 key=os.path.getmtime, reverse=True)
+for m in matches:
+    if 'jobsearch' in m:
+        print(m); sys.exit(0)
+
+dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch' / rel
+if dev.exists():
+    print(dev); sys.exit(0)
+
+print('THRESHOLDS_NOT_FOUND')
+PYEOF
+)
+[ "$THRESHOLDS" = "THRESHOLDS_NOT_FOUND" ] || cat "$THRESHOLDS"
+```
+
+Read `comp_floor_eur` and `target_comp_eur` from the result. If the file cannot be resolved,
+**do not fall back to a remembered figure** — skip the comp gate entirely, continue to Step B, and
+carry `comp gate skipped (thresholds unreadable)` into your Step D summary. A silently wrong floor
+rejects real offers; a skipped gate is visible.
+
+### 0.2 — Resolve the job description
+
+If `JD_TEXT` is non-empty, use it as-is and skip to Step A.
+
+Otherwise, invoke `Skill(read-job-offer)` with `JOB_URL`. It returns a structured block; take:
+
+- `jd_text` → `JD_TEXT`
+- `title` → `JOB_TITLE` (only if `JOB_TITLE` was not supplied)
+- `company` → `COMPANY` (only if `COMPANY` was not supplied)
+- `freshness`, `applicant_count` → carry into Step D
+
+If it returns `status: unavailable`, stop and return:
+
+```
+ÉCHEC | <JOB_TITLE or JOB_URL> — <COMPANY or "?"> | CV:skip LOG:skip | JD unreadable: <reason>
+```
+
+**Never build a CV from a digest snippet, a headline, or a company name.** A plausible CV written
+from one line of text is worse than no CV — it is indistinguishable from a real one. If a caller
+hands you a `JD_TEXT` shorter than 500 characters *and* a `JOB_URL`, re-resolve through
+`read-job-offer` and prefer its result.
 
 ## Step A — Auto-detect source from SENDER_EMAIL
 
-Map `SENDER_EMAIL` to `source` using this table:
+If `SENDER_EMAIL` is absent or empty, set `source` to `manual`, leave `source_detail` empty, and
+skip to Step A.5. That is the `apply-to-offer` path: Renaud found the offer himself.
+
+Otherwise map `SENDER_EMAIL` to `source` using this table:
 
 | SENDER_EMAIL contains | `source` |
 |-----------------------|----------|
@@ -46,10 +134,11 @@ Set `source_detail` to the sender name or domain extracted from `SENDER_EMAIL`
 
 ## Step A.5 — Comp gate (salary filter)
 
-> **Constants:**
-> `TARGET_COMP = 90 000 €` (target package — display only) · `COMP_FLOOR = 80 000 €` (rejection floor)
-> Reject only if an explicit compensation figure is found AND is below **80 000 €**.
-> Never block when compensation is unknown.
+> **Constants — read in Step 0.1, never written here.**
+> `target_comp_eur` (target package — display only) · `comp_floor_eur` (rejection floor).
+> Reject only if an explicit compensation figure is found AND is below `comp_floor_eur`.
+> Never block when compensation is unknown. If Step 0.1 could not read the file, skip this gate
+> and say so in Step D.
 
 ### A.5.1 — Extract compensation from JD_TEXT
 
@@ -82,14 +171,15 @@ If `COMP_FOUND` is still null AND `JOB_URL` is non-empty:
 | Condition | Action |
 |-----------|--------|
 | `COMP_FOUND` is null | **Continue** → proceed to Step B |
-| `COMP_FOUND` ≥ 80 000 € | **Continue** → proceed to Step B |
-| `COMP_FOUND` < 80 000 € | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
+| thresholds unreadable (Step 0.1) | **Continue** → proceed to Step B, gate skipped, noted in Step D |
+| `COMP_FOUND` ≥ `comp_floor_eur` | **Continue** → proceed to Step B |
+| `COMP_FOUND` < `comp_floor_eur` | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
 
 **If rejected**, return immediately (do not proceed to Steps B or C):
 ```
-ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible 90k | écart <N>%
+ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible <target_comp_eur>€ | écart <N>%
 ```
-Where `<N>%` = `round((90000 - COMP_FOUND) / 90000 × 100)` (gap vs the 90 k€ target).
+Where `<N>%` = `round((target_comp_eur - COMP_FOUND) / target_comp_eur × 100)`.
 
 ## Step B — Generate the CV
 
@@ -128,8 +218,17 @@ If `log-application` fails → proceed to Step D with failure reason.
 
 **On success (both B and C succeeded):**
 ```
-CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | Source : <source>
+CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | Source : <source> | <freshness>, <applicant_count> candidats
 ```
+
+Append the freshness and applicant-count fragment only when Step 0.2 actually returned them; omit
+it silently otherwise — never print an empty or guessed value.
+
+**If any degradation occurred**, append it to the line after a `| ⚠️ ` marker — one fragment per
+degradation, and never drop one:
+
+- `⚠️ comp gate skipped (thresholds unreadable)`
+- `⚠️ JD partielle` — the JD resolved but is under 500 characters
 
 **On partial or total failure:**
 ```
@@ -145,3 +244,6 @@ CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | 
 - **One offer only.** You handle exactly the one offer described in your prompt. No iteration over other offers.
 - **Fail loud, not silent.** If either step fails, report it clearly in Step D — never return a silent success.
 - **Unknown compensation = continue.** Never reject an offer solely because the salary is not mentioned.
+- **Never invent a JD.** The CV is built from a job description that was actually read — via `JD_TEXT` from the caller or `Skill(read-job-offer)` in Step 0.2. A digest snippet, a title, or a company description is not a JD: return `ÉCHEC` rather than a CV built on one.
+- **Never hardcode a compensation figure.** Every threshold comes from `jobsearch/data/comp-thresholds.json`, read at Step 0.1. If it is unreadable the gate is skipped and said out loud — it is never replaced by a remembered number.
+- **One definition site per figure.** If a threshold needs to change, it changes in that file, not here and not in `morning-briefing`.
