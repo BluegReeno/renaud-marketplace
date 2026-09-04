@@ -39,7 +39,8 @@ def main():
             out_path = out_dir / fname
 
             env = os.environ.copy()
-            env['DYLD_LIBRARY_PATH'] = '/opt/homebrew/lib'  # WeasyPrint/Pango on macOS
+            if sys.platform == 'darwin':
+                env['DYLD_LIBRARY_PATH'] = '/opt/homebrew/lib'  # WeasyPrint/Pango on macOS only
 
             result = subprocess.run(
                 [
@@ -49,6 +50,10 @@ def main():
                     '--lang', lang,
                     '--output', fname,
                     '--output-dir', str(out_dir),
+                    # Validation renders every cell, including on a machine with no
+                    # contact.local.json. Since renaud#98 a missing file exits 1 by
+                    # default, so this path has to ask for the placeholder explicitly.
+                    '--allow-placeholder',
                 ],
                 capture_output=True, text=True, env=env
             )
