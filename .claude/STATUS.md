@@ -1,46 +1,45 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-`#115` shipped: reading a LinkedIn JD now lives in one primitive, `jobsearch/read-job-offer`
-(`jobsearch` **0.12.0**, `briefing` **0.16.3**, `improve` **0.3.1**, marketplace top-level
-**0.6.34**). It is unvalidated on a real run — that run is tomorrow morning, and `#117`, which
-consumes the primitive, starts once it is clean.
+The offer→CV pipeline is **built and unvalidated**. `#115`, `#117` and `#105` all merged on
+2026-09-04 (`jobsearch` **0.14.0**, `briefing` **0.17.0**, `improve` **0.3.2**, marketplace
+top-level **0.6.38**). Nothing more ships on it until one real morning run says it works.
 
 ## In Progress
 
-- [ ] Validate `read-job-offer` live: one `morning-briefing` run on a digest carrying a posting
-      published under an hour ago. It must be scored from its full JD instead of skipped, and **no
-      macOS keychain prompt may appear**. Both are the failure modes `#115` existed to remove.
+- [ ] **One `morning-briefing` run on a digest carrying a recent posting.** It is the single
+      validation for three merges at once, and it answers four questions no test here could:
+      1. does the `jobs-guest` endpoint read a fresh JD in the real flow (`#115`);
+      2. does `Agent(cv-log-worker)` resolve across plugins — the worker lives in `briefing`,
+         `apply-to-offer` spawns it from `jobsearch` (`#117`, marked `TODO: verify in Cowork`);
+      3. does a sub-agent inherit MCP tools — `read-job-offer` consumes BrightData, where every
+         prior `Skill()` call from that worker used scripts only (`#117`);
+      4. **no macOS keychain prompt**, ever (`#115`).
+- [ ] **Have the CV judged again.** The independent recruiter agent that failed the 2026-08-28
+      `p4×t5` batch has not seen the corrected output. The mechanical criteria of `#105` all pass;
+      whether the content now convinces is unmeasured.
 
 ## Backlog
 
-**Offer→CV pipeline — sequenced, run in this order**
+**Offer→CV pipeline — what is left**
 
-Decided 2026-09-03. Each step is a prerequisite of the next; do not start one before the previous
-merges.
-
-- [ ] [#117](https://github.com/BluegReeno/renaud-marketplace/issues/117) — one offer-processing
-      path, two triggers. `cv-log-worker` stays an agent (only `Agent` spawns in parallel) but takes
-      `JOB_URL` alone — it now reads the JD itself through `Skill(read-job-offer)`; a new
-      `apply-to-offer` skill gives the pasted-URL path a trigger over the same primitive. Lifts the
-      3-offer fan-out cap — **which is coupled to the 5-call BrightData cap**: raise only the first
-      and the 6th offer yields a CV built from a digest snippet, unmarked.
-- [ ] [#105](https://github.com/BluegReeno/renaud-marketplace/issues/105) — must land before the
-      first real 5-offer morning. `#117` multiplies CV output; `#105` is what makes the output
-      truthful.
 - [ ] [#116](https://github.com/BluegReeno/renaud-marketplace/issues/116) — two-round judge loop and
-      fit × freshness ordering. After `#117`, so the judge sits on a single consolidated path.
-      `read-job-offer` already returns `freshness` and `applicant_count`, so the ordering signal is
-      available.
+      fit × freshness ordering, inside `cv-log-worker`. Held until the validation run passes: it
+      would sit on a path nobody has seen work end to end. `read-job-offer` already returns
+      `freshness` and `applicant_count`, so the ordering signal is in hand.
 
-**`cv-generator` — remaining defects, same skill**
+**CV content — the factual family opened by `#105`**
 
+- [ ] [#121](https://github.com/BluegReeno/renaud-marketplace/issues/121) — `interview-prep` still
+      asserts "15 yrs client-side" for P4. Same defect class as `#105`: a claim the `parcours`
+      record does not support. The rule now exists in `cv-generator`'s SKILL.md; `interview-prep`
+      does not read it.
 - [ ] [#106](https://github.com/BluegReeno/renaud-marketplace/issues/106) — generate from Cowork without the `--data-dir` workaround
 - [ ] [#98](https://github.com/BluegReeno/renaud-marketplace/issues/98) — a missing contact file must fail by default, not behind an opt-in flag
 
@@ -50,7 +49,9 @@ merges.
       from this repo's public git history. `#101` stopped new ones landing; this is the purge, and
       it needs a human-authorised force-push.
 - [ ] [#103](https://github.com/BluegReeno/renaud-marketplace/issues/103) — `jobsearch` hardcodes
-      `workspace_slug="renaud"` in three skills; never covered by `#77`
+      `workspace_slug="renaud"` in three skills; never covered by `#77`. It nearly became four on
+      2026-09-04: the first draft of `#105`'s source-of-truth rule wrote the slug literally, and
+      `check_no_identity_literals.sh` caught it. The guard works; the three existing sites remain.
 - [ ] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — no per-plugin CHANGELOG,
       unlike the sibling marketplace. Until this changes, a run told only "add a CHANGELOG entry"
       creates three new files and fails `check_version_sync.sh` — correct the **issue body**, not
@@ -83,6 +84,16 @@ merges.
 
 ## Done (current sprint)
 
+- [x] [#105](https://github.com/BluegReeno/renaud-marketplace/issues/105) — `p4×t5` rewritten
+      against the `parcours` record ([PR #122](https://github.com/BluegReeno/renaud-marketplace/pull/122)).
+      Open Ocean was titled `Managing Director` in **three** profiles, not one; SAT-OCEAN carried
+      wrong dates and a weakened title; a bullet claimed eight years of commercial cycles the record
+      attributes to the sales director. Contact links now produce real `/URI` annotations — the PDF
+      had none — verified by the new `scripts/check_pdf_links.py` — 2026-09-04
+- [x] [#117](https://github.com/BluegReeno/renaud-marketplace/issues/117) — one offer→CV path, two
+      triggers ([PR #120](https://github.com/BluegReeno/renaud-marketplace/pull/120)). New
+      `apply-to-offer`; `cv-log-worker` takes `JOB_URL` alone; the 3-offer product cap replaced by an
+      announced safety bound of 8; comp thresholds moved to a single definition site — 2026-09-04
 - [x] [#115](https://github.com/BluegReeno/renaud-marketplace/issues/115) — LinkedIn JD read via the
       `jobs-guest` endpoint, extracted as the shared skill `jobsearch/read-job-offer`
       ([PR #118](https://github.com/BluegReeno/renaud-marketplace/pull/118)) — 2026-09-03
