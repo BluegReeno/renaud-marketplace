@@ -42,6 +42,8 @@ Do not proceed until the candidature is unambiguously identified.
 
 Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise` + `poste` text match, then read the matching note. Capture:
 
+- **the note's vault-relative path** — Step 4c writes back to it, and re-searching there would risk landing on a different note.
+- `frontmatter.prochain_rdv` and `frontmatter.statut` — Step 4c's two guards compare against them.
 - `frontmatter.target_profile` — one of `"P1"` / `"P2"` / `"P3"` / `"P4"` / `"P5"`.
 - `frontmatter.entreprise` — the company wikilink.
 - `frontmatter.lien_offre` — optional URL.
@@ -226,6 +228,46 @@ Then apply the standard failure handling below if `create_task` also fails.
 
 Continue to Step 5 — the prep itself is intact. This is degraded but not broken.
 
+## Step 4c — Carry the interview back onto the candidature (via `jobsearch-vault`)
+
+Symmetric with Step 4b, and the reason it exists: **only `log-cr` ever wrote `prochain_rdv`** — that
+is, *after* the interview. A scheduled interview had no path to the `opportunite-js` note at all, so
+118 candidatures carried an empty `prochain_rdv` while three interviews were booked, and
+`/morning-briefing` reported that gap every morning as a data-entry failure by Renaud. It was a
+tooling hole (renaud#128). Side effect of the same hole: `📞 Entretien prévu` exists in
+`note_schemas.py` and no skill ever wrote it.
+
+On the `opportunite-js` note located in Step 1, call `jobsearch-vault` `update_frontmatter` — **one
+field per call**, so two calls:
+
+```
+update_frontmatter.py "<path to the opportunite-js note>" prochain_rdv "<YYYY-MM-DD of the interview>"
+update_frontmatter.py "<path to the opportunite-js note>" statut "📞 Entretien prévu"
+```
+
+Three guards, all load-bearing:
+
+- **Never regress a more advanced status.** If the note already carries `✅ Offre reçue` or
+  `❌ Refus`, leave `statut` alone — the process moved past the interview and this prep is not
+  evidence that it moved back. Write `prochain_rdv` anyway: a date is legitimate in every state.
+  `🔄 Relance à faire` (written by `log-cr` after a previous round) is **not** a more advanced
+  status — a new interview is a new round, so it does advance to `📞 Entretien prévu`.
+- **Never move a date backwards.** Step 4 is idempotent and a re-prep of an earlier slot must not
+  erase a later one: write `prochain_rdv` only when the new date is **later than or equal to** the
+  value already in place. An empty or absent value is always overwritten.
+- **Degrade, never block.** As in Step 4b, the prep note is the canonical delivery. If either call
+  fails, keep going and report it in Step 5:
+
+```
+⚠️  Fiche candidature NON mise à jour (prep Obsidian OK).
+    Stderr        : <error>
+    Impact        : la candidature ne porte ni prochain_rdv ni « 📞 Entretien prévu » — l'entretien
+                    n'apparaîtra pas dans le pipeline lu par /morning-briefing.
+    Recovery      : re-run /interview-prep (Step 4c is idempotent under the two guards above)
+```
+
+---
+
 ## Step 5 — Report to the user (in French)
 
 Render a concise summary, in French:
@@ -238,6 +280,9 @@ Render a concise summary, in French:
    🗓️ Date     : <YYYY-MM-DD> · type: <RH|Technique|Manager|Final>
    📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (renaud/jobsearch)
                   (omettre cette ligne si Step 4b a échoué — voir ⚠️ ci-dessus)
+   🗂️ Fiche     : prochain_rdv <YYYY-MM-DD> · statut « 📞 Entretien prévu »
+                  (si le statut a été laissé tel quel par la garde de non-régression, écrire
+                   « statut inchangé (<valeur>) » ; omettre la ligne si Step 4c a échoué)
 ```
 
 ## Step 6 — Constraints (load-bearing)
