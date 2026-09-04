@@ -121,6 +121,10 @@ fi
 
 Then `Read "$PLUGIN_DIR/profiles/p<n>_<label>.md"` (e.g. `p3_cto.md`). Quote — don't paraphrase — the load-bearing claims under the file's "Narrative rules" and "Key differentiators" H2s.
 
+**Verbatim quoting does not extend to career facts.** Before a claim carrying a *number or a position* — years, headcount, funding, revenue, a role, or which side of the table Renaud sat on — enters the prep, check it against `Profil — Renaud Laborbe — FR.md` / `— EN.md` in the vault (via `Skill(jobsearch-vault)`). **The vault record wins**, and any divergence is reported to Renaud in the Step 5 report rather than silently resolved. Everything else in the profile — framing, angles, anti-patterns — is quoted as written.
+
+This rule exists because `p4_cs_fde.md` asserted "15 yrs client-side" for months. Renaud has never worked client-side; Open Ocean, Artelia and Blue Green are all supplier-side. The claim was quoted verbatim into the 2026-09-04 InsideBoard prep — pitch, section 4 and three questions — and was caught by hand, one interview short of being said out loud (renaud#121).
+
 ## Step 3 — Compose the 5 sections (always identical structure)
 
 The body of the `entretien` note MUST contain these five H2 headings, in this exact order, with these exact strings (the agent writes the actual content underneath in French):
