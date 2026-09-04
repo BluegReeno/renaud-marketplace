@@ -79,8 +79,9 @@ for mkt in ['renaud-marketplace', 'bluegreen-marketplace']:
         if cand:
             print(str(cand[0].parent)); sys.exit(0)
 
-# 3. Cowork sandbox
-for pat in ['/sessions/*/mnt/.remote-plugins/*/skills/jobsearch-vault/scripts/create_note.py']:
+# 3. Cowork sandbox — both layouts: the mounted .remote-plugins tree and the synced/ tree
+for pat in ['/sessions/*/mnt/.remote-plugins/*/skills/jobsearch-vault/scripts/create_note.py',
+            str(home / '.claude/plugins/synced/*/jobsearch/skills/jobsearch-vault/scripts/create_note.py')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(matches[0])); sys.exit(0)

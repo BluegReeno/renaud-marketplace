@@ -116,7 +116,8 @@ if cache_root.exists():
     candidates = sorted(cache_root.glob('*/scripts/generate_cv.py'), key=lambda p: p.stat().st_mtime, reverse=True)
     if candidates:
         print(str(candidates[0].parent.parent)); sys.exit(0)
-for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py']:
+for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py',
+            str(home / '.claude/plugins/synced/*/jobsearch/scripts/generate_cv.py')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
@@ -255,7 +256,8 @@ if cache_root.exists():
     candidates = sorted(cache_root.glob('*/scripts/generate_cv.py'), key=lambda p: p.stat().st_mtime, reverse=True)
     if candidates:
         print(str(candidates[0].parent.parent)); sys.exit(0)
-for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py']:
+for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/generate_cv.py',
+            str(home / '.claude/plugins/synced/*/jobsearch/scripts/generate_cv.py')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
