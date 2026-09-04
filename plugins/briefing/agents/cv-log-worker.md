@@ -132,13 +132,20 @@ Otherwise map `SENDER_EMAIL` to `source` using this table:
 
 | SENDER_EMAIL contains | `source` |
 |-----------------------|----------|
-| `jobalerts-noreply@` or `jobs-listings@linkedin.com` | `linkedin-alert` |
 | `messaging-digest-noreply@linkedin.com` | `linkedin-inmail` |
+| any other `@linkedin.com` sender (`jobalerts-noreply@`, `jobs-noreply@`, `jobs-listings@`, …) | `linkedin-alert` |
 | `welcometothejungle.com` | `wttj` |
 | `collective.work` or `malt.com` | `freelance` |
 | `taleez` / `myworkday` / `smartrecruiters` / `lever` / `greenhouse` | `direct-ats` |
 | a named recruitment firm (cabinet) | `headhunter` |
 | not matched | `other` |
+
+Rows are evaluated **top to bottom, first match wins** — which is why the InMail digest sits
+above the `@linkedin.com` catch-all. The catch-all replaced an enumeration of two exact
+addresses that did not include `jobs-noreply@linkedin.com`: on 2026-09-04 that sender alone
+produced 3 of the day's 13 digests, and the Anthropic and Stakha applications were logged
+`other`, under-counting the LinkedIn channel (renaud#126). Match on the domain, not on a list
+of local parts that LinkedIn changes without telling anyone.
 
 Set `source_detail` to the sender name or domain extracted from `SENDER_EMAIL`
 (e.g. `"LinkedIn Job Alerts"` or the cabinet name). Omit if not identifiable.
