@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.17.1
+
+- morning-briefing: a second run of the day appends to the existing daily log instead of destroying it (Step 0.5 now reads today's too), and a closed `actuel` sprint no longer filters the task list — it shows every open task and names the transition_sprint that fixes the state (renaud#123, renaud#124)
+
 ## briefing 0.17.0
 
 - cv-log-worker takes JOB_URL alone and reads its own JD; fan-out product cap removed (safety bound 8, announced when it bites); enrichment ceiling raised to match so no worker gets a snippet
