@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.17.0
+
+- cv-log-worker takes JOB_URL alone and reads its own JD; fan-out product cap removed (safety bound 8, announced when it bites); enrichment ceiling raised to match so no worker gets a snippet
+
 ## briefing 0.16.3
 
 - morning-briefing Step 1g delegates the JD read to Skill(read-job-offer); no more silent skip on a fresh posting, no browser on LinkedIn
@@ -61,6 +65,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.13.0
+
+- new skill apply-to-offer (pasted-URL path to a CV); comp thresholds get a single definition site in data/comp-thresholds.json; log-application accepts source=manual
+
 ## jobsearch 0.12.0
 
 - new skill read-job-offer — LinkedIn JD read primitive (cached dataset, then the jobs-guest endpoint), shared by morning-briefing and the pasted-URL path
@@ -101,6 +109,10 @@ guard therefore belongs on the consumer side.
 - `cv-generator`: fixed a PLUGIN_DIR resolver that still probed the pre-rename `cv-generator`
   paths in both the marketplace cache and the dev checkout — every local tier missed, so the
   skill exited `PLUGIN_DIR_NOT_FOUND` on the workstation unless `CV_GENERATOR_DIR` was set
+
+## improve 0.3.2
+
+- regenerated the skill→plugin→repo map: apply-to-offer
 
 ## improve 0.3.1
 

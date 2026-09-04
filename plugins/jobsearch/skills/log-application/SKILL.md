@@ -27,7 +27,7 @@ Collect (and confirm) the following before doing anything else:
 
 1. **Pasted offer text** (required) — the job description body. The skill will not fetch URLs; the user pastes the text.
 2. **Company name** and **role title** — extract from the offer body if obvious, otherwise ASK. They drive the candidature title `<Poste> — <Entreprise>` and the `entreprise` frontmatter.
-3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below). **ASK** if not provided and not auto-detectable. No silent default.
+3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below), and `manual` when that worker ran without a `SENDER_EMAIL`, i.e. an offer Renaud found himself through `apply-to-offer`. **ASK** if not provided and not auto-detectable. No silent default.
 
    **Auto-detection table (sender → source)**:
 
@@ -95,7 +95,7 @@ Invoke `jobsearch-vault` and ask it to **create a note** with exactly this struc
   "fields":{
     "entreprise":"[[<Entreprise>]]",
     "statut":"<statut — default: ✉️ Candidature envoyée>",
-    "source":"<linkedin-alert|linkedin-inmail|wttj|freelance|direct-ats|headhunter|referral|other>",
+    "source":"<linkedin-alert|linkedin-inmail|wttj|freelance|direct-ats|headhunter|referral|manual|other>",
     "source_detail":"<source_detail — OMIT KEY if empty>",
     "date_candidature":"<YYYY-MM-DD>",
     "date_relance":"<YYYY-MM-DD +7d>",
@@ -198,7 +198,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
 - **`target_profile` warning is expected.** It is non-blocking. Do not retry without the field; do not patch the global schema from here.
 - **`source_detail` warning may appear.** If `jobsearch-vault` returns `unknown field 'source_detail'` on stderr at exit 0, apply the same AC1 contract as `target_profile`: non-blocking, ACCEPT. Surface any OTHER exit-0 stderr warning verbatim.
-- **`source` is mandatory.** If the user did not state one, the skill ASKS in Step 0 before proceeding. No silent default. Valid values: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `other`.
+- **`source` is mandatory.** If the user did not state one, the skill ASKS in Step 0 before proceeding. No silent default. Valid values: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`. `manual` means Renaud found the offer himself — it is what tells a daytime `apply-to-offer` candidature apart from a morning-digest one.
 - **`source_detail` is optional.** Include the key ONLY when a non-empty value is available. Never pass an empty string.
 - **Idempotency on re-apply.** Step 3 must search before creating, and switch to `update_frontmatter.py` when the note exists. Do not let `create_note.py` fail-then-retry-by-rename.
 - **No auto-apply, no email, no CV attach.** The skill files the trail; the user submits the application themselves. `cv-generator` handles the PDF — invoke it separately via `/cv-generator`.
