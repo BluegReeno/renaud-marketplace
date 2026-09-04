@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.18.0
+
+- cv-log-worker: unreadable comp thresholds abort the worker (no CV, no candidature) instead of skipping the gate — the documented fallback that came within one manual find of logging an application 33 % under target; the thresholds resolver now knows the Cowork synced/ layout; any @linkedin.com sender maps to linkedin-alert (renaud#125, #126)
+
 ## briefing 0.17.1
 
 - morning-briefing: a second run of the day appends to the existing daily log instead of destroying it (Step 0.5 now reads today's too), and a closed `actuel` sprint no longer filters the task list — it shows every open task and names the transition_sprint that fixes the state (renaud#123, renaud#124)
