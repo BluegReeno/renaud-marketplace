@@ -12,7 +12,8 @@
       "UK (London)",
       "Brazil (Rio)",
       "France (Paris)"
-    ]
+    ],
+    "github": "github.com/BluegReeno"
   },
   "education": [
     {
@@ -1069,9 +1070,9 @@
         },
         "about": {
           "en": [
-            "AI systems shipped in production: HAL (27-tool MCP platform, Claude Code marketplace install), BlueWind Companion (5 specialized agents across FR+UK offshore wind regulatory corpus, 91 docs → 22,812 chunks, benchmarks 8.6/10) — real engineering, not presales.",
-            "Full FDE delivery cycles with industrial clients: discovery → POC → production handover → user autonomy. Named accounts: EnBW France, Valorem, IC Ingénieurs Conseils (DCNS, SBM Offshore, RTE at Open Ocean).",
-            "Four years embedded in the IT division of a 6,000-person group: cloud selection committees (AWS/GCP/Azure), IS governance — AI adoption friction understood from the inside, not from vendor pitch decks."
+            "Twenty years of engineering on energy and environmental data, now spent deploying AI systems inside industrial companies — from the first workshop to the day the client runs it alone.",
+            "Built and shipped a regulatory assistant that turns weeks of tender analysis into an afternoon for offshore wind developers, and a field assistant that lets building inspectors leave a site with the report already drafted — both live and used daily in production.",
+            "Four years inside the IT division of a 6,000-person engineering group — cloud selection committees, IS governance, budget cycles: the reasons enterprise AI projects stall, seen from the inside."
           ],
           "fr": [
             "15 ans dans le secteur énergie — conception, développement et déploiement de solutions digitales pour répondre aux besoins métier.",
@@ -1082,28 +1083,27 @@
         "containers": {
           "en": [
             {
-              "title": "AI Solutions",
+              "title": "Engineering & Production",
               "items": [
-                "HAL: 27-tool MCP platform (Claude Code marketplace install)",
-                "Hybrid RAG (document ingestion, chunking, hybrid retrieval)",
-                "Multi-LLM agents (Pydantic AI, Claude, telemetry)",
-                "MCP servers, skills, APIs"
+                "Python, TypeScript, SQL — production code, shipped and maintained",
+                "Data pipelines and REST APIs (FastAPI, Next.js)",
+                "Deployment and operations (Docker, Supabase, CI)"
               ]
             },
             {
-              "title": "B2B Enterprise Sales Cycle",
+              "title": "LLM & Agent Systems",
               "items": [
-                "Complex long-cycle sales",
-                "Upsell & expansion (premium, framework contracts)",
-                "Legal coordination (T&Cs, multi-BU tenders)"
+                "Multi-agent systems in production (Pydantic AI, Claude)",
+                "Document ingestion and hybrid retrieval (semantic + keyword)",
+                "MCP servers, tool design, evaluation against expert ground truth"
               ]
             },
             {
-              "title": "Enterprise-Insider Knowledge",
+              "title": "Field Delivery",
               "items": [
-                "IT division selection processes (cloud, software vendors)",
-                "Adoption friction & IT governance",
-                "Sectors: offshore energy, infrastructure, marine"
+                "Discovery workshop → POC → handover to autonomous daily use",
+                "Third-party system integration: grid, market and weather APIs",
+                "Sectors: offshore energy, infrastructure, construction"
               ]
             }
           ],
@@ -1503,9 +1503,9 @@
           },
           "t5": {
             "en": [
-              "Lead discovery-to-production cycles for EnBW France (offshore wind regulatory AI: 5 specialized agents across FR+UK regulatory corpus, LLM-judged 8.6/10) and Valorem — scoping, POC, deployment, user adoption",
+              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.6/10 against expert-validated ground truth — and for a renewable energy producer",
               "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery to autonomous daily production use",
-              "Built HAL — 27-tool MCP platform (Claude Code marketplace install) and BlueWind ingestion pipeline (91 docs → 22,812 pgvector chunks): production infrastructure that underpins every client engagement"
+              "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European grid operator (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
             ],
             "fr": [
               "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,6/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
@@ -1732,7 +1732,7 @@
           "fr": "Directeur Technique & Co-Fondateur"
         },
         "p2": {
-          "en": "Co-Founder & Managing Director",
+          "en": "Co-Founder & CTO",
           "fr": "Directeur Technique & Co-Fondateur"
         },
         "p3": {
@@ -1740,11 +1740,11 @@
           "fr": "Co-Fondateur & CTO"
         },
         "p4": {
-          "en": "Co-Founder & Managing Director",
+          "en": "Co-Founder & CTO",
           "fr": "Directeur Technique & Co-Fondateur"
         },
         "p5": {
-          "en": "Co-Founder & Managing Director",
+          "en": "Co-Founder & CTO",
           "fr": "Directeur Technique & Co-Fondateur"
         }
       },
@@ -1901,7 +1901,7 @@
           },
           "t5": {
             "en": [
-              "Co-founded and built a marine data SaaS — deployed at Naval Group, RTE (national grid, framework contract), SBM Offshore. Personally led every commercial cycle for 8 years: from first contact to enterprise production onboarding. Exit via Artelia acquisition 2019."
+              "Co-founded and built a marine data SaaS as CTO — deployed at Naval Group, RTE (national grid, framework contract) and SBM Offshore. Owned the architecture, the R&D programme and the technical relationship from first demo to autonomous production use. Exit via Artelia acquisition 2019."
             ],
             "fr": [
               "Co-fonder et construire une plateforme SaaS de données marines — de l'architecture au déploiement industriel chez Naval Group (ex-DCNS), RTE (contrat cadre), SBM Offshore",
@@ -1927,15 +1927,15 @@
       }
     },
     "earlier": {
-      "period": "2004 – 2010",
+      "period": "2004 – 2011",
       "items": [
         {
-          "title": "Product Developer",
-          "title_fr": "Développeur Produit",
-          "company": "SAT OCEAN",
-          "description": "marine metocean data services",
-          "description_fr": "services de données océanométéo marines",
-          "period": "2006-2010"
+          "title": "R&D Engineer",
+          "title_fr": "Ingénieur R&D",
+          "company": "SAT-OCEAN",
+          "description": "wave forecasting (WaveWatch III), ship-routing optimisation (A* over wind and current fields), seismic cable drift modelling for CGG Veritas",
+          "description_fr": "prévision de houle (WaveWatch III), optimisation de route maritime (A* sur vents et courants), dérive de câbles sismiques pour CGG Veritas",
+          "period": "2005-2011"
         },
         {
           "title": "Climate Data Analyst",

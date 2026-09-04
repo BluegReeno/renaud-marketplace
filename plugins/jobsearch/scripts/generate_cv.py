@@ -301,6 +301,12 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
         location_html = f'<span>{contact["location"]}</span>'
     html = html.replace('{{CONTACT_LOCATION_HTML}}', location_html)
 
+    # Public profiles live in cv-master `personal`, not in the gitignored contact file:
+    # they are published identifiers, and the CV must expose them as real PDF links.
+    personal = cv_data.get('personal', {})
+    html = html.replace('{{CONTACT_LINKEDIN}}', personal.get('linkedin', ''))
+    html = html.replace('{{CONTACT_GITHUB}}', personal.get('github', ''))
+
     # === TITLE ===
     html = html.replace('{{TITLE}}', title_override if title_override else cell['title'])
 
