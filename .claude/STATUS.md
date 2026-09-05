@@ -51,6 +51,14 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       The last open criterion after that is a decision, not a task: whether a phone number exposed
       for the lifetime of these commits warrants anything beyond removal.
 
+      **The same number is exposed in the sibling public repo** — filed 2026-09-05 as
+      [bluegreen-marketplace#95](https://github.com/BluegReeno/bluegreen-marketplace/issues/95),
+      found while verifying this one. There it is live in `HEAD` (`plugins/edifice/skills/edifice/
+      SKILL.md`), not only in history: 31 blobs over 4 paths, 185 of 186 commits, and `origin` holds
+      22 branches — so its rewrite has a precondition this repo had already cleared. Purging one repo
+      while the other still serves the number buys nothing, so `#89` is not really shut until `#95`
+      is too.
+
 **Lot 2 — the offer→CV path gets judgement**
 
 `#129` before `#116`: the gate sits upstream of the judge, and on the Stakha case the CV should never
