@@ -1,15 +1,15 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-04
+Last updated: 2026-09-05
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-The `briefing` lot shipped (**0.17.1**): a second run of the day no longer destroys the first one's
-daily log, and a closed sprint no longer filters the task list. The offer→CV pipeline is still
-**fail-open on the comp gate** — next lot closes it (`#125`, `#106`, `#98`).
+The unattended offer→CV path now **fails closed**: unreadable thresholds abort the worker, a
+missing contact file refuses to render, and every resolver knows the Cowork `synced/` layout. Next
+up is `#89` (PII purge) — which needs the queue empty and the stale branches swept first.
 
 ## In Progress
 
@@ -20,38 +20,11 @@ daily log, and a closed sprint no longer filters the task list. The offer→CV p
 
 ## Backlog
 
-**Ordered 2026-09-04, after the first real `morning-briefing` run.** Five lots left, in sequence —
-the `briefing` lot that opened the queue shipped the same day, the order below is otherwise
+**Ordered 2026-09-04, after the first real `morning-briefing` run.** Four lots left, in sequence —
+the `briefing` and `jobsearch` lots that opened the queue both shipped, the order below is otherwise
 unchanged. Each lot is one release per plugin touched. Do not reorder without a reason written here.
 
-**Lot 1 — `jobsearch`: make the unattended path fail closed**
-
-One release. `#125` first — it is the only open defect that produces a *false application*.
-
-- [ ] [#125](https://github.com/BluegReeno/renaud-marketplace/issues/125) — the plugin resolver is
-      blind to the `synced/` layout. The three cascades (`cv-generator:119/258`, `cv-log-worker:72`,
-      `jobsearch-vault:83`) know `.remote-plugins/` but not `~/.claude/plugins/synced/`, and
-      `cv-log-worker:89` documents the fallback as **skip the comp gate**. Reported independently by
-      all three workers on 2026-09-04.
-- [ ] [#98](https://github.com/BluegReeno/renaud-marketplace/issues/98) — a missing contact file must
-      fail by default, not behind an opt-in flag. Exact same class as `#125`: a guard that fails
-      *open*, on the same unattended path. Fix it before automating further.
-- [ ] [#106](https://github.com/BluegReeno/renaud-marketplace/issues/106) — generate from Cowork
-      without the `--data-dir` workaround. Its `mkdtemp` fix and `#125`'s `synced/` glob are the same
-      "Cowork layout" problem; treating them apart means visiting the same code twice.
-- [ ] [#128](https://github.com/BluegReeno/renaud-marketplace/issues/128) — a scheduled interview
-      never reaches the candidature. Only `log-cr` writes `prochain_rdv`, i.e. *after* the interview;
-      `interview-prep` writes the `entretien` note and the hal task and nothing else. Hence 118 notes
-      with an empty `prochain_rdv` and a briefing blaming Renaud for a tooling hole. Side effect:
-      `📞 Entretien prévu` exists in `note_schemas.py:78` and no skill ever writes it.
-- [ ] [#126](https://github.com/BluegReeno/renaud-marketplace/issues/126) — recognise
-      `jobs-noreply@linkedin.com`. One table line in two files; rides along.
-- [ ] [#121](https://github.com/BluegReeno/renaud-marketplace/issues/121) — P4 must stop claiming
-      "15 yrs client-side". **The issue body was corrected on 2026-09-04**: the file is
-      `plugins/jobsearch/profiles/p4_cs_fde.md:13`, versioned here — a one-line PR, not the
-      out-of-repo edit the first draft described. Resync the private mirror afterwards.
-
-**Lot 2 — `#89`, its own session, with the queue empty**
+**Lot 1 — `#89`, its own session, with the queue empty**
 
 - [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — purge personal contact PII
       from this public repo's git history. Re-verified reachable on 2026-09-04 (`84189dc`, `f642f7d`,
@@ -61,7 +34,7 @@ One release. `#125` first — it is the only open defect that produces a *false 
       6 `archon/*`, `claude/gemini-connector-skill-setup-exupqr`, `feat/capture-improve-skills`) —
       the earlier "ten" was wrong.
 
-**Lot 3 — the offer→CV path gets judgement**
+**Lot 2 — the offer→CV path gets judgement**
 
 `#129` before `#116`: the gate sits upstream of the judge, and on the Stakha case the CV should never
 have been written at all.
@@ -77,7 +50,7 @@ have been written at all.
       2026-09-04, and gave it its best argument — 3 CVs generated unreviewed. `read-job-offer`
       already returns `freshness` and `applicant_count`.
 
-**Lot 4 — `jobsearch-vault`**
+**Lot 3 — `jobsearch-vault`**
 
 - [ ] [#127](https://github.com/BluegReeno/renaud-marketplace/issues/127) — the `statut` enum rejects
       what the vault and the process use. `note_schemas.py:74` lists 9 values; **29 of 118 notes carry
@@ -88,7 +61,7 @@ have been written at all.
       navigable both ways. A decision session first (options A–E), then the implementation; 22 of 25
       linked opportunities have no back-link today.
 
-**Lot 5 — debt, on no clock**
+**Lot 4 — debt, on no clock**
 
 - [ ] [#103](https://github.com/BluegReeno/renaud-marketplace/issues/103) — `jobsearch` hardcodes
       `workspace_slug="renaud"` in three skills; 11 occurrences, never covered by `#77`. A real design
@@ -121,6 +94,26 @@ have been written at all.
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] **The unattended path fails closed** — `#125`, `#98`, `#106`, `#126`, `#121`, `#128` in one lot
+      ([PR #131](https://github.com/BluegReeno/renaud-marketplace/pull/131), jobsearch **0.15.0** /
+      briefing **0.18.0**). Four resolvers learned the `synced/` layout (not three — `interview-prep`
+      had one too) and the canonical resolver in the marketplace guide with them; unreadable
+      thresholds now abort `cv-log-worker` instead of skipping the comp gate; a missing
+      `contact.local.json` exits 1 instead of rendering `contact@example.com`; `.cv_temp` moved to
+      `mkdtemp()`; new `--container-items`; `@linkedin.com` matched by domain; P4's false
+      "15 yrs client-side" replaced by the vault-traceable Artelia anchor, with a Step 2 rule that
+      cross-checks every career fact against the vault; new Step 4c carries a scheduled interview
+      back onto the candidature. **Found in passing:** `interview-prep` resolved the mounted private
+      mirror *first*, so a committed profile fix could never reach a machine holding the mirror —
+      demoted to last resort, which is what makes `#121` actually take effect — 2026-09-05
+
+- [x] **`#128` backfilled from the calendar** — Cognyx `2026-09-07` and OSS Ventures `2026-09-10`,
+      both promoted to `📞 Entretien prévu`. The issue's list was wrong: there is **no InsideBoard
+      event in either calendar** (its note already carried `2026-09-07`, entered by hand), the 07/09
+      slot is a **second Cognyx round** (`DS HSA: Renaud`, booked by `matthias@cognyx.io` minutes
+      after the first interview), and OSS has **two** slots — 10/09 and a founder interview on 16/09.
+      InsideBoard left untouched, pending confirmation that the interview exists — 2026-09-05
 
 - [x] [#123](https://github.com/BluegReeno/renaud-marketplace/issues/123) +
       [#124](https://github.com/BluegReeno/renaud-marketplace/issues/124) — the two `morning-briefing`
