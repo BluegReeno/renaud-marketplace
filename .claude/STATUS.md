@@ -28,11 +28,17 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
 
 - [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — purge personal contact PII
       from this public repo's git history. Re-verified reachable on 2026-09-04 (`84189dc`, `f642f7d`,
-      `d7b18b1`, …). Needs a human-authorised force-push, so: no PR in flight, the stale
-      branches swept first, and the GitHub Support request filed after — the rewrite alone does not
-      purge the cached SHAs. **16 stale remote branches counted 2026-09-04** (8 `fix/skill-issue-*`,
-      6 `archon/*`, `claude/gemini-connector-skill-setup-exupqr`, `feat/capture-improve-skills`) —
-      the earlier "ten" was wrong.
+      `d7b18b1`, …). Needs a human-authorised force-push, and **both preconditions are now met**
+      (2026-09-05): the 16 stale remote branches are deleted and no PR is in flight — `origin` holds
+      `main` alone. The GitHub Support request still has to be filed *after* the rewrite: it alone
+      purges the cached SHAs, which stay reachable otherwise.
+
+      The deleted branches' SHAs were recorded before deletion, and three of them carried work that
+      was never merged but was re-delivered elsewhere — `fix/skill-issue-29` → `jobsearch/log-cr`,
+      `fix/skill-issue-10` → `briefing/mail-triage`, `feat/capture-improve-skills` → the `improve`
+      plugin. Nothing was lost. Note `d7b18b1` below was the tip of `fix/skill-issue-80`: deleting
+      the branch does **not** make it unreachable, which is exactly why this issue needs the
+      rewrite plus Support.
 
 **Lot 2 — the offer→CV path gets judgement**
 
