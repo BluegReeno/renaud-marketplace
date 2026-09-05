@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.18.0
+
+- cv-log-worker: unreadable comp thresholds abort the worker (no CV, no candidature) instead of skipping the gate — the documented fallback that came within one manual find of logging an application 33 % under target; the thresholds resolver now knows the Cowork synced/ layout; any @linkedin.com sender maps to linkedin-alert (renaud#125, #126)
+
 ## briefing 0.17.1
 
 - morning-briefing: a second run of the day appends to the existing daily log instead of destroying it (Step 0.5 now reads today's too), and a closed `actuel` sprint no longer filters the task list — it shows every open task and names the transition_sprint that fixes the state (renaud#123, renaud#124)
@@ -68,6 +72,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
+
+## jobsearch 0.15.0
+
+- cv-generator: a missing contact.local.json now fails closed (exit 1, no PDF) with --allow-placeholder as the explicit demo escape hatch; .cv_temp moved to tempfile.mkdtemp() so generation into a mounted Drive stops raising PermissionError; new --container-items to override competency bullets without copying cv-master.json; DYLD_LIBRARY_PATH documented as macOS-only. interview-prep: new Step 4c writes prochain_rdv and « 📞 Entretien prévu » back onto the candidature under non-regression guards, and Step 2 now cross-checks profile career facts against the vault record — P4 no longer claims 15 yrs client-side. log-application: any @linkedin.com sender maps to linkedin-alert. All resolvers know the Cowork synced/ layout (renaud#125, #98, #106, #126, #121, #128)
 
 ## jobsearch 0.14.0
 

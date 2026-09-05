@@ -69,9 +69,9 @@ for mkt in ['renaud-marketplace']:
         if cands:
             print(cands[0]); sys.exit(0)
 
-matches = sorted(_glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}'),
-                 key=os.path.getmtime, reverse=True)
-for m in matches:
+sandbox = _glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}')
+sandbox += _glob.glob(str(home / '.claude/plugins/synced/*/jobsearch' / rel))
+for m in sorted(sandbox, key=os.path.getmtime, reverse=True):
     if 'jobsearch' in m:
         print(m); sys.exit(0)
 
@@ -85,10 +85,21 @@ PYEOF
 [ "$THRESHOLDS" = "THRESHOLDS_NOT_FOUND" ] || cat "$THRESHOLDS"
 ```
 
-Read `comp_floor_eur` and `target_comp_eur` from the result. If the file cannot be resolved,
-**do not fall back to a remembered figure** — skip the comp gate entirely, continue to Step B, and
-carry `comp gate skipped (thresholds unreadable)` into your Step D summary. A silently wrong floor
-rejects real offers; a skipped gate is visible.
+Read `comp_floor_eur` and `target_comp_eur` from the result.
+
+**If the file cannot be resolved, stop the worker.** Do not fall back to a remembered figure, and
+do not continue with the gate skipped: generate no CV, log no candidature, and return
+
+```
+❌ <company> — <role> : abandon, seuils de rémunération illisibles (THRESHOLDS_NOT_FOUND).
+   Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
+```
+
+This used to say "skip the comp gate — a skipped gate is visible". It was not. On 2026-09-04 all
+three workers hit `THRESHOLDS_NOT_FOUND` because the resolver ignored the `synced/` layout, and the
+50–60 k€ Albatross offer was rejected only because a human ran `find` by hand. A run that trusted
+the resolver would have produced a CV and logged an application 33 % under target, unprompted and
+unmarked. An abandoned offer costs one re-run; a false application is sent to a recruiter.
 
 ### 0.2 — Resolve the job description
 
@@ -121,13 +132,20 @@ Otherwise map `SENDER_EMAIL` to `source` using this table:
 
 | SENDER_EMAIL contains | `source` |
 |-----------------------|----------|
-| `jobalerts-noreply@` or `jobs-listings@linkedin.com` | `linkedin-alert` |
 | `messaging-digest-noreply@linkedin.com` | `linkedin-inmail` |
+| any other `@linkedin.com` sender (`jobalerts-noreply@`, `jobs-noreply@`, `jobs-listings@`, …) | `linkedin-alert` |
 | `welcometothejungle.com` | `wttj` |
 | `collective.work` or `malt.com` | `freelance` |
 | `taleez` / `myworkday` / `smartrecruiters` / `lever` / `greenhouse` | `direct-ats` |
 | a named recruitment firm (cabinet) | `headhunter` |
 | not matched | `other` |
+
+Rows are evaluated **top to bottom, first match wins** — which is why the InMail digest sits
+above the `@linkedin.com` catch-all. The catch-all replaced an enumeration of two exact
+addresses that did not include `jobs-noreply@linkedin.com`: on 2026-09-04 that sender alone
+produced 3 of the day's 13 digests, and the Anthropic and Stakha applications were logged
+`other`, under-counting the LinkedIn channel (renaud#126). Match on the domain, not on a list
+of local parts that LinkedIn changes without telling anyone.
 
 Set `source_detail` to the sender name or domain extracted from `SENDER_EMAIL`
 (e.g. `"LinkedIn Job Alerts"` or the cabinet name). Omit if not identifiable.

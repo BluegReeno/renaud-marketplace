@@ -275,8 +275,11 @@ for mkt in ['renaud-marketplace', 'bluegreen-marketplace']:
         if candidates:
             print(str(candidates[0].parent.parent)); sys.exit(0)
 
-# 3. Cowork sandbox
-for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/my_script.py']:
+# 3. Cowork sandbox — BOTH layouts, always. A session uses one or the other, and a
+#    resolver that knows only .remote-plugins/ reports "plugin not found" while the
+#    files sit in synced/ (renaud#125).
+for pat in ['/sessions/*/mnt/.remote-plugins/*/scripts/my_script.py',
+            str(home / '.claude/plugins/synced/*/my-plugin/scripts/my_script.py')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         print(os.path.dirname(os.path.dirname(matches[0]))); sys.exit(0)
@@ -297,6 +300,16 @@ if [ "$PLUGIN_DIR" = "PLUGIN_DIR_NOT_FOUND" ]; then
   exit 1
 fi
 ```
+
+**An unresolved plugin must stop the caller, never downgrade it.** The `exit 1` above is the whole
+point of the resolver. A skill that continues with a feature switched off — a gate not applied, a
+schema not checked — turns an environment problem into a silent behaviour change, and the run looks
+successful. `cv-log-worker` documented exactly that ("thresholds unreadable → skip the comp gate")
+and on 2026-09-04 it came within one manual `find` of logging an application 33 % below the floor.
+
+**A file versioned in the plugin outranks any mirror of it.** When the same file also exists in a
+mounted folder, the mirror tier goes **last**. Put it first and a committed fix never reaches a
+machine where the mirror exists — the stale copy wins, silently (renaud#121).
 
 ---
 

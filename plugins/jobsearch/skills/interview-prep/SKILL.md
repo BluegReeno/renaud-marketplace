@@ -42,6 +42,8 @@ Do not proceed until the candidature is unambiguously identified.
 
 Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise` + `poste` text match, then read the matching note. Capture:
 
+- **the note's vault-relative path** — Step 4c writes back to it, and re-searching there would risk landing on a different note.
+- `frontmatter.prochain_rdv` and `frontmatter.statut` — Step 4c's two guards compare against them.
 - `frontmatter.target_profile` — one of `"P1"` / `"P2"` / `"P3"` / `"P4"` / `"P5"`.
 - `frontmatter.entreprise` — the company wikilink.
 - `frontmatter.lien_offre` — optional URL.
@@ -56,7 +58,7 @@ Invoke `jobsearch-vault` to search `CRM-JobSearch/Opportunites/` by `entreprise`
 
 Read the file `profiles/p<n>_*.md` from this plugin's source tree, where `<n>` is the digit from `target_profile` (e.g. `P3` → `profiles/p3_cto.md`).
 
-These files live in the **mounted private folder** (`SynologyDrive-MyAssistant/jobsearch/private/profiles/`), NOT in the Obsidian vault and NOT in the plugin package — this repository is public, so they are untracked. That is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (mounted folder, dev workstation, marketplace cache, Cowork sandbox):
+These files are **versioned in this plugin**, under `profiles/p1`–`p5`. They are not in the Obsidian vault. A copy also sits in the mounted private folder (`SynologyDrive-MyAssistant/jobsearch/private/profiles/`) — that copy is a **mirror**, not the source, and the resolver checks it last so a stale mirror can never mask a committed fix. That is why `Read` is allow-listed alongside `Skill(jobsearch-vault)`. Use the PLUGIN_DIR resolver to locate `profiles/` in any environment (marketplace cache, Cowork sandbox, dev workstation, mounted mirror):
 
 ```bash
 PLUGIN_DIR=$(python3 - <<'PYEOF'
@@ -69,19 +71,6 @@ if env:
         log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} ACCEPTED")
         print(env); sys.exit(0)
     log(f"[plugin-dir] env JOBSEARCH_PLUGIN_DIR={env} REJECTED (no profiles/p1_architecte.md) — falling through")
-# The profiles carry personal narrative material and this repository is public, so they are
-# NOT shipped with the plugin. They live in the synced Drive folder, mounted both on the
-# workstation and in the Cowork sandbox. Checked before the plugin tiers below, which can
-# only ever match on a dev workstation holding the untracked source.
-for pat in ['/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
-            '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
-            '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md']:
-    matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
-    if matches:
-        plug = os.path.dirname(os.path.dirname(matches[0]))
-        log(f"[plugin-dir] mounted private folder ACCEPTED {plug}")
-        print(plug); sys.exit(0)
-log("[plugin-dir] mounted private folder no match — falling through")
 cache_root = home / '.claude' / 'plugins' / 'cache' / 'renaud-marketplace' / 'jobsearch'
 if cache_root.exists():
     candidates = sorted(cache_root.glob('*/profiles/p1_architecte.md'), key=lambda p: p.stat().st_mtime, reverse=True)
@@ -92,7 +81,8 @@ if cache_root.exists():
     log(f"[plugin-dir] marketplace cache {cache_root} exists but no profiles match — falling through")
 else:
     log(f"[plugin-dir] marketplace cache {cache_root} missing — falling through")
-for pat in ['/sessions/*/mnt/.remote-plugins/*/profiles/p1_architecte.md']:
+for pat in ['/sessions/*/mnt/.remote-plugins/*/profiles/p1_architecte.md',
+            str(home / '.claude/plugins/synced/*/jobsearch/profiles/p1_architecte.md')]:
     matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
     if matches:
         plug = os.path.dirname(os.path.dirname(matches[0]))
@@ -103,7 +93,21 @@ dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
 if dev.joinpath('profiles', 'p1_architecte.md').exists():
     log(f"[plugin-dir] dev path ACCEPTED {dev}")
     print(str(dev)); sys.exit(0)
-log(f"[plugin-dir] dev path {dev} no match — no resolver tier matched")
+log(f"[plugin-dir] dev path {dev} no match — falling through")
+# LAST tier, deliberately. The five profiles are versioned in this repo under profiles/, so the
+# plugin is the source and the mounted Drive copy is a mirror. It used to be checked FIRST, back
+# when the profiles were untracked — which meant a fix committed here never reached a workstation
+# where the mirror existed, and the stale copy silently won (renaud#121). Kept last so an
+# environment that mounts only the Drive still resolves.
+for pat in ['/Users/*/Library/CloudStorage/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md',
+            '/sessions/*/mnt/*/SynologyDrive-MyAssistant/jobsearch/private/profiles/p1_architecte.md']:
+    matches = sorted(_glob.glob(pat), key=os.path.getmtime, reverse=True)
+    if matches:
+        plug = os.path.dirname(os.path.dirname(matches[0]))
+        log(f"[plugin-dir] mounted private mirror ACCEPTED {plug} (last-resort tier)")
+        print(plug); sys.exit(0)
+log("[plugin-dir] mounted private mirror no match — no resolver tier matched")
 print('PLUGIN_DIR_NOT_FOUND')
 PYEOF
 )
@@ -118,6 +122,10 @@ fi
 ```
 
 Then `Read "$PLUGIN_DIR/profiles/p<n>_<label>.md"` (e.g. `p3_cto.md`). Quote — don't paraphrase — the load-bearing claims under the file's "Narrative rules" and "Key differentiators" H2s.
+
+**Verbatim quoting does not extend to career facts.** Before a claim carrying a *number or a position* — years, headcount, funding, revenue, a role, or which side of the table Renaud sat on — enters the prep, check it against `Profil — Renaud Laborbe — FR.md` / `— EN.md` in the vault (via `Skill(jobsearch-vault)`). **The vault record wins**, and any divergence is reported to Renaud in the Step 5 report rather than silently resolved. Everything else in the profile — framing, angles, anti-patterns — is quoted as written.
+
+This rule exists because `p4_cs_fde.md` asserted "15 yrs client-side" for months. Renaud has never worked client-side; Open Ocean, Artelia and Blue Green are all supplier-side. The claim was quoted verbatim into the 2026-09-04 InsideBoard prep — pitch, section 4 and three questions — and was caught by hand, one interview short of being said out loud (renaud#121).
 
 ## Step 3 — Compose the 5 sections (always identical structure)
 
@@ -220,6 +228,46 @@ Then apply the standard failure handling below if `create_task` also fails.
 
 Continue to Step 5 — the prep itself is intact. This is degraded but not broken.
 
+## Step 4c — Carry the interview back onto the candidature (via `jobsearch-vault`)
+
+Symmetric with Step 4b, and the reason it exists: **only `log-cr` ever wrote `prochain_rdv`** — that
+is, *after* the interview. A scheduled interview had no path to the `opportunite-js` note at all, so
+118 candidatures carried an empty `prochain_rdv` while three interviews were booked, and
+`/morning-briefing` reported that gap every morning as a data-entry failure by Renaud. It was a
+tooling hole (renaud#128). Side effect of the same hole: `📞 Entretien prévu` exists in
+`note_schemas.py` and no skill ever wrote it.
+
+On the `opportunite-js` note located in Step 1, call `jobsearch-vault` `update_frontmatter` — **one
+field per call**, so two calls:
+
+```
+update_frontmatter.py "<path to the opportunite-js note>" prochain_rdv "<YYYY-MM-DD of the interview>"
+update_frontmatter.py "<path to the opportunite-js note>" statut "📞 Entretien prévu"
+```
+
+Three guards, all load-bearing:
+
+- **Never regress a more advanced status.** If the note already carries `✅ Offre reçue` or
+  `❌ Refus`, leave `statut` alone — the process moved past the interview and this prep is not
+  evidence that it moved back. Write `prochain_rdv` anyway: a date is legitimate in every state.
+  `🔄 Relance à faire` (written by `log-cr` after a previous round) is **not** a more advanced
+  status — a new interview is a new round, so it does advance to `📞 Entretien prévu`.
+- **Never move a date backwards.** Step 4 is idempotent and a re-prep of an earlier slot must not
+  erase a later one: write `prochain_rdv` only when the new date is **later than or equal to** the
+  value already in place. An empty or absent value is always overwritten.
+- **Degrade, never block.** As in Step 4b, the prep note is the canonical delivery. If either call
+  fails, keep going and report it in Step 5:
+
+```
+⚠️  Fiche candidature NON mise à jour (prep Obsidian OK).
+    Stderr        : <error>
+    Impact        : la candidature ne porte ni prochain_rdv ni « 📞 Entretien prévu » — l'entretien
+                    n'apparaîtra pas dans le pipeline lu par /morning-briefing.
+    Recovery      : re-run /interview-prep (Step 4c is idempotent under the two guards above)
+```
+
+---
+
 ## Step 5 — Report to the user (in French)
 
 Render a concise summary, in French:
@@ -232,6 +280,9 @@ Render a concise summary, in French:
    🗓️ Date     : <YYYY-MM-DD> · type: <RH|Technique|Manager|Final>
    📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (renaud/jobsearch)
                   (omettre cette ligne si Step 4b a échoué — voir ⚠️ ci-dessus)
+   🗂️ Fiche     : prochain_rdv <YYYY-MM-DD> · statut « 📞 Entretien prévu »
+                  (si le statut a été laissé tel quel par la garde de non-régression, écrire
+                   « statut inchangé (<valeur>) » ; omettre la ligne si Step 4c a échoué)
 ```
 
 ## Step 6 — Constraints (load-bearing)

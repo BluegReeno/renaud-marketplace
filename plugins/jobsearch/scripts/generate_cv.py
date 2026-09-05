@@ -19,6 +19,7 @@ import re
 import shutil
 import sys
 import argparse
+import tempfile
 from pathlib import Path
 
 
@@ -186,7 +187,7 @@ def load_cv_data(data_dir=None):
         return json.load(f)
 
 
-def load_contact_info(data_dir=None, require_contact=False):
+def load_contact_info(data_dir=None, allow_placeholder=False):
     """Load phone/email/location from a file that is never committed.
 
     Resolution order, first hit wins:
@@ -195,10 +196,11 @@ def load_contact_info(data_dir=None, require_contact=False):
          survives a `plugin update` and is readable from the Cowork sandbox
       3. the plugin's own data/ directory — dev workstation fallback
 
-    See data/contact.example.json for the schema. Falls back to placeholder values
-    when no copy is found (fresh clone, second user, CI, Drive not mounted) — unless
-    require_contact is set, in which case that fallback is refused (exit 1) instead
-    of silently producing a CV with contact@example.com.
+    See data/contact.example.json for the schema. When no copy is found (fresh
+    clone, second user, CI, Drive not mounted) this **exits 1** and renders nothing:
+    a CV carrying contact@example.com is discovered by the recruiter who receives it,
+    not by the run that produced it. Pass allow_placeholder to get the old permissive
+    behaviour, for batch validation and demo CVs.
     """
     candidates = []
     if data_dir:
@@ -214,13 +216,14 @@ def load_contact_info(data_dir=None, require_contact=False):
                 return json.load(f)
 
     searched = ', '.join(str(p) for p in candidates)
-    if require_contact:
-        print("ERROR: --require-contact set but no contact.local.json found — refusing to generate a CV with placeholder contact info.")
+    if not allow_placeholder:
+        print("ERROR: no contact.local.json found — refusing to generate a CV with placeholder contact info.")
         print(f"       Looked in: {searched}")
         print("       To add: copy data/contact.example.json to one of those paths and fill it in.")
+        print("       To render a demo CV anyway: pass --allow-placeholder.")
         sys.exit(1)
 
-    print("WARNING: No contact.local.json found — CV will render placeholder contact info.")
+    print("WARNING: --allow-placeholder set and no contact.local.json found — CV will render placeholder contact info.")
     print(f"         Looked in: {searched}")
     print("         To add: copy data/contact.example.json to one of those paths and fill it in.")
     return {
@@ -267,7 +270,8 @@ def count_pdf_pages(pdf_path):
 
 
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
-                     output_dir=None, container_titles=None, bullet_overrides=None,
+                     output_dir=None, container_titles=None, container_items=None,
+                     bullet_overrides=None,
                      about_override=None, title_override=None,
                      compact_level=0, contact=None):
     """Generate customised HTML from template for the given profile×company_type cell."""
@@ -327,12 +331,34 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     html = html.replace('{{COMP_SECTOR_TITLE}}', titles[2])
 
     # === COMPETENCY ITEMS ===
+    items = [list(c['items']) for c in containers]
+
+    # Apply container item overrides — key: "{column}.{index}", e.g. "0.1".
+    # Symmetric with --bullet-overrides; without it, fixing one competency bullet meant
+    # copying cv-master.json to /tmp and running with --data-dir (renaud#106).
+    if container_items:
+        for key, new_text in container_items.items():
+            parts = key.split('.')
+            if len(parts) != 2:
+                print(f"WARNING: --container-items key '{key}' ignored — expected \"{{column}}.{{index}}\".")
+                continue
+            try:
+                col, idx = int(parts[0]), int(parts[1])
+            except ValueError:
+                print(f"WARNING: --container-items key '{key}' ignored — column and index must be integers.")
+                continue
+            if not (0 <= col < len(items)) or not (0 <= idx < len(items[col])):
+                print(f"WARNING: --container-items key '{key}' ignored — out of range "
+                      f"(columns 0-{len(items) - 1}, column {col} has {len(items[col]) if 0 <= col < len(items) else 0} items).")
+                continue
+            items[col][idx] = new_text
+
     html = html.replace('{{COMP_AI}}',
-                        '\n'.join(f'<li>{c}</li>' for c in containers[0]['items']))
+                        '\n'.join(f'<li>{c}</li>' for c in items[0]))
     html = html.replace('{{COMP_BUSINESS}}',
-                        '\n'.join(f'<li>{c}</li>' for c in containers[1]['items']))
+                        '\n'.join(f'<li>{c}</li>' for c in items[1]))
     html = html.replace('{{COMP_SECTOR}}',
-                        '\n'.join(f'<li>{c}</li>' for c in containers[2]['items']))
+                        '\n'.join(f'<li>{c}</li>' for c in items[2]))
 
     # === EXPERIENCES ===
     experiences = cv_data['experiences']
@@ -414,9 +440,9 @@ def html_to_pdf(html_path, pdf_path, base_url=None):
 def generate_cv(profile='p1', company_type='t4', lang='en',
                 output_filename=None, output_dir=None, data_dir=None,
                 company=None, job_title=None,
-                container_titles=None, bullet_overrides=None,
+                container_titles=None, container_items=None, bullet_overrides=None,
                 about_override=None, title_override=None,
-                require_contact=False):
+                allow_placeholder=False):
     """Generate a CV PDF for the given profile × company_type cell."""
 
     skill_dir = get_skill_dir()
@@ -427,8 +453,11 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    work_dir = output_dir / '.cv_temp'
-    work_dir.mkdir(exist_ok=True)
+    # System temp dir, never inside output_dir. A hidden .cv_temp/ under the target
+    # folder is refused on a mounted Synology Drive (PermissionError on the photo copy)
+    # even though the PDF itself writes there fine — which forced a generate-in-/tmp-then-cp
+    # workaround on every Cowork CV (renaud#106).
+    work_dir = Path(tempfile.mkdtemp(prefix='cv_generator_'))
 
     photo_src = skill_dir / 'assets' / 'photo.jpeg'
     # Fallback: user-managed location outside the (public) repo
@@ -442,7 +471,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         print("      To add: place photo.jpeg in ~/.claude/assets/photo.jpeg")
 
     cv_data = load_cv_data(data_dir)
-    contact = load_contact_info(data_dir, require_contact=require_contact)
+    contact = load_contact_info(data_dir, allow_placeholder=allow_placeholder)
 
     # Build output filename
     if output_filename is None:
@@ -467,6 +496,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         company_type=company_type,
         lang=lang,
         container_titles=container_titles,
+        container_items=container_items,
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=title_override,
@@ -488,6 +518,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
                 company_type=company_type,
                 lang=lang,
                 container_titles=container_titles,
+                container_items=container_items,
                 bullet_overrides=bullet_overrides,
                 about_override=about_override,
                 title_override=title_override,
@@ -502,10 +533,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         else:
             print(f"WARNING: CV still {pages} pages after all compact levels — content needs trimming.")
 
-    try:
-        shutil.rmtree(work_dir)
-    except Exception:
-        pass
+    shutil.rmtree(work_dir, ignore_errors=True)
 
     return output_pdf
 
@@ -547,14 +575,22 @@ Examples:
                         help='JSON dict of bullet overrides. '
                              'Key format: "{company}.{profile}.{lang}.{index}" '
                              '(e.g. \'{"blue_green.p4.fr.0": "New bullet"}\')')
+    parser.add_argument('--container-items',
+                        help='JSON object overriding individual container bullets. '
+                             'Key format: "{column}.{index}" (e.g. \'{"0.1": "New bullet"}\'), '
+                             'applied after the cell is resolved')
     parser.add_argument('--about-override',
                         help='JSON array of exactly 3 strings — replaces the about section')
     parser.add_argument('--title-override',
                         help='Plain string — replaces the job title line on the CV')
+    parser.add_argument('--allow-placeholder', action='store_true',
+                        help='Render a CV with placeholder contact info when no '
+                             'contact.local.json resolves, instead of exiting 1. '
+                             'For batch validation and demo CVs only')
+    # Retro-compat: the old opt-in guard, now the default. Accepted as a no-op so
+    # callers mid-flight keep working; it asks for what already happens.
     parser.add_argument('--require-contact', action='store_true',
-                        help='Exit non-zero without rendering a PDF if no real '
-                             'contact.local.json resolves (default: fall back to '
-                             'placeholder contact info)')
+                        help=argparse.SUPPRESS)
     # Hidden retro-compat flag
     parser.add_argument('--positioning',
                         help=argparse.SUPPRESS)
@@ -583,6 +619,15 @@ Examples:
                 parser.error("--container-titles must be a JSON array of exactly 3 strings")
         except json.JSONDecodeError as e:
             parser.error(f"--container-titles is not valid JSON: {e}")
+
+    container_items = None
+    if args.container_items:
+        try:
+            container_items = json.loads(args.container_items)
+            if not isinstance(container_items, dict):
+                parser.error("--container-items must be a JSON object")
+        except json.JSONDecodeError as e:
+            parser.error(f"--container-items is not valid JSON: {e}")
 
     bullet_overrides = None
     if args.bullet_overrides:
@@ -614,10 +659,11 @@ Examples:
         company=args.company,
         job_title=args.job_title,
         container_titles=container_titles,
+        container_items=container_items,
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=args.title_override,
-        require_contact=args.require_contact,
+        allow_placeholder=args.allow_placeholder,
     )
 
     print(f"\nCV ready: {pdf_path}")
