@@ -7,9 +7,10 @@ Last updated: 2026-09-05
 
 ## Current Focus
 
-The unattended offer→CV path now **fails closed**: unreadable thresholds abort the worker, a
-missing contact file refuses to render, and every resolver knows the Cowork `synced/` layout. Next
-up is `#89` (PII purge) — which needs the queue empty and the stale branches swept first.
+**Next session is `#89` alone** (PII purge, history rewrite + force-push). Every precondition is
+met: `origin` holds `main` only, 0 open PR, 0 Archon worktree. **Scope decided 2026-09-05: phone +
+postal address only** — 4 paths, including the two pre-rename `plugins/cv-generator/` ones; the
+email is out of scope. Start there, do nothing else in that session.
 
 ## In Progress
 
@@ -32,6 +33,16 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       (2026-09-05): the 16 stale remote branches are deleted and no PR is in flight — `origin` holds
       `main` alone. The GitHub Support request still has to be filed *after* the rewrite: it alone
       purges the cached SHAs, which stay reachable otherwise.
+
+      **Scope decided by Renaud on 2026-09-05: phone + postal address only** (4 paths — both the
+      `plugins/jobsearch/` and the pre-rename `plugins/cv-generator/` ones). The personal email is
+      **out of scope**: it stays visible in every commit's author field anyway, so rewriting ~9 more
+      paths triples the surface for no real gain. Acceptance criterion 1 is therefore closed.
+
+      Two other criteria are already met and should not be re-litigated: no open PR, and **no Archon
+      worktree** — the issue body says "the four Archon worktrees still checked out against this
+      repo" and there are none left (verified 2026-09-05). The one clone to recreate afterwards is
+      the plugin install cache at `~/.claude/plugins/marketplaces/renaud-marketplace`.
 
       The deleted branches' SHAs were recorded before deletion, and three of them carried work that
       was never merged but was re-delivered elsewhere — `fix/skill-issue-29` → `jobsearch/log-cr`,
