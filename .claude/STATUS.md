@@ -7,10 +7,10 @@ Last updated: 2026-09-05
 
 ## Current Focus
 
-**Next session is `#89` alone** (PII purge, history rewrite + force-push). Every precondition is
-met: `origin` holds `main` only, 0 open PR, 0 Archon worktree. **Scope decided 2026-09-05: phone +
-postal address only** — 4 paths, including the two pre-rename `plugins/cv-generator/` ones; the
-email is out of scope. Start there, do nothing else in that session.
+`#89` is rewritten and force-pushed (2026-09-05): a fresh clone is clean, 197 commits kept. **One
+step left, and it is Renaud's to take** — file the GitHub Support request, drafted at
+`~/.local/share/git-backups/issue89-github-support-request.md`. Until it lands, 125 pre-rewrite SHAs
+still serve the phone number. Then Lot 2 (`#129`, then `#116`).
 
 ## In Progress
 
@@ -25,31 +25,31 @@ email is out of scope. Start there, do nothing else in that session.
 the `briefing` and `jobsearch` lots that opened the queue both shipped, the order below is otherwise
 unchanged. Each lot is one release per plugin touched. Do not reorder without a reason written here.
 
-**Lot 1 — `#89`, its own session, with the queue empty**
+**Lot 1 — `#89`, done except the Support request**
 
-- [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — purge personal contact PII
-      from this public repo's git history. Re-verified reachable on 2026-09-04 (`84189dc`, `f642f7d`,
-      `d7b18b1`, …). Needs a human-authorised force-push, and **both preconditions are now met**
-      (2026-09-05): the 16 stale remote branches are deleted and no PR is in flight — `origin` holds
-      `main` alone. The GitHub Support request still has to be filed *after* the rewrite: it alone
-      purges the cached SHAs, which stay reachable otherwise.
+- [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — **the rewrite shipped
+      2026-09-05.** `git filter-repo --replace-text` over the phone and the Maps address string,
+      force-pushed to `origin/main`: `9b5731e` → `3293620`, 197 commits preserved, 23 contaminated
+      blobs across the 4 paths reduced to 0. Verified from a fresh clone (`git log --all -S` returns
+      nothing; an exhaustive scan of every blob returns nothing). Both local clones were recreated —
+      the working repo and the plugin cache at `~/.claude/plugins/marketplaces/renaud-marketplace`,
+      whose tracked content is byte-identical to before. 0 fork.
 
-      **Scope decided by Renaud on 2026-09-05: phone + postal address only** (4 paths — both the
-      `plugins/jobsearch/` and the pre-rename `plugins/cv-generator/` ones). The personal email is
-      **out of scope**: it stays visible in every commit's author field anyway, so rewriting ~9 more
-      paths triples the surface for no real gain. Acceptance criterion 1 is therefore closed.
+      **What remains blocks on a human: the GitHub Support request.** The rewrite did not end the
+      exposure. Measured after the force-push: **125 pre-rewrite commits are still reachable** and
+      the API still serves the phone number from them — e.g. `0288a19` via
+      `/contents/plugins/jobsearch/data/cv-master.json?ref=…`. The issue body's "20 commits" counted
+      only the commits that *modified* `cv-master.json`; 125 is the number that *carried* the file.
+      The drafted request and the SHA list sit outside the repo, on purpose — publishing 125
+      pointers to still-live PII in a public issue is the opposite of the goal:
 
-      Two other criteria are already met and should not be re-litigated: no open PR, and **no Archon
-      worktree** — the issue body says "the four Archon worktrees still checked out against this
-      repo" and there are none left (verified 2026-09-05). The one clone to recreate afterwards is
-      the plugin install cache at `~/.claude/plugins/marketplaces/renaud-marketplace`.
+      - `~/.local/share/git-backups/issue89-github-support-request.md` — ready to paste
+      - `~/.local/share/git-backups/issue89-stale-shas.txt` — the 125 SHAs, to attach
+      - `~/.local/share/git-backups/renaud-marketplace-pre89-20260905.bundle` — the pre-rewrite
+        history, kept until Support confirms; delete it then.
 
-      The deleted branches' SHAs were recorded before deletion, and three of them carried work that
-      was never merged but was re-delivered elsewhere — `fix/skill-issue-29` → `jobsearch/log-cr`,
-      `fix/skill-issue-10` → `briefing/mail-triage`, `feat/capture-improve-skills` → the `improve`
-      plugin. Nothing was lost. Note `d7b18b1` below was the tip of `fix/skill-issue-80`: deleting
-      the branch does **not** make it unreachable, which is exactly why this issue needs the
-      rewrite plus Support.
+      The last open criterion after that is a decision, not a task: whether a phone number exposed
+      for the lifetime of these commits warrants anything beyond removal.
 
 **Lot 2 — the offer→CV path gets judgement**
 
