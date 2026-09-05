@@ -172,6 +172,17 @@ python3 "$SCRIPTS/list_notes.py" "Taches" --field etiquettes --value "jobsearch"
 ```
 For list-valued fields (e.g. `etiquettes`), `--value` matches membership.
 
+### migrate_legacy_statuts.py — one-shot maintenance (not a caller-facing operation)
+
+```bash
+python3 "$SCRIPTS/migrate_legacy_statuts.py"            # dry run
+python3 "$SCRIPTS/migrate_legacy_statuts.py" --apply    # rewrite the notes
+```
+Rewrites `opportunite-js` notes still carrying a pre-#127 statut value
+(`❌ Sans suite (mort)`, `❌ Abandonné`, `⏳ Relance envoyée — en attente`) to
+their canonical replacement (`JS_STATUTS_LEGACY_ALIASES` in `note_schemas.py`).
+Run manually, once, against the vault — not invoked by any other skill.
+
 ## Step 4 — Common read recipes for callers
 
 - **Active candidatures** → `list_notes.py "CRM-JobSearch/Opportunites"`, exclude
@@ -189,8 +200,12 @@ For list-valued fields (e.g. `etiquettes`), `--value` matches membership.
 - **Manual YAML, never PyYAML.** Frontmatter is serialized by hand to preserve
   Obsidian's exact formatting and emoji enums.
 - **Emoji enums are verbatim.** `statut` values (`✉️ Candidature envoyée`,
-  `📞 Entretien prévu`, `❌ Refus`, …) and accents must be passed exactly —
-  re-typing an emoji loses the variation selector and fails validation.
+  `📞 Entretien prévu`, `❌ Refus`, `🗄️ Sans suite`, `⛔ Abandonné`, …) and
+  accents must be passed exactly — re-typing an emoji loses the variation
+  selector and fails validation. `🗄️ Sans suite` is for a dead application
+  (no reply, closed at the daily relance clean-up); `⛔ Abandonné` is for an
+  offer Renaud drops before ever sending — see `JS_STATUTS` in
+  `note_schemas.py` for the full enum.
 - **Wikilinks** are `"[[Note Title]]"`; the task's `opportunite` mirrors the
   candidature title exactly (em-dash ` — ` with spaces).
 - **`tache` enum** is `Pas commencée` / `Today` / `En cours` / `Terminé` /
