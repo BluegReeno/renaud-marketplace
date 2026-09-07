@@ -73,7 +73,6 @@ LEGACY_FIELDS = {"notion_id"}
 
 JS_STATUTS = [
     "📝 À postuler",
-    "📋 CV préparé — à envoyer",
     "✉️ Candidature envoyée",
     "📞 Entretien prévu",
     "🔄 Relance à faire",
@@ -81,7 +80,17 @@ JS_STATUTS = [
     "❌ Refus",
     "✅ Offre reçue",
     "⏸️ En pause",
+    "🗄️ Sans suite",
+    "⛔ Abandonné",
 ]
+
+# Legacy statut values found in the vault that predate the values above.
+# `migrate_legacy_statuts.py` rewrites these to their canonical replacement.
+JS_STATUTS_LEGACY_ALIASES = {
+    "❌ Sans suite (mort)": "🗄️ Sans suite",
+    "❌ Abandonné": "⛔ Abandonné",
+    "⏳ Relance envoyée — en attente": "✉️ Candidature envoyée",
+}
 
 ENTRETIEN_CATEGORIES = [
     "Préparation",
@@ -449,9 +458,11 @@ def _self_test():
     r = validate_create("opportunite-js", {"statut": "📞 Entretien prévu"})
     check("JS statut with emoji accepted", r.ok)
 
-    # 20b. New statut "CV préparé — à envoyer" (sub-agent fan-out)
-    r = validate_create("opportunite-js", {"statut": "📋 CV préparé — à envoyer"})
-    check("JS statut CV préparé accepted", r.ok)
+    # 20b. New closed-without-sending statuts (#127 — offers dropped pre-send or dead)
+    r = validate_create("opportunite-js", {"statut": "⛔ Abandonné"})
+    check("JS statut Abandonné accepted", r.ok)
+    r = validate_create("opportunite-js", {"statut": "🗄️ Sans suite"})
+    check("JS statut Sans suite accepted", r.ok)
 
     # 21. The categorie/interlocuteurs fix: zero warnings on a full entretien
     r = validate_create("entretien", {
