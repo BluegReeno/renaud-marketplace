@@ -47,8 +47,14 @@ OPTIONS_END = "<!-- improve-options:end -->"
 # returns no rows for it by design), but the MCP server it wraps lives in
 # BluegReeno/hal (see hal-mcp#94) — without this entry, `/improve hal` has
 # nowhere to land and falls back to the nearest marketplace wrapper.
+# `doctrine` and `maps` cover BLUEGREEN_MAP.md / PROJECTS_CLAUDE.md, which
+# live in BluegReeno/archon-workflows — a doctrine repo with no plugin, no
+# skill directory, and no marketplace.json at all. Before this entry existed
+# those observations had to be filed by hand (see archon-workflows#36-38).
 EXTRA_TARGETS = [
     ("hal", "—", "hal"),
+    ("doctrine", "—", "archon-workflows"),
+    ("maps", "—", "archon-workflows"),
 ]
 
 

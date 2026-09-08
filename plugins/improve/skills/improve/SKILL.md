@@ -2,7 +2,7 @@
 name: improve
 description: >
   Capture une observation sur n'importe quel skill et la transforme en GitHub
-  Issue (label `ai-improvable`) en ≤30 secondes, prête pour Archon. Accepte
+  Issue labellée en ≤30 secondes, prête pour Archon. Accepte
   `/improve <skill-name>` (skill connu directement) ou `/improve` seul (pose
   la question). Auto-détecte le repo cible depuis le nom du skill — jamais
   besoin de le préciser. Une seule question : le delta observé/attendu. Use
@@ -43,7 +43,7 @@ Inspecte d'abord `$ARGUMENTS` (ce que Renaud a tapé après `/improve`) :
   - `header`: "Skill"
   - `options`: liste des skills connus (verbatim — ne pas éditer à la main,
     dérivée du même tableau qu'au Step 2, donc jamais en dérive avec lui) :
-    <!-- improve-options:start -->`book-appointment`, `mail-triage`, `morning-briefing`, `improve`, `apply-to-offer`, `cover-letter`, `cv-generator`, `interview-prep`, `jobsearch-vault`, `log-application`, `log-cr`, `read-job-offer`, `mycoach`, `edifice`, `crm`, `linkedin`, `pm`, `sprint-planner`, `sprint-review`, `hal`<!-- improve-options:end -->
+    <!-- improve-options:start -->`book-appointment`, `mail-triage`, `morning-briefing`, `improve`, `apply-to-offer`, `cover-letter`, `cv-generator`, `interview-prep`, `jobsearch-vault`, `log-application`, `log-cr`, `read-job-offer`, `mycoach`, `edifice`, `crm`, `linkedin`, `pm`, `sprint-planner`, `sprint-review`, `hal`, `doctrine`, `maps`<!-- improve-options:end -->
 
 Ne demande **jamais** le repo — il est déduit automatiquement du skill (Step 2).
 
@@ -94,6 +94,8 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 | sprint-planner   | pm        | bluegreen-marketplace |
 | sprint-review    | pm        | bluegreen-marketplace |
 | hal              | —         | hal                   |
+| doctrine         | —         | archon-workflows      |
+| maps             | —         | archon-workflows      |
 
 <!-- improve-map:end -->
 
@@ -127,9 +129,23 @@ Si le tool est listé comme différé dans ton contexte, charge son schéma d'ab
 Paramètres :
 - `method`: `"create"`
 - `owner`: `"BluegReeno"`
-- `repo`: `<REPO>` (renaud-marketplace ou bluegreen-marketplace)
+- `repo`: `<REPO>` (déduit du tableau Step 2 — renaud-marketplace,
+  bluegreen-marketplace, hal, archon-workflows, ou tout futur `EXTRA_TARGETS`)
 - `title`: `"fix(skill:<skill-name>): <comportement attendu en <8 mots>"`
-- `labels`: `["ai-improvable"]` — seul label garanti existant dans les deux repos
+- `labels`: `[<label>]` — choisi selon `<repo>` via ce tableau (verbatim) :
+
+  | Repo                  | Label           |
+  |-----------------------|-----------------|
+  | renaud-marketplace    | `ai-improvable` |
+  | bluegreen-marketplace | `ai-improvable` |
+  | hal                   | `ai-improvable` |
+  | archon-workflows      | `documentation` |
+
+  Si `<repo>` n'apparaît pas dans ce tableau (nouvelle entrée
+  `EXTRA_TARGETS`), vérifie les labels réels du repo cible avant de créer
+  l'issue plutôt que de supposer `ai-improvable` — n'invente jamais un label
+  absent. Sans certitude, crée l'issue sans label plutôt qu'avec un label
+  inexistant (un label absent fait échouer la création).
 - `body`: voir template ci-dessous
 
 Template du body (remplacer tous les `<placeholders>`) :
