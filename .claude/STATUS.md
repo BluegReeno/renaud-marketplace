@@ -1,6 +1,6 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-05
+Last updated: 2026-09-08
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
@@ -119,6 +119,23 @@ have been written at all.
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] **`/improve` can file outside a marketplace** — `#133`
+      ([PR #134](https://github.com/BluegReeno/renaud-marketplace/pull/134), improve **0.4.0**).
+      Its skill→plugin→repo table was closed on three repos, and the rule "never ask for the repo"
+      made that closure absolute: three observations aimed at `BLUEGREEN_MAP.md` and
+      `PROJECTS_CLAUDE.md` had to be filed by hand with `gh`
+      (`archon-workflows#36`, `#37`, `#38`). Two `EXTRA_TARGETS` entries — `doctrine` and `maps` →
+      `archon-workflows` — plus a per-repo label table, because the label was hardcoded to
+      `ai-improvable` and **that label does not exist in `archon-workflows`**; a missing label
+      fails the creation outright. Re-measured against the four repos before merging: only
+      `documentation` is common to all four. Unknown target ⇒ check the real labels, or file with
+      none. — 2026-09-08
+
+      Delivered by `skill-improve`, and it was the run that proved that workflow's new `no_action`
+      gate ([archon-workflows#35](https://github.com/BluegReeno/archon-workflows/issues/35)): the
+      same workflow run on the *closed* `#126` now stops at layer 3/8 instead of reporting a green
+      delivery.
 
 - [x] **The unattended path fails closed** — `#125`, `#98`, `#106`, `#126`, `#121`, `#128` in one lot
       ([PR #131](https://github.com/BluegReeno/renaud-marketplace/pull/131), jobsearch **0.15.0** /
