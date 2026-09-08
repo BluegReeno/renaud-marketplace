@@ -2,7 +2,11 @@
 
 Personal Claude Code plugin marketplace — MCP servers and AI skills for daily productivity and job-search workflows.
 
-Powered by [hal](https://github.com/BluegReeno/hal) (CRM + morning briefing) and gmail-mcp (email workflows).
+Powered by [hal](https://github.com/BluegReeno/hal) — the AI foundation a small firm or a person
+runs on (pipeline, work, memory, documents) — and gmail-mcp (email workflows). The plugins here
+are **life-domains**, not hal pillars: a daily briefing, a job search, a weekly check-in. They
+store into hal's pillars because that is where structured rows live, which is a storage fact and
+not a statement about what they are for.
 
 ---
 
@@ -22,14 +26,18 @@ renaud-marketplace/
 │   │   │   ├── log-application/SKILL.md    ← skill
 │   │   │   ├── interview-prep/SKILL.md     ← skill
 │   │   │   ├── log-cr/SKILL.md             ← post-interview debrief (BANT template)
-│   │   │   └── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (shared library)
+│   │   │   ├── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (shared library)
+│   │   │   ├── read-job-offer/SKILL.md     ← LinkedIn JD reader (shared primitive, no browser)
+│   │   │   └── apply-to-offer/SKILL.md     ← manual offer → CV + logged candidature
 │   │   ├── commands/             ← slash commands
 │   │   │   ├── cover-letter.md
 │   │   │   ├── interview-prep.md
 │   │   │   └── log-application.md
 │   │   ├── profiles/             ← p1-p5 narrative files (read by cv-generator + interview-prep)
 │   │   ├── scripts/              ← Python - generate_cv.py, batch_validate.py
-│   │   ├── data/                 ← cv-master.json
+│   │   ├── data/                 ← cv-master.json, comp-thresholds.json (the only definition
+│   │   │                            site of comp_floor_eur / target_comp_eur / fire_tier_min_eur,
+│   │   │                            read by cv-log-worker and morning-briefing)
 │   │   └── templates/            ← cv_template.html
 │   ├── briefing/                 ← daily briefing plugin
 │   │   ├── .claude-plugin/
@@ -106,16 +114,18 @@ Without this file, Cowork does not know an MCP server is attached to the plugin.
 
 ## Plugins
 
-Snapshot as of 2026-08-30 — source of truth: `.claude-plugin/marketplace.json` and
-`plugins/<plugin>/.claude-plugin/plugin.json`, which `scripts/check_version_sync.sh` keeps
-identical. Never quote a version from this table without re-reading it there.
+**Versions are deliberately absent from this table.** It carried them until 2026-09-08 and was
+wrong on three of four — `jobsearch` 0.11.6 against 0.15.1, `briefing` 0.16.2 against 0.18.0,
+`improve` 0.3.0 against 0.3.2 — with a warning that it was only a snapshot, which repaired
+nothing. Read `.claude-plugin/marketplace.json` and `plugins/<plugin>/.claude-plugin/plugin.json`,
+which `scripts/check_version_sync.sh` keeps identical.
 
-| Plugin | Version | Skills | MCP server | Description |
-|--------|---------|--------|-------------|-------------|
-| `jobsearch` | 0.11.6 | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault` | `gmail-mcp` **through the `briefing` plugin** | CV generation, cover letter, application logging, interview prep, debrief logging, and job-search vault I/O (filesystem-only, shared library) |
-| `briefing` | 0.16.2 | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
-| `improve` | 0.3.0 | `improve` | — | Capture an observation about a skill → GitHub Issue in ≤30 s from Cowork (`/improve`) |
-| `mycoach` | 0.4.4 | `mycoach` | `hal-mcp` **through the `hal` plugin** | Weekly personal-development check-in — a structured CBT/SFBT session backed by a private OKF knowledge base |
+| Plugin | Skills | MCP server | Description |
+|--------|--------|-------------|-------------|
+| `jobsearch` | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault`, `read-job-offer`, `apply-to-offer` | `gmail-mcp` **through the `briefing` plugin** | CV generation, cover letter, application logging, interview prep, debrief logging, job-search vault I/O (filesystem-only, shared library), LinkedIn job-description reading, and the manual offer→CV route |
+| `briefing` | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
+| `improve` | `improve` | — | Capture an observation about a skill → GitHub Issue in ≤30 s from Cowork (`/improve`) |
+| `mycoach` | `mycoach` | `hal-mcp` **through the `hal` plugin** | Weekly personal-development check-in — a structured CBT/SFBT session backed by a private OKF knowledge base |
 
 `briefing` and `mycoach` **require the `hal` plugin** (`bluegreen-marketplace`) to be installed
 for their `mcp__plugin_hal_hal-mcp__*` calls — neither declares that server. `jobsearch` in turn
