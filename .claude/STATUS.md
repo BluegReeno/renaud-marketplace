@@ -7,10 +7,9 @@ Last updated: 2026-09-08
 
 ## Current Focus
 
-`#89` is rewritten and force-pushed (2026-09-05): a fresh clone is clean, 197 commits kept. **One
-step left, and it is Renaud's to take** — file the GitHub Support request, drafted at
-`~/.local/share/git-backups/issue89-github-support-request.md`. Until it lands, 125 pre-rewrite SHAs
-still serve the phone number. Then Lot 2 (`#129`, then `#116`).
+`#89` closed `not planned` 2026-09-09: the rewrite shipped (2026-09-05, `9b5731e` → `3293620`,
+197 commits kept, fresh clone clean) and the GitHub Support purge was **declined, not deferred** —
+do not re-open it as pending work. Lot 2 is the live queue: `#129`, then `#116`.
 
 ## In Progress
 
@@ -25,39 +24,25 @@ still serve the phone number. Then Lot 2 (`#129`, then `#116`).
 the `briefing` and `jobsearch` lots that opened the queue both shipped, the order below is otherwise
 unchanged. Each lot is one release per plugin touched. Do not reorder without a reason written here.
 
-**Lot 1 — `#89`, done except the Support request**
+**Lot 1 — `#89`, closed `not planned` 2026-09-09**
 
-- [ ] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — **the rewrite shipped
-      2026-09-05.** `git filter-repo --replace-text` over the phone and the Maps address string,
-      force-pushed to `origin/main`: `9b5731e` → `3293620`, 197 commits preserved, 23 contaminated
-      blobs across the 4 paths reduced to 0. Verified from a fresh clone (`git log --all -S` returns
-      nothing; an exhaustive scan of every blob returns nothing). Both local clones were recreated —
-      the working repo and the plugin cache at `~/.claude/plugins/marketplaces/renaud-marketplace`,
-      whose tracked content is byte-identical to before. 0 fork.
+- [x] [#89](https://github.com/BluegReeno/renaud-marketplace/issues/89) — the rewrite shipped
+      2026-09-05: `git filter-repo --replace-text` over the phone and the Maps address string,
+      `9b5731e` → `3293620`, 197 commits preserved, 23 contaminated blobs → 0, verified from a fresh
+      clone. Both local clones recreated, 0 fork.
 
-      **What remains blocks on a human: the GitHub Support request.** The rewrite did not end the
-      exposure. Measured after the force-push: **125 pre-rewrite commits are still reachable** and
-      the API still serves the phone number from them — e.g. `0288a19` via
-      `/contents/plugins/jobsearch/data/cv-master.json?ref=…`. The issue body's "20 commits" counted
-      only the commits that *modified* `cv-master.json`; 125 is the number that *carried* the file.
-      The drafted request and the SHA list sit outside the repo, on purpose — publishing 125
-      pointers to still-live PII in a public issue is the opposite of the goal:
+      **The GitHub Support request was declined by Renaud on 2026-09-09**, whose number it is — not
+      postponed. Accepted residual, on both public repos: a default clone, the web UI and code
+      search return nothing, while the value stays retrievable by explicit SHA and through the
+      pull-request refs — 125 pre-rewrite commits here, 242 on the sibling. The last open criterion,
+      *"whether the exposure warrants anything beyond removal"*, is answered by the same decision:
+      no.
 
-      - `~/.local/share/git-backups/issue89-github-support-request.md` — ready to paste
-      - `~/.local/share/git-backups/issue89-stale-shas.txt` — the 125 SHAs, to attach
-      - `~/.local/share/git-backups/renaud-marketplace-pre89-20260905.bundle` — the pre-rewrite
-        history, kept until Support confirms; delete it then.
-
-      The last open criterion after that is a decision, not a task: whether a phone number exposed
-      for the lifetime of these commits warrants anything beyond removal.
-
-      **The same number is exposed in the sibling public repo** — filed 2026-09-05 as
-      [bluegreen-marketplace#95](https://github.com/BluegReeno/bluegreen-marketplace/issues/95),
-      found while verifying this one. There it is live in `HEAD` (`plugins/edifice/skills/edifice/
-      SKILL.md`), not only in history: 31 blobs over 4 paths, 185 of 186 commits, and `origin` holds
-      22 branches — so its rewrite has a precondition this repo had already cleared. Purging one repo
-      while the other still serves the number buys nothing, so `#89` is not really shut until `#95`
-      is too.
+      The sibling `bluegreen-marketplace#95` was closed on the same terms the same day, after its
+      own `HEAD` fix (PR #96) and rewrite (`219bcbd` → `c5f29c4`) — so neither repo serves the
+      number to a default clone any more. The drafted request and the 125-SHA list stay at
+      `~/.local/share/git-backups/`, outside the repo, if the decision is revisited; both
+      pre-rewrite bundles were deleted.
 
 **Lot 2 — the offer→CV path gets judgement**
 
