@@ -51,7 +51,7 @@
       "Stakeholder & Client Engagement",
       "Cross-functional Team Management",
       "Agile Product Delivery",
-      "Full P&L responsibility",
+      "Full P&L responsibility for a business unit",
       "C-level negotiations",
       "Investor Relations & Fundraising",
       "Lab-to-Industrial Scale-up",
@@ -333,7 +333,7 @@
             "Trilingual, has worked in France, UK, Brazil and the US."
           ],
           "fr": [
-            "Architecte Solutions IA avec 20 ans d'expérience en énergie et ingénierie industrielle, dont 4 ans avec responsabilité P&L directe dans un groupe international (Artelia, Londres).",
+            "Architecte Solutions IA avec 20 ans d'expérience en énergie et ingénierie industrielle, dont 4 ans avec responsabilité P&L directe d'une business unit dans un groupe international (Artelia, Londres).",
             "Systèmes GenAI déployés en production dans des environnements régulés : analyse réglementaire éolien (EnBW France), diagnostics structurels IA (IC Ingénieurs Conseils, projets €25M–€35M).",
             "Trilingue opérationnel (français, anglais, portugais) — projets menés en France, UK, USA et Brésil."
           ]
@@ -354,7 +354,7 @@
               "items": [
                 "Stakeholder & Client Engagement",
                 "Cross-functional Team Management",
-                "Full P&L responsibility"
+                "Full P&L responsibility for a business unit"
               ]
             },
             {
@@ -381,7 +381,7 @@
               "items": [
                 "Engagement clients & parties prenantes",
                 "Management transverse",
-                "Responsabilité P&L complète"
+                "Responsabilité P&L complète d'une business unit"
               ]
             },
             {
@@ -395,8 +395,8 @@
           ]
         },
         "credibility_note": {
-          "en": "He knows both sides: inside an international engineering group (Artelia London, P&L, governance) and delivering AI in demanding environments (EnBW France — offshore wind tender analysis, sensitive data, French hosting). 15 years in energy = he talks business with operations, not just tech with IT.",
-          "fr": "Il connaît les deux faces : l'intérieur d'un groupe d'ingénierie international (Artelia Londres, P&L, gouvernance) et la livraison d'IA en environnement exigeant (EnBW France — analyse d'AO éolien offshore, données sensibles, hébergement France). 15 ans dans l'énergie = il parle métier avec les opérationnels."
+          "en": "He knows both sides: inside an international engineering group (Artelia London, business-unit P&L, governance) and delivering AI in demanding environments (EnBW France — offshore wind tender analysis, sensitive data, French hosting). 15 years in energy = he talks business with operations, not just tech with IT.",
+          "fr": "Il connaît les deux faces : l'intérieur d'un groupe d'ingénierie international (Artelia Londres, P&L d'une business unit, gouvernance) et la livraison d'IA en environnement exigeant (EnBW France — analyse d'AO éolien offshore, données sensibles, hébergement France). 15 ans dans l'énergie = il parle métier avec les opérationnels."
         }
       },
       "t5": {
@@ -600,7 +600,7 @@
               "title": "Team & P&L Leadership",
               "items": [
                 "Team Leadership (12 people)",
-                "Full P&L responsibility",
+                "Full P&L responsibility for a business unit",
                 "Enterprise Sales",
                 "C-level negotiations"
               ]
@@ -627,7 +627,7 @@
               "title": "Direction équipe & P&L",
               "items": [
                 "Leadership d'équipe (12 pers.)",
-                "Responsabilité P&L complète",
+                "Responsabilité P&L complète d'une business unit",
                 "Vente grands comptes",
                 "Négociations C-level"
               ]
@@ -660,10 +660,10 @@
           "en": [
             "15+ years in energy & engineering, incl. international group experience (London).",
             "Took AI from strategy to production for energy players.",
-            "Led cross-functional teams and full P&L."
+            "Led cross-functional teams and a business unit's full P&L."
           ],
           "fr": [
-            "Directeur transformation IA avec 20 ans en énergie et ingénierie, dont 4 ans avec P&L direct en groupe international (Artelia, Londres).",
+            "Directeur transformation IA avec 20 ans en énergie et ingénierie, dont 4 ans avec P&L direct d'une business unit en groupe international (Artelia, Londres).",
             "Parcours complet : de la stratégie IA à la mise en production dans des environnements régulés (éolien offshore, diagnostics structurels).",
             "Direction d'équipes transverses et de projets complexes — expérience opérationnelle des deux côtés : startup et grand groupe."
           ]
@@ -683,7 +683,7 @@
               "items": [
                 "Cross-functional Team Management",
                 "Stakeholder & Client Engagement",
-                "Full P&L responsibility",
+                "Full P&L responsibility for a business unit",
                 "AI Awareness Training"
               ]
             },
@@ -710,7 +710,7 @@
               "items": [
                 "Management transverse",
                 "Engagement clients & parties prenantes",
-                "Responsabilité P&L complète",
+                "Responsabilité P&L complète d'une business unit",
                 "Formation & sensibilisation à l'IA"
               ]
             },
@@ -849,7 +849,7 @@
                 "R&D Team Leadership (12 people)",
                 "Investor Relations & Fundraising",
                 "Lab-to-Industrial Scale-up",
-                "Full P&L responsibility"
+                "Full P&L responsibility for a business unit"
               ]
             },
             {
@@ -877,7 +877,7 @@
                 "Direction équipe R&D (12 pers.)",
                 "Relations investisseurs & levée de fonds",
                 "Scale-up labo → industriel",
-                "Responsabilité P&L complète"
+                "Responsabilité P&L complète d'une business unit"
               ]
             },
             {
@@ -1180,7 +1180,7 @@
                 "Enterprise Sales",
                 "C-level negotiations",
                 "Business Development",
-                "Full P&L responsibility"
+                "Full P&L responsibility for a business unit"
               ]
             },
             {
@@ -1207,7 +1207,7 @@
                 "Vente grands comptes",
                 "Négociations C-level",
                 "Business Development",
-                "Responsabilité P&L complète"
+                "Responsabilité P&L complète d'une business unit"
               ]
             },
             {
@@ -1532,7 +1532,7 @@
     "artelia": {
       "company": "Artelia",
       "location": "London, UK",
-      "period": "2019 – 2023",
+      "period": "2019 – 2022",
       "titles": {
         "p1": {
           "en": "Business Development & Project Director",
@@ -1559,12 +1559,12 @@
         "p1": {
           "default": {
             "en": [
-              "Full P&L responsibility; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
+              "Full P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
               "Directed offshore wind and marine infrastructure projects from scoping to delivery — technical and commercial governance",
               "Led product roadmap adaptation for offshore wind data platform — aligned engineering priorities with enterprise needs"
             ],
             "fr": [
-              "Assurer la responsabilité P&L ; portefeuille +15%/an — SBM Offshore, Nexans, ASN, Cadeler",
+              "Assurer la responsabilité P&L d'une business unit ; portefeuille +15%/an — SBM Offshore, Nexans, ASN, Cadeler",
               "Diriger des projets éolien offshore et infrastructures marines de l'avant-projet à la livraison — gouvernance technique et commerciale",
               "Piloter l'adaptation de la feuille de route d'une plateforme de données marines — priorités engineering alignées aux besoins clients"
             ]
@@ -1572,23 +1572,23 @@
           "t5": {
             "en": [
               "Grew renewable energy client portfolio 15% YOY — SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Contributed to offshore wind marine data platform roadmap — enterprise client needs into engineering specs"
             ],
             "fr": [
               "Développer le portefeuille EnR à +15% par an — SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Contribuer à la feuille de route d'une plateforme données marines éolien offshore — besoins clients en specs engineering"
             ]
           },
           "t4": {
             "en": [
-              "Full P&L responsibility; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
+              "Full P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
               "Directed offshore wind and marine infrastructure projects from scoping to delivery — technical and commercial governance",
               "Led product roadmap adaptation for offshore wind data platform — aligned engineering priorities with enterprise needs"
             ],
             "fr": [
-              "Assurer la responsabilité P&L ; portefeuille +15%/an — SBM Offshore, Nexans, ASN, Cadeler",
+              "Assurer la responsabilité P&L d'une business unit ; portefeuille +15%/an — SBM Offshore, Nexans, ASN, Cadeler",
               "Diriger des projets éolien offshore et infrastructures marines de l'avant-projet à la livraison — gouvernance technique et commerciale",
               "Piloter l'adaptation de la feuille de route d'une plateforme de données marines — priorités engineering alignées aux besoins clients"
             ]
@@ -1597,12 +1597,12 @@
             "en": [
               "C-level client management and framework contracts — SBM Offshore, Nexans, ASN, Cadeler — +15% YOY revenue growth",
               "Contributed to offshore wind data platform roadmap — enterprise client requirements into prioritised engineering specs",
-              "Full P&L responsibility"
+              "Full P&L responsibility for a business unit"
             ],
             "fr": [
               "Gérer les relations C-level et contrats-cadres — SBM Offshore, Nexans, ASN, Cadeler — +15% de croissance annuelle",
               "Contribuer à la feuille de route des services de données éolien offshore — besoins clients grands comptes en specs engineering priorisées",
-              "Assurer la responsabilité P&L"
+              "Assurer la responsabilité P&L d'une business unit"
             ]
           }
         },
@@ -1611,12 +1611,12 @@
             "en": [
               "Managed cross-functional teams delivering offshore wind data services to major European clients",
               "Drove 15% YOY revenue growth through strategic client engagement and C-level negotiations",
-              "Full P&L responsibility"
+              "Full P&L responsibility for a business unit"
             ],
             "fr": [
               "Diriger des équipes transverses livrant des services data éolien offshore à de grands clients européens",
               "Générer +15% de croissance annuelle via engagement client stratégique et négociations C-level",
-              "Assurer la responsabilité P&L"
+              "Assurer la responsabilité P&L d'une business unit"
             ]
           },
           "t3": {
@@ -1633,12 +1633,12 @@
           },
           "t4": {
             "en": [
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Grew client portfolio 15% YOY: C-level negotiations, framework renewals with SBM Offshore, Nexans, ASN, Cadeler",
               "Led digital product strategy — adapted marine data platform to enterprise maritime clients across Europe"
             ],
             "fr": [
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Développer le portefeuille à +15%/an : négociations C-level, renouvellements cadres (SBM Offshore, Nexans, ASN, Cadeler)",
               "Définir la stratégie produit numérique — adapter la plateforme data marine aux clients maritime enterprise Europe"
             ]
@@ -1646,12 +1646,12 @@
           "t5": {
             "en": [
               "Business Development & Project Director — grew offshore wind data portfolio 15% YOY at Artelia (6,000-person group)",
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Contributed to marine data platform product roadmap: engineering strategy at group level"
             ],
             "fr": [
               "Développer le portefeuille éolien offshore à +15%/an chez Artelia (groupe 6 000 personnes) — base Londres",
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Contribuer à la feuille de route produit data marine : stratégie technique au niveau groupe"
             ]
           }
@@ -1660,36 +1660,36 @@
           "default": {
             "en": [
               "Directed product strategy for marine data intelligence platform within Artelia (6,000-person engineering group)",
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
             ],
             "fr": [
               "Diriger la stratégie produit de la plateforme data marine au sein du groupe Artelia (6 000 personnes)",
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Livrer des projets pour SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — clients en contrat cadre long terme"
             ]
           },
           "t1": {
             "en": [
               "Directed marine data intelligence product strategy within Artelia (6,000-person engineering group) — London-based",
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
             ],
             "fr": [
               "Diriger la stratégie produit data marine au sein du groupe Artelia (6 000 personnes) — base Londres",
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Livrer des projets pour SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — clients en contrat cadre long terme"
             ]
           },
           "t5": {
             "en": [
               "Led product direction for marine data intelligence platform within Artelia (6,000-person engineering group)",
-              "Full P&L responsibility",
+              "Full P&L responsibility for a business unit",
               "Drove SaaS adaptation strategy for maritime industry: coordinated R&D, product, and commercial functions"
             ],
             "fr": [
               "Diriger la stratégie produit de la plateforme data marine chez Artelia — groupe ingénierie 6 000 personnes",
-              "Assurer la responsabilité P&L",
+              "Assurer la responsabilité P&L d'une business unit",
               "Définir la stratégie d'adaptation SaaS pour l'industrie maritime : coordonner R&D, produit et commercial"
             ]
           }
@@ -1701,7 +1701,7 @@
               "Participate from the inside in Artelia IT committees (6,000 people): cloud selection (AWS/GCP/Azure), Géoportail project — native understanding of technology adoption friction in a large enterprise"
             ],
             "fr": [
-              "Prendre en charge le développement commercial grands comptes en autonomie — refonte des CGV, +15% panier moyen, passage en abonnement premium (SBM Offshore, Nexans, ASN, Cadeler)",
+              "Prendre en charge le développement commercial grands comptes en autonomie — passage en abonnement premium (SBM Offshore, Nexans, ASN, Cadeler)",
               "Participer aux comités DSI d'Artelia (6 000 personnes) — sélection cloud (AWS/GCP/Azure), projets SI internes : comprendre de l'intérieur pourquoi un client industriel adopte ou rejette une solution technique"
             ]
           }
@@ -1711,12 +1711,12 @@
             "en": [
               "Managed offshore wind enterprise portfolio generating 15% YOY revenue growth",
               "Negotiated complex enterprise contracts with C-level executives across Europe",
-              "Created powerful presentations for Investor Days and C-Level meetings; Full P&L responsibility"
+              "Created powerful presentations for Investor Days and C-Level meetings; full P&L responsibility for a business unit"
             ],
             "fr": [
               "Gérer un portefeuille enterprise éolien offshore générant +15% de croissance annuelle",
               "Négocier des contrats enterprise complexes avec des dirigeants C-level à travers l'Europe",
-              "Créer des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; assumer le P&L complet"
+              "Créer des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; assumer le P&L complet d'une business unit"
             ]
           }
         }

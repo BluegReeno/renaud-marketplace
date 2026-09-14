@@ -76,7 +76,7 @@ Bad: "I am pleased to apply for the position of..."
 
 The proof paragraph follows the cell's narrative logic:
 - T3 (ESN): full lifecycle delivery, client advisory, tech leadership
-- T4 (Corporate): P&L, governance, enterprise scale, named institutional clients
+- T4 (Corporate): business-unit P&L, governance, enterprise scale, named institutional clients
 - T5 (AI Lab): velocity, LLM-native architecture, team + exit story
 - T1 (Scale-up): 0→1 build, current tech stack, team management
 - For solopreneur risk (T5): mention Open Ocean (12-person team, €2M, Seventure Partners)
@@ -109,7 +109,7 @@ Always: "Renaud Laborbe" — no "Cordialement" or "Sincerely," — just the name
 | Blue Green — IC Ingénieurs Conseils | AI-assisted building diagnostics, Aulnay (€25M) + La Ferme du Temple (€35M) |
 | Blue Green — WattCast | D+1 MAE 12.42 EUR/MWh, LEAR + XGBoost ensemble, EPEX SPOT France |
 | Blue Green — BlueWind Companion v2.2 | 91 regulatory docs, 22,800 chunks, 5 agents, Next.js + FastAPI + pgvector |
-| Artelia | Full P&L (renewables & energy BU, London), +15% YOY, clients: SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler |
+| Artelia | Full P&L for **a business unit** (never name it — London), +15% YOY, clients: SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler |
 | Open Ocean | Team of 12, €2M from Seventure Partners + Cap Décisif/FNA (institutional VCs), acquired by Artelia (2019), clients: Naval Group (ex-DCNS), RTE, Doris Engineering |
 
 ---
