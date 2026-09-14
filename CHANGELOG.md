@@ -73,6 +73,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.16.0
+
+- log-cr: le CR se remplit depuis le transcript Granola (Step 1bis) — heure, interlocuteurs, BANT, questions, next steps ; feeling et Lecture Renaud restent demandés ; fallback déclaratif si pas de transcript ; granola_id en frontmatter ; docs/bant-cr-template.md resynchronisé (feeling 🔥/🟡/❌, 5 sections)
+
 ## jobsearch 0.15.1
 
 - fix(jobsearch-vault): add missing statut enum values (Sans suite, Abandonné), drop dead alias
