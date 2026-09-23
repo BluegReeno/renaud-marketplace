@@ -1,22 +1,21 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-08
+Last updated: 2026-09-23
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-`#89` closed `not planned` 2026-09-09: the rewrite shipped (2026-09-05, `9b5731e` → `3293620`,
-197 commits kept, fresh clone clean) and the GitHub Support purge was **declined, not deferred** —
-do not re-open it as pending work. Lot 2 is the live queue: `#129`, then `#116`.
+Lot 2 (`#129`, `#116`), `#138` and `#103` shipped 2026-09-23. Next: a real `morning-briefing` run
+to see `cv-judge` and the role gate at work, then Lot 3 (`#127`, `#119`).
 
 ## In Progress
 
-- [ ] **Have the CV judged again.** The independent recruiter agent that failed the 2026-08-28
-      `p4×t5` batch has not seen the corrected output. The mechanical criteria of `#105` all pass;
-      whether the content now convinces is unmeasured. Unchanged by the 2026-09-04 run, which
-      generated 3 CVs with no review at all — see `#116`.
+- [ ] **Watch `cv-judge` on a real run.** Since `#116` every generated CV is reviewed by
+      `cv-judge` before logging, in up to two rounds. Whether its verdicts match Renaud's read, and
+      whether `role-criteria.json` (`#129`) stops a Stakha-type offer upstream, is unmeasured until
+      the next `morning-briefing` fan-out.
 
 ## Backlog
 
@@ -44,22 +43,6 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       `~/.local/share/git-backups/`, outside the repo, if the decision is revisited; both
       pre-rewrite bundles were deleted.
 
-**Lot 2 — the offer→CV path gets judgement**
-
-`#129` before `#116`: the gate sits upstream of the judge, and on the Stakha case the CV should never
-have been written at all.
-
-- [ ] [#129](https://github.com/BluegReeno/renaud-marketplace/issues/129) — no qualitative gate. The
-      worker's only filter is the comp gate; the disqualifiers live as prose in Step 1g's `❌` row and
-      are never read by `cv-log-worker`. On 2026-09-04 that produced a full CV + vault note + relance
-      task for Stakha, which Renaud discarded on sight ("trop infra pour moi"). His criterion is
-      recorded in hal and nowhere in this repo, so the next fan-out repeats it. Proposed:
-      `plugins/jobsearch/data/role-criteria.json`, on the documented model of `comp-thresholds.json`.
-- [ ] [#116](https://github.com/BluegReeno/renaud-marketplace/issues/116) — two-round judge loop and
-      fit × freshness ordering. **Unblocked**: the validation run it was held for passed on
-      2026-09-04, and gave it its best argument — 3 CVs generated unreviewed. `read-job-offer`
-      already returns `freshness` and `applicant_count`.
-
 **Lot 3 — `jobsearch-vault`**
 
 - [ ] [#127](https://github.com/BluegReeno/renaud-marketplace/issues/127) — the `statut` enum rejects
@@ -73,10 +56,6 @@ have been written at all.
 
 **Lot 4 — debt, on no clock**
 
-- [ ] [#103](https://github.com/BluegReeno/renaud-marketplace/issues/103) — `jobsearch` hardcodes
-      `workspace_slug="renaud"` in three skills; 11 occurrences, never covered by `#77`. A real design
-      pass plus one out-of-repo hal config (`allowed_tags`). The CI exclusion
-      `JOBSEARCH_WORKSPACE_DEBT` disappears when this closes.
 - [ ] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — **rewritten 2026-09-04**.
       It used to ask for per-plugin CHANGELOGs, which breaks `check_version_sync.sh`; it now describes
       what is actually wrong with the root file: `jobsearch` documents 15 of 38 shipped versions,
@@ -104,6 +83,17 @@ have been written at all.
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] **Four issues through `skill-improve`, one at a time, each PR merged before the next run**
+      so every `release.sh` bump started from the previous one. `#116` (PR #139, briefing
+      **0.19.0**): new `cv-judge` agent, two-round review, fit × freshness ordering. `#129`
+      (PR #140, briefing **0.20.0** / jobsearch **0.16.2**): qualitative gate, single definition
+      site `jobsearch/data/role-criteria.json`. `#138` (PR #141, jobsearch **0.17.0**): BANT
+      aggregated on the `opportunite-js`, new `upsert_section.py`. `#103` (PR #142, jobsearch
+      **0.18.0**): workspace resolved at runtime, `JOBSEARCH_WORKSPACE_DEBT` removed. **The
+      workflow's gate missed one CI failure**: it runs `check_*.sh`, not `test_*.sh`, so the
+      offline test still asserting the removed exclusion failed on the PR and was fixed by hand
+      (`1139517`) — 2026-09-23
 
 - [x] **`/improve` can file outside a marketplace** — `#133`
       ([PR #134](https://github.com/BluegReeno/renaud-marketplace/pull/134), improve **0.4.0**).
