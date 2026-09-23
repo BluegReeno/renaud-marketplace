@@ -284,7 +284,20 @@ CV** — they are never handed to a worker. Say it in the offers block rather th
 If `read-job-offer` returns `status: unavailable` for a specific offer — both branches failed — skip
 that offer and move to the next; do not fail the whole pipeline.
 
-Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score emoji, and a **one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an offer left beyond the enrichment bound — say which).
+**Ordering — fit×freshness composite, not closing-risk.** Offers are grouped by tier first (🔥
+before 🟡 before ❌-excluded) and **never** reordered across tiers — fit stays dominant; a 🟡 offer
+never outranks a 🔥 one regardless of freshness. *Within* a tier, once `freshness` and
+`applicant_count` are known (post-enrichment), they act as a **modulator**, breaking ties among
+same-tier offers: an offer published under 24h ago, or with under 30 applicants, moves ahead of a
+same-tier offer published over 3 days ago or with over 100 applicants. This is deliberately not an
+estimate of when an offer will close — closing risk isn't reliably knowable (a posting can close in
+2 days or stay open 6 weeks) — it orders on what's actually measured: how new and how contested the
+posting already is. This composite order is what Step 1h uses to decide which offers get a worker
+first when the 8-worker bound bites.
+
+Surface the **top 2-3 offers**, in composite order, with: title, company, score emoji, and a
+**one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an
+offer left beyond the enrichment bound — say which).
 
 ### 1h — CV fan-out (spawn sub-agents for 🔥 offers)
 
@@ -292,11 +305,20 @@ Surface the **top 2-3 offers** (🔥 before 🟡) with: title, company, score em
 
 Skip if there are no 🔥 offers after the Step 1g dedup pass.
 
-For **every** 🔥 offer not already in the vault, spawn one `cv-log-worker` sub-agent **in parallel**
-using the `Agent` tool. There is no product cap: five strong offers in a morning means five CVs.
+For **every** 🔥 offer not already in the vault, spawn one `cv-log-worker` sub-agent, ordered by
+the fit×freshness composite from Step 1g. There is no product cap: five strong offers in a
+morning means five CVs.
+
+**Spawn in the foreground, not the background.** `cv-log-worker` now judges its own CV before
+logging (see `cv-log-worker.md` Steps B.5/B.6) — that requires the `Agent` tool, and a
+*background* sub-agent never has `Agent` in its toolbox at any depth. So every call below must
+set `run_in_background: false`. Parallelism is not lost: issue all of this run's `Agent(...)`
+calls as separate tool-use blocks **in the same message** — foreground calls emitted together
+still run concurrently, they just each return a result inline instead of via a later
+notification.
 
 ```
-Agent(cv-log-worker, prompt="""
+Agent(cv-log-worker, run_in_background: false, prompt="""
 JOB_TITLE: <title>
 COMPANY: <company>
 JD_TEXT: <`jd_text` from `read-job-offer`>
@@ -317,12 +339,14 @@ so in the brief on its own line, never truncate silently:
 11 offres 🔥 — 8 traitées, 3 listées sans CV
 ```
 
-Beyond the bound, order by score then freshness (`freshness` from Step 1g), then closest location
-to Paris. The offers left out are still surfaced in the offers block with their "pourquoi", flagged
-`sans CV`.
+Beyond the bound, offers drop in fit×freshness composite order (Step 1g) — the same order used to
+decide which 8 get spawned first. The offers left out are still surfaced in the offers block with
+their "pourquoi", flagged `sans CV`.
 
-Collect each sub-agent's result — one line per offer:
-- Success: `CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <filename> | Source : <source>`
+Collect each sub-agent's result — one line per offer, verbatim as `cv-log-worker` returned it (its
+Step D format now includes a `Juge : <v1>→<v2>/10` fragment — surface the whole line, never
+truncate or reformat it):
+- Success: `CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <filename> | Source : <source> | Juge : <v1>→<v2>/10`
 - Degraded: the same line with a trailing `| ⚠️ <what was degraded>` — surface it as-is, never strip the marker
 - Failure: `ÉCHEC | <JOB_TITLE> — <COMPANY> | <reason>`
 
@@ -568,6 +592,8 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
 - **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
 - **Agent fan-out: no product cap, one safety bound of 8** — every 🔥 deduped offer gets a worker. The bound exists against runaway, and **it is never silent**: when it bites, the brief carries `N offres 🔥 — 8 traitées, M listées sans CV`. Truncating without saying so is the same failure class as the silent skip removed in `#115`.
+- **Offers rank fit first, freshness second, never by estimated closing risk** — a tier boundary (🔥/🟡/❌) is never crossed by freshness or applicant count; within a tier, the newest/least-contested offer moves first, both in what's surfaced and in fan-out order (Step 1g/1h). Closing risk was tried and rejected: it isn't reliably knowable (renaud#116 — an offer closed in 2 days while others stay open 6 weeks).
+- **Spawn `cv-log-worker` in the foreground** — `run_in_background: false` on every call. Since Step B.5/B.6 of `cv-log-worker` spawn `cv-judge`, the worker itself needs the `Agent` tool, which a background sub-agent never has. Concurrency comes from issuing every call in one message, not from background mode.
 - **A worker is never spawned without a real JD** — an offer that Step 1g could not enrich is surfaced without a CV. A CV built from a digest snippet is worse than no CV: it is plausible, hollow, and unmarked.
 - **No compensation figure is written in this file** — `fire_tier_min_eur` and `comp_floor_eur` are read from `jobsearch/data/comp-thresholds.json` at Step 1g. One definition site, changed there and nowhere else.
 - **Sub-agent failures are loud** — if a `cv-log-worker` returns `ÉCHEC`, surface `⚠️ CV non généré — <company> : <reason>` in the "CVs préparés ce run" section. Never silently drop a sub-agent failure.
