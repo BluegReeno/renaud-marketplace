@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.19.0
+
+- Judge-review CVs before logging (two-round cv-judge sub-agent) and order offers by fit×freshness instead of fit alone
+
 ## briefing 0.18.0
 
 - cv-log-worker: unreadable comp thresholds abort the worker (no CV, no candidature) instead of skipping the gate — the documented fallback that came within one manual find of logging an application 33 % under target; the thresholds resolver now knows the Cowork synced/ layout; any @linkedin.com sender maps to linkedin-alert (renaud#125, #126)

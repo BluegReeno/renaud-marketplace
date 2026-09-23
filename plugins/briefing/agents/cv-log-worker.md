@@ -6,12 +6,15 @@ description: >
   read-job-offer — and accepts a pre-fetched `JD_TEXT` when the caller already
   has one. Checks compensation against the floor defined in
   jobsearch/data/comp-thresholds.json (rejects only on an explicit figure below
-  it), generates a 1-page PDF CV via cv-generator, then logs the application via
+  it), generates a 1-page PDF CV via cv-generator, runs it through a two-round
+  independent judge (cv-judge) before logging, then logs the application via
   log-application with status "📝 À postuler". Returns a one-line summary.
-  Two callers: morning-briefing spawns it in parallel over the morning's 🔥
-  offers, apply-to-offer spawns one on a pasted URL. Never auto-applies, never
+  Two callers: morning-briefing spawns it over the morning's 🔥
+  offers, apply-to-offer spawns one on a pasted URL. Must run in the foreground
+  (`run_in_background: false`) — it spawns cv-judge itself, and a background
+  sub-agent has no Agent tool at all. Never auto-applies, never
   sends messages, never generates cover letters.
-allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(log-application)"
+allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(log-application) Agent(cv-judge) SendMessage"
 ---
 
 # CV Log Worker — Sub-agent Instructions
@@ -213,6 +216,72 @@ Note the detected profile (e.g. `P4`) and the generated PDF filename.
 
 If `cv-generator` fails → proceed to Step D with failure reason. Do not abort.
 
+## Step B.5 — Judge review, Tour 1
+
+Skip this step entirely if Step B failed — there is no CV to judge. Proceed to Step C (which
+will itself skip, having no CV) with the failure noted for Step D.
+
+**If the `Agent` tool is unavailable in this context** (this worker was itself spawned in
+background mode — a background sub-agent never has `Agent` in its toolbox, at any depth), skip
+Steps B.5 and B.6 and append `⚠️ CV non jugé — worker en mode background, Agent indisponible` to
+Step D. This is a caller misconfiguration, not something to work around here: the caller
+(`morning-briefing` Step 1h or `apply-to-offer`) must spawn this worker with
+`run_in_background: false`.
+
+Otherwise, spawn the judge, **foreground** (you need its verdict before deciding what to
+regenerate):
+
+```
+Agent(cv-judge, run_in_background: false, prompt="""
+JD_TEXT: <the full job description text>
+CV_PATH: <absolute path to the PDF generated in Step B>
+JOB_TITLE: <JOB_TITLE>
+COMPANY: <COMPANY>
+PROFILE: <profile/cell detected in Step B, e.g. P4×T5 EN>
+""")
+```
+
+Keep the returned agent identity — Tour 2 resumes this exact agent, never a new one.
+
+**Apply the corrections the judge marked as ready-to-paste** — only the ones that name what they
+displace (a bullet swapped, a claim shortened, a sentence cut). Skip any suggestion that is a net
+addition with nothing removed, and skip any suggestion the judge itself routed to "note
+d'entretien" instead of the CV body (an in-progress skill, an unverified claim). Regenerate via
+`Skill(cv-generator)` with the accepted corrections (`--bullet-overrides`, `--about-override`,
+`--container-items`, etc. — whichever cv-generator flags fit the correction). Note the new PDF
+path (may be unchanged if cv-generator overwrites in place).
+
+**Never accept a CV at cv-generator's tightest compression level.** cv-generator retries up to
+three progressively tighter compact CSS levels before it warns of page overflow; the tightest
+makes the font too small to read comfortably. If cv-generator's own report warns of overflow
+after all three levels, or the regenerated PDF visibly reads as cramped when you check it, the
+fix is to **cut** judge-flagged filler or the lowest-impact accepted addition — never to leave it
+at the tightest level. Regenerate again after cutting if needed.
+
+## Step B.6 — Judge review, Tour 2 (short)
+
+Resume the **same** judge agent from Step B.5 via `SendMessage` — never spawn a second
+`Agent(cv-judge, ...)`; the whole point of Tour 2 is the context (documents already read, Tour 1
+verdict already formed) staying loaded:
+
+```
+SendMessage(to: <the cv-judge agent id from Step B.5>, message="""
+CV_PATH: <path to the regenerated PDF>
+Corrections applied: <list of Tour 1 corrections actually applied>
+Corrections skipped: <list of Tour 1 corrections skipped, with why>
+""")
+```
+
+Apply the same rule as Tour 1 — accepted corrections must be swaps, never additions — and
+regenerate once more via `Skill(cv-generator)` if the judge's Tour 2 response calls for it. This
+is the final CV; it proceeds to Step C.
+
+**Never block logging on an imperfect Tour 2 verdict.** If the judge still reports something
+broken that cannot be fixed without exceeding the page (e.g. the JD asks for two contradictory
+things), proceed to Step C anyway — the constraint here is "never silent", not "never
+imperfect". Carry the judge's final score and its top unresolved issue into Step D as a
+degradation instead of withholding the CV.
+
 ## Step C — Log the application
 
 Invoke `Skill(log-application)` with:
@@ -223,7 +292,8 @@ Invoke `Skill(log-application)` with:
 - Source detail: the `source_detail` from Step A (omit if empty)
 - URL: `JOB_URL` (omit if empty string)
 - Statut: `📝 À postuler`
-- CV path: `jobsearch/<cv_filename>` (only if Step B succeeded; omit if Step B failed)
+- CV path: `jobsearch/<cv_filename>` — the **final** PDF, after Steps B.5/B.6's corrections if the
+  judge ran, otherwise Step B's (only if Step B succeeded; omit if Step B failed)
 - CV profile: the profile detected in Step B, e.g. `P4` (only if Step B succeeded; omit if Step B failed)
 
 If `log-application` fails → proceed to Step D with failure reason.
@@ -236,17 +306,24 @@ If `log-application` fails → proceed to Step D with failure reason.
 
 **On success (both B and C succeeded):**
 ```
-CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | Source : <source> | <freshness>, <applicant_count> candidats
+CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <cv_filename> | Source : <source> | Juge : <v1>→<v2>/10 | <freshness>, <applicant_count> candidats
 ```
 
 Append the freshness and applicant-count fragment only when Step 0.2 actually returned them; omit
-it silently otherwise — never print an empty or guessed value.
+it silently otherwise — never print an empty or guessed value. Append the `Juge :` fragment only
+when Step B.5 actually ran (omit it, and the whole segment, if the judge was skipped per Step B.5's
+background-mode note).
 
 **If any degradation occurred**, append it to the line after a `| ⚠️ ` marker — one fragment per
 degradation, and never drop one:
 
 - `⚠️ comp gate skipped (thresholds unreadable)`
 - `⚠️ JD partielle` — the JD resolved but is under 500 characters
+- `⚠️ CV non jugé — worker en mode background, Agent indisponible` — Step B.5/B.6 skipped entirely
+- `⚠️ ancre corrigée (parcours ≠ cv-master.json) : <quoi>` — the judge caught a factual conflict and
+  it was fixed; say what, so Renaud sees it went through without having to re-check
+- `⚠️ juge : <résumé du problème résiduel>` — Tour 2 still reported something unresolved that could
+  not be fixed without exceeding the page
 
 **On partial or total failure:**
 ```
@@ -265,3 +342,12 @@ degradation, and never drop one:
 - **Never invent a JD.** The CV is built from a job description that was actually read — via `JD_TEXT` from the caller or `Skill(read-job-offer)` in Step 0.2. A digest snippet, a title, or a company description is not a JD: return `ÉCHEC` rather than a CV built on one.
 - **Never hardcode a compensation figure.** Every threshold comes from `jobsearch/data/comp-thresholds.json`, read at Step 0.1. If it is unreadable the gate is skipped and said out loud — it is never replaced by a remembered number.
 - **One definition site per figure.** If a threshold needs to change, it changes in that file, not here and not in `morning-briefing`.
+- **No CV is logged unjudged, except when the judge is genuinely unavailable.** Steps B.5 and B.6
+  run for every successfully generated CV. The one accepted skip is background-mode
+  (Step B.5) — and that skip is always loud in Step D, never silent.
+- **A judge rewrite without a named displacement is never applied.** The page is already full —
+  applying a net-addition suggestion is exactly what pushes a CV to cv-generator's tightest,
+  barely-legible compression level. Cut before you add.
+- **`renaud/parcours` outranks `cv-master.json`.** When the judge flags a conflict between them,
+  the correction follows `parcours`, and Step D says so — see `cv-generator/SKILL.md` §"Factual
+  source of truth" for the three real cases this already caught.
