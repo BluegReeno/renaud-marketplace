@@ -81,6 +81,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.16.2
+
+- Add role-criteria.json — single definition site for qualitative offer disqualifiers
+
 ## jobsearch 0.16.1
 
 - fix: attach Artelia P&L to a business unit, not the renewables BU (#135)
