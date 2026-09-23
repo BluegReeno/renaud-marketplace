@@ -228,17 +228,22 @@ Skip if `linkedin_offers[]` is empty.
 
 **Dedup**: Remove any offer whose company + role already exists in the vault's active candidatures list (from Step 1c). Do not re-surface already-logged offers.
 
-**Read the compensation thresholds first.** Every figure below comes from one file — never write
-one inline, never carry one over from a previous run:
+**Read the compensation thresholds and the qualitative disqualifiers first.** Every figure and
+every disqualifier below comes from one file each — never write one inline, never carry one over
+from a previous run:
 
 ```bash
 cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/comp-thresholds.json 2>/dev/null \
   || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/comp-thresholds.json 2>/dev/null
+cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/role-criteria.json 2>/dev/null \
+  || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/role-criteria.json 2>/dev/null
 ```
 
-Take `fire_tier_min_eur` (🔥 tier boundary) and `comp_floor_eur` (❌ boundary). If neither path
-resolves, score on the qualitative criteria alone and render `⚠️ seuils rému illisibles` in the
-offers block — never substitute a remembered figure.
+Take `fire_tier_min_eur` (🔥 tier boundary) and `comp_floor_eur` (❌ boundary) from the first file,
+and `disqualifiers[]` from the second. If the first path doesn't resolve, score on the qualitative
+criteria alone and render `⚠️ seuils rému illisibles` in the offers block. If the second doesn't
+resolve, score without the ❌-on-content tier and render `⚠️ critères qualitatifs illisibles` —
+never substitute a remembered figure or a remembered list.
 
 **Score each remaining offer** using title + company + location + snippet (cheap score — no full JD at this stage):
 
@@ -246,7 +251,7 @@ offers block — never substitute a remembered figure.
 |-------|----------|
 | 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng — at AI lab / IA editor / scale-up, Paris, stated comp ≥ `fire_tier_min_eur`, builder hands-on |
 | 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context — Paris or remote-ok, or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
-| ❌ | Outside Paris (strict), no AI, stated comp < `comp_floor_eur`, pure PM, governance without hands-on |
+| ❌ | Stated comp < `comp_floor_eur`, or the title+snippet clearly matches one of `disqualifiers[]` in `role-criteria.json` — single definition site, shared with the `cv-log-worker` Step A.6 gate that applies the same list against the full JD before generating a CV |
 
 An offer that states no compensation is never ❌ on that ground — the comp gate in `cv-log-worker`
 is the only place a figure rejects anything.
@@ -596,6 +601,7 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **Spawn `cv-log-worker` in the foreground** — `run_in_background: false` on every call. Since Step B.5/B.6 of `cv-log-worker` spawn `cv-judge`, the worker itself needs the `Agent` tool, which a background sub-agent never has. Concurrency comes from issuing every call in one message, not from background mode.
 - **A worker is never spawned without a real JD** — an offer that Step 1g could not enrich is surfaced without a CV. A CV built from a digest snippet is worse than no CV: it is plausible, hollow, and unmarked.
 - **No compensation figure is written in this file** — `fire_tier_min_eur` and `comp_floor_eur` are read from `jobsearch/data/comp-thresholds.json` at Step 1g. One definition site, changed there and nowhere else.
+- **No qualitative disqualifier is written in this file** — the ❌ tier's content criteria are read from `jobsearch/data/role-criteria.json` at Step 1g, the same list `cv-log-worker` Step A.6 applies against the full JD. One definition site, changed there and nowhere else — never re-inline a disqualifier in this table.
 - **Sub-agent failures are loud** — if a `cv-log-worker` returns `ÉCHEC`, surface `⚠️ CV non généré — <company> : <reason>` in the "CVs préparés ce run" section. Never silently drop a sub-agent failure.
 - **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
 - **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.

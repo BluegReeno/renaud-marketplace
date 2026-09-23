@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.20.0
+
+- Add qualitative role gate (Step A.6) to cv-log-worker before CV generation
+
 ## briefing 0.19.0
 
 - Judge-review CVs before logging (two-round cv-judge sub-agent) and order offers by fit×freshness instead of fit alone
@@ -76,6 +80,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a sprint left
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
+
+## jobsearch 0.16.2
+
+- Add role-criteria.json — single definition site for qualitative offer disqualifiers
 
 ## jobsearch 0.16.1
 

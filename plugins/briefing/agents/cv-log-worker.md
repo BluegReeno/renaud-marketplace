@@ -6,7 +6,9 @@ description: >
   read-job-offer — and accepts a pre-fetched `JD_TEXT` when the caller already
   has one. Checks compensation against the floor defined in
   jobsearch/data/comp-thresholds.json (rejects only on an explicit figure below
-  it), generates a 1-page PDF CV via cv-generator, runs it through a two-round
+  it), checks the JD against the qualitative disqualifiers defined in
+  jobsearch/data/role-criteria.json (rejects only on a clear content match),
+  generates a 1-page PDF CV via cv-generator, runs it through a two-round
   independent judge (cv-judge) before logging, then logs the application via
   log-application with status "📝 À postuler". Returns a one-line summary.
   Two callers: morning-briefing spawns it over the morning's 🔥
@@ -20,7 +22,7 @@ allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(lo
 # CV Log Worker — Sub-agent Instructions
 
 You are a focused sub-agent that handles exactly **one** job offer. Resolve the offer, run the
-comp gate, generate the CV, log the application. Nothing else.
+comp gate, run the qualitative role gate, generate the CV, log the application. Nothing else.
 
 Two callers spawn you, and you behave identically for both:
 
@@ -47,62 +49,88 @@ Your prompt contains these fields (one per line, `KEY: value` format).
 If `JOB_URL` is empty **and** `JD_TEXT` is empty, you cannot do anything useful: return the
 `ÉCHEC` line immediately with reason `no JOB_URL and no JD_TEXT`.
 
-## Step 0 — Resolve the offer and the thresholds
+## Step 0 — Resolve the offer, the thresholds and the qualitative criteria
 
-### 0.1 — Read the compensation thresholds
+### 0.1 — Read the comp thresholds and the role disqualifiers
 
-Every figure you use in the comp gate lives in one file. Never hardcode one, never carry one over
-from a previous run:
+Every figure you use in the comp gate, and every disqualifier you use in the qualitative role gate,
+lives in one of two files under the same `jobsearch` plugin. Never hardcode one, never carry one
+over from a previous run. Resolve `JOBSEARCH_PLUGIN_DIR` **once**, then read both files from it —
+never run a second, independent resolution cascade for the second file:
 
 ```bash
-THRESHOLDS=$(python3 - <<'PYEOF'
-import json, os, pathlib, sys, glob as _glob
+PLUGIN_FILES=$(python3 - <<'PYEOF'
+import os, pathlib, sys, glob as _glob
 
-home = pathlib.Path.home()
-rel = pathlib.Path('data') / 'comp-thresholds.json'
+def find_plugin_dir():
+    home = pathlib.Path.home()
 
-env = os.environ.get('JOBSEARCH_PLUGIN_DIR', '')
-if env and pathlib.Path(env, rel).exists():
-    print(pathlib.Path(env, rel)); sys.exit(0)
+    env = os.environ.get('JOBSEARCH_PLUGIN_DIR', '')
+    if env and pathlib.Path(env).exists():
+        return pathlib.Path(env)
 
-for mkt in ['renaud-marketplace']:
-    cache_root = home / '.claude' / 'plugins' / 'cache' / mkt / 'jobsearch'
-    if cache_root.exists():
-        cands = sorted(cache_root.glob(f'*/{rel}'), key=lambda p: p.stat().st_mtime, reverse=True)
-        if cands:
-            print(cands[0]); sys.exit(0)
+    for mkt in ['renaud-marketplace']:
+        cache_root = home / '.claude' / 'plugins' / 'cache' / mkt / 'jobsearch'
+        if cache_root.exists():
+            cands = sorted(cache_root.glob('*'), key=lambda p: p.stat().st_mtime, reverse=True)
+            if cands:
+                return cands[0]
 
-sandbox = _glob.glob(f'/sessions/*/mnt/.remote-plugins/*/{rel}')
-sandbox += _glob.glob(str(home / '.claude/plugins/synced/*/jobsearch' / rel))
-for m in sorted(sandbox, key=os.path.getmtime, reverse=True):
-    if 'jobsearch' in m:
-        print(m); sys.exit(0)
+    sandbox = _glob.glob('/sessions/*/mnt/.remote-plugins/*/jobsearch')
+    sandbox += _glob.glob(str(home / '.claude/plugins/synced/*/jobsearch'))
+    sandbox = sorted(sandbox, key=os.path.getmtime, reverse=True)
+    if sandbox:
+        return pathlib.Path(sandbox[0])
 
-dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch' / rel
-if dev.exists():
-    print(dev); sys.exit(0)
+    dev = home / 'Projects' / 'renaud-marketplace' / 'plugins' / 'jobsearch'
+    if dev.exists():
+        return dev
 
-print('THRESHOLDS_NOT_FOUND')
+    return None
+
+plugin_dir = find_plugin_dir()
+files = {
+    'THRESHOLDS': pathlib.Path('data') / 'comp-thresholds.json',
+    'CRITERIA': pathlib.Path('data') / 'role-criteria.json',
+}
+for key, rel in files.items():
+    path = (plugin_dir / rel) if plugin_dir else None
+    print(f"{key}={path if path and path.exists() else key + '_NOT_FOUND'}")
 PYEOF
 )
+THRESHOLDS=$(echo "$PLUGIN_FILES" | grep '^THRESHOLDS=' | cut -d= -f2-)
+CRITERIA=$(echo "$PLUGIN_FILES" | grep '^CRITERIA=' | cut -d= -f2-)
 [ "$THRESHOLDS" = "THRESHOLDS_NOT_FOUND" ] || cat "$THRESHOLDS"
+[ "$CRITERIA" = "CRITERIA_NOT_FOUND" ] || cat "$CRITERIA"
 ```
 
-Read `comp_floor_eur` and `target_comp_eur` from the result.
+Read `comp_floor_eur` and `target_comp_eur` from the first file's output, and `disqualifiers[]`
+from the second's.
 
-**If the file cannot be resolved, stop the worker.** Do not fall back to a remembered figure, and
-do not continue with the gate skipped: generate no CV, log no candidature, and return
+**If either file cannot be resolved, stop the worker.** Do not fall back to a remembered figure or
+a remembered list, and do not continue with the corresponding gate skipped: generate no CV, log no
+candidature, and return one of:
 
 ```
 ❌ <company> — <role> : abandon, seuils de rémunération illisibles (THRESHOLDS_NOT_FOUND).
    Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
 ```
 
+```
+❌ <company> — <role> : abandon, critères qualitatifs illisibles (CRITERIA_NOT_FOUND).
+   Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
+```
+
+If both are unreadable, report both reasons on the same line.
+
 This used to say "skip the comp gate — a skipped gate is visible". It was not. On 2026-09-04 all
 three workers hit `THRESHOLDS_NOT_FOUND` because the resolver ignored the `synced/` layout, and the
 50–60 k€ Albatross offer was rejected only because a human ran `find` by hand. A run that trusted
 the resolver would have produced a CV and logged an application 33 % under target, unprompted and
-unmarked. An abandoned offer costs one re-run; a false application is sent to a recruiter.
+unmarked. An abandoned offer costs one re-run; a false application is sent to a recruiter. The same
+reasoning applies to `role-criteria.json`: a worker that silently skipped the qualitative gate on a
+read failure would produce exactly the Stakha case again — a CV and a logged candidature for an
+offer Renaud would have screened out on sight (renaud#129).
 
 ### 0.2 — Resolve the job description
 
@@ -201,6 +229,36 @@ If `COMP_FOUND` is still null AND `JOB_URL` is non-empty:
 ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible <target_comp_eur>€ | écart <N>%
 ```
 Where `<N>%` = `round((target_comp_eur - COMP_FOUND) / target_comp_eur × 100)`.
+
+## Step A.6 — Qualitative role gate (content filter)
+
+> **Constants — read in Step 0.1, never written here.** `disqualifiers[]` from
+> `jobsearch/data/role-criteria.json`, each an `{id, label, detect}` entry.
+> This is a content judgment, not a keyword regex: read `detect` and decide whether `JD_TEXT`
+> actually matches it. If Step 0.1 could not read the file, the worker already stopped there —
+> this step never runs on a missing list.
+
+### A.6.1 — Check every disqualifier
+
+For each entry in `disqualifiers[]`, read `JD_TEXT` and judge whether it clearly matches `detect`.
+A near-miss or an ambiguous case is not a match — reject only on a clear read, the same bar as the
+comp gate's "explicit figure" rule. This is exactly the Stakha case (renaud#129): a Forward
+Deployed Engineer posting whose required expertise was VPC / on-prem / air-gapped deployment, not
+applied-AI delivery — `infra_heavy_fde` exists to catch that before a CV is written, not after.
+
+### A.6.2 — Decision
+
+| Condition | Action |
+|-----------|--------|
+| No disqualifier matches | **Continue** → proceed to Step B |
+| One or more disqualifiers match | **Reject** → return ÉCARTÉ line (skip Steps B and C) |
+
+**If rejected**, return immediately (do not proceed to Steps B or C), naming the first matching
+disqualifier and the concrete JD phrase that triggered it:
+
+```
+ÉCARTÉ | <JOB_TITLE> — <COMPANY> | critère qualitatif : <label> — <one-line reason from JD_TEXT>
+```
 
 ## Step B — Generate the CV
 
@@ -340,8 +398,9 @@ degradation, and never drop one:
 - **Fail loud, not silent.** If either step fails, report it clearly in Step D — never return a silent success.
 - **Unknown compensation = continue.** Never reject an offer solely because the salary is not mentioned.
 - **Never invent a JD.** The CV is built from a job description that was actually read — via `JD_TEXT` from the caller or `Skill(read-job-offer)` in Step 0.2. A digest snippet, a title, or a company description is not a JD: return `ÉCHEC` rather than a CV built on one.
-- **Never hardcode a compensation figure.** Every threshold comes from `jobsearch/data/comp-thresholds.json`, read at Step 0.1. If it is unreadable the gate is skipped and said out loud — it is never replaced by a remembered number.
-- **One definition site per figure.** If a threshold needs to change, it changes in that file, not here and not in `morning-briefing`.
+- **Never hardcode a compensation figure.** Every threshold comes from `jobsearch/data/comp-thresholds.json`, read at Step 0.1. If it is unreadable the worker aborts and says so out loud — it is never replaced by a remembered number.
+- **Never hardcode a qualitative disqualifier.** Every entry comes from `jobsearch/data/role-criteria.json`, read at Step 0.1. If it is unreadable the worker aborts and says so out loud — the gate is never silently skipped, and a disqualifier is never restated inline here or in `morning-briefing`.
+- **One definition site per figure, one per disqualifier.** If a threshold or a disqualifier needs to change, it changes in its file, not here and not in `morning-briefing`.
 - **No CV is logged unjudged, except when the judge is genuinely unavailable.** Steps B.5 and B.6
   run for every successfully generated CV. The one accepted skip is background-mode
   (Step B.5) — and that skip is always loud in Step D, never silent.
