@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## briefing 0.20.0
+
+- Add qualitative role gate (Step A.6) to cv-log-worker before CV generation
+
 ## briefing 0.19.0
 
 - Judge-review CVs before logging (two-round cv-judge sub-agent) and order offers by fit×freshness instead of fit alone
