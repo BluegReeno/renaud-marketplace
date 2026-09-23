@@ -456,7 +456,7 @@ Format: `[Action verb] + [what you built / for whom] — [result in plain Englis
 The `cv-master.json` experience bullets are cell-specific. Each cell tells a different story with the same three companies.
 
 ### Experience order
-Always chronological reverse: Blue Green (2023–present) → Artelia (2019–2023) → Open Ocean (2011–2019).
+Always chronological reverse: Blue Green (2023–present) → Artelia (2019–2022) → Open Ocean (2011–2019).
 No exceptions.
 
 ### Signal per company type (T)
@@ -468,9 +468,9 @@ No exceptions.
 - Open Ocean: "built 12-person product team, shipped SaaS to industrial clients"
 
 **T4 — Grand groupe / Corporate (TotalEnergies, ASN, EDF)**
-- Emphasise: P&L, governance, compliance-ready outputs, C-level stakeholder management, enterprise procurement
+- Emphasise: business-unit P&L, governance, compliance-ready outputs, C-level stakeholder management, enterprise procurement
 - Blue Green: "production-grade, compliance-ready, auditability built-in"
-- Artelia: **appears FIRST** — P&L, team, 6000-person group, London base
+- Artelia: **appears FIRST** — P&L of a business unit, team, 6000-person group, London base
 - Open Ocean: "Naval Group, RTE framework contract" — enterprise client names, not startup story
 
 **T5 — AI Lab / SaaS startup (Anthropic, Mistral, Dust)**
@@ -510,7 +510,7 @@ No exceptions.
 | Blue Green — IC Ingénieurs Conseils | AI-assisted building diagnostics, Aulnay (€25M) + La Ferme du Temple (€35M) |
 | Blue Green — WattCast | D+1 MAE 12.42 EUR/MWh, LEAR + XGBoost, EPEX SPOT France |
 | Blue Green — BlueWind Companion v2.2 | 91 regulatory docs, 22,800 RAG chunks, 5 agents, Next.js + FastAPI + Supabase pgvector |
-| Artelia | P&L confirmed, clients: SBM Offshore, Nexans, Alcatel Submarine Networks (ASN), Cadeler |
+| Artelia | P&L responsibility for **a business unit** (never name it — fall back to "Offshore Digital" only if a sentence cannot stand without a name), clients: SBM Offshore, Nexans, Alcatel Submarine Networks (ASN), Cadeler |
 | Open Ocean | Team of 12, €2M from Seventure Partners + Cap Décisif/FNA (institutional VCs), acquired by Artelia (2019) |
 | Open Ocean clients | Naval Group (ex-DCNS), RTE (framework contract), Doris Engineering |
 
