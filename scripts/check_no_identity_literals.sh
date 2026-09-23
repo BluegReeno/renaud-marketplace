@@ -67,16 +67,8 @@ scan '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' \
 
 # 3. Workspace slugs passed as literals. `workspace_slug=w.workspace_slug` and
 #    `workspace_slug=<resolved>` are the correct forms and are not matched.
-#    Known debt, not a placeholder: plugins/jobsearch hardcodes
-#    workspace_slug="renaud" in these three skills — #77 fixed this pattern for
-#    briefing/mycoach but never covered jobsearch. Fixing it needs a
-#    whoami + allowed_tags resolution convention (mirroring mycoach's Step 0)
-#    plus an out-of-repo hal config change, not a one-line swap — tracked in
-#    #103. Drop this exclusion when #103 closes.
-JOBSEARCH_WORKSPACE_DEBT='plugins/jobsearch/skills/(log-application|log-cr|interview-prep)/SKILL\.md:'
 scan 'workspace_slug[[:space:]]*=[[:space:]]*("[a-z][a-z0-9-]*"|'"'"'[a-z][a-z0-9-]*'"'"')' \
-     'Workspace slug hardcoded — iterate on what whoami returns' \
-     "$JOBSEARCH_WORKSPACE_DEBT"
+     'Workspace slug hardcoded — iterate on what whoami returns'
 
 if [ "$fail" -eq 0 ]; then
   echo "OK: no identity literal in ${SCOPE[*]}"

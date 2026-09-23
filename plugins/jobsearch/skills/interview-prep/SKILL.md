@@ -10,7 +10,7 @@ description: >
   every interview presents one coherent profile. Use when the user says
   "prépare l'entretien", "interview prep", "préparation entretien", "je passe un
   entretien avec", "prep <company>", "interview avec".
-allowed-tools: "Skill(jobsearch-vault) Read mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) Read mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Interview Prep — Skill Instructions
@@ -189,15 +189,27 @@ The `entretien` note does NOT carry its own `target_profile` field — the profi
 
 **Result contract.** `jobsearch-vault`'s bundled `note_schemas` natively accepts `categorie` and `interlocuteurs`, so a fully-specified `entretien` create produces **zero** validation warnings. The rule is simply: **exit 0 → ACCEPT** (the note was written); **non-zero exit → the note was NOT written**: report `❌ Échec création prep — <stderr>` and do not fire the Step 5 success report. If any unexpected stderr warning does appear, surface it verbatim, then proceed.
 
+## Step 4a — Resolve the hal workspace
+
+This skill **writes** to hal (Step 4b). It must first resolve **which** workspace to write to — never hardcode a slug: it is per-user and this repository is public (see #77, #103).
+
+Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those whose `allowed_tags` contain `jobsearch`:
+
+- **None** → do not write to hal. Tell the user hal needs to be initialized first: add `jobsearch` to the `allowed_tags` of a hal workspace. Skip Step 4b (and 4c, which reads back the hal-independent frontmatter but is unaffected) — note in the Step 5 report that the hal mirror was not created.
+- **Exactly one** → that is `WS` (its `workspace_slug`). Continue to Step 4b.
+- **More than one** → ask the user which workspace to use for jobsearch tasks; use their answer as `WS`.
+
+**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the `jobsearch` tag.
+
 ## Step 4b — Mirror the interview into hal (tagged `jobsearch`)
 
-Create a hal task in the `renaud` workspace so the upcoming interview surfaces in the `jobsearch` section of `/morning-briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
+Create a hal task in the workspace resolved as `WS` in Step 4a so the upcoming interview surfaces in the `jobsearch` section of `/morning-briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
 
 Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 
 ```
 mcp__plugin_hal_hal-mcp__create_task(
-  workspace_slug = "renaud",
+  workspace_slug = WS,
   title          = "Entretien <type_entretien> — <Entreprise> — <DD-MM-YYYY>",
   description    = "Entretien <type_entretien> avec <Interlocuteurs or TBD>. Prep: CRM-JobSearch/Entretiens/Prep <Entreprise> — <Interlocuteurs or TBD> — <DD-MM-YYYY>.md (profil P<n>).",
   tags           = ["jobsearch"],
@@ -207,7 +219,7 @@ mcp__plugin_hal_hal-mcp__create_task(
 
 No `sprint_id` — interviews are sprint-less by design (tracked by tag, surfaced in `/morning-briefing` until passed).
 
-**Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality, not substring, against `.tasks`. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
+**Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=WS)` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality, not substring, against `.tasks`. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
 
 **If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
 `⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
@@ -278,7 +290,7 @@ Render a concise summary, in French:
    🎯 Profil    : P<n> (<short label>)
    📌 Pitch     : <one-line load-bearing claim from the profile file>
    🗓️ Date     : <YYYY-MM-DD> · type: <RH|Technique|Manager|Final>
-   📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (renaud/jobsearch)
+   📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (<WS>/jobsearch)
                   (omettre cette ligne si Step 4b a échoué — voir ⚠️ ci-dessus)
    🗂️ Fiche     : prochain_rdv <YYYY-MM-DD> · statut « 📞 Entretien prévu »
                   (si le statut a été laissé tel quel par la garde de non-régression, écrire
@@ -291,7 +303,7 @@ Render a concise summary, in French:
 - **Pitch MUST be profile-positioned.** Cite concrete proofs from `profiles/p<n>_*.md`. A pitch that doesn't quote the profile file is a failure — it means the skill regressed to free-form prep, which is exactly the bug Loop 4 closes.
 - **`target_profile` missing → ASK.** Never silently pick a profile. (Step 1.)
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
-- **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__create_task` is allow-listed exclusively for the Step 4b hal mirror.
+- **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__whoami` is allow-listed exclusively for Step 4a's workspace resolution, and `mcp__plugin_hal_hal-mcp__create_task` exclusively for the Step 4b hal mirror.
 - **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/morning-briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.
 - **`categorie` is `"Préparation"`** (verbatim, with accent). The other valid value is `"Compte-rendu"` for debriefs — out of scope for this skill.
