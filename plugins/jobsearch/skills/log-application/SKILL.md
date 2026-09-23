@@ -8,18 +8,19 @@ description: >
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and
   create one hal task (relance) tagged `jobsearch` with `due_date: today + 7d`
   so it surfaces in `/morning-briefing` on its due date. The `opportunite-js` note stays
-  in the vault; the relance task lives in hal (`renaud` workspace) like all
-  other tasks. Use when the user says "log application", "j'ai postulé",
-  "candidature envoyée", "je viens de candidater", "track application",
-  "log apply", or pastes a job offer with intent to file it.
-allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
+  in the vault; the relance task lives in hal (the workspace whose `allowed_tags`
+  include `jobsearch`, resolved at runtime) like all other tasks. Use when the
+  user says "log application", "j'ai postulé", "candidature envoyée", "je viens
+  de candidater", "track application", "log apply", or pastes a job offer with
+  intent to file it.
+allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log Application — Skill Instructions
 
 ## What this skill does
 
-Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated. Then create one hal task (relance) in the `renaud` workspace tagged `jobsearch` with `due_date` 7 days out — consistent with where all other tasks live (mobile, Codex, Dust all read from hal). This skill NEVER touches the vault directly — all vault reads and writes flow through `jobsearch-vault`.
+Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated. Then create one hal task (relance) in the resolved jobsearch workspace (see Step 3b) tagged `jobsearch` with `due_date` 7 days out — consistent with where all other tasks live (mobile, Codex, Dust all read from hal). This skill NEVER touches the vault directly — all vault reads and writes flow through `jobsearch-vault`.
 
 ## Step 0 — Inputs you need from the user
 
@@ -138,11 +139,23 @@ Adding `target_profile` to the global schema is out of scope for this skill — 
 
 **Check Step 3's exit code before proceeding.** `create_note.py` / `update_frontmatter.py` exit 0 on success (including the non-blocking `target_profile` warning above). Any non-zero exit means the candidature was NOT written: report `❌ Échec création candidature — <stderr>` to the user and **DO NOT proceed to Step 4 or fire the Step 5 success report.** This is the AC1 invariant — no half-states, no silent success.
 
+## Step 3b — Resolve the hal workspace
+
+This skill **writes** to hal (Step 4). It must first resolve **which** workspace to write to — never hardcode a slug: it is per-user and this repository is public (see #77, #103).
+
+Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those whose `allowed_tags` contain `jobsearch`:
+
+- **None** → do not write to hal. Tell the user hal needs to be initialized first: add `jobsearch` to the `allowed_tags` of a hal workspace. Continue with Steps 1–3 (the vault trail is unaffected) but skip Step 4 and note in the Step 5 report that the relance was not created.
+- **Exactly one** → that is `WS` (its `workspace_slug`). Continue to Step 4.
+- **More than one** → ask the user which workspace to use for jobsearch tasks; use their answer as `WS`.
+
+**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the `jobsearch` tag.
+
 ## Step 4 — Create the relance task in hal
 
-The relance lives in hal (`renaud` workspace), not the Obsidian vault. This makes it accessible from any instance (mobile, Codex, Dust) consistent with all other tasks.
+The relance lives in hal (the workspace resolved as `WS` in Step 3b), not the Obsidian vault. This makes it accessible from any instance (mobile, Codex, Dust) consistent with all other tasks.
 
-**Idempotency on re-apply.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud")` and skip if a non-closed task with the exact same title already exists. The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality (not substring) against `.tasks`, never against the raw response.
+**Idempotency on re-apply.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=WS)` and skip if a non-closed task with the exact same title already exists. The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality (not substring) against `.tasks`, never against the raw response.
 
 **If `list_tasks` fails**, proceed with `create_task` anyway and prepend a warning to the Step 5 output:
 `⚠️ idempotency pre-check failed (<error>) — attempting create; re-run may create a duplicate if the task was already present.`
@@ -155,7 +168,7 @@ Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 
 ```
 mcp__plugin_hal_hal-mcp__create_task(
-  workspace_slug = "renaud",
+  workspace_slug = WS,
   title          = "Relance — <Entreprise> — <YYYY-MM-DD candidature>",
   description    = "Relance — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
   tags           = ["jobsearch"],
@@ -170,9 +183,9 @@ No `sprint_id` — jobsearch tasks track tags, not sprints; `/morning-briefing` 
 ```
 ⚠️  Half-state — candidature loguée, relance NON créée dans hal.
     Erreur        : <error>
-    Impact        : la relance n'apparaîtra pas dans /morning-briefing ni dans hal renaud/jobsearch.
+    Impact        : la relance n'apparaîtra pas dans /morning-briefing ni dans hal <WS>/jobsearch.
     Recovery A    : re-run /log-application (Step 3 idempotency court-circuite vers Step 4)
-    Recovery B    : créer manuellement une tâche hal renaud avec
+    Recovery B    : créer manuellement une tâche hal dans <WS> avec
                     tags: ["jobsearch"] · due_date: <YYYY-MM-DD +7d>
                     · title: "Relance — <Entreprise> — <YYYY-MM-DD>"
 ```
@@ -187,7 +200,7 @@ Render a concise summary, in French:
 ✅ Candidature loguée — <Poste> chez <Entreprise>
    📁 Note     : CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
-   🔄 Relance  : <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /morning-briefing
+   🔄 Relance  : <YYYY-MM-DD +7d> — tâche hal <WS>/jobsearch créée, apparaîtra dans /morning-briefing
    🔗 Source   : <source> (<source_detail if present, else omit>)
    📌 Statut   : <statut>
 ```
@@ -198,8 +211,8 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
-- **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (`renaud` workspace, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__whoami` for Step 3b's workspace resolution, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
+- **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (the workspace resolved in Step 3b, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
 - **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📝 À postuler"` instead (CV generated but not yet submitted). Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).

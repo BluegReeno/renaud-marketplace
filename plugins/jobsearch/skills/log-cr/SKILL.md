@@ -15,7 +15,7 @@ description: >
   "compte-rendu entretien", "j'ai passé l'entretien", "retour d'entretien",
   "debrief entretien", "debrief <company>", "j'ai eu l'entretien avec",
   "log debrief".
-allowed-tools: "Skill(jobsearch-vault) mcp__Granola__list_meetings mcp__Granola__query_granola_meetings mcp__Granola__get_meeting_transcript mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__Granola__list_meetings mcp__Granola__query_granola_meetings mcp__Granola__get_meeting_transcript mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log CR — Skill Instructions
@@ -27,7 +27,7 @@ Given a completed interview, produce one Obsidian `entretien` note with `categor
 1. Advance the matching `opportunite-js` to `statut: "🔄 Relance à faire"`, and `prochain_rdv` when a follow-up date is confirmed.
 2. Aggregate this meeting's BANT onto the `opportunite-js`'s `## 🏢 BANT (agrégé)` section — dated, attributed, appended, never overwritten.
 3. Close the prep hal task created by `interview-prep` (if found).
-4. Create a post-interview relance hal task in the `renaud` workspace.
+4. Create a post-interview relance hal task in the resolved jobsearch workspace.
 
 All vault I/O flows through `jobsearch-vault`. This skill NEVER writes to the vault filesystem directly.
 
@@ -217,13 +217,25 @@ See `docs/bant-cr-template.md` for the canonical `## 🏢 BANT (agrégé)` templ
                CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
 ```
 
+## Step 7a — Resolve the hal workspace
+
+This skill **writes** to hal (Steps 8–9). It must first resolve **which** workspace to write to — never hardcode a slug: it is per-user and this repository is public (see #77, #103).
+
+Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those whose `allowed_tags` contain `jobsearch`:
+
+- **None** → do not write to hal. Tell the user hal needs to be initialized first: add `jobsearch` to the `allowed_tags` of a hal workspace. Skip Steps 8–9 — note in the Step 10 report that the prep task was not closed and the relance was not created.
+- **Exactly one** → that is `WS` (its `workspace_slug`). Continue to Step 8.
+- **More than one** → ask the user which workspace to use for jobsearch tasks; use their answer as `WS`.
+
+**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the `jobsearch` tag.
+
 ## Step 8 — Close the prep hal task
 
 The prep task was created by `interview-prep` with title `"Entretien <type_entretien> — <Entreprise> — <DD-MM-YYYY>"`.
 
-**Find it:** `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — search `.tasks`, not the raw response, for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
+**Find it:** `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=WS, tags=["jobsearch"])`. The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — search `.tasks`, not the raw response, for a non-closed task whose title starts with `"Entretien"` and contains the `entreprise` name (case-insensitive substring match). Take the closest match by interview date.
 
-- **Found** → `mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug="renaud", task_id=<id>, status="done")`.
+- **Found** → `mcp__plugin_hal_hal-mcp__update_task_status(workspace_slug=WS, task_id=<id>, status="done")`.
 - **Not found and `truncated` is `false`** → silently skip (already closed, or never created — both are normal).
 - **Not found and `truncated` is `true`** → the search only covered the newest `returned` of `total` tasks; do not assume the prep task never existed. Skip closing it, but prepend to the Step 10 report:
 
@@ -238,7 +250,7 @@ The prep task was created by `interview-prep` with title `"Entretien <type_entre
 
 ## Step 9 — Create the post-interview relance hal task
 
-**Idempotency:** call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug="renaud", tags=["jobsearch"])`. As in Step 8, read tasks from `.tasks`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
+**Idempotency:** call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=WS, tags=["jobsearch"])`. As in Step 8, read tasks from `.tasks`. Skip creation if a non-closed task titled exactly `"Relance — <Entreprise> — <date_entretien>"` already exists. If `list_tasks` fails, proceed anyway and prepend:
 
 ```
 ⚠️ idempotency pre-check failed (<error>) — attempting create; may duplicate if already present.
@@ -254,7 +266,7 @@ Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once:
 
 ```
 mcp__plugin_hal_hal-mcp__create_task(
-  workspace_slug = "renaud",
+  workspace_slug = WS,
   title          = "Relance — <Entreprise> — <YYYY-MM-DD entretien>",
   description    = "Relance post-entretien <type_entretien> avec <Interlocuteurs>. CR : CRM-JobSearch/Entretiens/CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>.md",
   tags           = ["jobsearch"],
@@ -271,7 +283,7 @@ Note: the title uses the **interview date** (not the candidature date) — this 
     Erreur     : <error>
     Impact     : la relance n'apparaîtra pas dans /morning-briefing.
     Recovery A : re-run /log-cr (Steps 4–6 idempotency court-circuite le vault)
-    Recovery B : créer manuellement une tâche hal renaud
+    Recovery B : créer manuellement une tâche hal dans <WS>
                  · tags: ["jobsearch"]
                  · title: "Relance — <Entreprise> — <YYYY-MM-DD entretien>"
                  · due_date: <YYYY-MM-DD +7d>
@@ -291,7 +303,7 @@ Do NOT fire Step 10's success report on a full half-state (Step 5 OK + Step 9 fa
    🗓️ Prochain rdv : <YYYY-MM-DD> (omettre cette ligne si Step 1.10 n'a rien capturé)
    ✓  Tâche prep : "Entretien <type> — <Entreprise> — …" clôturée dans hal
                    (omettre cette ligne si tâche non trouvée)
-   📋 Relance    : due <YYYY-MM-DD +7d> — tâche hal renaud/jobsearch créée, apparaîtra dans /morning-briefing
+   📋 Relance    : due <YYYY-MM-DD +7d> — tâche hal <WS>/jobsearch créée, apparaîtra dans /morning-briefing
 ```
 
 If `suivi_envoye: false` (always the case after creation), suggest:

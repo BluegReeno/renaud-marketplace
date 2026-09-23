@@ -71,24 +71,19 @@ commit_file "plugins/mycoach/skills/x/SKILL.md" \
   'send to renaud@bluegreen.ai directly'
 check "mail address literal fails" 1
 
-# ── Case 5: committed workspace slug outside known-debt files → fails ──────
+# ── Case 5: committed workspace slug in a skill → fails ─────────────────────
 setup
 commit_file "plugins/briefing/skills/x/SKILL.md" \
   'call list_tasks(workspace_slug="renaud")'
-check "workspace slug literal fails outside known-debt files" 1
+check "workspace slug literal fails in a skill" 1
 
-# ── Case 6: same literal inside a jobsearch known-debt file → passes ───────
-# See #103 — tracked, narrowly-scoped exception, not a blanket pass for jobsearch.
+# ── Case 6: same literal in a former jobsearch known-debt file → fails ──────
+# #103 removed the exception: log-application, interview-prep and log-cr resolve the
+# workspace at runtime now, so a literal there is a regression like anywhere else.
 setup
 commit_file "plugins/jobsearch/skills/log-application/SKILL.md" \
   'call list_tasks(workspace_slug="renaud")'
-check "workspace slug literal in jobsearch known-debt file is excluded" 0
-
-# ── Case 7: same literal in a jobsearch file NOT on the known-debt list → fails
-setup
-commit_file "plugins/jobsearch/skills/jobsearch-vault/SKILL.md" \
-  'call list_tasks(workspace_slug="renaud")'
-check "workspace slug literal in a non-excluded jobsearch file still fails" 1
+check "workspace slug literal in log-application is no longer excluded" 1
 
 echo
 echo "$pass passed, $fail failed"
