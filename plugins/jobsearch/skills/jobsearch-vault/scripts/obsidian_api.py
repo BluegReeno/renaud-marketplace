@@ -12,6 +12,7 @@ Pure stdlib. The public interface:
   - append_body(path, content)
   - delete_note(path)
   - update_field(path, field, value)
+  - upsert_section(path, heading, line, subheading=None)
   - list_directory(folder)   → list of .md filenames
   - search_simple(query)     → list of matches
   - search_dql(dql)          → list of results (basic TABLE...FROM...WHERE...SORT)
@@ -294,6 +295,82 @@ class ObsidianAPI:
             raise FileNotFoundError(f"Note not found: {path}")
         with open(fp, "a", encoding="utf-8") as f:
             f.write(content)
+
+    def upsert_section(self, path: str, heading: str, line: str, subheading: str | None = None) -> None:
+        """Idempotently add one bullet line under a `## heading` (optional `### subheading`).
+
+        Creates the heading/subheading block if missing, and only appends —
+        never rewrites or reorders existing lines. Dedup is exact-string only
+        (line stripped and compared verbatim to existing lines in the same
+        block): a contradicting entry is a different line and is added
+        alongside the existing one, not in place of it.
+        """
+        fp = self._resolve(path)
+        if not fp.exists():
+            raise FileNotFoundError(f"Note not found: {path}")
+
+        text = fp.read_text(encoding="utf-8")
+        fm_str, body = self._split_frontmatter(text)
+        new_body = self._upsert_section_body(body, heading, line, subheading)
+
+        if text.startswith("---"):
+            new_content = f"---\n{fm_str}\n---\n{new_body}"
+        else:
+            new_content = new_body
+        fp.write_text(new_content, encoding="utf-8")
+
+    @staticmethod
+    def _upsert_section_body(body: str, heading: str, line: str, subheading: str | None) -> str:
+        lines = body.split("\n")
+        h2 = f"## {heading}"
+        h3 = f"### {subheading}" if subheading else None
+
+        h2_start = next((i for i, l in enumerate(lines) if l.strip() == h2), None)
+
+        if h2_start is None:
+            block = [h2, "", h3, "", line] if h3 else [h2, "", line]
+            prefix = body if body.endswith("\n\n") else body.rstrip("\n") + "\n\n"
+            prefix = "" if not body.strip() else prefix
+            return prefix + "\n".join(block) + "\n"
+
+        h2_end = next((i for i in range(h2_start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+
+        if not h3:
+            block = lines[h2_start:h2_end]
+            if line.strip() in [b.strip() for b in block]:
+                return body
+            insert_at = h2_end
+            while insert_at > h2_start + 1 and lines[insert_at - 1].strip() == "":
+                insert_at -= 1
+            lines[insert_at:insert_at] = [line]
+            return "\n".join(lines)
+
+        h3_start = next(
+            (i for i in range(h2_start + 1, h2_end) if lines[i].strip() == h3), None
+        )
+
+        if h3_start is None:
+            insert_at = h2_end
+            while insert_at > h2_start + 1 and lines[insert_at - 1].strip() == "":
+                insert_at -= 1
+            lines[insert_at:insert_at] = ["", h3, "", line]
+            return "\n".join(lines)
+
+        h3_end = next(
+            (i for i in range(h3_start + 1, h2_end)
+             if lines[i].startswith("### ") or lines[i].startswith("## ")),
+            h2_end,
+        )
+
+        block = lines[h3_start:h3_end]
+        if line.strip() in [b.strip() for b in block]:
+            return body
+
+        insert_at = h3_end
+        while insert_at > h3_start + 1 and lines[insert_at - 1].strip() == "":
+            insert_at -= 1
+        lines[insert_at:insert_at] = [line]
+        return "\n".join(lines)
 
     def delete_note(self, path: str) -> None:
         fp = self._resolve(path)

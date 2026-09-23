@@ -6,7 +6,7 @@ description: >
   no API key). Owns five note types: `opportunite-js` (candidature),
   `entreprise-js` (company), `contact-js` (contact), `entretien` (interview prep
   + compte-rendu), and jobsearch `tache` (relances). Exposes create / read /
-  update / search / list as plain-stdlib CLI scripts. Use directly when Renaud
+  update / upsert-section / search / list as plain-stdlib CLI scripts. Use directly when Renaud
   asks to explore the job-search pipeline — "pipeline candidatures", "liste mes
   entretiens", "cherche dans mes candidatures", "mes relances jobsearch",
   "search my applications", "show my interviews", "mes candidatures actives" — and
@@ -121,7 +121,7 @@ The scripts resolve the vault folder themselves, in this order:
 There is no API key and nothing to gitignore. If none resolves, the scripts fail
 loudly naming the path they tried.
 
-## Step 3 — The five operations
+## Step 3 — The six operations
 
 ### create_note.py — create a note (stdin JSON)
 
@@ -154,6 +154,20 @@ python3 "$SCRIPTS/update_frontmatter.py" "<path>.md" echeance "2026-06-26"
 python3 "$SCRIPTS/update_frontmatter.py" "<path>.md" etiquettes --json-value '["jobsearch"]'
 ```
 Validates the new value against the note's `type`. Reads back the written value.
+
+### upsert_section.py — idempotently add a bullet line to a body section
+
+```bash
+python3 "$SCRIPTS/upsert_section.py" "CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md" \
+  --heading "🏢 BANT (agrégé)" \
+  --subheading "B — Comp/Budget" \
+  --line "- 2026-09-15 — Deon van der Vyver (CTO) : « fourchette 70-85k » → [[CR Cognyx — Deon van der Vyver — 15-09-2026]]"
+```
+- Creates the `## heading` (and `### subheading`, if given) when missing; otherwise appends under the existing one.
+- **Dedup is exact-string only** — a line identical (stripped) to one already in the same block is skipped, never duplicated. A contradicting entry (different date, different quote) is a *different* line and is appended alongside the existing one, never overwriting it.
+- Body-only. It never touches frontmatter, and it never reorders or rewrites existing lines — pure append.
+- Prints `{"path": ..., "heading": ..., "subheading": ...}` on success (exit 0). Errors fail (exit 1).
+- Used by `log-cr` to aggregate a company's BANT onto its `opportunite-js` note instead of duplicating it in every `entretien` CR (issue #138).
 
 ### search_vault.py — full-text or basic DQL
 
