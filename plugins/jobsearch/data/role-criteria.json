@@ -1,0 +1,32 @@
+{
+  "_doc": "Single definition site for every qualitative disqualifier used by the offer→CV path. morning-briefing (Step 1g scoring) and cv-log-worker (Step A.6 gate) both read THIS file — none of them may restate a disqualifier inline or in prose. Each entry is a content judgment against the JD, not a keyword regex: read `detect` and decide whether the actual JD_TEXT matches it. Compensation figures are a separate concern and stay in comp-thresholds.json — do not add one here.",
+  "_owner": "renaud-marketplace / plugins/jobsearch",
+  "disqualifiers": [
+    {
+      "id": "outside_paris_strict",
+      "label": "Hors Paris (strict)",
+      "detect": "The role requires on-site presence outside Paris / Île-de-France, with no remote or hybrid option stated anywhere in the JD."
+    },
+    {
+      "id": "no_ai",
+      "label": "Pas d'IA",
+      "detect": "The role has no AI/ML component at all — traditional software engineering, infrastructure, or management with no mention of AI, LLMs, or ML systems in the responsibilities."
+    },
+    {
+      "id": "pure_pm",
+      "label": "PM pur",
+      "detect": "The role is pure product management — roadmap and backlog ownership, stakeholder alignment — with no hands-on technical building expected of the person."
+    },
+    {
+      "id": "governance_no_hands_on",
+      "label": "Gouvernance sans hands-on",
+      "detect": "The role governs or oversees an AI/data practice (framework, compliance, steering committee, COMEX-facing strategy) without any hands-on building, coding, or delivery expected of the person."
+    },
+    {
+      "id": "infra_heavy_fde",
+      "label": "FDE / poste à dominante infrastructure",
+      "detect": "A Forward Deployed Engineer or similar builder role whose core, required (not 'nice to have') expertise is infrastructure deployment — VPC, on-prem, private cloud, air-gapped or highly restricted environments, SRE, or Kubernetes as a hard requirement — rather than applied-AI/ML delivery."
+    }
+  ],
+  "last_reviewed": "2026-09-23"
+}

@@ -4,8 +4,9 @@ description: >
   Turn a job offer Renaud found himself into a CV and a logged candidature, in
   one step. Give it a LinkedIn URL or a job id: it reads the job description via
   read-job-offer, checks the offer is not already in the vault, and spawns the
-  cv-log-worker agent, which runs the comp gate, generates the 1-page PDF CV and
-  logs the candidature as "📝 À postuler". This is the daytime counterpart of the
+  cv-log-worker agent, which runs the comp gate and the qualitative role gate,
+  generates the 1-page PDF CV and logs the candidature as "📝 À postuler". This
+  is the daytime counterpart of the
   morning-briefing fan-out — same worker, same output, manual trigger. Use when
   Renaud says "postule à cette annonce", "génère le CV pour", "je veux postuler",
   "prépare ma candidature", or simply pastes a `linkedin.com/jobs/view/` URL and
@@ -85,7 +86,8 @@ Relay the worker's one-line summary verbatim, then add the two things Renaud act
 - the **PDF path**, so he can open it;
 - what is still his to do — the candidature is `📝 À postuler`, nothing was submitted.
 
-If the worker returned `ÉCARTÉ` (compensation below the floor), say so and stop. If it returned
+If the worker returned `ÉCARTÉ` (compensation below the floor, or a qualitative disqualifier
+matched), say so and stop. If it returned
 `ÉCHEC`, relay the reason without retrying: a second attempt on the same failing read produces the
 same failure and costs another BrightData call.
 
