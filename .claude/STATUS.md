@@ -1,16 +1,19 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-23
+Last updated: 2026-09-25
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-Lot 2 (`#129`, `#116`), `#138` and `#103` shipped 2026-09-23. Next: a real `morning-briefing` run
-to see `cv-judge` and the role gate at work, then Lot 3 (`#127`, `#119`).
+Lot 3 closed: `#119` shipped 2026-09-25 (jobsearch 0.19.0), `#127` already closed. Next: run the
+`#119` backfill on the vault, then a real `morning-briefing` run to see `cv-judge` at work.
 
 ## In Progress
+
+- [ ] **Apply the `#119` backfill.** `backfill_entretien_links.py` dry run on 2026-09-25: 104 lines
+      on 29 opportunités, no unresolved link. `--apply` waits for Renaud's go on that dry run.
 
 - [ ] **Watch `cv-judge` on a real run.** Since `#116` every generated CV is reviewed by
       `cv-judge` before logging, in up to two rounds. Whether its verdicts match Renaud's read, and
@@ -43,17 +46,6 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       `~/.local/share/git-backups/`, outside the repo, if the decision is revisited; both
       pre-rewrite bundles were deleted.
 
-**Lot 3 — `jobsearch-vault`**
-
-- [ ] [#127](https://github.com/BluegReeno/renaud-marketplace/issues/127) — the `statut` enum rejects
-      what the vault and the process use. `note_schemas.py:74` lists 9 values; **29 of 118 notes carry
-      one that is not among them**, including the 20 in `🗄️ Sans suite` — the very value the daily
-      relance-cleanup ritual prescribes. Those notes cannot be updated by the tooling at all. Ranks
-      above its stated `medium`.
-- [ ] [#119](https://github.com/BluegReeno/renaud-marketplace/issues/119) — opportunité ↔ entretien
-      navigable both ways. A decision session first (options A–E), then the implementation; 22 of 25
-      linked opportunities have no back-link today.
-
 **Lot 4 — debt, on no clock**
 
 - [ ] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — **rewritten 2026-09-04**.
@@ -83,6 +75,12 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] [#119](https://github.com/BluegReeno/renaud-marketplace/issues/119) — opportunité ↔ entretien
+      navigable (jobsearch **0.19.0**). Option A + E: `interview-prep` (Step 4d) and `log-cr`
+      (Step 6b) list each prep/CR in the opportunité's `## Entretiens` through the existing
+      `upsert_section.py` (#138 had already closed the primitive gap the issue was written
+      around); `backfill_entretien_links.py` rebuilds it for older notes — 2026-09-25
 
 - [x] **Four issues through `skill-improve`, one at a time, each PR merged before the next run**
       so every `release.sh` bump started from the previous one. `#116` (PR #139, briefing
