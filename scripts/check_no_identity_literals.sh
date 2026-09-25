@@ -16,7 +16,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-SCOPE=(plugins/briefing plugins/mycoach plugins/jobsearch plugins/improve)
+SCOPE=(plugins/briefing plugins/mycoach plugins/jobsearch plugins/improve plugins/session)
 
 # `author.email` in a plugin manifest is a published-on-purpose authorship field,
 # not a runtime identifier — the only address allowed to survive here.

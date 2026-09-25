@@ -7,6 +7,10 @@ no matching entry below.
 
 Heading format (parsed by the sync check): `## <plugin> <version>`.
 
+## session 0.1.0
+
+- New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
+
 ## briefing 0.20.0
 
 - Add qualitative role gate (Step A.6) to cv-log-worker before CV generation

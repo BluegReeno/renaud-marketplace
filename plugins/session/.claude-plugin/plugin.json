@@ -1,0 +1,9 @@
+{
+  "name": "session",
+  "version": "0.1.0",
+  "description": "Session lifecycle for Claude Code — wrap-up checks what is not yet safe, then closes cleanly or writes a handoff the next session resumes from",
+  "author": {
+    "name": "Renaud Laborbe",
+    "email": "renaud@bluegreen.ai"
+  }
+}

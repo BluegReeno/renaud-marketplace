@@ -12,6 +12,11 @@ Lot 3 closed: `#119` merged 2026-09-25 (PR #145, jobsearch 0.19.0), `#127` alrea
 
 ## In Progress
 
+- [ ] **`session` 0.1.0 — new plugin, `wrap-up` skill.** Branch `feat/session-plugin`, awaiting merge.
+      Replaces the per-repo `/handoff` command; handoffs live in `<git-common-dir>/claude-handoffs/`
+      and are injected by `~/.claude/hooks/session_start_context.py`. Unmeasured until a first real
+      wrap-up → resume cycle.
+
 ## Backlog
 
 **Ordered 2026-09-04, after the first real `morning-briefing` run.** Four lots left, in sequence —
