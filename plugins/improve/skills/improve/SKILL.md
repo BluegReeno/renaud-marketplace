@@ -43,7 +43,7 @@ Inspecte d'abord `$ARGUMENTS` (ce que Renaud a tapé après `/improve`) :
   - `header`: "Skill"
   - `options`: liste des skills connus (verbatim — ne pas éditer à la main,
     dérivée du même tableau qu'au Step 2, donc jamais en dérive avec lui) :
-    <!-- improve-options:start -->`book-appointment`, `mail-triage`, `morning-briefing`, `improve`, `apply-to-offer`, `cover-letter`, `cv-generator`, `interview-prep`, `jobsearch-vault`, `log-application`, `log-cr`, `read-job-offer`, `mycoach`, `edifice`, `crm`, `linkedin`, `pm`, `sprint-planner`, `sprint-review`, `hal`, `doctrine`, `maps`<!-- improve-options:end -->
+    <!-- improve-options:start -->`book-appointment`, `mail-triage`, `morning-briefing`, `improve`, `apply-to-offer`, `cover-letter`, `cv-generator`, `interview-prep`, `jobsearch-vault`, `log-application`, `log-cr`, `read-job-offer`, `mycoach`, `wrap-up`, `edifice`, `crm`, `linkedin`, `pm`, `sprint-planner`, `sprint-review`, `hal`, `doctrine`, `maps`<!-- improve-options:end -->
 
 Ne demande **jamais** le repo — il est déduit automatiquement du skill (Step 2).
 
@@ -87,6 +87,7 @@ plugin et le repo via ce tableau (verbatim — ne pas inventer d'entrées).
 | log-cr           | jobsearch | renaud-marketplace    |
 | read-job-offer   | jobsearch | renaud-marketplace    |
 | mycoach          | mycoach   | renaud-marketplace    |
+| wrap-up          | session   | renaud-marketplace    |
 | edifice          | edifice   | bluegreen-marketplace |
 | crm              | gtm       | bluegreen-marketplace |
 | linkedin         | gtm       | bluegreen-marketplace |

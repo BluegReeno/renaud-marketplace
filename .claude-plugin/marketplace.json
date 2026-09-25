@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "version": "0.6.51",
+  "version": "0.6.52",
   "name": "renaud-marketplace",
   "description": "Private Claude Code skill marketplace for Renaud Laborbe — CV generation, job search tools, and daily/weekly planning",
   "owner": {
@@ -49,6 +49,18 @@
       "version": "0.4.4",
       "description": "Personal weekly self-reflection check-in — CBT/SFBT-based structured session with a private OKF knowledge base",
       "source": "./plugins/mycoach",
+      "author": {
+        "name": "Renaud Laborbe",
+        "email": "renaud@bluegreen.ai"
+      },
+      "homepage": "https://github.com/BluegReeno/renaud-marketplace",
+      "repository": "https://github.com/BluegReeno/renaud-marketplace"
+    },
+    {
+      "name": "session",
+      "version": "0.1.0",
+      "description": "Session lifecycle for Claude Code — wrap-up checks what is not yet safe, then closes cleanly or writes a handoff the next session resumes from",
+      "source": "./plugins/session",
       "author": {
         "name": "Renaud Laborbe",
         "email": "renaud@bluegreen.ai"

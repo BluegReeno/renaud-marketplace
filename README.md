@@ -54,9 +54,12 @@ renaud-marketplace/
 │   ├── improve/                  ← capture an observation → GitHub Issue
 │   │   ├── .claude-plugin/plugin.json
 │   │   └── skills/improve/SKILL.md
-│   └── mycoach/                  ← weekly check-in (writes to hal)
+│   ├── mycoach/                  ← weekly check-in (writes to hal)
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/mycoach/SKILL.md
+│   └── session/                  ← wrap-up: close a session cleanly or hand it off
 │       ├── .claude-plugin/plugin.json
-│       └── skills/mycoach/SKILL.md
+│       └── skills/wrap-up/SKILL.md
 ├── servers/
 │   └── gmail-mcp/               ← Supabase Edge Function (Deno/TypeScript)
 │       ├── scripts/setup_secrets.sh
