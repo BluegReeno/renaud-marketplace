@@ -121,6 +121,31 @@ class BackfillTest(unittest.TestCase):
         self.assertIn("[[Nowhere — Ghost]]", err)
         self.assertIn("dry run: 5 line(s) on 2 note(s)", err)
 
+    def test_hand_written_link_is_not_duplicated(self):
+        # 2501.ai case: the section already links the CR in its own words.
+        path = self.vault / OPP / "Solutions Engineer — Dust.md"
+        path.write_text(path.read_text(encoding="utf-8") + "\n## Entretiens\n\n"
+                        "- 09/07 — debrief, feeling 🔥 → [[CR Dust — Frank Aloia — 09-07-2026]]\n",
+                        encoding="utf-8")
+        self.run_script("--apply")
+        dust = self.read(OPP, "Solutions Engineer — Dust")
+        self.assertEqual(dust.count("[[CR Dust — Frank Aloia — 09-07-2026]]"), 1)
+        self.assertIn("- 2026-07-09 — Prep — [[Prep Dust — Frank Aloia — 09-07-2026]]", dust)
+
+    def test_prefix_of_a_longer_name_is_not_taken_as_linked(self):
+        body = "## Entretiens\n\n- [[Prep Dust — Frank Aloia — 09-07-2026 (EN)]]\n"
+        self.assertFalse(bel.linked_in_section(body, "[[Prep Dust — Frank Aloia — 09-07-2026]]"))
+        self.assertTrue(bel.linked_in_section(body.replace(" (EN)", "|EN"),
+                                              "[[Prep Dust — Frank Aloia — 09-07-2026]]"))
+
+    def test_bullet_after_prose_or_rule_gets_a_blank_line(self):
+        # Cognyx case: a hand-written section ending on a `---` rule.
+        body = "## Entretiens\n\nÉtat au 22/09.\n\n---\n\n## Annonce\n"
+        out = bel.ObsidianAPI._upsert_section_body(body, "Entretiens", "- a", None)
+        self.assertIn("---\n\n- a\n\n## Annonce", out)
+        out = bel.ObsidianAPI._upsert_section_body(out, "Entretiens", "- b", None)
+        self.assertIn("\n- a\n- b\n", out)
+
     def test_date_falls_back_to_filename_then_undated(self):
         self.assertEqual(bel.entretien_date({}, "Prep X — Y — 04-06-2026"), "2026-06-04")
         self.assertEqual(bel.entretien_date({"date": "2026-02-17T10:00:00.000+01:00"}, "n"),

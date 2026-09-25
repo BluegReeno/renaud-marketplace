@@ -17,7 +17,8 @@ Usage:
     python backfill_entretien_links.py            # dry run, prints what would be added
     python backfill_entretien_links.py --apply    # actually write the sections
 
-Safe to re-run: a line already in the section is skipped.
+Safe to re-run: a line already in the section is skipped, and so is a note the
+section already links in another wording (a hand-written line, a table row).
 """
 
 import argparse
@@ -76,6 +77,20 @@ def entretien_line(date: str, label: str, name: str) -> str:
     return f"- {date} — {label} — [[{name}]]"
 
 
+def linked_in_section(body: str, link: str) -> bool:
+    """True when `link` (`[[Name]]`) already appears in the body's `## Entretiens` section."""
+    section, inside = [], False
+    for raw in body.split("\n"):
+        if raw.startswith("## "):
+            inside = raw.strip() == f"## {HEADING}"
+            continue
+        if inside:
+            section.append(raw)
+    # Name followed by "]]", "|alias]]" or "#heading]]" — never a longer name sharing its prefix.
+    pattern = re.escape(link[:-2]) + r"(?:\]\]|[|#])"
+    return re.search(pattern, "\n".join(section)) is not None
+
+
 def collect(api: ObsidianAPI) -> tuple[dict, list]:
     """Map each opportunité note name to its sorted (sort key, line) list; list unresolved links."""
     opportunites = {nfc(f[:-3]): f for f in api.list_directory(OPPORTUNITES)}
@@ -123,6 +138,9 @@ def main():
         _, body = api._split_frontmatter(api.read_raw(path))
         new_lines = []
         for _, line in by_opp[filename]:
+            # A hand-written section may already link the note in its own words.
+            if linked_in_section(body, line[line.index("[["):]):
+                continue
             updated = api._upsert_section_body(body, HEADING, line, None)
             if updated != body:
                 new_lines.append(line)

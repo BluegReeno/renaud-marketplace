@@ -342,7 +342,7 @@ class ObsidianAPI:
             insert_at = h2_end
             while insert_at > h2_start + 1 and lines[insert_at - 1].strip() == "":
                 insert_at -= 1
-            lines[insert_at:insert_at] = [line]
+            lines[insert_at:insert_at] = ObsidianAPI._after(lines[insert_at - 1], line)
             return "\n".join(lines)
 
         h3_start = next(
@@ -369,8 +369,20 @@ class ObsidianAPI:
         insert_at = h3_end
         while insert_at > h3_start + 1 and lines[insert_at - 1].strip() == "":
             insert_at -= 1
-        lines[insert_at:insert_at] = [line]
+        lines[insert_at:insert_at] = ObsidianAPI._after(lines[insert_at - 1], line)
         return "\n".join(lines)
+
+    @staticmethod
+    def _after(previous: str, line: str) -> list:
+        """Lines to insert after `previous`: a blank separator unless it continues a list.
+
+        A hand-written section can end on prose, a table or a `---` rule; a bullet glued
+        to it would read as part of that block (a table row, a setext heading).
+        """
+        prev = previous.strip()
+        if prev and not re.match(r"[-*+] |\d+\. ", prev) and not prev.startswith("#"):
+            return ["", line]
+        return [line]
 
     def delete_note(self, path: str) -> None:
         fp = self._resolve(path)
