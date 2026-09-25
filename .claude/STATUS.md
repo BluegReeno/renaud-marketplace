@@ -7,18 +7,10 @@ Last updated: 2026-09-25
 
 ## Current Focus
 
-Lot 3 closed: `#119` shipped 2026-09-25 (jobsearch 0.19.0), `#127` already closed. Next: run the
-`#119` backfill on the vault, then a real `morning-briefing` run to see `cv-judge` at work.
+Lot 3 closed: `#119` shipped 2026-09-25 (jobsearch 0.19.0), `#127` already closed. Next: a real
+`morning-briefing` run to see `cv-judge` at work.
 
 ## In Progress
-
-- [ ] **Apply the `#119` backfill.** `backfill_entretien_links.py` dry run on 2026-09-25: 104 lines
-      on 29 opportunités, no unresolved link. `--apply` waits for Renaud's go on that dry run.
-
-- [ ] **Watch `cv-judge` on a real run.** Since `#116` every generated CV is reviewed by
-      `cv-judge` before logging, in up to two rounds. Whether its verdicts match Renaud's read, and
-      whether `role-criteria.json` (`#129`) stops a Stakha-type offer upstream, is unmeasured until
-      the next `morning-briefing` fan-out.
 
 ## Backlog
 
@@ -80,7 +72,8 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       navigable (jobsearch **0.19.0**). Option A + E: `interview-prep` (Step 4d) and `log-cr`
       (Step 6b) list each prep/CR in the opportunité's `## Entretiens` through the existing
       `upsert_section.py` (#138 had already closed the primitive gap the issue was written
-      around); `backfill_entretien_links.py` rebuilds it for older notes — 2026-09-25
+      around); `backfill_entretien_links.py` rebuilds it for older notes. Applied to the vault
+      2026-09-25: 102 lines on 29 opportunités — 2026-09-25
 
 - [x] **Four issues through `skill-improve`, one at a time, each PR merged before the next run**
       so every `release.sh` bump started from the previous one. `#116` (PR #139, briefing
