@@ -7,7 +7,7 @@ Last updated: 2026-09-25
 
 ## Current Focus
 
-Lot 3 closed: `#119` shipped 2026-09-25 (jobsearch 0.19.0), `#127` already closed. Next: a real
+Lot 3 closed: `#119` merged 2026-09-25 (PR #145, jobsearch 0.19.0), `#127` already closed. Next: a real
 `morning-briefing` run to see `cv-judge` at work.
 
 ## In Progress
@@ -69,11 +69,12 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
 ## Done (current sprint)
 
 - [x] [#119](https://github.com/BluegReeno/renaud-marketplace/issues/119) — opportunité ↔ entretien
-      navigable (jobsearch **0.19.0**). Option A + E: `interview-prep` (Step 4d) and `log-cr`
+      navigable (PR #145, jobsearch **0.19.0**). Option A + E: `interview-prep` (Step 4d) and `log-cr`
       (Step 6b) list each prep/CR in the opportunité's `## Entretiens` through the existing
       `upsert_section.py` (#138 had already closed the primitive gap the issue was written
       around); `backfill_entretien_links.py` rebuilds it for older notes. Applied to the vault
-      2026-09-25: 102 lines on 29 opportunités — 2026-09-25
+      2026-09-25: 102 lines on 29 opportunités; two hand-written `## Entretiens` sections (2501.ai,
+      Cognyx) led to the link-aware skip and the blank-line separator in `upsert_section` — 2026-09-25
 
 - [x] **Four issues through `skill-improve`, one at a time, each PR merged before the next run**
       so every `release.sh` bump started from the previous one. `#116` (PR #139, briefing
