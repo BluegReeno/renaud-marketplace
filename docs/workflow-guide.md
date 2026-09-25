@@ -46,7 +46,7 @@ Complete starter template for new projects with Claude Code. Includes battle-tes
 - `/validation:execution-report` - Implementation report
 
 #### Session Management
-- `/handoff` - Capture session state for continuation (Write + Compress)
+- `/session:wrap-up` - Close the session: clean close, or a per-branch handoff the next session resumes from (Write + Compress)
 - `/commit` - Create clean commit with AI context tracking
 
 #### GitHub Debugging
@@ -96,7 +96,7 @@ This template combines **PRD-First Development** with strategies from the **WISC
 | **PRD-First** | Write | `.claude/PRD.md` is your north star |
 | **Path-Scoped Rules** | Select | `.claude/rules/` auto-loaded by file pattern |
 | **Progressive Docs** | Select | `reference/` (manual) + `docs/` (sub-agent scouting) |
-| **Session Handoff** | Write + Compress | `/handoff` captures state for next session |
+| **Session Handoff** | Write + Compress | `/session:wrap-up` writes a handoff to `.git/claude-handoffs/`, injected at next session start |
 | **Context Commits** | Write | `/commit` logs AI context changes in git history |
 | **Sub-Agent Isolation** | Isolate | Heavy research delegated to sub-agents |
 | **Context Reset** | Compress | `/clear` between planning and execution |
@@ -160,9 +160,9 @@ Tier 3: .claude/docs/      → On-demand via sub-agents
 ```bash
 # ... working for a while ...
 # Before ending or hitting context limits:
-/handoff
-# Next session starts with:
-# "Read HANDOFF.md and continue from where the previous session left off."
+/session:wrap-up
+# Then /clear here, or open a new session in the repo:
+# the SessionStart hook injects the handoff — say "reprends".
 ```
 
 ### GitHub Bug Fix Workflow
