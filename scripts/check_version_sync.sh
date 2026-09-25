@@ -67,6 +67,8 @@ done
 echo ""
 echo "--- SKILL.md frontmatter ---"
 for skill_md in "$REPO_ROOT"/plugins/*/skills/*/SKILL.md; do
+  # An unmatched glob stays literal: a repo with no skill (release.sh's test fixture) has none.
+  [ -e "$skill_md" ] || continue
   skill_dir="$(dirname "$skill_md")"
   skill_folder="$(basename "$skill_dir")"
   plugin_folder="$(basename "$(dirname "$(dirname "$skill_dir")")")"
