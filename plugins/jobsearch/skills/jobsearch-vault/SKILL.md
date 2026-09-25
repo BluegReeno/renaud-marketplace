@@ -166,8 +166,10 @@ python3 "$SCRIPTS/upsert_section.py" "CRM-JobSearch/Opportunites/<Poste> — <En
 - Creates the `## heading` (and `### subheading`, if given) when missing; otherwise appends under the existing one.
 - **Dedup is exact-string only** — a line identical (stripped) to one already in the same block is skipped, never duplicated. A contradicting entry (different date, different quote) is a *different* line and is appended alongside the existing one, never overwriting it.
 - Body-only. It never touches frontmatter, and it never reorders or rewrites existing lines — pure append.
+- A line appended after prose, a table or a `---` rule is preceded by a blank line, so it cannot be read as part of that block; after a bullet it continues the list.
 - Prints `{"path": ..., "heading": ..., "subheading": ...}` on success (exit 0). Errors fail (exit 1).
 - Used by `log-cr` to aggregate a company's BANT onto its `opportunite-js` note instead of duplicating it in every `entretien` CR (issue #138).
+- Used by `interview-prep` and `log-cr` to list each prep and CR in the `opportunite-js`'s `## Entretiens` section, so the candidature links back to its interviews (issue #119). The line format is fixed — `- <YYYY-MM-DD> — <Prep|CR> — [[<entretien note name>]]` — because dedup is exact-string.
 
 ### search_vault.py — full-text or basic DQL
 
@@ -196,6 +198,21 @@ Rewrites `opportunite-js` notes still carrying a pre-#127 statut value
 (`❌ Sans suite (mort)`, `❌ Abandonné`, `⏳ Relance envoyée — en attente`) to
 their canonical replacement (`JS_STATUTS_LEGACY_ALIASES` in `note_schemas.py`).
 Run manually, once, against the vault — not invoked by any other skill.
+
+### backfill_entretien_links.py — one-shot maintenance (not a caller-facing operation)
+
+```bash
+python3 "$SCRIPTS/backfill_entretien_links.py"            # dry run
+python3 "$SCRIPTS/backfill_entretien_links.py" --apply    # write the sections
+```
+Rebuilds the `## Entretiens` section of every `opportunite-js` from the
+`opportunite` / `opportunite_secondaire` frontmatter of the `entretien` notes
+written before `interview-prep` and `log-cr` linked back themselves (#119).
+Chronological; on the same day, prep before CR; undated notes last. Writes
+through `upsert_section`, in the same line format, so a re-run is a no-op and a
+later skill run is deduplicated. A note the section already links in another
+wording (hand-written line, table row) is skipped. Links that resolve to no
+opportunité are reported on stderr, never created.
 
 ## Step 4 — Common read recipes for callers
 

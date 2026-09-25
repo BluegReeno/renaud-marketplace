@@ -81,6 +81,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.19.0
+
+- interview-prep and log-cr list each prep and CR in the opportunite's ## Entretiens section; one-shot backfill_entretien_links.py rebuilds it for older notes (renaud#119)
+
 ## jobsearch 0.18.0
 
 - log-application/interview-prep/log-cr resolve the hal workspace via whoami+allowed_tags instead of hardcoding workspace_slug="renaud" (#103)

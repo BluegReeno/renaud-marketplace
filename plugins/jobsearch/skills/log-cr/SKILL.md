@@ -24,7 +24,7 @@ allowed-tools: "Skill(jobsearch-vault) mcp__Granola__list_meetings mcp__Granola_
 
 Given a completed interview, produce one Obsidian `entretien` note with `categorie: "Compte-rendu"` in `CRM-JobSearch/Entretiens/`, filled with the CR debrief — Notes clés, Questions posées, and Renaud's own Fit read (see `docs/bant-cr-template.md` for the canonical template). The BANT (employer's read) is never written into the CR body: it is aggregated onto the matching `opportunite-js` instead (Step 7), so the company's BANT lives in one traceable, growing place instead of being re-typed and scattered across every CR. When the interview was recorded by Granola, the BANT, the questions and the next steps come from the transcript (Step 1bis) — Renaud is only asked for what the transcript cannot contain. Then:
 
-1. Advance the matching `opportunite-js` to `statut: "🔄 Relance à faire"`, and `prochain_rdv` when a follow-up date is confirmed.
+1. Advance the matching `opportunite-js` to `statut: "🔄 Relance à faire"`, and `prochain_rdv` when a follow-up date is confirmed, and list the CR in its `## Entretiens` section.
 2. Aggregate this meeting's BANT onto the `opportunite-js`'s `## 🏢 BANT (agrégé)` section — dated, attributed, appended, never overwritten.
 3. Close the prep hal task created by `interview-prep` (if found).
 4. Create a post-interview relance hal task in the resolved jobsearch workspace.
@@ -183,6 +183,31 @@ Ask `jobsearch-vault` to update the candidature note (`update_frontmatter`) sett
                statut → "🔄 Relance à faire"
 ```
 
+## Step 6b — Link the CR from the candidature (via `jobsearch-vault`)
+
+The CR points at its candidature only through its `opportunite` frontmatter; the candidature — the
+note Renaud opens first — needs the link back, or its CRs are reachable only by global search
+(renaud#119). `interview-prep` lists each prep in the candidature's `## Entretiens` section; this
+step adds the CR to the same list. Run it on a Step 4 update as well: the line is identical, and
+`upsert_section.py` skips it.
+
+```bash
+python3 "$SCRIPTS/upsert_section.py" "CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md" \
+  --heading "Entretiens" \
+  --line "- <YYYY-MM-DD> — CR — [[CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>]]"
+```
+
+- **The line format is fixed** — `- <date ISO> — CR — [[<note name without .md>]]`, shared with
+  `interview-prep` (`Prep`) and `backfill_entretien_links.py`. Dedup is exact-string; any variation
+  adds a duplicate instead of being skipped.
+- **If the call fails**, report and continue — it does not block Steps 7–9:
+
+```
+⚠️  Lien retour NON ajouté sur la fiche candidature (CR créé OK).
+    Erreur   : <stderr>
+    Recovery : relancer /log-cr (idempotent)
+```
+
 ## Step 7 — Aggregate the BANT onto the opportunité (via `jobsearch-vault`)
 
 The opportunité, not the CR, carries the BANT (issue #138 — a per-CR BANT block duplicates and scatters the same information across every meeting with a company instead of building one traceable picture). For each of the four Step 1.8 lines that has real content, ask `jobsearch-vault` to run `upsert_section.py` once against the `opportunite-js` note located in Step 2, targeting `## 🏢 BANT (agrégé)` and the matching sub-heading:
@@ -299,6 +324,7 @@ Do NOT fire Step 10's success report on a full half-state (Step 5 OK + Step 9 fa
    🎙️ Source     : transcript Granola <granola_id> (omettre si Step 1bis n'a rien trouvé)
    <feeling> Feeling   : <feeling>
    🔄 Statut opp : 🔄 Relance à faire (mis à jour)
+   🔗 Lien       : CR listé dans « ## Entretiens » de l'opportunité (omettre si Step 6b a échoué)
    🏢 BANT agrégé : mis à jour sur l'opportunité (omettre si Step 7 n'avait rien à ajouter)
    🗓️ Prochain rdv : <YYYY-MM-DD> (omettre cette ligne si Step 1.10 n'a rien capturé)
    ✓  Tâche prep : "Entretien <type> — <Entreprise> — …" clôturée dans hal
@@ -323,6 +349,7 @@ If `suivi_envoye: false` (always the case after creation), suggest:
 - **The `🪞 Lecture Renaud — Fit` body section is mandatory, never drop it.** It's Renaud's own subjective read (fit, doubts, open questions) — the CR body carries no BANT section anymore (see below), so Fit is the only debrief read left in the CR. A CR without it doesn't help decide on the relance.
 - **The opportunité carries the BANT, the CR never does.** Step 5's body template has no BANT section by design — aggregating it onto the `opportunite-js` (Step 7) instead of duplicating it in every CR is what issue #138 fixed. Do not resurrect a per-CR BANT block.
 - **BANT aggregation never overwrites.** `upsert_section.py` only appends dated, attributed bullets (Step 7); a contradicting read from a later meeting sits next to the earlier one, it does not replace it.
+- **Every CR is listed on its opportunité (Step 6b).** The `## Entretiens` line format is shared with `interview-prep` and the backfill script — change it in all three or not at all.
 - **`prochain_rdv` is written on the opportunité only when Step 1.10 captured a confirmed date.** Never guess or default it.
 - **Closing the hal prep task uses `status="done"`** (hal vocabulary), not vault vocabulary like `Terminé`.
 - **Relance title uses the interview date** (`"Relance — <Entreprise> — <YYYY-MM-DD entretien>"`), NOT the candidature date. This avoids collision with the existing `log-application` relance.
