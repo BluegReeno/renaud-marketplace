@@ -278,6 +278,36 @@ Three guards, all load-bearing:
     Recovery      : re-run /interview-prep (Step 4c is idempotent under the two guards above)
 ```
 
+## Step 4d — Link the prep from the candidature (via `jobsearch-vault`)
+
+The `entretien` note points at its candidature only through its `opportunite` frontmatter, which
+nothing on the candidature reflects. Renaud opens the candidature first, and without a link back
+his preps and CRs were reachable only by global search — 22 of the 25 candidatures that had
+interviews carried none (renaud#119). So the candidature keeps one `## Entretiens` section, a
+chronological list of every prep and CR that belongs to it.
+
+On the `opportunite-js` note located in Step 1, ask `jobsearch-vault` to run `upsert_section.py`
+once:
+
+```bash
+python3 "$SCRIPTS/upsert_section.py" "<path to the opportunite-js note>" \
+  --heading "Entretiens" \
+  --line "- <YYYY-MM-DD> — Prep — [[Prep <Entreprise> — <Interlocuteurs or TBD> — <DD-MM-YYYY>]]"
+```
+
+- **The line format is fixed** — `- <date ISO> — Prep — [[<note name without .md>]]`, the same one
+  `log-cr` writes with `CR` and `backfill_entretien_links.py` writes for older notes. Dedup is
+  exact-string, so a re-run of `/interview-prep` on the same slot reproduces the same line and it
+  is skipped; any variation in the format would add a duplicate instead.
+- **Degrade, never block**, as in Steps 4b and 4c. If the call fails, keep going and report it in
+  Step 5:
+
+```
+⚠️  Lien retour NON ajouté sur la fiche candidature (prep Obsidian OK).
+    Stderr        : <error>
+    Recovery      : re-run /interview-prep (Step 4d is idempotent)
+```
+
 ---
 
 ## Step 5 — Report to the user (in French)
@@ -295,6 +325,8 @@ Render a concise summary, in French:
    🗂️ Fiche     : prochain_rdv <YYYY-MM-DD> · statut « 📞 Entretien prévu »
                   (si le statut a été laissé tel quel par la garde de non-régression, écrire
                    « statut inchangé (<valeur>) » ; omettre la ligne si Step 4c a échoué)
+   🔗 Lien      : prep listée dans « ## Entretiens » de la fiche candidature
+                  (omettre la ligne si Step 4d a échoué)
 ```
 
 ## Step 6 — Constraints (load-bearing)
@@ -305,6 +337,7 @@ Render a concise summary, in French:
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
 - **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__whoami` is allow-listed exclusively for Step 4a's workspace resolution, and `mcp__plugin_hal_hal-mcp__create_task` exclusively for the Step 4b hal mirror.
 - **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/morning-briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
+- **Every prep is listed on its candidature (Step 4d).** The `## Entretiens` line format is shared with `log-cr` and the backfill script — change it in all three or not at all.
 - **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.
 - **`categorie` is `"Préparation"`** (verbatim, with accent). The other valid value is `"Compte-rendu"` for debriefs — out of scope for this skill.
 - **Tags.** `tags` means functional domain. Pick only from the calling workspace's `allowed_tags`, returned by `whoami`; if nothing fits, use `other`. Never invent a value, and never put in `tags` what another column already carries (`company_id`, `role`, `channel`, `project_id`). hal-mcp states the full doctrine in its server `instructions` and enforces it on every write.
