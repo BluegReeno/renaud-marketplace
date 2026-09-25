@@ -12,10 +12,8 @@ Lot 3 closed: `#119` merged 2026-09-25 (PR #145, jobsearch 0.19.0), `#127` alrea
 
 ## In Progress
 
-- [ ] **`session` 0.1.0 — new plugin, `wrap-up` skill.** Branch `feat/session-plugin`, awaiting merge.
-      Replaces the per-repo `/handoff` command; handoffs live in `<git-common-dir>/claude-handoffs/`
-      and are injected by `~/.claude/hooks/session_start_context.py`. Unmeasured until a first real
-      wrap-up → resume cycle.
+- [ ] **Watch `session:wrap-up` on a real cycle** — a wrap-up that writes a handoff, then a resume
+      from it (after `/clear`, and from a fresh session). Unmeasured until then.
 
 ## Backlog
 
@@ -73,6 +71,9 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
 
 ## Done (current sprint)
 
+- [x] `session` **0.1.0** — new plugin, `wrap-up` skill (PR #146) — 2026-09-25. Replaces the per-repo
+      `/handoff` command; handoffs live in `<git-common-dir>/claude-handoffs/` and are injected by
+      `~/.claude/hooks/session_start_context.py`.
 - [x] [#119](https://github.com/BluegReeno/renaud-marketplace/issues/119) — opportunité ↔ entretien
       navigable (PR #145, jobsearch **0.19.0**). Option A + E: `interview-prep` (Step 4d) and `log-cr`
       (Step 6b) list each prep/CR in the opportunité's `## Entretiens` through the existing
