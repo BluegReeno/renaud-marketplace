@@ -40,6 +40,17 @@ jobs:
       - name: Run offline tests
         run: bash scripts/test_check_no_identity_literals.sh
 
+  test-release-script:
+    name: Offline tests — release.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline tests
+        run: bash scripts/test_release.sh
+
   marketplace-schema:
     name: Marketplace schema validation
     runs-on: ubuntu-latest
