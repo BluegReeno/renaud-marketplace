@@ -62,8 +62,9 @@ if w.sprints_enabled:
 else:
   mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
 mcp__plugin_hal_hal-mcp__list_projects(workspace_slug=w.workspace_slug)
-mcp__plugin_hal_hal-mcp__list_contacts(workspace_slug=w.workspace_slug)
-mcp__plugin_hal_hal-mcp__list_companies(workspace_slug=w.workspace_slug)
+mcp__plugin_hal_hal-mcp__list_contacts(workspace_slug=w.workspace_slug, limit=1000, offset=0)
+mcp__plugin_hal_hal-mcp__list_companies(workspace_slug=w.workspace_slug, limit=1000, offset=0)
+  → repeat each with offset = offset + returned while the response says truncated: true
 ```
 
 <!-- TODO: verify in Cowork — list_projects may accept a kind="opportunity" filter. Not confirmed in tool schema. If it does, use kind="opportunity" to narrow results. -->
@@ -72,6 +73,12 @@ mcp__plugin_hal_hal-mcp__list_companies(workspace_slug=w.workspace_slug)
 array — read the task list from `.tasks`. If `truncated` is `true`, note it alongside
 `tasks_by_ws[w]` (e.g. `tasks_by_ws[w].truncated = true`) so Step 5 can flag that the workspace's
 task view was partial instead of silently matching mails against an incomplete list.
+
+`list_contacts` and `list_companies` return `{contacts|companies: [...], total, offset, returned,
+truncated}` — read the rows from `.contacts` / `.companies`. The sender map below needs **every**
+contact, so page until `truncated` is `false`: one call returns at most 1000 rows whatever
+`limit` says (the server's cap), and the default page is only 100. A map built from the first
+page matches mail against a fraction of the CRM and says nothing about it.
 
 Collect, keyed by workspace: `projects_by_ws[w]` (title, stage, key contacts), `tasks_by_ws[w]` (title, tags), and a lookup map `email → {name, company, linked_project_title, workspace_name}` merged across all workspaces for use in Step 3 matching. When two workspaces resolve the same sender email, keep both and prefer the match whose workspace also owns the thread's inbox signal (Step 3).
 

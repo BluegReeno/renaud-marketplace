@@ -11,6 +11,10 @@ Heading format (parsed by the sync check): `## <plugin> <version>`.
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.20.1
+
+- mail-triage reads the {contacts, companies} envelope hal-mcp returns since hal#171 and pages until truncated is false — the default page is 100 of 381 contacts
+
 ## briefing 0.20.0
 
 - Add qualitative role gate (Step A.6) to cv-log-worker before CV generation
