@@ -1,14 +1,14 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-09-25
+Last updated: 2026-09-29
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-Lot 3 closed: `#119` merged 2026-09-25 (PR #145, jobsearch 0.19.0), `#127` already closed. Next: a real
-`morning-briefing` run to see `cv-judge` at work.
+Next: `#148` — `morning-briefing` in a cloud session reads neither the vault nor the follow-up
+mails; filed from the 2026-09-29 run, scope set by owner comment (jobsearch + briefing releases).
 
 ## In Progress
 
@@ -41,13 +41,11 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       `~/.local/share/git-backups/`, outside the repo, if the decision is revisited; both
       pre-rewrite bundles were deleted.
 
+**Next — [#148](https://github.com/BluegReeno/renaud-marketplace/issues/148)**, `morning-briefing`
+reads the vault through `device_bash` in a cloud session and cross-checks per-candidature mails.
+
 **Lot 4 — debt, on no clock**
 
-- [ ] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — **rewritten 2026-09-04**.
-      It used to ask for per-plugin CHANGELOGs, which breaks `check_version_sync.sh`; it now describes
-      what is actually wrong with the root file: `jobsearch` documents 15 of 38 shipped versions,
-      `briefing` 19 of 31, a ghost `## myspy` section survives at `:250`/`:254`, and the versioning
-      preamble lives only in `CLAUDE.md`.
 - [ ] [#95](https://github.com/BluegReeno/renaud-marketplace/issues/95) — add the Google Drive tools
       to `gmail-mcp`, then rename the server to `google-mcp`. Last: the manual workaround costs
       thirty seconds, and the blocking step is an OAuth re-consent, not code.
@@ -71,6 +69,17 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
 
 ## Done (current sprint)
 
+- [x] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — `CHANGELOG.md` documents
+      all 102 versions ever shipped (was 63). 20 entries restored from the per-plugin changelogs
+      `88cde3a` had dropped, 19 written from their release commits. `myspy` was not a retired plugin
+      but `mycoach`'s former name: its two entries now sit in the `mycoach` block, as `cv-generator`'s
+      three sit in `jobsearch`'s. Versioning preamble in the CHANGELOG, pointed to by `CLAUDE.md`,
+      `CONTRIBUTING.md` and the marketplace guide. `check_version_sync.sh` now rejects a heading
+      naming no plugin and a scattered or unordered block — the old file fails it five times.
+      No release: no plugin behaviour changed — 2026-09-29
+- [x] [PR #147](https://github.com/BluegReeno/renaud-marketplace/pull/147) — mail-triage reads hal's
+      `{contacts, companies}` envelope and pages until `truncated` is false (briefing **0.20.1**) —
+      2026-09-25
 - [x] `session` **0.1.0** — new plugin, `wrap-up` skill (PR #146) — 2026-09-25. Replaces the per-repo
       `/handoff` command; handoffs live in `<git-common-dir>/claude-handoffs/` and are injected by
       `~/.claude/hooks/session_start_context.py`.

@@ -49,7 +49,7 @@ Cowork detects updates via version number. Without a bump, installed users never
 **After adding or renaming a skill, run `python3 scripts/generate_improve_map.py`** to regenerate the `/improve` skill→plugin→repo table; CI rejects a stale table.
 
 **What a release does (steps 1–4, on every commit that changes plugin behaviour — scripts, templates, SKILL.md, data):**
-1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH (`0.x.Y+1`) for fixes, MINOR (`0.X+1.0`) for new behaviour
+1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH or MINOR, as defined in `CHANGELOG.md` § Versioning (the single definition of the rule)
 2. Sync `.claude-plugin/marketplace.json` **plugin entry** `version` (`plugins[name].version`) to the same value
 3. Add a `## <plugin> <version>` entry to `CHANGELOG.md` for the new version
 4. Bump `.claude-plugin/marketplace.json` **top-level** `version` by one PATCH (`+0.0.1`) — monotonic counter incremented on every release, independent of plugin version numbers
