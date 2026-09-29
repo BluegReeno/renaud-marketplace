@@ -7,10 +7,15 @@ Last updated: 2026-09-29
 
 ## Current Focus
 
-Next: `#148` — `morning-briefing` in a cloud session reads neither the vault nor the follow-up
-mails; filed from the 2026-09-29 run, scope set by owner comment (jobsearch + briefing releases).
+`#148` shipped (PR #149). Next: a `morning-briefing` run in a cloud session linked to the Mac, to
+see the `device_bash` vault path and the per-candidature mail search at work.
 
 ## In Progress
+
+- [ ] **Validate PR #149 in a real cloud session** — `device_bash` finds the mount, `list_notes.py
+      --limit 500` returns the active candidatures, 1e.2 batches ≤10-name OR queries and the
+      "Process en cours" block follows each thread's last mail. The four points PR #149 lists under
+      "Cowork validation needed" are unobserved until then.
 
 - [ ] **Watch `session:wrap-up` on a real cycle** — a wrap-up that writes a handoff, then a resume
       from it (after `/clear`, and from a fresh session). Unmeasured until then.
@@ -41,9 +46,6 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
       `~/.local/share/git-backups/`, outside the repo, if the decision is revisited; both
       pre-rewrite bundles were deleted.
 
-**Next — [#148](https://github.com/BluegReeno/renaud-marketplace/issues/148)**, `morning-briefing`
-reads the vault through `device_bash` in a cloud session and cross-checks per-candidature mails.
-
 **Lot 4 — debt, on no clock**
 
 - [ ] [#95](https://github.com/BluegReeno/renaud-marketplace/issues/95) — add the Google Drive tools
@@ -68,6 +70,15 @@ reads the vault through `device_bash` in a cloud session and cross-checks per-ca
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] [#148](https://github.com/BluegReeno/renaud-marketplace/issues/148) — PR #149: `jobsearch-vault`
+      reaches the vault through `device_bash` in a cloud session linked to the Mac, via the
+      `_tools/jobsearch-vault/scripts/` mirror on the Synology folder (version-checked against its
+      `VERSION` file); `morning-briefing` passes `--limit 500`, batches 1e.2 into ≤10-name OR
+      queries, lets the last mail win over a hal task description, and conditions the Gmail perso ✅.
+      The mirror is refreshed by `scripts/sync_vault_tools.sh`, **from `main` only, after each
+      merged `jobsearch` release** — kept out of `release.sh`, which runs before review. Synced to
+      0.20.0 (jobsearch **0.20.0**, briefing **0.21.0**) — 2026-09-29
 
 - [x] [#102](https://github.com/BluegReeno/renaud-marketplace/issues/102) — `CHANGELOG.md` documents
       all 102 versions ever shipped (was 63). 20 entries restored from the per-plugin changelogs
