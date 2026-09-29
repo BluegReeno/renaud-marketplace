@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.21.0
+
+- Step 1c requests --limit 500 and filters closed statuses; Step 1e.2 batches candidature searches in 10-name OR groups on newer_than:14d, reads each thread's last message, and the mail always wins over a stale hal task; Gmail perso footer is now conditional on all three 1e sub-steps having run
+
 ## briefing 0.20.1
 
 - mail-triage reads the {contacts, companies} envelope hal-mcp returns since hal#171 and pages until truncated is false — the default page is 100 of 381 contacts
@@ -222,6 +226,10 @@ guard therefore belongs on the consumer side.
 - `hal-mcp` http MCP server declaration (deduped at name+endpoint level with `bluegreen-marketplace/plugins/hal`)
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
+
+## jobsearch 0.20.0
+
+- self-resolver adds a device_bash case for cloud sessions linked to the Mac, reading a version-checked _tools/ mirror refreshed by scripts/sync_vault_tools.sh
 
 ## jobsearch 0.19.0
 

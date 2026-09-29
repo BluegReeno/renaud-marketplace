@@ -142,6 +142,23 @@ Invoke `jobsearch-vault` and ask for:
 3. Count and list of active candidatures (company + role + current stage).
 4. For each item above, its vault-relative note path as returned by `jobsearch-vault` (e.g. `CRM-JobSearch/Entretiens/<Title>.md`) — needed to build the `obsidian://` link in Step 4.
 
+`jobsearch-vault` resolves the session itself (its own Step 1 — local `Bash`, or
+`device_bash` when this is a cloud session linked to Renaud's Mac, or
+`⚠️ vault illisible` if neither reaches it); this skill only needs to state the
+call correctly:
+
+- **Always pass `--limit 500`** to `list_notes.py "CRM-JobSearch/Opportunites"`.
+  The default page is 50 — on a vault with 136 notes that silently truncates
+  the active list; 500 is well above the vault's current size (35 active
+  candidatures out of 136 total on 2026-09-29).
+- **Filter out closed statuses client-side**: `❌ Refus`, `🗄️ Sans suite`
+  (including the legacy `❌ Sans suite (mort)` alias), `⛔ Abandonné`,
+  `✅ Offre reçue` / `Gagné`. An active candidature is anything not in this set.
+- If `jobsearch-vault` renders `⚠️ vault illisible` (its Case C — neither local
+  `Bash` nor `device_bash` reached the vault), treat Step 1c as unavailable:
+  skip the rest of this step, mark `jobsearch:DOWN vault illisible` and carry
+  that into Step 1e.2's fallback (below) and the source-status footer.
+
 READ-ONLY — do not write the vault.
 
 The vault name for `obsidian://open?vault=<vault>&file=<path>` links is `SecondLife` (fixed — see the `jobsearch-vault` skill's vault-path resolution). Build the file part by URL-encoding the note path.
@@ -180,11 +197,43 @@ Issue up to three parallel searches:
    **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer — this URL survives through Step 1g scoring and Step 1h fan-out all the way to the Step 4 daily log; do not discard it after Step 3 rendering.
 
 2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
-   For each active candidature, search:
+
+   Skip this sub-step entirely, and render `⚠️ recherches mails par candidature NON
+   exécutées` in the "Process en cours" block, when Step 1c is unavailable
+   (`jobsearch:DOWN`). Do **not** silently fall back to `1a`'s hal task
+   descriptions as if they were mail-verified state — fall back to the
+   companies *named in* the sprint's hal tasks only as a source of company
+   names to search, and only if a Gmail search is still possible; the fallback
+   still counts as "not executed" for the footer.
+
+   Group active candidature company names into **OR queries of 10 names
+   maximum** — a single query with more than ~20 names has been observed to
+   return `[]` with no error, while 10-name queries answer correctly:
    ```
-   mcp__plugin_briefing_gmail-mcp__search_emails(query="<company_name> newer_than:7d", maxResults=5)
+   mcp__plugin_briefing_gmail-mcp__search_emails(
+     query="(<company_1> OR <company_2> OR … OR <company_10>) newer_than:14d -from:*linkedin.com -from:*substack.com -from:*skool.com",
+     maxResults=25
+   )
    ```
-   Run one search per active candidature (parallel). Read matching threads for context. Keep each matching email's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=` — see Step 4's Liens rule and the multi-account note there).
+   One query per group of 10 (parallel across groups). `newer_than:14d`, not
+   `7d` — a decision repushed a week out (see the truth rule below) needs a
+   two-week window to still be visible the following Monday.
+
+   For each match, read the **last** message of its thread (not just the
+   matched snippet) — `read_email` on the newest `id` in the thread, since an
+   older message in the same thread can carry a superseded decision. Keep that
+   message's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>`
+   (no `?authuser=` — see Step 4's Liens rule and the multi-account note there).
+   A result with `fetchError:true` is a **partial read**: keep the thread in
+   `candidature_threads[]` but mark it degraded (see the Gmail-perso footer rule
+   below) rather than treating a fetch failure as "no news".
+
+   **Truth rule.** A process's displayed stage comes from this last mail, never
+   from a hal task's description. When the two disagree — e.g. a hal task still
+   says "à relancer mercredi" but the last mail says the decision moved to next
+   week — the mail wins, and the divergence is written out explicitly in the
+   "Process en cours" block (`⚠️ tâche hal désynchro : <what the task said> vs
+   <what the last mail says>`) rather than silently picking one.
 
 3. **Inbound recruiters (last 48h)**:
    ```
@@ -419,12 +468,13 @@ CVs préparés ce run :
 
 ## 🔄 Jobsearch — Process en cours
 - **<company>** (<role>) — stage : <vault stage>
-  → Mail récent : <subject> [<date>] — <1-line summary>
+  → Mail récent : <subject> [<date>] — <1-line summary, from the thread's LAST message>
   → Relance due : <date|"non due"|"en retard">
+  (→ ⚠️ tâche hal désynchro : <what the hal task says> vs <what the last mail says> — when the two disagree, shown only then)
 ...
 Entretiens à venir : <list or "aucun cette semaine">
 Autres mails jobsearch à regarder : <subjects not matched to active process, sorted by relevance>
-(or: ⚠️ jobsearch:DOWN — <reason>  /  ⚠️ Gmail perso DOWN — <reason>)
+(or: ⚠️ jobsearch:DOWN — <reason>  /  ⚠️ Gmail perso DOWN — <reason>  /  ⚠️ recherches mails par candidature NON exécutées)
 
 ## 💼 Blue Green — Commercial
 - **<company/contact>** — <opportunity title> — stage : <CRM stage>
@@ -443,11 +493,20 @@ Autres mails pro à regarder : <subjects not matched to CRM, sorted by relevance
 hal-mcp : ✅  |  ⚠️ DOWN (<reason>)
 jobsearch-vault : ✅  |  ⚠️ DOWN (<reason>)
 Google Calendar : ✅  |  ⚠️ DOWN (<reason>)
-Gmail perso : ✅  |  ⚠️ DOWN (<reason>)
+Gmail perso : ✅  |  ⚠️ sous-étapes non exécutées (<1e.1|1e.2|1e.3 not run>)  |  ⚠️ lecture partielle (fetchError sur <n> mail(s))  |  ⚠️ DOWN (<reason>)
 Gmail pro : ✅  |  ⚠️ DOWN (<reason>)
 ```
 
 The "Source status" footer is mandatory and ALWAYS renders all five lines — even when all sources are healthy.
+
+**`Gmail perso` is `✅` only if 1e.1, 1e.2 and 1e.3 all ran** (not merely
+"gmail-perso:UP" at the Step 0 probe). If the probe passed but one or more
+sub-steps did not run — 1e.2 skipped because `jobsearch:DOWN`, for instance —
+render `⚠️ sous-étapes non exécutées : 1e.2` (name every sub-step that did not
+run, not just the first) instead of `✅`. If every sub-step ran but at least one
+result carried `fetchError:true`, render `⚠️ lecture partielle (fetchError sur
+<n> mail(s))` — that run still counts as executed, but its data is incomplete,
+so it must not be reported as a clean `✅`.
 
 ### Plan du jour — ordering rules
 
@@ -606,6 +665,8 @@ The commercial process a workspace tracks (CRM opportunities matched to pro mail
 - **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
 - **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
 - **Relationship with `mail-triage`** — Steps 1e/1f do a lightweight, context-integrated mail pass for the daily briefing. The `mail-triage` skill (also in this plugin) provides a deeper, on-demand triage with explicit per-thread classification. Do NOT call `Skill(mail-triage)` from inside this skill — the shallow pass here is intentionally faster and context-lighter. Users who want full triage run `/mail` separately.
+- **A process's state comes from its last mail, never from a hal task description** — a hal task's description is a snapshot written whenever someone last edited it; it goes stale the moment the process moves without anyone updating the task. Step 1e.2 reads the last message of each matched thread specifically so this skill never repeats what a hal task says instead of what actually happened. On divergence the mail wins, and the gap is written out in the "Process en cours" block rather than silently resolved one way or the other (2026-09-29: a run rendered "références en cours / appeler Matthias mercredi" straight from a stale hal task while the candidature's actual last mail had already pushed the decision out a week — the mail was never read).
+- **`Gmail perso : ✅` is conditional, not automatic** — it requires 1e.1, 1e.2 and 1e.3 to have all run this pass. A sub-step skipped for any reason (Step 1c unavailable, the safety bound, an upstream `DOWN`) must appear by name in the footer instead of being absorbed into a blanket `✅`. A `fetchError:true` result is a partial read, not a clean one — surface the count, never fold it into `✅` either.
 - **Daily log is the hand-off, not the chat brief** — every task/offer/process entry written in Step 4 carries a `Liens` sub-line and a `▶️ prochaines actions` sub-line, so Renaud can work each entry in a fresh session without re-collecting context. The Step 3 chat brief can stay synthetic; Step 4 may not.
 - **Never fabricate a link** — a `Liens` sub-line lists only link types whose source ID/URL was actually captured in Step 1 (Gmail message id, LinkedIn job id, vault note path, `hangoutLink`, hal task id). Omit a link type silently rather than guessing or printing a placeholder.
 - **The daily log never carries task state** — no `- [ ]`, no `- [x]`, anywhere, in any section. `halcrm_tasks` is the single source of truth for status; the log holds the day's selection and its context. Writing a checkbox creates a second, editable copy of the state that nothing reconciles — the exact divergence this skill is forbidden from producing. Ticking happens via `update_task_status` (Command Center, or in session), never by editing this document.

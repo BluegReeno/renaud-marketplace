@@ -51,6 +51,17 @@ jobs:
       - name: Run offline tests
         run: bash scripts/test_release.sh
 
+  sync-vault-tools-tests:
+    name: Offline tests — sync_vault_tools.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline tests
+        run: bash tests/test_sync_vault_tools.sh
+
   marketplace-schema:
     name: Marketplace schema validation
     runs-on: ubuntu-latest
