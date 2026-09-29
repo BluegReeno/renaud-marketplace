@@ -48,6 +48,8 @@ Cowork detects updates via version number. Without a bump, installed users never
 
 **After adding or renaming a skill, run `python3 scripts/generate_improve_map.py`** to regenerate the `/improve` skill→plugin→repo table; CI rejects a stale table.
 
+**After merging a `jobsearch` release, run `scripts/sync_vault_tools.sh` from `main`** — it refreshes the `_tools/jobsearch-vault/scripts/` mirror on the mounted Synology folder that cloud sessions run through `device_bash`. It refuses any branch but `main`: the mirror must only hold reviewed code.
+
 **What a release does (steps 1–4, on every commit that changes plugin behaviour — scripts, templates, SKILL.md, data):**
 1. Bump `plugins/<plugin>/.claude-plugin/plugin.json` → PATCH (`0.x.Y+1`) for fixes, MINOR (`0.X+1.0`) for new behaviour
 2. Sync `.claude-plugin/marketplace.json` **plugin entry** `version` (`plugins[name].version`) to the same value

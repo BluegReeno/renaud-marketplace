@@ -12,7 +12,7 @@ description: >
   "search my applications", "show my interviews", "mes candidatures actives" — and
   use as a shared library invoked by `log-application`, `interview-prep`, and
   `morning-briefing`.
-allowed-tools: "Bash Read"
+allowed-tools: "Bash Read mcp__remote-devices__device_bash"
 ---
 
 # Job-Search Vault — Skill Instructions
@@ -51,6 +51,65 @@ those stay in the global `obsidian-crm` skill.
 creating a fully-specified interview note raises **zero** validation warnings.
 
 ## Step 1 — Locate this skill's scripts (self-resolver)
+
+Judge which of three cases applies to this session — this is an agent-level
+judgment call, never a shell `if`: no bash command can test whether an MCP tool
+is available to the current session.
+
+- **`mcp__remote-devices__device_bash` is available** (a cloud session linked to
+  Renaud's Mac via the desktop app — it sits next to `device_list_dir`,
+  `device_stage_files`, `device_commit_files`) → **Case A** below. Read-only
+  (list / read / search); write operations are out of scope in this case.
+- **Otherwise** → **Case B**, the local self-resolver (unchanged): plain `Bash`,
+  because this is Cowork running directly on the Mac and the vault is mounted
+  locally. Full read/write.
+- **Neither reaches the vault** (Case A's `find` comes back empty and Case B's
+  resolver prints `SCRIPTS_NOT_FOUND`) → render `⚠️ vault illisible`. Never skip
+  the vault silently.
+
+### Case A — `device_bash` (cloud session, Mac linked remotely)
+
+`device_bash` executes on the physical Mac, not in the cloud sandbox — the
+plugin's own synced scripts (cloud-side, under `~/.claude/plugins/...`) are
+**not reachable from there**. Use the dedicated read-only mirror kept under the
+mounted Synology folder instead: `_tools/jobsearch-vault/scripts/`. The repo's
+`scripts/sync_vault_tools.sh` refreshes it from `main` after each merged
+`jobsearch` release, and stamps it with a `VERSION` file.
+
+Every `device_bash` call is a fresh shell — nothing, including env vars,
+persists between calls. Each command below is therefore self-contained.
+
+1. **Locate the mounted folder** (name varies — never hardcode it):
+   ```bash
+   device_bash("find $HOME/mnt -maxdepth 4 -path '*jobsearch-vault/scripts/list_notes.py'")
+   ```
+   The match is `$HOME/mnt/<folder-name>/_tools/jobsearch-vault/scripts/list_notes.py`.
+   Four levels up from that file is the mount root — call it `$MOUNT`. Empty
+   result ⇒ Case A does not reach the vault; fall through to Case C.
+
+2. **Check freshness.** Read `$MOUNT/_tools/jobsearch-vault/scripts/VERSION`
+   (one more `device_bash` call, e.g. `cat $MOUNT/_tools/jobsearch-vault/scripts/VERSION`)
+   and compare it to this plugin's own running version — read via the normal
+   `Bash` tool (cloud sandbox, not `device_bash`) from whichever `plugin.json`
+   the Step-1 Case-B cache/sandbox search below would resolve to (its
+   marketplace-cache branch keeps the plugin root one level above
+   `skills/jobsearch-vault/`). If the `_tools` version is older, or the file is
+   missing, render `⚠️ copie _tools périmée (<v_tools> < <v_running>)` (or
+   `⚠️ copie _tools introuvable`) — the read still proceeds, this is a loud
+   warning, not a hard failure.
+
+3. **Run a script.** Export `OBSIDIAN_VAULT_PATH` in the **same** `device_bash`
+   command as the script call (no env survives between calls):
+   ```bash
+   device_bash("OBSIDIAN_VAULT_PATH=$MOUNT/SecondLife-vault/SecondLife python3 $MOUNT/_tools/jobsearch-vault/scripts/list_notes.py 'CRM-JobSearch/Opportunites' --limit 500")
+   ```
+   Only `list_notes.py`, `read_note.py`, and `search_vault.py` are available in
+   this case — the `_tools` mirror is read-only by design. A caller that needs
+   `create_note.py` / `update_frontmatter.py` / `upsert_section.py` in a
+   `device_bash`-only session cannot be served from here; say so rather than
+   attempting a write through the read-only mirror.
+
+### Case B — local `Bash` self-resolver (unchanged)
 
 The scripts ship inside this skill. Resolve their directory once per session,
 covering dev, marketplace cache, and Cowork sandbox. (This is *self-location* of
@@ -108,12 +167,21 @@ other by relative module name, so always invoke them from their own directory or
 with `$SCRIPTS` on the path (running `python3 "$SCRIPTS/foo.py"` already puts
 `$SCRIPTS` first on `sys.path`, so the imports resolve).
 
+### Case C — neither reaches the vault
+
+Case A's `find` came back empty (no linked device, or the Synology folder isn't
+mounted on it) **and** Case B's resolver printed `SCRIPTS_NOT_FOUND`. Render
+`⚠️ vault illisible` in whichever block was asking for vault data and continue
+the rest of the run — this mirrors the existing DOWN-source contract (never omit
+a source silently, see `morning-briefing` Step 0/Step 5).
+
 ## Step 2 — Vault path resolution (no secret)
 
 The scripts resolve the vault folder themselves, in this order:
 
 1. **`OBSIDIAN_VAULT_PATH`** env var (set this in Cowork, where the vault is
-   mounted at a session path).
+   mounted at a session path; in Case A above, export it inline on the same
+   `device_bash` call as `$MOUNT/SecondLife-vault/SecondLife`).
 2. Known macOS path `…/SecondLife-vault/SecondLife`.
 3. Last resort: `vault_path` from `~/.claude/skills/obsidian-crm/scripts/config.json`
    (only the path is read — never any key).
