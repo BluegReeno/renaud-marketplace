@@ -38,11 +38,8 @@ Exemple : top-level à `0.5.3`, on bumpe `briefing` de `0.4.4` → `0.5.0` → l
 
 ### Quand bumper
 
-| Type de changement | Bump |
-|-------------------|------|
-| Fix bug script, template, data | PATCH `0.x.Y+1` |
-| Nouveau comportement, nouvel outil, nouveau skill | MINOR `0.X+1.0` |
-| Refonte majeure | MAJOR `X+1.0.0` |
+PATCH ou MINOR : la règle est définie une seule fois, dans le préambule de `CHANGELOG.md`
+(§ Versioning). Aucun plugin n'est en 1.0.
 
 Le serveur MCP (`.mcp.json` → `version`) suit sa propre version indépendante.
 Il NE force PAS un bump du plugin — sauf si l'interface MCP change.

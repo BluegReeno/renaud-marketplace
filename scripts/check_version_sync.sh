@@ -6,7 +6,8 @@
 #   - .claude-plugin/marketplace.json                  plugins[].version
 #
 # Plus: CHANGELOG.md must document each plugin's current version
-# (heading `## <plugin> <version>`).
+# (heading `## <plugin> <version>`), grouped per plugin, newest first, and naming no plugin
+# that plugins/ does not hold.
 #
 # The top-level marketplace.json version is a monotonic release counter; it is a
 # process rule (bump +0.0.1 on every release) and is not statically checked here.
@@ -59,6 +60,47 @@ print(entry['version'] if entry else 'NOT_FOUND')
     ERRORS=$((ERRORS + 1))
   fi
 done
+
+# Invariant 2b: CHANGELOG.md shape. Every `## <plugin> <x.y.z>` heading names a plugin under
+# plugins/ (a renamed plugin's old versions carry the new name), and each plugin's entries form
+# one contiguous block, newest first, no duplicate. release.sh inserts above a plugin's first
+# heading, so a scattered block silently misplaces the next entry.
+echo ""
+echo "--- CHANGELOG.md shape ---"
+shape="$(python3 - "$CHANGELOG" "$REPO_ROOT/plugins" <<'PYEOF'
+import re, sys
+from pathlib import Path
+
+changelog, plugins_dir = sys.argv[1], Path(sys.argv[2])
+known = {p.parent.parent.name for p in plugins_dir.glob("*/.claude-plugin/plugin.json")}
+heads = re.findall(r"^## (\S+) (\d+)\.(\d+)\.(\d+)(?:\s|$)", open(changelog).read(), re.M)
+errors, closed, last = [], set(), {}
+prev = None
+for name, *ver in heads:
+    ver = tuple(int(x) for x in ver)
+    label = f"{name} {'.'.join(map(str, ver))}"
+    if name not in known:
+        errors.append(f"heading '## {label}' names no plugin under plugins/")
+    if name != prev:
+        if name in closed:
+            errors.append(f"'## {label}' reopens the {name} block — group each plugin's entries")
+        if prev is not None:
+            closed.add(prev)
+    elif ver >= last[name]:
+        errors.append(f"'## {label}' is not below the entry above it — newest version first")
+    last[name], prev = ver, name
+print("|".join(errors) if errors else "OK")
+PYEOF
+)"
+if [ "$shape" = "OK" ]; then
+  echo "OK       CHANGELOG.md grouped per plugin, newest first"
+else
+  IFS='|' read -ra errs <<< "$shape"
+  for err in "${errs[@]}"; do
+    echo "INVALID  CHANGELOG.md $err"
+    ERRORS=$((ERRORS + 1))
+  done
+fi
 
 # Invariant 3: every SKILL.md must have required frontmatter fields.
 #   - name:          must match the skill folder name

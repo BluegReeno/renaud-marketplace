@@ -185,9 +185,8 @@ lives at the plugin level only.
 
 ### Bump rules
 
-- `PATCH` (`0.x.Y+1`) — bugfix, internal improvement, optional field added
-- `MINOR` (`0.X+1.0`) — interface change: new required command, renamed CLI flag, new
-  required JSON field, new observable behavior
+PATCH versus MINOR is defined once, in the `## Versioning` preamble of the root
+`CHANGELOG.md`. Every plugin is pre-1.0.
 
 **Per release (the enforced 2-field invariant):**
 1. Bump each component that changed → its own PATCH or MINOR
