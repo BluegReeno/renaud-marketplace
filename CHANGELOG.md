@@ -89,6 +89,10 @@ nothing about its dates. `hal#99` (sprint integrity) does not close this gap: a 
 `actuel` past its `ends_at` is still the sole `actuel` of its workspace, hence conformant. The
 guard therefore belongs on the consumer side.
 
+## jobsearch 0.20.0
+
+- self-resolver adds a device_bash case for cloud sessions linked to the Mac, reading a version-checked _tools/ mirror refreshed by scripts/sync_vault_tools.sh
+
 ## jobsearch 0.19.0
 
 - interview-prep and log-cr list each prep and CR in the opportunite's ## Entretiens section; one-shot backfill_entretien_links.py rebuilds it for older notes (renaud#119)
