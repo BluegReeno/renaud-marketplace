@@ -22,7 +22,6 @@ renaud-marketplace/
 │   │   │   └── plugin.json       ← (VERSION LIVES HERE)
 │   │   ├── skills/                ← NO .mcp.json here: gmail-mcp belongs to the `briefing` plugin
 │   │   │   ├── cv-generator/SKILL.md       ← skill (no version in the frontmatter)
-│   │   │   ├── cover-letter/SKILL.md       ← skill
 │   │   │   ├── log-application/SKILL.md    ← skill
 │   │   │   ├── interview-prep/SKILL.md     ← skill
 │   │   │   ├── log-cr/SKILL.md             ← post-interview debrief (BANT template)
@@ -30,7 +29,6 @@ renaud-marketplace/
 │   │   │   ├── read-job-offer/SKILL.md     ← LinkedIn JD reader (shared primitive, no browser)
 │   │   │   └── apply-to-offer/SKILL.md     ← manual offer → CV + logged candidature
 │   │   ├── commands/             ← slash commands
-│   │   │   ├── cover-letter.md
 │   │   │   ├── interview-prep.md
 │   │   │   └── log-application.md
 │   │   ├── profiles/             ← p1-p5 narrative files (read by cv-generator + interview-prep)
@@ -125,15 +123,15 @@ which `scripts/check_version_sync.sh` keeps identical.
 
 | Plugin | Skills | MCP server | Description |
 |--------|--------|-------------|-------------|
-| `jobsearch` | `cv-generator`, `cover-letter`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault`, `read-job-offer`, `apply-to-offer` | `gmail-mcp` **through the `briefing` plugin** | CV generation, cover letter, application logging, interview prep, debrief logging, job-search vault I/O (filesystem-only, shared library), LinkedIn job-description reading, and the manual offer→CV route |
+| `jobsearch` | `cv-generator`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault`, `read-job-offer`, `apply-to-offer` | `hal-mcp` **through the `hal` plugin** | CV generation, application logging, interview prep, debrief logging, job-search vault I/O (filesystem-only, shared library), LinkedIn job-description reading, and the manual offer→CV route (with a short form-field answer on request) |
 | `briefing` | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
 | `improve` | `improve` | — | Capture an observation about a skill → GitHub Issue in ≤30 s from Cowork (`/improve`) |
 | `mycoach` | `mycoach` | `hal-mcp` **through the `hal` plugin** | Weekly personal-development check-in — a structured CBT/SFBT session backed by a private OKF knowledge base |
 
-`briefing` and `mycoach` **require the `hal` plugin** (`bluegreen-marketplace`) to be installed
-for their `mcp__plugin_hal_hal-mcp__*` calls — neither declares that server. `jobsearch` in turn
-requires the `briefing` plugin for its single gmail-mcp call
-(`cover-letter` → `mcp__plugin_briefing_gmail-mcp__draft_email`).
+`briefing`, `mycoach` and `jobsearch` **require the `hal` plugin** (`bluegreen-marketplace`) to be
+installed for their `mcp__plugin_hal_hal-mcp__*` calls — none declares that server. `jobsearch`
+also requires the `briefing` plugin, for the `cv-log-worker` agent that `apply-to-offer` spawns;
+it calls no gmail-mcp tool since `cover-letter` was retired.
 
 ---
 
