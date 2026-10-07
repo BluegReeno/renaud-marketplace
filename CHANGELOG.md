@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.21.1
+
+- mail-triage: relance_possible no longer points at the retired /cover-letter
+
 ## briefing 0.21.0
 
 - Step 1c requests --limit 500 and filters closed statuses; Step 1e.2 batches candidature searches in 10-name OR groups on newer_than:14d, reads each thread's last message, and the mail always wins over a stale hal task; Gmail perso footer is now conditional on all three 1e sub-steps having run
