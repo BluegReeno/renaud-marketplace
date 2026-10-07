@@ -183,7 +183,7 @@ For each classified thread, attach one concrete action recommendation.
 | `réponse_positive` | Mettre à jour le vault avec la réponse (statut, prochaine étape). Lancer `/interview-prep` si entretien imminent. |
 | `réponse_négative` | Archiver la candidature : lancer `/log-application` et mettre le statut à ❌ Refusé. |
 | `silence` | Évaluer si une relance est pertinente (délai, contexte, type de poste). Pas d'action automatique. |
-| `relance_possible` | Rédiger une relance courte. `/cover-letter` peut aider avec le contexte de relance. |
+| `relance_possible` | Rédiger une relance courte, à partir de la note de candidature du vault. |
 | `nouvelle_opportunité` | Évaluer le fit (🔥/🟡/❌). Si positif : lancer `/log-application` pour créer la fiche vault. |
 
 ### Blue Green actions

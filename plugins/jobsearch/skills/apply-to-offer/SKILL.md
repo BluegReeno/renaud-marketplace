@@ -10,8 +10,10 @@ description: >
   morning-briefing fan-out — same worker, same output, manual trigger. Use when
   Renaud says "postule à cette annonce", "génère le CV pour", "je veux postuler",
   "prépare ma candidature", or simply pastes a `linkedin.com/jobs/view/` URL and
-  asks for a CV. It never submits an application and never writes a cover letter.
-allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
+  asks for a CV. On request it also drafts the short answer an application form asks
+  for ("why us", "pourquoi ce poste", a few hundred characters). It never submits an
+  application and never writes a full cover letter.
+allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__get_document"
 ---
 
 # Apply To Offer — Skill Instructions
@@ -91,10 +93,39 @@ matched), say so and stop. If it returned
 `ÉCHEC`, relay the reason without retrying: a second attempt on the same failing read produces the
 same failure and costs another BrightData call.
 
+## Step 6 — Short form-field answer (only on request)
+
+Run this step only when Renaud asks for it — in the same message as the link ("et le champ
+'why X'"), or after Step 5. Never by default: most applications have no such field.
+
+Collect, from what Renaud pasted:
+
+- **the field's question**, verbatim (`Why do you want to join X?`, `Pourquoi ce poste ?`);
+- **its limit** in characters. If none is given, write for 200 characters and say so.
+
+Read the facts before writing a word. Resolve the hal workspace whose `allowed_tags` contains
+`jobsearch` with `whoami` (never a hardcoded slug — this repo is public), then
+`get_document(workspace_slug=<slug>, slug="parcours")`. `parcours` is the only source for a claim
+about Renaud: an employer, a client, a figure that is not in it does not go in the answer. If the
+read fails, stop and say so — never write the answer from memory.
+
+Write one answer:
+
+- in the language of the offer (French offer → French, English → English, never a translation);
+- **within the limit**, counted on the final text, and state the count: `(187/200 caractères)`;
+- tied to the offer read in Step 2: one concrete thing about this company or role, one fact from
+  `parcours` that answers it. No formula (« Je me permets… », "I am pleased to apply…"), no
+  greeting, no signature — it is a form field, not a letter.
+
+Output the answer in a code block, so it copies cleanly, and nothing else. It is not saved
+anywhere: if Renaud asks to keep it, it goes to the candidature note via
+`jobsearch-vault`.
+
 ## Constraints (load-bearing)
 
 - **Never submit an application.** No form, no "Apply" button, no job portal interaction, ever.
-- **Never write a cover letter.** `cover-letter` is a separate, explicitly-invoked skill.
+- **Never write a full cover letter.** The only text this skill writes is the short form-field
+  answer of Step 6, and only on request.
 - **Never send a message to a person.** Not to a recruiter, not to a contact.
 - **One offer per invocation.** If Renaud pastes several links, process them one at a time and say
   which one you are on — never fan out from here. Parallel fan-out belongs to `morning-briefing`.
@@ -103,4 +134,5 @@ same failure and costs another BrightData call.
 - **Status is `📝 À postuler`** — the worker logs it; Renaud moves the card himself once he has
   actually applied.
 - **Compose, do not reimplement.** The read, the comp gate, the CV and the log all live in skills
-  that already exist. This skill resolves, dedups, spawns, reports — nothing else.
+  that already exist. This skill resolves, dedups, spawns, reports — and, on request, writes the
+  short form-field answer of Step 6, which no other skill owns.
