@@ -1,6 +1,6 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-10-06
+Last updated: 2026-10-07
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
@@ -11,11 +11,6 @@ Last updated: 2026-10-06
 see the `device_bash` vault path and the per-candidature mail search at work.
 
 ## In Progress
-
-- [ ] **hal audit q15 — `jobsearch:cover-letter` retired, short form-field answer moved into
-      `apply-to-offer`** (branch `claude/audit-q15-retire-cover-letter`). Not released: at release,
-      `jobsearch` takes a MINOR (a skill and a command removed, a step added). The new step was not
-      run on a real application form.
 
 - [ ] **Validate PR #149 in a real cloud session** — `device_bash` finds the mount, `list_notes.py
       --limit 500` returns the active candidatures, 1e.2 batches ≤10-name OR queries and the

@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.21.1
+
+- mail-triage: relance_possible no longer points at the retired /cover-letter
+
 ## briefing 0.21.0
 
 - Step 1c requests --limit 500 and filters closed statuses; Step 1e.2 batches candidature searches in 10-name OR groups on newer_than:14d, reads each thread's last message, and the mail always wins over a stale hal task; Gmail perso footer is now conditional on all three 1e sub-steps having run
@@ -226,6 +230,10 @@ guard therefore belongs on the consumer side.
 - `hal-mcp` http MCP server declaration (deduped at name+endpoint level with `bluegreen-marketplace/plugins/hal`)
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
+
+## jobsearch 0.21.0
+
+- cover-letter skill and command retired (hal audit q15); apply-to-offer drafts the short form-field answer on request, facts read from hal parcours — jobsearch no longer calls gmail-mcp
 
 ## jobsearch 0.20.0
 
@@ -575,6 +583,10 @@ All 30 CVs validated — 1 page each.
 - Rétro-compat: `--positioning ai_consulting/cto/business_dev` still works
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
+
+## improve 0.4.1
+
+- skill map regenerated: cover-letter removed, session:wrap-up listed
 
 ## improve 0.4.0
 
