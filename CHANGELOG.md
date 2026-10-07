@@ -584,6 +584,10 @@ All 30 CVs validated — 1 page each.
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
 
+## improve 0.4.2
+
+- skill map drops edifice (archived) and sprint-review (retired) from bluegreen-marketplace
+
 ## improve 0.4.1
 
 - skill map regenerated: cover-letter removed, session:wrap-up listed
