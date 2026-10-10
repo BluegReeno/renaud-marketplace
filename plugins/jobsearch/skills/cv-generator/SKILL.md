@@ -331,17 +331,14 @@ Apply these rules when reviewing or editing any content in `cv-master.json`.
 3. What **differentiates** you (true for Renaud, false for most candidates)
 - No third person, no "passionné", "dynamique", "orienté résultats"
 
-### Factual source of truth — `renaud/parcours` (mandatory)
+### Factual source of truth — `parcours` (mandatory)
 
 `cv-master.json` is a **rendering** of the career, never its record. The record is the hal document
-`parcours` in workspace `renaud`:
+`parcours`. These documents may sit in the job-search or the personal workspace (the split moved only the `jobsearch`-domain ones), so never name a workspace: after `whoami`, try `get_document` on each live workspace of `type: "jobsearch"`, then each live one of `type: "personal"`, and keep the first that answers.None answers → stop and say so.
 
 ```
-# 1. Resolve the workspace from whoami — the one whose `allowed_tags` contain `jobsearch`.
-#    Never hardcode a slug: it is per-user and this repository is public (see #77, #103).
 mcp__plugin_hal_hal-mcp__whoami()
-# 2. Read the record from that workspace.
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<resolved slug>, slug="parcours")
+mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<first workspace that answers>, slug="parcours")
 ```
 
 **Read it before changing any title, date, employer or attribution in `cv-master.json`**, and align
@@ -349,7 +346,7 @@ on it when they disagree — it wins, always.
 
 Three defects it caught on 2026-08-28, all of them shipped to real recruiters:
 
-| `cv-master.json` said | `renaud/parcours` says |
+| `cv-master.json` said | `parcours` says |
 |---|---|
 | `Product Developer — SAT OCEAN (2006-2010)` | **R&D Engineer — SAT-OCEAN (2005-2011)** |
 | Open Ocean: `Co-Founder & Managing Director` | **Co-founder & CTO** |
@@ -441,7 +438,7 @@ Format: `[Action verb] + [what you built / for whom] — [result in plain Englis
 - [ ] "Business Angels" → "institutional investors (Seventure Partners, Cap Décisif/FNA)"
 - [ ] "DCNS" → "Naval Group (ex-DCNS)"
 - [ ] "delivery" (FR bullets) → "livraison"
-- [ ] Titles, dates and attributions checked against `renaud/parcours` (hal, workspace `renaud`)
+- [ ] Titles, dates and attributions checked against the hal document `parcours`
 - [ ] No Blue Green product name in `containers`, none opening the `about`
 - [ ] No artefact counter (tools, chunks, docs, agents) in the `about`
 - [ ] Named languages (Python / TypeScript / SQL) appear in `containers` for engineering-facing cells

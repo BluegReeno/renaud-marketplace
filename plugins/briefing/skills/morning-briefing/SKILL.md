@@ -1,285 +1,171 @@
 ---
 name: morning-briefing
 description: >
-  Produce one morning briefing covering today's calendars (declared by your hal
-  workspaces), current-sprint hal tasks across every workspace you belong to,
-  Obsidian jobsearch state, both Gmail inboxes (perso + pro), job-offer scoring
-  from LinkedIn digests, and CRM/vault cross-reference — then writes one
-  daily-log entry per HAL workspace. Renders 6 blocks + an ordered plan du jour.
-  Use when the user asks "what's up for today", "ma journée", "briefing du
-  jour", "quel est mon planning", or any similar daily-overview trigger.
-allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__brightdata__web_data_linkedin_job_listings mcp__brightdata__scrape_as_markdown Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
+  Produce one morning briefing: today's calendars (declared by your hal
+  workspaces), current-sprint hal tasks across every live workspace you belong to,
+  a job-search paragraph (applications to do with offer link, CV path and judge
+  score; new offers; processes in flight), the Blue Green commercial pass, an
+  ordered plan du jour — then one daily-log document per workspace that has a task
+  or an appointment today. On weekends it runs a personal-only variant. Use when
+  the user asks "what's up for today", "ma journée", "briefing du jour", "quel est
+  mon planning", or any similar daily-overview trigger.
+allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
 ---
 
-# Morning Briefing — Skill Instructions
+# Morning Briefing
 
-## What this skill does
+One read-only view of the day, then one daily-log write per workspace that has something that day.
+The only writes in this skill are the `save_document` daily logs (Step 4) and a description-only
+`update_task` append when routing idea capture (Step 5).
 
-Produce one morning briefing that merges **six sources** into a single structured view: hal tasks (every workspace you belong to, sprint-aware), Obsidian jobsearch state, the Google Calendars your workspaces declare, and two Gmail inboxes (perso + pro) — then cross-references mails against the vault and CRM to update in-flight process status. It also runs a scoring pipeline on LinkedIn job alerts found in the perso inbox, surfaces the best 2-3 offers with fit rationale, and generates an **ordered plan du jour** as the final block. The rendered brief is read-only except for one daily-log write per hal workspace at the end of the run (Step 4), plus description-only updates to a dedicated hal task when routing idea capture out of the daily log (Step 5).
+A session that reviews or cleans up this skill's daily log or hal tasks is **log-only**: it lists,
+logs and updates bookkeeping, and never executes a task inline (no LinkedIn draft, no CR). Execution
+happens in its own session.
 
-Any session that reviews or cleans up this skill's daily log or hal tasks — reordering, cancelling, merging duplicates, updating descriptions — is **log-only**: it must never execute a task inline (e.g. draft a LinkedIn post, write a CR). See Step 5.
-
-Any backend that is unreachable renders a loud `⚠️ <source> DOWN — <reason>` line instead of silently omitting data. Silent omission is a critical failure.
-
----
-
-## Invocation modes — interactive vs `--headless`
-
-This skill runs in two modes. **Interactive** (default, no flag) is the full behaviour described in the steps below, run inside a live session with a human present. **`--headless`** is an explicit, unattended-safe mode for scheduled / `claude -p` runs (e.g. a nightly scheduler that has no one to answer prompts or validate output).
-
-`/morning-briefing --headless` differs from interactive exactly as follows — every difference is a **visible** change in the rendered brief, never a silent one:
-
-| Aspect | Interactive (no flag) | `--headless` |
-|--------|-----------------------|--------------|
-| **Step 1h — CV fan-out** | Runs (spawns `cv-log-worker` sub-agents for 🔥 offers) | **Skipped entirely.** The brief renders the literal line `CV pre-generation: skipped (headless mode)` in the "CVs préparés ce run" section. Omission is visible, never silent. |
-| **Plan du jour** | Prompt the user to validate/modify before writing | Rendered with the `[proposé — non validé]` marker and **NOT written to hal**. |
-| **Daily-log writes (Step 4)** | Happen | **Still happen** — they are the whole point of the headless run. |
-| **Connector failure** (calendar, gmail, brightdata) | `⚠️ <source> DOWN — <reason>` line, run continues | Block states `<source>: UNAVAILABLE (<error>)`, run continues — visible degradation. |
-| **hal unreachable** | `hal:DOWN`, Steps 1a/4 skipped, brief still renders | **ABORT with an error** — the daily-log write is the run's purpose, so a headless run with no hal has nothing to deliver. |
-
-The flag toggles only the five rows above. Everything else — sources pulled, block layout, scoring, ordering — is identical in both modes. Interactive behaviour is unchanged by the presence of this contract.
+Any unreachable source renders `⚠️ <source> DOWN — <reason>`. Silent omission is a critical failure.
+A block that is **out of scope** (see Step 0) is not a failure: it is omitted and the header line says
+why.
 
 ---
 
-## Step 0 — Pre-flight (probe every source before pulling)
+## Modes
 
-Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
+**Interactive** (default) and **`--headless`** (scheduled or `claude -p` runs, nobody to answer).
+`--headless` differs in exactly these rows, each visible in the brief:
 
-In **`--headless`** mode: a failing **hal** probe ⇒ **abort the run** (raise an error; do not render a partial brief — see Invocation modes). Any **other** failing probe ⇒ its block renders `<source>: UNAVAILABLE (<error>)` instead of the interactive `⚠️ <source> DOWN` line, and the run continues.
+| Aspect | Interactive | `--headless` |
+|---|---|---|
+| CV fan-out (Step 2c.4) | runs | skipped; the brief says `CV pre-generation: skipped (headless mode)` |
+| Plan du jour | user validates or edits it | marked `[proposé — non validé]`, not asked about |
+| hal unreachable | `hal:DOWN`, brief still renders | **abort with an error** — the daily log is the run's purpose |
+| Connector failure | `⚠️ <source> DOWN — <reason>` | `<source>: UNAVAILABLE (<error>)`, run continues |
 
-- **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a, 4. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip those steps; with no workspace there is nothing to brief. Never assert a specific email or slug — every downstream step iterates on whatever `whoami` returns.
-- **jobsearch-vault probe**: attempt a small read (list active candidatures). On failure → mark `jobsearch:DOWN <reason>`, skip Step 1c.
-- **Google Calendar probe**: call `mcp__claude_ai_Google_Calendar__list_calendars`. On failure → mark `gcal:DOWN <reason>`, skip Step 1d. If the error suggests OAuth failure, include "reconnect at claude.ai/connectors" in the message.
-- **Gmail perso probe**: call `mcp__plugin_briefing_gmail-mcp__search_emails` with a minimal query (e.g. `after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 1e.
-- **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 1f.
-
----
-
-## Step 0.5 — Read the recent daily logs (cross-session context)
-
-If `hal:UP`: for each workspace returned by `whoami`, call `get_document` **twice** — today first, then yesterday:
-
-```
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of today>")
-mcp__plugin_hal_hal-mcp__get_document(workspace_slug=<slug>, slug="daily-log-<YYYY-MM-DD of yesterday>")
-```
-
-**Today's log is the one that must not be lost.** A headless run may already have written it hours earlier: on 2026-09-04 the automatic run wrote all four logs at 06h17 and an interactive run replaced one of them at 13h38, destroying the morning's version. When today's document exists, hold its **entire `content_md`, verbatim** — Step 4 needs the whole thing in order not to overwrite it, not just one section.
-
-From **yesterday's** document, extract its `## Notes` section only.
-
-Both are **silent internal context** — do NOT echo them in the rendered brief. They are a hand-off for the agent's own awareness, not user-facing output.
-
-If a document does not exist (404 or empty), ignore it silently — first-day-of-use, skipped days, and a first run of the day are all normal.
-
-If `hal:DOWN`, skip entirely.
+**Week-end variant** — Saturday and Sunday, Europe/Paris, in either mode. Personal only: see Step 0.
+Nothing in it asks for validation: the daily log is written as soon as the brief is built.
 
 ---
 
-## Step 1 — Pull data (all sources — run in parallel where possible)
+## Step 0 — Pre-flight and scope
 
-No inter-step dependencies after Step 0. Issue tool calls in parallel for maximum speed.
+Call `whoami` once. It must answer with at least one workspace; otherwise `hal:DOWN no workspace —
+whoami returned <payload>` and skip every hal step (headless: abort). Never assert an email or a slug.
 
-### 1a — hal tasks (one loop over every workspace `whoami` returned)
+Build the scope from `whoami` alone, never from a literal:
 
-Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`:
+- **live** = workspaces with `archived: false`. An archived workspace is never read for the brief,
+  never written (hal refuses writes by name). It stays out of every block and every log.
+- **weekday scope** = all live workspaces (both of Renaud's — personal and job search — are read: the
+  planner sees one picture).
+- **week-end scope** = live workspaces with `type: "personal"`. Pro mail, the Blue Green commercial
+  pass and everything about job offers are out of scope; so are calendars declared only by
+  out-of-scope workspaces.
+- **job-search block** exists only when a live workspace has `type: "jobsearch"` (weekday only). No
+  such workspace, or it is archived → the block is absent, no `⚠️`, no vault probe, no LinkedIn digest
+  search.
+
+Probe the remaining sources independently; one failure never stops the others:
+
+- **Google Calendar**: `list_calendars`. Failure → `gcal:DOWN <reason>` (OAuth error → add
+  "reconnect at claude.ai/connectors").
+- **Gmail perso** (`mcp__plugin_briefing_gmail-mcp__*`) and **Gmail pro** (`mcp__claude_ai_Gmail__*`),
+  weekday only: a minimal search each. The server called decides the inbox, never an address string.
+- **Vault**, only when the job-search block exists: a small `jobsearch-vault` read.
+
+Print one header line under the title: `Mode : semaine` or `Mode : week-end perso (<names of the
+workspaces in scope>)`.
+
+---
+
+## Step 1 — Context from hal (silent, never echoed)
+
+For each live in-scope workspace, `get_document` (404 / empty is normal):
+
+- `daily-log-<today>` — keep its **entire** `content_md` verbatim: Step 4 must append to it, never
+  replace it (on 2026-09-04 an interactive run destroyed the morning's automatic log).
+- `daily-log-<yesterday>` — keep its `## Notes` section only.
+- `soul` and `memory` — the fixed blocks (below) and the workspace's own priorities.
+
+**Fixed blocks come from hal, never from this file.** Nothing about time is written in this skill: no
+meeting day, no school run, no job-search slot, no day start. They are the lines of a section titled
+`## Blocs fixes` in the workspace's `soul` or `memory` document, one per line:
+`- <days> HH:MM–HH:MM — <label>`, plus optionally `- <days> — début de journée HH:MM`. Read the section
+from every in-scope workspace and merge them. If none declares any, render `⚠️ aucun bloc fixe déclaré
+dans soul/memory` once in the plan block and plan without hours.
+
+---
+
+## Step 2 — Pull data (parallel where independent)
+
+### 2a — Tasks, per live in-scope workspace
 
 ```
 if w.sprints_enabled:
-  mcp__plugin_hal_hal-mcp__list_sprints(workspace_slug=w.workspace_slug, status="actuel")
-    → 0 entries  : no current sprint          → unfiltered list_tasks + LOUD line (see below)
-    → 1 entry    : the current sprint         → check ends_at; filter by its id ONLY if not closed
-    → 2+ entries : ambiguous                  → unfiltered list_tasks + LOUD line (see below)
-  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug, sprint_id=<id>)
-else:
-  mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=w.workspace_slug)
+  list_sprints(workspace_slug, status="actuel")
+    0 entries → unfiltered list_tasks + loud line
+    1 entry   → filter by its id only if ends_at is null or today-or-later
+    2+        → unfiltered list_tasks + loud line
+else: list_tasks(workspace_slug)        # no sprint note at all
 ```
 
-`list_tasks` returns `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}`, not a bare
-array — read the task list from `.tasks`. When `truncated` is `true`, `.tasks` holds only the
-newest `returned` of `total` matching tasks; render a loud line in that workspace's block —
-`⚠️ <workspace> — hal a tronqué la lecture (<returned>/<total> tâches) : les plus anciennes
-manquent.` — rather than silently briefing on a partial list. This matters most here: the tag
-grouping below assumes it is grouping **every** open task in the workspace.
+`list_tasks` returns `{tasks, total, returned, truncated}`. `truncated: true` → `⚠️ <workspace> — hal a
+tronqué la lecture (<returned>/<total> tâches) : les plus anciennes manquent.` Show open tasks (not
+`done`, not `cancelled`).
 
-A workspace without `sprints_enabled` is **not** a workspace missing a sprint — pull its open tasks with no sprint filter and render **no** "(no active sprint)" note.
+A sprint is declarative (hal enforces nothing about its dates), so never guess it silently. Each case
+renders a loud line in the workspace block **and** the footer, and never falls back quietly:
 
-**The sprint is the selection — so never guess it silently.** `status="actuel"` is declarative: a
-human sets it when they plan the week, and hal enforces nothing about its dates. The three
-failure modes below each render a **loud line** in that workspace's block AND in the
-source-status footer. Never fall back quietly to unfiltered tasks — a briefing that shows the
-leftovers of a closed sprint while looking exactly like a normal one is the failure this rule
-exists to prevent.
+| Condition | Line |
+|---|---|
+| 0 sprints `actuel` | `⚠️ <ws> — aucun sprint actuel : la semaine n'a pas été planifiée. Tâches ouvertes affichées à défaut.` |
+| 1 sprint, `ends_at` < today | `⚠️ <ws> — sprint « <name> » toujours actuel mais clos depuis le <ends_at> (J+<n>). Restes, pas un sprint vivant. Tâches ouvertes affichées à défaut.` |
+| 2+ sprints `actuel` | `⚠️ <ws> — <n> sprints marqués actuel (<names>) : sélection ambiguë, aucun filtre appliqué.` |
 
-| Condition | Line to render | Tasks shown |
-|---|---|---|
-| 0 sprints `actuel` | `⚠️ <workspace> — aucun sprint actuel : la semaine n'a pas été planifiée. Tâches ouvertes affichées à défaut.` | unfiltered `list_tasks` |
-| 1 sprint, `ends_at` < today | `⚠️ <workspace> — sprint « <name> » toujours actuel mais clos depuis le <ends_at> (J+<n>). Ce sont des restes, pas un sprint vivant. Tâches ouvertes affichées à défaut.` | unfiltered `list_tasks` |
-| 2+ sprints `actuel` | `⚠️ <workspace> — <n> sprints marqués actuel (<names>) : sélection ambiguë, aucun filtre appliqué.` | unfiltered `list_tasks` |
+A closed sprint **never filters** (on 2026-09-03 one surfaced 6 tasks out of some fifty open). When the current sprint
+is closed, look for its successor: `list_sprints(status="suivant")`, then `"a_venir"`; keep the one
+whose interval contains today and append `→ « <name> » couvre aujourd'hui mais est resté « <status> » :
+transition_sprint(workspace_slug="<slug>", incoming_sprint_id="<full id>").`, or `→ aucun sprint ne
+couvre aujourd'hui : /sprint-planner.` Diagnostic only: never call `transition_sprint`.
 
-**A closed sprint never filters.** It is the worst filter of the three failure modes: it does not just show leftovers, it *hides the living work*. On 2026-09-03 `Renaud-11`, closed on 09-01, surfaced 6 tasks out of some fifty open in the workspace — the day's relances, the Dust replies and the Knowledge Center spec were all masked, and the session had to disobey this skill to render a usable brief. So all three rows above show the unfiltered list; the sprint id is used only when `ends_at` is today or later (or null).
+Label every task with the workspace `name` (fallback slug). Keep each task's **full** id.
+Group by **first tag**, in the workspace's `allowed_tags` order, untagged under `other` last, empty
+groups skipped; no `allowed_tags` → flat list.
 
-**When the current sprint is closed, name its successor.** A closed `actuel` sprint is a missing `transition_sprint`, not a missing plan: on 2026-09-04 `Renaud-12` already covered the week in status `suivant` and had simply never been promoted. In that case only, call `list_sprints(workspace_slug=w.workspace_slug, status="suivant")` and, if it returns nothing, again with `status="a_venir"`; keep the sprint whose `starts_at`–`ends_at` interval contains today. Then append to that workspace's `⚠️` line:
+### 2b — Calendars
 
-- one was found → `→ « <name> » (<starts_at>–<ends_at>) couvre aujourd'hui mais est resté « <status> » : transition_sprint(workspace_slug="<slug>", incoming_sprint_id="<full id>").`
-- none was found → `→ aucun sprint ne couvre aujourd'hui : /sprint-planner.`
+Union of every non-null `calendar_id` and `member_calendar_id` of the in-scope live workspaces,
+deduplicated. Calendars no workspace declares are not read. None declared → `⚠️ Aucun calendrier
+déclaré sur tes workspaces`. For each id: `list_events(calendarId, timeMin=<today 00:00 Europe/Paris>,
+timeMax=<tomorrow 00:00 Europe/Paris>)` — Paris local time, never UTC. All empty → extend to +7 days
+for a "prochain". Merge, sort by start, tag each event with the first workspace that declared its
+calendar, keep `hangoutLink`.
 
-The lookup is **diagnostic only**. Never call `transition_sprint` from this skill — outside Step 4 the brief writes nothing; it names the one call that fixes the state and lets Renaud make it.
+### 2c — Job search (weekday, only when the job-search block exists)
 
-`ends_at` may be null — an undated sprint cannot be stale, so render no line for it.
+**1. Vault** via `Skill(jobsearch-vault)`, read-only: interviews in the next 7 days; relances due or
+overdue; active candidatures (always `--limit 500`; active = any status not in `❌ Refus`, `🗄️ Sans
+suite` / `❌ Sans suite (mort)`, `⛔ Abandonné`, `✅ Offre reçue` / `Gagné`); and every candidature at
+`📝 À postuler`, with its `lien_offre`, the `Fichier` and `Juge` lines of its `## CV généré` section,
+and its note path (for the `obsidian://open?vault=SecondLife&file=<url-encoded path>` link). Vault
+unreadable → `jobsearch:DOWN vault illisible`: skip the vault parts and say so in the footer.
 
-If the enriched `whoami` payload does not carry `sprints_enabled` (phase 1 not yet deployed), render `⚠️ whoami sans champ sprints_enabled — sprint non résolu, tâches ouvertes affichées` for that workspace and fall back to the unfiltered `list_tasks`.
+**2. Mail (perso inbox)**, three searches, skipped on `gmail-perso:DOWN`:
+- LinkedIn digests: `from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com
+  newer_than:1d`, `maxResults=20`. `read_email` each and extract **every** title / company / location /
+  snippet; the job id is the regex `jobs/view/(\d+)` on the plain-text body, the URL
+  `https://www.linkedin.com/jobs/view/<id>`.
+- Active-candidature threads: company names of the active candidatures, **OR-groups of at most 10**
+  (a 20-name query returns `[]` without an error), `newer_than:14d -from:*linkedin.com
+  -from:*substack.com -from:*skool.com`, `maxResults=25`. `read_email` the **newest** message of each
+  matched thread and keep its id. `fetchError:true` is a partial read, kept and marked degraded.
+  Skipped, with `⚠️ recherches mails par candidature NON exécutées`, when the vault is unreadable.
+- Inbound recruiters: `(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position)
+  newer_than:2d -from:jobalerts-noreply@linkedin.com`, `maxResults=10`; keep genuine outreach only.
 
-**Label** every task with the workspace's `name` (fall back to `workspace_slug` when `name` is null). Keep each task's **full** `id` — Step 4 daily-log entries reference it as `réf. hal : <workspace_slug>/<id>`, and that reference is the join key the Command Center uses to resolve the task's live state. Never abbreviate it (see Step 5).
+**A process's stage comes from its last mail, never from a hal task description.** When they disagree,
+the mail wins and the gap is written out: `⚠️ tâche hal désynchro : <task says> vs <last mail says>`.
 
-**Tag grouping (every workspace).** Group each workspace's returned tasks by their **first** tag, ordered by that workspace's own `allowed_tags` (from `whoami`); tasks with no tag land last, under `other`. Skip groups with zero tasks. If a workspace carries no `allowed_tags`, list its tasks flat (no tag subsection). Never assume a fixed tag list — a second user's workspace has entirely different tags.
-
-### 1c — Obsidian jobsearch (via `jobsearch-vault` skill)
-
-Invoke `jobsearch-vault` and ask for:
-1. Upcoming interviews in the next 7 days.
-2. Relances due today or overdue.
-3. Count and list of active candidatures (company + role + current stage).
-4. For each item above, its vault-relative note path as returned by `jobsearch-vault` (e.g. `CRM-JobSearch/Entretiens/<Title>.md`) — needed to build the `obsidian://` link in Step 4.
-
-`jobsearch-vault` resolves the session itself (its own Step 1 — local `Bash`, or
-`device_bash` when this is a cloud session linked to Renaud's Mac, or
-`⚠️ vault illisible` if neither reaches it); this skill only needs to state the
-call correctly:
-
-- **Always pass `--limit 500`** to `list_notes.py "CRM-JobSearch/Opportunites"`.
-  The default page is 50 — on a vault with 136 notes that silently truncates
-  the active list; 500 is well above the vault's current size (35 active
-  candidatures out of 136 total on 2026-09-29).
-- **Filter out closed statuses client-side**: `❌ Refus`, `🗄️ Sans suite`
-  (including the legacy `❌ Sans suite (mort)` alias), `⛔ Abandonné`,
-  `✅ Offre reçue` / `Gagné`. An active candidature is anything not in this set.
-- If `jobsearch-vault` renders `⚠️ vault illisible` (its Case C — neither local
-  `Bash` nor `device_bash` reached the vault), treat Step 1c as unavailable:
-  skip the rest of this step, mark `jobsearch:DOWN vault illisible` and carry
-  that into Step 1e.2's fallback (below) and the source-status footer.
-
-READ-ONLY — do not write the vault.
-
-The vault name for `obsidian://open?vault=<vault>&file=<path>` links is `SecondLife` (fixed — see the `jobsearch-vault` skill's vault-path resolution). Build the file part by URL-encoding the note path.
-
-### 1d — Google Calendars (union declared by the workspaces)
-
-Build the calendar set from `whoami`, never from literals: the **union of every non-null `calendar_id` and `member_calendar_id`** across all workspaces, deduplicated. `calendar_id` is the calendar shared by the whole workspace (a household or site agenda); `member_calendar_id` is this member's own agenda for that workspace. Calendars the user owns but that no workspace declares are not read — no `#holiday`/import heuristic.
-
-If no workspace declares any calendar (all fields null or absent — e.g. phase 1 not yet deployed) → render `⚠️ Aucun calendrier déclaré sur tes workspaces` in the RDV block and skip the calendar pulls, but keep going. `mcp__claude_ai_Google_Calendar__list_calendars` stays the Step 0 health probe only; it never decides which calendars to read.
-
-For each calendar id in the union, call `mcp__claude_ai_Google_Calendar__list_events(calendarId=<id>, timeMin=<today 00:00 Europe/Paris>, timeMax=<tomorrow 00:00 Europe/Paris>)`.
-
-`timeMin` and `timeMax` MUST be Europe/Paris local time, not UTC. If every calendar returns zero events, extend `timeMax` to +7 days to surface "next upcoming". Merge results, sort by `start`. Tag each event with the **name of the workspace** that declared its calendar (a calendar declared by several workspaces is tagged with the first workspace that declared it).
-
-Do not implement pagination — the default page is enough for a daily window.
-
-Keep each event's `hangoutLink` field, when present — Step 4 links it as the Meet URL for prep/follow-up entries anchored on that event.
-
-### 1e — Gmail perso (via `mcp__plugin_briefing_gmail-mcp__*`)
-
-Which inbox is queried is decided by **which MCP server is called**, never by an address string. This block always targets the perso inbox because it calls the `mcp__plugin_briefing_gmail-mcp__*` server.
-
-Skip if `gmail-perso:DOWN`.
-
-Issue up to three parallel searches:
-
-1. **LinkedIn digests (last 24h)**:
-   ```
-   mcp__plugin_briefing_gmail-mcp__search_emails(
-     query="from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com newer_than:1d",
-     maxResults=20
-   )
-   ```
-   For each matching email, call `mcp__plugin_briefing_gmail-mcp__read_email(id=<email_id>)` and extract **all** job title + company + location + snippet pairs from the digest body. Do NOT stop at the first offer — parse the entire digest.
-
-   **Job ID extraction**: apply regex `jobs/view/(\d+)` on the plain-text email body. Each match yields a `job_id`. Build the LinkedIn URL as `https://www.linkedin.com/jobs/view/<job_id>`. Store these alongside each parsed offer — this URL survives through Step 1g scoring and Step 1h fan-out all the way to the Step 4 daily log; do not discard it after Step 3 rendering.
-
-2. **Active candidature threads** (match against vault's active candidature list from Step 1c):
-
-   Skip this sub-step entirely, and render `⚠️ recherches mails par candidature NON
-   exécutées` in the "Process en cours" block, when Step 1c is unavailable
-   (`jobsearch:DOWN`). Do **not** silently fall back to `1a`'s hal task
-   descriptions as if they were mail-verified state — fall back to the
-   companies *named in* the sprint's hal tasks only as a source of company
-   names to search, and only if a Gmail search is still possible; the fallback
-   still counts as "not executed" for the footer.
-
-   Group active candidature company names into **OR queries of 10 names
-   maximum** — a single query with more than ~20 names has been observed to
-   return `[]` with no error, while 10-name queries answer correctly:
-   ```
-   mcp__plugin_briefing_gmail-mcp__search_emails(
-     query="(<company_1> OR <company_2> OR … OR <company_10>) newer_than:14d -from:*linkedin.com -from:*substack.com -from:*skool.com",
-     maxResults=25
-   )
-   ```
-   One query per group of 10 (parallel across groups). `newer_than:14d`, not
-   `7d` — a decision repushed a week out (see the truth rule below) needs a
-   two-week window to still be visible the following Monday.
-
-   For each match, read the **last** message of its thread (not just the
-   matched snippet) — `read_email` on the newest `id` in the thread, since an
-   older message in the same thread can carry a superseded decision. Keep that
-   message's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>`
-   (no `?authuser=` — see Step 4's Liens rule and the multi-account note there).
-   A result with `fetchError:true` is a **partial read**: keep the thread in
-   `candidature_threads[]` but mark it degraded (see the Gmail-perso footer rule
-   below) rather than treating a fetch failure as "no news".
-
-   **Truth rule.** A process's displayed stage comes from this last mail, never
-   from a hal task's description. When the two disagree — e.g. a hal task still
-   says "à relancer mercredi" but the last mail says the decision moved to next
-   week — the mail wins, and the divergence is written out explicitly in the
-   "Process en cours" block (`⚠️ tâche hal désynchro : <what the task said> vs
-   <what the last mail says>`) rather than silently picking one.
-
-3. **Inbound recruiters (last 48h)**:
-   ```
-   mcp__plugin_briefing_gmail-mcp__search_emails(
-     query="(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position) newer_than:2d -from:jobalerts-noreply@linkedin.com",
-     maxResults=10
-   )
-   ```
-   Read threads that look like genuine recruiter outreach (not automated digests). Keep each matching email's `id` for the same Gmail-link purpose.
-
-Collect results into: `linkedin_offers[]` (raw, all offers), `candidature_threads[]` (matched to active process, each carrying its Gmail message `id`), `inbound_recruiters[]` (each carrying its Gmail message `id`).
-
-### 1f — Gmail pro (via `mcp__claude_ai_Gmail__*`)
-
-This block always targets the pro inbox because it calls the `mcp__claude_ai_Gmail__*` server — the address is never named.
-
-Skip if `gmail-pro:DOWN`.
-
-Issue two parallel searches:
-
-1. **Commercial responses** (match against active BG opportunities from Step 1a):
-   ```
-   mcp__claude_ai_Gmail__search_threads(query="newer_than:7d -label:newsletters", maxResults=20)
-   ```
-   Cross-reference thread subjects/senders against active BG opportunities from the hal CRM context. Read threads that match. Keep each matching thread's `id` — Step 4 links it as `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=` — see Step 4's Liens rule).
-
-2. **Inbound (new contacts, calls for tender)**:
-   ```
-   mcp__claude_ai_Gmail__search_threads(
-     query="newer_than:2d -label:newsletters -label:promotional",
-     maxResults=10
-   )
-   ```
-   Flag threads that look like new commercial inbound not matched to any existing CRM entry. Keep each thread's `id` for the same Gmail-link purpose.
-
-Collect into: `bg_commercial_replies[]` (matched to CRM, each carrying its Gmail message `id`), `bg_inbound[]` (new, each carrying its Gmail message `id`).
-
-### 1g — Job-offer scoring pipeline
-
-Skip if `linkedin_offers[]` is empty.
-
-**Dedup**: Remove any offer whose company + role already exists in the vault's active candidatures list (from Step 1c). Do not re-surface already-logged offers.
-
-**Read the compensation thresholds and the qualitative disqualifiers first.** Every figure and
-every disqualifier below comes from one file each — never write one inline, never carry one over
-from a previous run:
+**3. Score the new offers.** Dedup against the active candidatures (company + role). Read the two data
+files — never write a figure or a disqualifier here:
 
 ```bash
 cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/comp-thresholds.json 2>/dev/null \
@@ -288,390 +174,215 @@ cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/role-criteria.json 2>/d
   || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/role-criteria.json 2>/dev/null
 ```
 
-Take `fire_tier_min_eur` (🔥 tier boundary) and `comp_floor_eur` (❌ boundary) from the first file,
-and `disqualifiers[]` from the second. If the first path doesn't resolve, score on the qualitative
-criteria alone and render `⚠️ seuils rému illisibles` in the offers block. If the second doesn't
-resolve, score without the ❌-on-content tier and render `⚠️ critères qualitatifs illisibles` —
-never substitute a remembered figure or a remembered list.
-
-**Score each remaining offer** using title + company + location + snippet (cheap score — no full JD at this stage):
+`fire_tier_min_eur` and `comp_floor_eur` from the first, `disqualifiers[]` from the second; an
+unreadable file renders `⚠️ seuils rému illisibles` / `⚠️ critères qualitatifs illisibles` and the
+related tier is not applied — never a remembered value.
 
 | Score | Criteria |
-|-------|----------|
-| 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng — at AI lab / IA editor / scale-up, Paris, stated comp ≥ `fire_tier_min_eur`, builder hands-on |
-| 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context — Paris or remote-ok, or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
-| ❌ | Stated comp < `comp_floor_eur`, or the title+snippet clearly matches one of `disqualifiers[]` in `role-criteria.json` — single definition site, shared with the `cv-log-worker` Step A.6 gate that applies the same list against the full JD before generating a CV |
+|---|---|
+| 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng, at an AI lab / AI vendor / scale-up, Paris, stated comp ≥ `fire_tier_min_eur`, hands-on builder |
+| 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context; Paris or remote-ok, or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
+| ❌ | stated comp < `comp_floor_eur`, or title+snippet clearly matches `disqualifiers[]` |
 
-An offer that states no compensation is never ❌ on that ground — the comp gate in `cv-log-worker`
-is the only place a figure rejects anything.
+No stated compensation is never ❌ on that ground. Prefer builder AI-native over COMEX roles.
 
-Aspiration axis: prefer **builder AI-native** over COMEX direction.
+Enrich with `Skill(read-job-offer)` (job id in; `jd_text`, `freshness`, `applicant_count` out): every
+🔥, then 🟡 by closest location, **8 invocations per run at most**. Never read a LinkedIn JD any other
+way (no scrape, no built-in browser: the login wall raises a keychain prompt). `status: unavailable` →
+skip that offer. Offers beyond the bound are scored on title+snippet and surfaced **without a CV**;
+say `N offres enrichies, M scorées sur titre seul`.
 
-**JD enrichment via `read-job-offer`** (🔥/🟡 only — max 5 offers per run):
+Order: tier first, never crossed; inside a tier, fresher (< 24 h) and less contested (< 30 applicants)
+first. Surface the top 2-3 with a one-line "pourquoi" citing a concrete JD signal.
 
-For each 🔥 and 🟡 offer that has a `job_id` (extracted in Step 1e), invoke the shared primitive:
-
-```
-Skill(read-job-offer)  — input: the offer's job_id
-```
-
-`read-job-offer` owns the read: it tries the cached BrightData dataset first and falls back to the
-LinkedIn guest endpoint, which answers on postings published minutes earlier. It returns a
-structured block (`status`, `jd_text`, `freshness`, `applicant_count`, `seniority_level`, …).
-
-Use `jd_text` (inline, no external model call) to refine the score and write the "pourquoi" line.
-Keep `freshness` and `applicant_count` alongside the offer — they are the sharpest ordering signals
-this pipeline has, and Step 1h carries them forward.
-
-**Never read a LinkedIn JD any other way from this skill** — no direct scrape of
-`linkedin.com/jobs/view/<id>`, no built-in browser. See Step 5.
-
-**Enrich every 🔥 offer, and 🟡 offers up to a safety bound of 8 invocations per run** — one
-`read-job-offer` invocation counts as one BrightData call whichever branch of its cascade answered.
-The ceiling matches the Step 1h fan-out bound on purpose: **no worker may ever be spawned with a
-digest snippet in place of a JD.** 🔥 offers are enriched first, then 🟡 by closest location match.
-
-If the bound is reached, 🟡 offers beyond it are scored from title+snippet and **surfaced without a
-CV** — they are never handed to a worker. Say it in the offers block rather than dropping them:
-`N offres enrichies, M scorées sur titre seul`.
-
-If `read-job-offer` returns `status: unavailable` for a specific offer — both branches failed — skip
-that offer and move to the next; do not fail the whole pipeline.
-
-**Ordering — fit×freshness composite, not closing-risk.** Offers are grouped by tier first (🔥
-before 🟡 before ❌-excluded) and **never** reordered across tiers — fit stays dominant; a 🟡 offer
-never outranks a 🔥 one regardless of freshness. *Within* a tier, once `freshness` and
-`applicant_count` are known (post-enrichment), they act as a **modulator**, breaking ties among
-same-tier offers: an offer published under 24h ago, or with under 30 applicants, moves ahead of a
-same-tier offer published over 3 days ago or with over 100 applicants. This is deliberately not an
-estimate of when an offer will close — closing risk isn't reliably knowable (a posting can close in
-2 days or stay open 6 weeks) — it orders on what's actually measured: how new and how contested the
-posting already is. This composite order is what Step 1h uses to decide which offers get a worker
-first when the 8-worker bound bites.
-
-Surface the **top 2-3 offers**, in composite order, with: title, company, score emoji, and a
-**one-line "pourquoi"** that references a concrete signal from the JD (or from title+snippet for an
-offer left beyond the enrichment bound — say which).
-
-### 1h — CV fan-out (spawn sub-agents for 🔥 offers)
-
-**In `--headless` mode, skip this entire step** (no fan-out — see Invocation modes). Step 3 then renders the single `CV pre-generation: skipped (headless mode)` line for this block, keyed on the mode (not on an empty `cv_fanout_results[]`).
-
-Skip if there are no 🔥 offers after the Step 1g dedup pass.
-
-For **every** 🔥 offer not already in the vault, spawn one `cv-log-worker` sub-agent, ordered by
-the fit×freshness composite from Step 1g. There is no product cap: five strong offers in a
-morning means five CVs.
-
-**Spawn in the foreground, not the background.** `cv-log-worker` now judges its own CV before
-logging (see `cv-log-worker.md` Steps B.5/B.6) — that requires the `Agent` tool, and a
-*background* sub-agent never has `Agent` in its toolbox at any depth. So every call below must
-set `run_in_background: false`. Parallelism is not lost: issue all of this run's `Agent(...)`
-calls as separate tool-use blocks **in the same message** — foreground calls emitted together
-still run concurrently, they just each return a result inline instead of via a later
-notification.
+**4. CV fan-out** (skipped in `--headless`). For **every** 🔥 offer not already in the vault and
+enriched, in the order above, spawn one worker, all calls in the same message, **foreground**
+(`run_in_background: false` — the worker spawns `cv-judge` itself and a background agent has no
+`Agent` tool):
 
 ```
 Agent(cv-log-worker, run_in_background: false, prompt="""
 JOB_TITLE: <title>
 COMPANY: <company>
-JD_TEXT: <`jd_text` from `read-job-offer`>
-SENDER_EMAIL: <from address of the LinkedIn digest email that contained this offer>
-JOB_URL: <https://www.linkedin.com/jobs/view/<job_id> or empty string if no job_id>
-DATE: <YYYY-MM-DD today, Europe/Paris>
+JD_TEXT: <jd_text from read-job-offer>
+SENDER_EMAIL: <from address of the digest that carried the offer>
+JOB_URL: <https://www.linkedin.com/jobs/view/<id> or empty>
+DATE: <YYYY-MM-DD Europe/Paris>
 """)
 ```
 
-**Never spawn a worker for an offer that was not enriched in Step 1g.** If `JD_TEXT` would be a
-digest snippet, the offer is surfaced without a CV instead — the worker would otherwise produce a
-plausible CV built on one line of text, indistinguishable from a real one.
+The judge runs after every generation: that is the worker's own contract, nothing to add here. Never
+spawn a worker without a real `jd_text` (a CV built on a digest snippet is plausible, hollow and
+unmarked). Safety bound 8 workers, never silent: `11 offres 🔥 — 8 traitées, 3 listées sans CV`.
+Collect each worker's line verbatim (`CV_préparé | … | Juge : <v1>→<v2>/10`, or with a trailing
+`| ⚠️ …`, or `ÉCHEC | …`) — never strip a marker.
 
-**Safety bound: 8 workers per run**, against runaway only — not a product limit. When it bites, say
-so in the brief on its own line, never truncate silently:
+### 2d — Blue Green commercial pass (weekday, per live `company` workspace)
 
-```
-11 offres 🔥 — 8 traitées, 3 listées sans CV
-```
-
-Beyond the bound, offers drop in fit×freshness composite order (Step 1g) — the same order used to
-decide which 8 get spawned first. The offers left out are still surfaced in the offers block with
-their "pourquoi", flagged `sans CV`.
-
-Collect each sub-agent's result — one line per offer, verbatim as `cv-log-worker` returned it (its
-Step D format now includes a `Juge : <v1>→<v2>/10` fragment — surface the whole line, never
-truncate or reformat it):
-- Success: `CV_préparé | <JOB_TITLE> — <COMPANY> | Profil : P<n> | CV : <filename> | Source : <source> | Juge : <v1>→<v2>/10`
-- Degraded: the same line with a trailing `| ⚠️ <what was degraded>` — surface it as-is, never strip the marker
-- Failure: `ÉCHEC | <JOB_TITLE> — <COMPANY> | <reason>`
-
-Store these in `cv_fanout_results[]` for use in Step 3 rendering.
+`list_projects(workspace_slug, kind="opportunity")`, keeping stages in `kind_stages.opportunity.active`.
+Pro inbox, two searches: `newer_than:7d -label:newsletters` (`maxResults=20`) matched against the
+projects' `company` / `contact` (name, email domain) and read; `newer_than:2d -label:newsletters
+-label:promotional` (`maxResults=10`) for new commercial inbound matching nothing. Keep every thread
+id. Skipped on `gmail-pro:DOWN`.
 
 ---
 
-## Step 2 — Merge and label
+## Step 3 — Render (French)
 
-Assemble one ordered structure from all pulls:
-- hal tasks: labelled with each workspace's `name` (fallback `workspace_slug`)
-- Calendar events: tagged with the name of the workspace that declared the calendar
-- LinkedIn offers: scored list from Step 1g
-- Candidature cross-reference: vault stage + mail context from Step 1e
-- BG commercial: CRM stage + mail context from Step 1f
-- Sources DOWN: `⚠️` line in the relevant section
-
-**Link fields travel with each item.** Gmail message `id`, LinkedIn job URL, vault note path, `hangoutLink`, and hal task `id` collected in Step 1 are carried through this merge and into Step 4 — they are not rendering-only data to discard after Step 3. The rendered chat brief may stay synthetic; the daily log persisted in Step 4 is the one place these links must all surface.
-
----
-
-## Step 3 — Render the brief
-
-Render in **French** (Renaud's working language). Use the 6-block template below verbatim, substituting actual data. All 6 blocks are mandatory — a DOWN source renders its `⚠️` line, it does not remove the block.
+Blocks in this order. A block in scope is mandatory (its `⚠️` replaces its content); a block out of
+scope is omitted.
 
 ```
-# Briefing — <date in French, e.g. mercredi 11 juin 2026>
+# Briefing — <date en français>
+Mode : <semaine | week-end perso (…)>
 
-## 📅 RDV du jour (agendas déclarés par tes workspaces, fusionnés)
-HH:MM–HH:MM — <event title> [<workspace name>]
-...
-(aucun événement aujourd'hui — prochain : HH:MM <date> — <title> [<workspace name>])
-(or: ⚠️ Google Calendar DOWN — <reason>  /  ⚠️ Aucun calendrier déclaré sur tes workspaces)
+## 📅 RDV du jour
+HH:MM–HH:MM — <title> [<workspace>]
+(aucun événement aujourd'hui — prochain : HH:MM <date> — <title> [<workspace>])
 
-## ✅ Sprint en cours
+## ✅ Tâches en cours
 ### <workspace name>
+<⚠️ sprint line, when any>
 #### <tag>
 - [<status>] <title> · échéance <date>
-...
-(one ### section per workspace `whoami` returned, in whoami's order; one #### subsection
- per first-tag group, ordered by that workspace's allowed_tags, untagged tasks under `other`
- last; skip empty tag subsections; if the workspace has no allowed_tags, list tasks flat
- with no #### subsection)
-(⚠️ hal DOWN — <reason>  /  a `sprints_enabled` workspace with no active sprint shows its
- open tasks noted "aucun sprint actif — tâches ouvertes" ; a sprintless workspace shows its
- open tasks with no such note)
 
-## 🎯 Jobsearch — Nouvelles offres
-🔥 <title> — <company> — <location>
-   → <pourquoi — one line referencing aspiration axis>
-   → <pourquoi — one line referencing a concrete JD signal or aspiration-axis criterion>
-🟡 <title> — <company>
+## 🎯 Jobsearch                                   ← only with a live type=jobsearch workspace, weekday
+### À postuler
+- **<company> — <role>** · Offre <JD link> · CV <path> · Juge <v1>→<v2>/10
+  (one line per application to do: every vault note at 📝 À postuler plus this run's new CVs; a missing
+   judge score is written `Juge : non noté`, a missing CV `CV : à générer`, a missing link `Offre : —`)
+(aucune candidature à faire)
+### Nouvelles offres
+🔥|🟡 <title> — <company> — <location>
    → <pourquoi>
-   → <pourquoi — one line referencing a concrete JD signal or aspiration-axis criterion>
-...
-(aucune nouvelle offre aujourd'hui)
-(or: ⚠️ Gmail perso DOWN — <reason>)
-
-CVs préparés ce run :
-- ✅ <JOB_TITLE> — <COMPANY> (P<n>) → <cv_filename> · loggé (📝 À postuler)
-- ⚠️ ÉCHEC <JOB_TITLE> — <COMPANY> → <reason>
-(aucun CV généré — 0 offre 🔥 non loguée  /  or: ⚠️ cv-log-worker skipped — Step 1h cap atteint ou gmail-perso DOWN)
-
-**In `--headless` mode, replace this entire "CVs préparés ce run" block with the single line `CV pre-generation: skipped (headless mode)`** — the omission is visible, never silent (see Invocation modes).
-
-## 🔄 Jobsearch — Process en cours
+N offres enrichies, M scorées sur titre seul
+### Process en cours
 - **<company>** (<role>) — stage : <vault stage>
-  → Mail récent : <subject> [<date>] — <1-line summary, from the thread's LAST message>
-  → Relance due : <date|"non due"|"en retard">
-  (→ ⚠️ tâche hal désynchro : <what the hal task says> vs <what the last mail says> — when the two disagree, shown only then)
-...
-Entretiens à venir : <list or "aucun cette semaine">
-Autres mails jobsearch à regarder : <subjects not matched to active process, sorted by relevance>
-(or: ⚠️ jobsearch:DOWN — <reason>  /  ⚠️ Gmail perso DOWN — <reason>  /  ⚠️ recherches mails par candidature NON exécutées)
+  → Mail récent : <subject> [<date>] — <one line, from the LAST message>
+  → Relance : <date | non due | en retard>
+Entretiens à venir : <list | aucun cette semaine>
+Autres mails jobsearch : <subjects not matched>
+### CVs préparés ce run
+- ✅ <title> — <company> (P<n>) → <cv> · Juge <v1>→<v2>/10
+- ⚠️ ÉCHEC <title> — <company> → <reason>
+(headless: CV pre-generation: skipped (headless mode))
 
-## 💼 Blue Green — Commercial
-- **<company/contact>** — <opportunity title> — stage : <CRM stage>
-  → Mail récent : <subject> [<date>] — <1-line summary>
-...
-Nouveaux inbound : <list of new commercial contacts/AOs, or "aucun">
-Autres mails pro à regarder : <subjects not matched to CRM, sorted by relevance>
-(or: ⚠️ hal DOWN — <reason>  /  ⚠️ Gmail pro DOWN — <reason>)
+## 💼 Commercial                                  ← only with a live company workspace, weekday
+- **<company/contact>** — <opportunity> — stage : <stage>
+  → Mail récent : <subject> [<date>] — <summary>
+Nouveaux inbound : <list | aucun>   ·   Autres mails pro : <subjects>
 
 ## 📋 Plan du jour
-- HH:MM (≈Xmin) — <task title>
-  → <context brief : one sentence — who, what, why, where to find context>
-...
+- HH:MM (≈Xmin) — <task>
+  → <one sentence: who, what, why, where the context is>
 
 ## Source status
-hal-mcp : ✅  |  ⚠️ DOWN (<reason>)
-jobsearch-vault : ✅  |  ⚠️ DOWN (<reason>)
-Google Calendar : ✅  |  ⚠️ DOWN (<reason>)
-Gmail perso : ✅  |  ⚠️ sous-étapes non exécutées (<1e.1|1e.2|1e.3 not run>)  |  ⚠️ lecture partielle (fetchError sur <n> mail(s))  |  ⚠️ DOWN (<reason>)
-Gmail pro : ✅  |  ⚠️ DOWN (<reason>)
+hal-mcp : ✅ | ⚠️ …   ·   Google Calendar : ✅ | ⚠️ …
+jobsearch-vault : ✅ | ⚠️ …   ·   Gmail perso : ✅ | ⚠️ …   ·   Gmail pro : ✅ | ⚠️ …
+(only the sources in scope; a source out of scope is listed as « hors périmètre (week-end) »)
 ```
 
-The "Source status" footer is mandatory and ALWAYS renders all five lines — even when all sources are healthy.
+`Gmail perso : ✅` requires the three searches of 2c.2 to have run; name the sub-steps that did not
+(`⚠️ sous-étapes non exécutées : 2c.2 candidatures`), and `⚠️ lecture partielle (fetchError sur <n>
+mail(s))` when a result carried `fetchError`.
 
-**`Gmail perso` is `✅` only if 1e.1, 1e.2 and 1e.3 all ran** (not merely
-"gmail-perso:UP" at the Step 0 probe). If the probe passed but one or more
-sub-steps did not run — 1e.2 skipped because `jobsearch:DOWN`, for instance —
-render `⚠️ sous-étapes non exécutées : 1e.2` (name every sub-step that did not
-run, not just the first) instead of `✅`. If every sub-step ran but at least one
-result carried `fetchError:true`, render `⚠️ lecture partielle (fetchError sur
-<n> mail(s))` — that run still counts as executed, but its data is incomplete,
-so it must not be reported as a clean `✅`.
+### Plan du jour
 
-### Plan du jour — ordering rules
+Built from: calendar events, the fixed blocks of Step 1, open tasks, vault relances, mail follow-ups.
 
-Build the plan from: calendar events (anchors), hal sprint tasks, vault relances, mail follow-ups. Each task includes a **one-sentence context brief** so it is actionable in a fresh session.
+1. **Fixed blocks** from Step 1 are placed first; day start from the same section.
+2. **Calendar events are anchors**: a prep task 15-30 min before, a follow-up right after.
+3. **Open windows** take the tasks, ordered by the priority each workspace states in its `soul`, then
+   by `priority` and `due_date`. With a job-search block, the applications to do and the due relances
+   come before the rest unless a `soul` says otherwise.
+4. Week-end: only the personal scope's tasks and events; no job-search item, no pro item.
 
-Apply ordering rules in priority order:
-
-1. **MAR–VEN : jobsearch block 08:30–10:30 first** — if today is Tuesday–Friday and the slot is free, put jobsearch tasks first: vault relances, mail replies to recruiters, new 🔥/🟡 offer follow-ups. Exception: on Monday, the IC meeting comes first.
-2. **Calendar events as anchors** — add prep task 15–30 min before each event; add post-meeting follow-up immediately after.
-3. **Deep-work in open windows** — assign hal sprint tasks to remaining free slots; where the user's workspaces split into revenue-generating vs personal, schedule the revenue-generating workspace's tasks first (see rule 4).
-4. **Revenue priority** — job + revenue tasks before admin before personal.
-
-**Plan du jour write policy (flag-driven — see Invocation modes).** In **`--headless`** mode, mark the plan `[proposé — non validé]` and do NOT write it to hal. In **interactive** mode (no flag), prompt the user to validate or modify before writing.
+Interactive weekday: ask the user to validate or modify the plan. Headless and week-end: mark it
+`[proposé — non validé]` and do not ask.
 
 ---
 
-## Step 4 — Write today's daily logs to HAL
+## Step 4 — Daily logs
 
-If `hal:DOWN` (Step 0 failed), skip this step entirely.
+Skipped on `hal:DOWN`. One document per workspace that is **live, in scope, and has a task in today's
+selection or an appointment today** (an event on a calendar it declares, or — job-search workspace — an
+interview or a relance due in the vault). No task and no appointment → no log. An archived workspace
+never gets one.
 
-If `hal:UP`: for **each** workspace returned by `whoami` (do NOT hardcode slugs — iterate on what `whoami` actually returns), call `mcp__plugin_hal_hal-mcp__save_document` with:
+`save_document(workspace_slug, slug="daily-log-<YYYY-MM-DD>", domain="memory", kind="daily-log",
+title="Daily log — <workspace slug> — <date en français>", content_md)`.
 
-- `workspace_slug`: the workspace's slug
-- `slug`: `daily-log-<YYYY-MM-DD>` (today's date, Europe/Paris)
-- `domain`: `"memory"`
-- `kind`: `"daily-log"`
-- `title`: `"Daily log — <workspace-slug> — <date in French>"`
-- `content_md`: structured markdown (see templates below)
-
-**Never overwrite a log written earlier today.** The upsert key is `(workspace_slug, slug)`, and `save_document` signals nothing when it replaces existing content — the loss is silent and total. So before writing, take that workspace's today's-log document as fetched in Step 0.5 (re-fetch it here if Step 0.5 was skipped):
-
-- **absent** → write the log as described below. This is the normal first run of the day.
-- **present** → do NOT replace it. Send its existing `content_md` back **verbatim and in full**, with this run's content appended under a dated separator:
+**Never overwrite a log written earlier today** (`save_document` replaces silently). Today's log
+absent → write. Present → send its existing `content_md` back **verbatim and whole**, then append:
 
 ```
 ---
 
 ## Run <HH:MM> (Europe/Paris)
 
-<the content this run would have written>
+<what this run would have written>
 ```
 
-Never rewrite, summarise, deduplicate or re-order what an earlier run wrote. A later run cannot know what the earlier one observed, and that earlier version is the only record of the morning's state; repeated entries cost a few lines, a destroyed entry costs the day.
+A write failure on one workspace renders `⚠️ Daily log <slug> — write failed: <reason>` after the
+footer and never blocks the others.
 
-These are the **only** write calls allowed in this skill.
+The log is a **hand-off document**: tomorrow's fresh session must not re-search anything. So every
+entry carries a `Liens` line and a `▶️ prochaines actions` line.
 
-If `save_document` fails for a workspace, render a loud line after the source-status footer:
-```
-⚠️ Daily log <workspace-slug> — write failed: <reason>
-```
-
-A write failure for one workspace MUST NOT block the write for the other(s).
-
-### Content templates
-
-The daily log is a **hand-off document**: Renaud opens a fresh session per task and must not have to re-search for context. Every task, offer, and process entry therefore carries a **Liens** sub-line and a **▶️ prochaines actions** sub-line — this is what makes the log exhaustive even though the chat-rendered brief (Step 3) stays synthetic.
-
-**The log carries the selection, never the state.** Two different things used to be stacked in
-this document: *which tasks today, in what order, and why* — which only this skill can produce,
-from mails, calendar and sprint — and *todo / done*, which belongs to `halcrm_tasks` alone. The
-first stays. The second is a copy that rots within the hour: the log is written once at dawn and
-every action taken afterwards diverges from it, with nothing to detect it.
-
-So the log lists tasks, with all their context, as a **numbered list — never a `- [ ]`
-checkbox**. Ticking is done against hal (Command Center, or `update_task_status` in session),
-and the Command Center resolves each line's live state by joining on the `réf. hal` id. Two
-consequences, both load-bearing:
-
-- **One line = exactly one task.** Never merge several tasks into a single entry carrying
-  several `réf. hal` refs — such a line cannot be resolved, ticked, or counted. Related tasks
-  get one line each; put the shared framing in `▶️ prochaines actions`.
-- **The id is never abbreviated.** `renaud/7f8158bb` is not a task id; `renaud/7f8158bb…` is
-  worse. Print the full 32-character id returned by `list_tasks`, always.
-
-**Liens line — format and rule.** One `  Liens : ` sub-line per entry, listing only the links/refs actually available for that entry, space-separated. **Never fabricate an ID or URL that wasn't captured in Step 1** — omit a link type entirely (do not print a placeholder) when its source ID is missing. Available link types:
-
-| Link type | Rendering |
-|---|---|
-| Gmail message | `` Gmail `https://mail.google.com/mail/#all/<messageId>` `` |
-| LinkedIn offer | `` Offre `https://www.linkedin.com/jobs/view/<jobId>` `` |
-| Vault note | `` Vault `<vault-relative path>` (`obsidian://open?vault=SecondLife&file=<path, URL-encoded>`) `` |
-| Google Meet | `` Meet `<hangoutLink>` `` |
-| hal task/project | `` réf. hal `<workspace_slug>/<id>` `` — full id, never truncated |
-
-**Gmail link — multi-account limitation (accepted).** The Gmail link carries no `?authuser=<address>` parameter: the address must never be published in a public repo. Consequence: with several Google accounts signed into the same browser, the link opens the browser's *active* account, which may be the wrong tab. This is accepted — a wrong tab is cheaper than a published address.
-
-**Prochaines actions line.** One `  ▶️ prochaines actions : <one sentence>` sub-line per entry — the concrete next step, reusing the Step 3 plan-du-jour context brief where the entry also appears there.
-
-#### Uniform daily-log shape (every workspace `whoami` returned)
-
-There is no reference workspace. Write the **same shape** for every workspace, substituting the workspace's `name` (fallback `workspace_slug`) in the title and headers, and driving the tag subsections off that workspace's own `allowed_tags` (from `whoami`). Group sprint tasks by first tag in `allowed_tags` order; tasks with no tag land under `other`, last; skip empty groups; if the workspace declares no `allowed_tags`, list tasks flat with no `###` subsection.
+- **The log carries the selection, never the state.** Tasks are a **numbered list, never `- [ ]`**.
+  Status lives in hal alone (`update_task_status`); a checkbox here is a copy that rots within the hour.
+- **One line = one task**, never several `réf. hal` refs on one line; the id is the **full** 32
+  characters, never abbreviated — the Command Center joins on `<workspace_slug>/<id>`.
+- **Liens**: only links actually captured, space-separated, no placeholder: Gmail
+  `https://mail.google.com/mail/#all/<messageId>` (no `?authuser=`: the address stays out of this public
+  repo), Offre `https://www.linkedin.com/jobs/view/<jobId>`, Vault `<path>` (+ `obsidian://` link),
+  Meet `<hangoutLink>`, `réf. hal <workspace_slug>/<id>`. Never fabricate one.
 
 ```markdown
-# Daily log — <workspace name> — <date in French>
+# Daily log — <workspace name> — <date en français>
 
 ## Sprint en cours [<workspace name>]
-<the ⚠️ sprint line from Step 1a, when the sprint is missing, stale or ambiguous — omit when the sprint is healthy>
+<⚠️ sprint line, if any>
 
-### <tag>            ← one ### per first-tag group, allowed_tags order; untagged under `other`, last
-1. <task title> · priorité : <priority|none> · échéance <due_date, with (**en retard**) when past>
-  Liens : réf. hal `<workspace_slug>/<full 32-char task_id>` (+ Vault/Offre/Gmail/Meet when the task is tied to one — whichever were captured in Step 1)
+### <tag>
+1. <task title> · priorité : <priority|none> · échéance <date, (**en retard**) when past>
+  Liens : réf. hal `<workspace_slug>/<full id>` …
   ▶️ prochaines actions : <one sentence>
-2. <one entry per task — never several tasks on one line>
-...
-(skip empty subsections — or "(aucune tâche en cours)" if all empty)
 
 ## Agenda du jour [<workspace name>]
-HH:MM — <event title><space>· Meet : `<hangoutLink>` (omit "· Meet :" entirely if none)
-...
-(or "(aucun événement aujourd'hui)")
+HH:MM — <event>  · Meet : `<hangoutLink>`
+(aucun événement aujourd'hui)
 
-## 🎯 Jobsearch — Offres & process   ← render this section ONLY for the workspace whose allowed_tags contains `jobsearch`; omit it entirely for every other workspace
-🔥 <title> — <company>
-  Liens : Offre `https://www.linkedin.com/jobs/view/<jobId>`
-  ▶️ prochaines actions : <one sentence>
-🟡 <title> — <company>
-  Liens : Offre `https://www.linkedin.com/jobs/view/<jobId>`
-  ▶️ prochaines actions : <one sentence>
-...
-- **<company>** (<role>) — stage : <vault stage>
-  Liens : <Vault and/or Gmail — whichever are available>
-  ▶️ prochaines actions : <one sentence — e.g. relance due date, mail to answer>
-...
-(or "(aucune offre ni process jobsearch aujourd'hui)")
+## 🎯 Jobsearch — Offres & process        ← only in the type=jobsearch workspace's log
+<per application to do: Offre / CV / Juge, then 🔥/🟡 offers, then processes in flight —
+ each with Liens + ▶️ prochaines actions>
 
 ## Notes
-(vide — à compléter en cours de journée ; les idées/angles capturés en cours de journée référencent une tâche hal dédiée — `réf. hal <workspace>/<id>` — plutôt que d'y recopier le texte, voir Step 5)
+(vide — idea captured during the day: a reference to a dedicated hal task, not the text)
 ```
 
-The commercial process a workspace tracks (CRM opportunities matched to pro mails in Step 1f) renders as extra entries under **Sprint en cours** on that workspace's log, each carrying its `Gmail` / `réf. hal` links — there is no separate hardcoded "Commercial" section.
-
-**Interview-prep example (illustrative, not a fixed schema).** A candidature entering interview prep — e.g. take-home + Meet scheduled — renders as one entry combining every link it has: `Liens : Vault \`CRM-JobSearch/Entretiens/<Title>.md\` (\`obsidian://open?vault=SecondLife&file=...\`) · Offre \`https://www.linkedin.com/jobs/view/<jobId>\` · Meet \`<hangoutLink>\` · réf. hal \`<workspace_slug>/<task_id>\`` followed by `▶️ prochaines actions : terminer le take-home avant le <date>, relire la prep vault, rappeler le recruteur sur Ashby si pas de nouvelles.` Only include the link types that were actually captured in Step 1 for that entry.
+Commercial threads matched in 2d render as extra entries under the company workspace's sprint section,
+with their `Gmail` / `réf. hal` links.
 
 ---
 
-## Step 5 — Constraints (load-bearing)
+## Step 5 — Constraints
 
-- **Read-only for Gmail, calendar, and vault** — no draft, send, label, or delete calls on mail.
-- **Writes are limited to two calls** — one `save_document` per hal workspace (Step 4), and a description-only `update_task` append when routing idea capture to a dedicated hal task (see the two bullets below). No other `create_*`, `update_task_status`, or `delete_*` call is permitted anywhere in this skill.
-- **Never write if `hal:DOWN`**.
-- **Never silently omit a source** — any probe or Step 1 call failure renders `⚠️` in the section AND in the source-status footer.
-- **Parse all offers in a LinkedIn digest** — do not stop at the first offer.
-- **Dedup offers against vault** — never surface an offer already logged as an active candidature.
-- **BrightData bound** — max 8 `read-job-offer` invocations per run, matching the Step 1h fan-out bound so no worker is ever handed a snippet; the skill's internal dataset→guest cascade counts as one call. 🔥 first, then 🟡 by location. An `unavailable` verdict is silent for that offer — skip it and continue.
-- **One way to read a LinkedIn JD: `Skill(read-job-offer)`** — never scrape `linkedin.com/jobs/view/<id>` (login wall), and never open the built-in browser on LinkedIn. LinkedIn answers a browser with its sign-up page, which raises a macOS keychain prompt at Renaud (2026-09-02). Reading a JD inline here is also what makes this path and the pasted-URL path drift apart.
-- **Label every hal task** — with the workspace's `name` (fallback `workspace_slug`), every time. No hardcoded `[business]`/`[perso]` label.
-- **Local time** — all calendar windows and daily log slugs use Europe/Paris, not UTC.
-- **Compose, do not reimplement** — call `jobsearch-vault` and MCP tools. Never read the Obsidian filesystem directly, never bypass hal-mcp.
-- **Agent fan-out: no product cap, one safety bound of 8** — every 🔥 deduped offer gets a worker. The bound exists against runaway, and **it is never silent**: when it bites, the brief carries `N offres 🔥 — 8 traitées, M listées sans CV`. Truncating without saying so is the same failure class as the silent skip removed in `#115`.
-- **Offers rank fit first, freshness second, never by estimated closing risk** — a tier boundary (🔥/🟡/❌) is never crossed by freshness or applicant count; within a tier, the newest/least-contested offer moves first, both in what's surfaced and in fan-out order (Step 1g/1h). Closing risk was tried and rejected: it isn't reliably knowable (renaud#116 — an offer closed in 2 days while others stay open 6 weeks).
-- **Spawn `cv-log-worker` in the foreground** — `run_in_background: false` on every call. Since Step B.5/B.6 of `cv-log-worker` spawn `cv-judge`, the worker itself needs the `Agent` tool, which a background sub-agent never has. Concurrency comes from issuing every call in one message, not from background mode.
-- **A worker is never spawned without a real JD** — an offer that Step 1g could not enrich is surfaced without a CV. A CV built from a digest snippet is worse than no CV: it is plausible, hollow, and unmarked.
-- **No compensation figure is written in this file** — `fire_tier_min_eur` and `comp_floor_eur` are read from `jobsearch/data/comp-thresholds.json` at Step 1g. One definition site, changed there and nowhere else.
-- **No qualitative disqualifier is written in this file** — the ❌ tier's content criteria are read from `jobsearch/data/role-criteria.json` at Step 1g, the same list `cv-log-worker` Step A.6 applies against the full JD. One definition site, changed there and nowhere else — never re-inline a disqualifier in this table.
-- **Sub-agent failures are loud** — if a `cv-log-worker` returns `ÉCHEC`, surface `⚠️ CV non généré — <company> : <reason>` in the "CVs préparés ce run" section. Never silently drop a sub-agent failure.
-- **No auto-apply, no cover letter** — sub-agents generate CVs and log applications only. They never submit applications, send messages, or generate cover letters.
-- **Status `📝 À postuler`** — the sub-agent logs applications with this status, NOT `✉️ Candidature envoyée`. Renaud moves the card to « Candidature envoyée » when he actually submits.
-- **Relationship with `mail-triage`** — Steps 1e/1f do a lightweight, context-integrated mail pass for the daily briefing. The `mail-triage` skill (also in this plugin) provides a deeper, on-demand triage with explicit per-thread classification. Do NOT call `Skill(mail-triage)` from inside this skill — the shallow pass here is intentionally faster and context-lighter. Users who want full triage run `/mail` separately.
-- **A process's state comes from its last mail, never from a hal task description** — a hal task's description is a snapshot written whenever someone last edited it; it goes stale the moment the process moves without anyone updating the task. Step 1e.2 reads the last message of each matched thread specifically so this skill never repeats what a hal task says instead of what actually happened. On divergence the mail wins, and the gap is written out in the "Process en cours" block rather than silently resolved one way or the other (2026-09-29: a run rendered "références en cours / appeler Matthias mercredi" straight from a stale hal task while the candidature's actual last mail had already pushed the decision out a week — the mail was never read).
-- **`Gmail perso : ✅` is conditional, not automatic** — it requires 1e.1, 1e.2 and 1e.3 to have all run this pass. A sub-step skipped for any reason (Step 1c unavailable, the safety bound, an upstream `DOWN`) must appear by name in the footer instead of being absorbed into a blanket `✅`. A `fetchError:true` result is a partial read, not a clean one — surface the count, never fold it into `✅` either.
-- **Daily log is the hand-off, not the chat brief** — every task/offer/process entry written in Step 4 carries a `Liens` sub-line and a `▶️ prochaines actions` sub-line, so Renaud can work each entry in a fresh session without re-collecting context. The Step 3 chat brief can stay synthetic; Step 4 may not.
-- **Never fabricate a link** — a `Liens` sub-line lists only link types whose source ID/URL was actually captured in Step 1 (Gmail message id, LinkedIn job id, vault note path, `hangoutLink`, hal task id). Omit a link type silently rather than guessing or printing a placeholder.
-- **The daily log never carries task state** — no `- [ ]`, no `- [x]`, anywhere, in any section. `halcrm_tasks` is the single source of truth for status; the log holds the day's selection and its context. Writing a checkbox creates a second, editable copy of the state that nothing reconciles — the exact divergence this skill is forbidden from producing. Ticking happens via `update_task_status` (Command Center, or in session), never by editing this document.
-- **One line = one task, with its full id** — never merge several tasks into one entry carrying several `réf. hal` refs, and never abbreviate an id. The `<workspace_slug>/<id>` pair is the join key the Command Center uses to resolve live state; a merged line or an 8-character prefix breaks it silently.
-- **A missing, stale or ambiguous sprint is loud** — the sprint is the day's selection, and hal enforces nothing about it: `status="actuel"` is set by hand and stays until someone moves it. Zero `actuel`, several `actuel`, or one whose `ends_at` has passed each render the Step 1a `⚠️` line in the workspace's block AND in the source-status footer. Never present the leftovers of a closed sprint as if they were this week's plan.
-- **Daily-log / task-cleanup sessions are log-only, never execution** — this applies whenever a session reviews or maintains this skill's daily log or hal tasks (updating status, cancelling, merging duplicates, editing a description), whether that happens inside a Step 4 run or in a later, separate conversation looking at the daily log / Command Center dashboard. In that context, only list, log, and update task bookkeeping — never execute a task (e.g. draft the LinkedIn post, write the CR) inline, and never offer "I'll do X now — which option do you want?". Executing a task happens in its own dedicated session, started separately.
-- **Route idea capture to a dedicated hal task, not into the daily log** — when a task-cleanup session surfaces an idea/angle worth capturing (e.g. LinkedIn post angles with stats from the last post), first look for an existing dedicated hal task for that topic via `mcp__plugin_hal_hal-mcp__list_tasks`. There is no full-text search — filter by tag (use an allowed workspace tag such as `marketing`, never a hardcoded `linkedin` tag <!-- TODO: verify in Cowork: exact tag/title convention the workspace uses for the dedicated LinkedIn-idea task --> ) and match the title client-side. If found, call `mcp__plugin_hal_hal-mcp__update_task` to append the idea to that task's `description` (append, never overwrite prior content) and reference only `réf. hal <workspace>/<id>` from the daily log's Notes section — do not paste the narrative content into the daily log itself. If no dedicated task exists, say so and ask before creating one (`create_task` is not in this skill's allowed-tools).
-- **Tags.** `tags` means functional domain. Pick only from the calling workspace's `allowed_tags`, returned by `whoami`; if nothing fits, use `other`. Never invent a value, and never put in `tags` what another column already carries (`company_id`, `role`, `channel`, `project_id`). hal-mcp states the full doctrine in its server `instructions` and enforces it on every write.
+- **Read-only** for Gmail, calendar and vault. No draft, send, label or delete.
+- **Writes**: the Step 4 `save_document` calls, and description-only `update_task` appends below. No
+  `create_*`, no `update_task_status`, no `transition_sprint`, no `delete_*`.
+- **Never write if `hal:DOWN`.** Never write to an archived workspace.
+- **Never silently omit a source in scope**: `⚠️` in the block and in the footer.
+- **Local time**: calendar windows and log slugs are Europe/Paris, not UTC.
+- **Compose, do not reimplement**: `jobsearch-vault` and hal MCP tools only; never read the Obsidian
+  filesystem, never bypass hal-mcp.
+- **No auto-apply, no cover letter, no message sent**: workers produce a CV and log a `📝 À postuler`
+  candidature; Renaud moves it to « Candidature envoyée » when he submits.
+- **`mail-triage` is a separate on-demand skill**: do not call it from here.
+- **Route idea capture to a dedicated hal task**: when a cleanup session surfaces an idea, find the
+  dedicated task by `list_tasks` filtered on an allowed tag, matched on title client-side (no full-text
+  search). Found → `update_task` appends to its `description` (append, never overwrite) and the log's
+  Notes references only `réf. hal <workspace>/<id>`. Not found → say so and ask; `create_task` is not
+  allowed here.
+- **Tags** mean functional domain: only values of the workspace's `allowed_tags`, `other` when nothing
+  fits; hal-mcp enforces it.

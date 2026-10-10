@@ -103,9 +103,8 @@ Collect, from what Renaud pasted:
 - **the field's question**, verbatim (`Why do you want to join X?`, `Pourquoi ce poste ?`);
 - **its limit** in characters. If none is given, write for 200 characters and say so.
 
-Read the facts before writing a word. Resolve the hal workspace whose `allowed_tags` contains
-`jobsearch` with `whoami` (never a hardcoded slug — this repo is public), then
-`get_document(workspace_slug=<slug>, slug="parcours")`. `parcours` is the only source for a claim
+Read the facts before writing a word. Read the hal document `parcours`. These documents may sit in the job-search or the personal workspace (the split moved only the `jobsearch`-domain ones), so never name a workspace: after `whoami`, try `get_document` on each live workspace of `type: "jobsearch"`, then each live one of `type: "personal"`, and keep the first that answers.
+`parcours` is the only source for a claim
 about Renaud: an employer, a client, a figure that is not in it does not go in the answer. If the
 read fails, stop and say so — never write the answer from memory.
 

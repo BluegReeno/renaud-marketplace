@@ -51,7 +51,7 @@ Run all sub-steps in parallel.
 
 ### 1a — Opportunities, tasks, contacts and companies (one loop over every workspace)
 
-Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces`, in parallel:
+Do NOT hardcode any slug. For **each** workspace `w` in `whoami.workspaces` with `archived: false` (an archived workspace is out of the triage's CRM context), in parallel:
 
 ```
 if w.sprints_enabled:

@@ -8,8 +8,8 @@ description: >
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and
   create one hal task (relance) tagged `jobsearch` with `due_date: today + 7d`
   so it surfaces in `/morning-briefing` on its due date. The `opportunite-js` note stays
-  in the vault; the relance task lives in hal (the workspace whose `allowed_tags`
-  include `jobsearch`, resolved at runtime) like all other tasks. Use when the
+  in the vault; the relance task lives in hal (the workspace of `type: jobsearch`,
+  resolved at runtime) like all other tasks. Use when the
   user says "log application", "j'ai postulé", "candidature envoyée", "je viens
   de candidater", "track application", "log apply", or pastes a job offer with
   intent to file it.
@@ -58,6 +58,8 @@ Collect (and confirm) the following before doing anything else:
 7. **`cv_path`** (optional) — relative path of the generated PDF (e.g. `jobsearch/CV_Poste_Entreprise.pdf`). Provided by `cv-log-worker` when a CV was successfully generated. If present, a `## CV généré` section is appended to the note body. Omit if no CV was generated.
 
 8. **`cv_profile`** (optional) — detected profile slug (e.g. `P4`). Provided alongside `cv_path` by `cv-log-worker`. Omit if no CV was generated.
+
+9. **`cv_judge`** (optional) — the judge's score line from `cv-log-worker`, e.g. `7→9/10`. Provided alongside `cv_path`; omit if the judge did not run. `morning-briefing` reads it back to show the score next to each application to do.
 
 Do not proceed until `source` and `entreprise` + `poste` are settled.
 
@@ -121,9 +123,10 @@ When `cv_path` is provided (i.e. invoked from `cv-log-worker` after a successful
 
 - Profil : <cv_profile>
 - Fichier : <cv_path>
+- Juge : <cv_judge>
 ```
 
-Omit the section entirely when `cv_path` is not provided.
+Omit the `Juge` line when `cv_judge` is not provided, and the whole section when `cv_path` is not provided.
 
 `source_detail` — **include the key ONLY when a value exists; omit it entirely otherwise** (same rule as `lien_offre`). If `jobsearch-vault` returns an `unknown field 'source_detail'` warning on stderr, apply the same AC1 contract: exit 0 + this specific warning → ACCEPT (non-blocking unknown field, same as `target_profile`).
 
@@ -143,13 +146,14 @@ Adding `target_profile` to the global schema is out of scope for this skill — 
 
 This skill **writes** to hal (Step 4). It must first resolve **which** workspace to write to — never hardcode a slug: it is per-user and this repository is public (see #77, #103).
 
-Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those whose `allowed_tags` contain `jobsearch`:
+Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those with `type: "jobsearch"` (the job-search workspace; the personal workspace no longer carries the `jobsearch` tag):
 
-- **None** → do not write to hal. Tell the user hal needs to be initialized first: add `jobsearch` to the `allowed_tags` of a hal workspace. Continue with Steps 1–3 (the vault trail is unaffected) but skip Step 4 and note in the Step 5 report that the relance was not created.
-- **Exactly one** → that is `WS` (its `workspace_slug`). Continue to Step 4.
-- **More than one** → ask the user which workspace to use for jobsearch tasks; use their answer as `WS`.
+- **None** → do not write to hal. Tell the user hal has no job-search workspace. Continue with Steps 1–3 (the vault trail is unaffected) but skip Step 4 and note in the Step 5 report that the relance was not created.
+- **Exactly one, `archived: true`** → hal refuses every write on it by name. Do not write to hal; say that the job search is closed and the workspace archived. Same as above: skip Step 4 and note it in the Step 5 report.
+- **Exactly one, live** → that is `WS` (its `workspace_slug`). Continue to Step 4.
+- **More than one live** → ask the user which one to use; use their answer as `WS`.
 
-**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the `jobsearch` tag.
+**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the workspace `type`.
 
 ## Step 4 — Create the relance task in hal
 

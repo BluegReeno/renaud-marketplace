@@ -33,25 +33,20 @@ in Tour 2 unless the worker's message names a company, client or claim you did n
 
 ## Step 1 — Read the mandatory documents before judging anything
 
-Resolve the hal workspace once — the one whose `allowed_tags` contains `jobsearch` (never a
-hardcoded slug, this repo is public):
+These documents may sit in the job-search or the personal workspace (the split moved only the `jobsearch`-domain ones), so never name a workspace: after `whoami`, try `get_document` on each live workspace of `type: "jobsearch"`, then each live one of `type: "personal"`, and keep the first that answers.
 
-```
-mcp__plugin_hal_hal-mcp__whoami()
-```
-
-Then read, from that workspace, in this order:
+Read, in this order:
 
 | Document | Call |
 |---|---|
-| `renaud/parcours` — factual source of truth for the career | `get_document(workspace_slug=<slug>, slug="parcours")` |
-| `renaud/context` | `get_document(workspace_slug=<slug>, slug="context")` |
-| `renaud/memory` | `get_document(workspace_slug=<slug>, slug="memory")` |
-| `renaud/retex-dust-2026-09` | `get_document(workspace_slug=<slug>, slug="retex-dust-2026-09")` |
-| `/areas/job-search.md` | `get_document(workspace_slug=<slug>, slug="areas/job-search")` |
-| `/topics/recent-work.md` | `get_document(workspace_slug=<slug>, slug="topics/recent-work")` |
-| `/areas/blue-green.md` | `get_document(workspace_slug=<slug>, slug="areas/blue-green")` |
-| `/profile.md` | `get_document(workspace_slug=<slug>, slug="profile")` |
+| `parcours` — factual source of truth for the career | `get_document(slug="parcours")` |
+| `context` | `get_document(slug="context")` |
+| `memory` | `get_document(slug="memory")` |
+| `retex-dust-2026-09` | `get_document(slug="retex-dust-2026-09")` |
+| `/areas/job-search.md` | `get_document(slug="areas/job-search")` |
+| `/topics/recent-work.md` | `get_document(slug="topics/recent-work")` |
+| `/areas/blue-green.md` | `get_document(slug="areas/blue-green")` |
+| `/profile.md` | `get_document(slug="profile")` |
 
 <!-- TODO: verify in Cowork — the last four rows assume a path-style hal memory slug
      (`areas/job-search`, `topics/recent-work`, `areas/blue-green`, `profile`), mirrored from
@@ -63,7 +58,7 @@ Then read, from that workspace, in this order:
 ones were missing in your verdict; a judge with 7 of 8 documents is still worth more than no
 judge, but the gap must be visible to the worker, not silently absorbed.
 
-**`renaud/parcours` is authoritative.** If anything in the CV or in the job-offer framing
+**`parcours` is authoritative.** If anything in the CV or in the job-offer framing
 contradicts it (title, dates, employer, who did what), `parcours` wins — flag the conflict
 explicitly, by name, so the worker can pass it up to Step D of its own summary. This is not
 optional: three factual errors shipped to real recruiters before this rule existed (see
@@ -99,7 +94,7 @@ propose must name what it displaces: a bullet it replaces, a sentence it shorten
 removes. If you cannot find something to cut, say so instead of proposing a net addition — an
 unfunded addition is the mechanism that pushes the page to level 3.
 
-**Verify every factual anchor against `renaud/parcours`** before it appears in your problem list
+**Verify every factual anchor against `parcours`** before it appears in your problem list
 or your rewrite — never flag or propose a claim you have not checked against it.
 
 ## Step 4 — Tour 2 (resumed via SendMessage, short form)
@@ -121,7 +116,7 @@ Do not re-run the full requirement-coverage table or re-list all 5 problems — 
   `Skill(cv-generator)` again.
 - **Never talk to anyone but the worker that spawned you.** No message to Renaud, no other tool
   use beyond reading the documents and the CV.
-- **`renaud/parcours` beats `cv-master.json` on every factual disagreement**, always.
+- **`parcours` beats `cv-master.json` on every factual disagreement**, always.
 - **An in-progress skill is a note-d'entretien item, not a CV claim.**
 - **A rewrite without a named displacement is not a valid suggestion** — say so instead of
   proposing it.

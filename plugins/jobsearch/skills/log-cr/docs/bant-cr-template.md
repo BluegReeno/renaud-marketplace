@@ -6,7 +6,7 @@ two free-string enums (`feeling`, `type_entretien`). `SKILL.md` references
 this file instead of duplicating the templates — edit here, not there.
 
 The BANT (employer's read) is never written into the CR body. It is
-aggregated onto the matching `opportunite-js` instead (`log-cr` Step 7, via
+aggregated onto the matching `opportunite-js` instead (`log-cr` Step 6, via
 `jobsearch-vault`'s `upsert_section.py`), so a company's BANT lives in one
 traceable, growing place instead of being re-typed and scattered across
 every `entretien` CR (issue #138).
@@ -61,7 +61,7 @@ a relance.
 - <date> — <interlocuteurs> (<type_entretien>) : « <contenu> » → [[CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>]]
 ```
 
-The four directive questions still drive what `log-cr` Step 1.8 asks for
+The four directive questions still drive what `log-cr` Step 1 item 8 asks for
 (from the user, or extracted from a Granola transcript) — they just never
 land in the CR body anymore. Ask these back to the user when their notes
 are sparse:
@@ -72,7 +72,7 @@ are sparse:
 - **T — Timeline** — quand veulent-ils décider ? urgence du recrutement ?
 
 **Aggregation rules (load-bearing):**
-- **One sub-section per meeting per non-empty item.** Skip an item Step 1.8
+- **One sub-section per meeting per non-empty item.** Skip an item Step 1 item 8
   left unset — do not write an `<à compléter>` bullet, there is nothing to
   aggregate.
 - **Append, never overwrite.** A later meeting's read that contradicts an
@@ -82,7 +82,7 @@ are sparse:
 - **Traceability.** Every bullet is `<date> — <who> : « <what> » →
   [[<CR note>]]` — attributed and linked back to its source CR.
 - **Dedup is exact-string only** (`upsert_section.py`'s contract) — a
-  re-run of `log-cr` on an already-logged CR (Step 4 idempotency) reproduces
+  re-run of `log-cr` on an already-logged CR (Step 3 idempotency) reproduces
   the identical line and it is silently skipped, not duplicated. No
   semantic/paraphrase matching.
 

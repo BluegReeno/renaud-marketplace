@@ -193,13 +193,14 @@ The `entretien` note does NOT carry its own `target_profile` field — the profi
 
 This skill **writes** to hal (Step 4b). It must first resolve **which** workspace to write to — never hardcode a slug: it is per-user and this repository is public (see #77, #103).
 
-Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those whose `allowed_tags` contain `jobsearch`:
+Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep those with `type: "jobsearch"` (the personal workspace no longer carries the `jobsearch` tag):
 
-- **None** → do not write to hal. Tell the user hal needs to be initialized first: add `jobsearch` to the `allowed_tags` of a hal workspace. Skip Step 4b (and 4c, which reads back the hal-independent frontmatter but is unaffected) — note in the Step 5 report that the hal mirror was not created.
-- **Exactly one** → that is `WS` (its `workspace_slug`). Continue to Step 4b.
-- **More than one** → ask the user which workspace to use for jobsearch tasks; use their answer as `WS`.
+- **None** → do not write to hal. Tell the user hal has no job-search workspace. Skip Step 4b (4c reads the vault frontmatter and is unaffected) and note in the Step 5 report that the hal mirror was not created.
+- **Exactly one, `archived: true`** → hal refuses every write on it by name. Do not write; say that the job search is closed and the workspace archived. Skip Step 4b (4c reads the vault frontmatter and is unaffected) and note in the Step 5 report that the hal mirror was not created.
+- **Exactly one, live** → that is `WS` (its `workspace_slug`). Continue to Step 4b.
+- **More than one live** → ask the user which one to use; use their answer as `WS`.
 
-**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the `jobsearch` tag.
+**Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the workspace `type`.
 
 ## Step 4b — Mirror the interview into hal (tagged `jobsearch`)
 

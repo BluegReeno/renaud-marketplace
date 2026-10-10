@@ -353,6 +353,7 @@ Invoke `Skill(log-application)` with:
 - CV path: `jobsearch/<cv_filename>` — the **final** PDF, after Steps B.5/B.6's corrections if the
   judge ran, otherwise Step B's (only if Step B succeeded; omit if Step B failed)
 - CV profile: the profile detected in Step B, e.g. `P4` (only if Step B succeeded; omit if Step B failed)
+- CV judge: the judge's final score as `<v1>→<v2>/10` (omit if the judge did not run)
 
 If `log-application` fails → proceed to Step D with failure reason.
 
@@ -407,6 +408,6 @@ degradation, and never drop one:
 - **A judge rewrite without a named displacement is never applied.** The page is already full —
   applying a net-addition suggestion is exactly what pushes a CV to cv-generator's tightest,
   barely-legible compression level. Cut before you add.
-- **`renaud/parcours` outranks `cv-master.json`.** When the judge flags a conflict between them,
+- **`parcours` outranks `cv-master.json`.** When the judge flags a conflict between them,
   the correction follows `parcours`, and Step D says so — see `cv-generator/SKILL.md` §"Factual
   source of truth" for the three real cases this already caught.
