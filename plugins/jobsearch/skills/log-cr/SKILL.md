@@ -39,6 +39,8 @@ filesystem directly.
      before any write: a CR with no hal side is half a log.
    - Several live ones → ask which. Exactly one live → `WS`.
    Never `default_workspace_slug`.
+   - `jobsearch` must be in `WS`'s `allowed_tags` (Steps 7–8 tag with it). Absent → stop before any
+     write and name it: `❌ Le tag jobsearch n'est pas dans le vocabulaire de <WS>.`
 
 ## Step 1 — Collect inputs
 
@@ -143,12 +145,14 @@ python3 "$SCRIPTS/upsert_section.py" "CRM-JobSearch/Opportunites/<Poste> — <En
   --line "- <YYYY-MM-DD> — CR — [[CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>]]"
 ```
 
-A failure of either call is reported with its stderr and a manual recovery, and does not block the rest.
+Both calls go through `jobsearch-vault` (it owns `$SCRIPTS`; this skill has no shell of its own). A
+failure of either is reported with its stderr and a manual recovery, and does not block the rest.
 
 ## Step 6 — Aggregate the BANT onto the opportunité
 
 The opportunité carries the BANT, never the CR (a per-CR block scatters one company's picture across
-every meeting — issue #138). For each BANT line that has real content, one `upsert_section.py` call:
+every meeting — issue #138). For each BANT line that has real content, ask `jobsearch-vault` to run
+`upsert_section.py` once:
 
 ```bash
 python3 "$SCRIPTS/upsert_section.py" "CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md" \
@@ -161,18 +165,16 @@ skipped. A failure is reported per sub-section and does not block the next steps
 
 ## Step 7 — Close the prep task (hal, `WS`)
 
-`list_tasks(workspace_slug=WS, tags=["jobsearch"])`, reading `.tasks`. A non-closed task titled
+`list_tasks(workspace_slug=WS, tags=["jobsearch"])`, reading `.tasks`. `truncated: true` → read again
+with `limit=<total>`: Steps 7 and 8 decide on the whole list, never on a page. A non-closed task titled
 `Entretien <type> — <Entreprise> — <DD-MM-YYYY>` (closest to the interview date) →
-`update_task_status(workspace_slug=WS, task_id, status="done")`. Not found and `truncated: false` →
-skip silently. Not found and `truncated: true` → skip and report `⚠️ Tâche hal prep introuvable dans une
-lecture tronquée (<returned>/<total>) — non clôturée, à vérifier manuellement.` A failing update is
-reported and the relance is created anyway.
+`update_task_status(workspace_slug=WS, task_id, status="done")`. Not found → the report says `Tâche
+prep : aucune` (a prep is optional). A failing update is reported and the relance is created anyway.
 
 ## Step 8 — Create the relance task (hal, `WS`)
 
-Idempotent: skip when a non-closed task titled exactly `Relance — <Entreprise> — <YYYY-MM-DD entretien>`
-exists in the `list_tasks` result (a truncated read means a duplicate beyond the cut is possible — say
-so, and create anyway). Otherwise one call:
+Idempotent: when a non-closed task titled exactly `Relance — <Entreprise> — <YYYY-MM-DD entretien>`
+exists in Step 7's complete list, create nothing and report it as already there. Otherwise one call:
 
 ```
 create_task(workspace_slug=WS,
@@ -221,8 +223,8 @@ here.
    🔄 Statut opp  : 🔄 Relance à faire
    🏢 BANT agrégé : mis à jour                                   (omit if nothing to add)
    🗓️ Prochain rdv : <YYYY-MM-DD>                                (omit if none)
-   ✓  Tâche prep  : clôturée dans hal                            (omit if not found)
-   📋 Relance     : due <YYYY-MM-DD +7d> — tâche hal <WS> créée
+   ✓  Tâche prep  : clôturée dans hal | aucune
+   📋 Relance     : due <YYYY-MM-DD +7d> — tâche hal <WS> créée | déjà là
    🧠 gtm:call    : OK | ÉCHEC <raison>
 ```
 

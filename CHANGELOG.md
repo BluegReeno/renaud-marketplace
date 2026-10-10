@@ -29,6 +29,12 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+
+- morning-briefing rewritten for the target hal contract (hal audit q07, q08, q09, q11, q38): scope from `whoami` alone — live workspaces only, week-end variant on `type: "personal"`, the job-search block only with a live `type: "jobsearch"` workspace; fixed blocks read from the `## Blocs fixes` section of hal's `soul` / `memory`, none written in the skill; one daily log per workspace with a task or an appointment today, appended, never overwritten
+- morning-briefing: a truncated `list_tasks` or `list_projects` read is read again whole (`limit=<total>`) instead of warned about; opportunities are read only where `opportunity` is in `kinds_enabled`
+- cv-judge, cv-log-worker, mail-triage: no workspace named — documents found on the live `jobsearch`-type workspace then the `personal` one; archived workspaces left out; the judge's `v1→v2` score carried to the vault
+
 ## briefing 0.21.1
 
 - mail-triage: relance_possible no longer points at the retired /cover-letter
@@ -230,6 +236,12 @@ guard therefore belongs on the consumer side.
 - `hal-mcp` http MCP server declaration (deduped at name+endpoint level with `bluegreen-marketplace/plugins/hal`)
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
+
+## jobsearch 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+
+- log-cr: writes the vault (CR note, BANT aggregated on the candidature) and the two hal tasks in the `type: "jobsearch"` workspace, then hands the interaction, the call analysis and the indexing to `gtm:call` with one JSON argument (hal q54: the vault stays the source until cutover); stops before any write when `gtm:call` is not installed, the workspace is missing or archived, or `jobsearch` is not in its `allowed_tags`; a truncated task read is read again whole, a missing prep task is reported, a relance already there is not duplicated; vault scripts run through `jobsearch-vault`
+- log-application, interview-prep: the workspace is resolved by `type: "jobsearch"`, an archived one is refused before any write; log-application records `cv_judge` under `## CV généré`
+- cv-generator, apply-to-offer: `parcours` read from hal without naming a workspace
 
 ## jobsearch 0.21.0
 

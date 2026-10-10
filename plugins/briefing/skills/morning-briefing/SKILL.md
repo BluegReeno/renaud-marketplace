@@ -107,9 +107,9 @@ if w.sprints_enabled:
 else: list_tasks(workspace_slug)        # no sprint note at all
 ```
 
-`list_tasks` returns `{tasks, total, returned, truncated}`. `truncated: true` → `⚠️ <workspace> — hal a
-tronqué la lecture (<returned>/<total> tâches) : les plus anciennes manquent.` Show open tasks (not
-`done`, not `cancelled`).
+`list_tasks` returns `{tasks, total, returned, truncated}`. `truncated: true` → read again with the
+same filters and `limit=<total>`: the brief works on the whole list, never on its newest page. Show open
+tasks (not `done`, not `cancelled`).
 
 A sprint is declarative (hal enforces nothing about its dates), so never guess it silently. Each case
 renders a loud line in the workspace block **and** the footer, and never falls back quietly:
@@ -219,7 +219,9 @@ Collect each worker's line verbatim (`CV_préparé | … | Juge : <v1>→<v2>/10
 
 ### 2d — Blue Green commercial pass (weekday, per live `company` workspace)
 
-`list_projects(workspace_slug, kind="opportunity")`, keeping stages in `kind_stages.opportunity.active`.
+Only when `opportunity` is in the workspace's `kinds_enabled` (a disabled kind is refused by name):
+`list_projects(workspace_slug, kind="opportunity")`, `truncated: true` → again with `limit=<total>`,
+keeping stages in `kind_stages.opportunity.active`.
 Pro inbox, two searches: `newer_than:7d -label:newsletters` (`maxResults=20`) matched against the
 projects' `company` / `contact` (name, email domain) and read; `newer_than:2d -label:newsletters
 -label:promotional` (`maxResults=10`) for new commercial inbound matching nothing. Keep every thread
