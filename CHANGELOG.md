@@ -29,7 +29,7 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
-## briefing 0.23.0
+## briefing 0.23.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - cv-log-worker: MODE gates-only, comp ÉCARTÉ line names the floor; judge Tour 2 is a second foreground spawn carrying Tour 1's verdict (SendMessage resume lost the v2 score)
 
@@ -241,9 +241,10 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
-## jobsearch 0.23.0
+## jobsearch 0.23.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
-- apply-to-offer: pasted offer text, stored posting refused under 500 characters, « passe les filtres ? » runs the gates only; log-application: À postuler unless sent, `manual` proposed for a pasted offer, relance only with a named contact (q14)
+- apply-to-offer: pasted offer text, stored posting refused under 500 characters, « passe les filtres ? » runs the gates only (cv-log-worker `MODE: gates-only`)
+- log-application: `📝 À postuler` unless Renaud says it was sent; `manual` proposed for a pasted offer, `other` never stands for unknown; relance only with a named contact, linked to the opportunity (q14)
 
 ## jobsearch 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
