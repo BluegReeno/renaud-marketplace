@@ -34,6 +34,10 @@ GTM_CALL_KEYS = ("caller", "company", "contacts", "date", "granola_id", "format"
 
 LOG_CR = REPO / "plugins/jobsearch/skills/log-cr/SKILL.md"
 BRIEFING = REPO / "plugins/briefing/skills/morning-briefing/SKILL.md"
+APPLY = REPO / "plugins/jobsearch/skills/apply-to-offer/SKILL.md"
+WORKER = REPO / "plugins/briefing/agents/cv-log-worker.md"
+JUDGE = REPO / "plugins/briefing/agents/cv-judge.md"
+LOG_APP = REPO / "plugins/jobsearch/skills/log-application/SKILL.md"
 SKILLS = sorted((REPO / "plugins").glob("*/skills/*/SKILL.md")) + sorted((REPO / "plugins").glob("*/agents/*.md"))
 REAL_SLUGS = ("renaud-newjob", "rosaslaborbe")
 # A workspace slug passed as a literal (`workspace_slug="blue-green"`) rather than a placeholder.
@@ -123,6 +127,50 @@ class TestMorningBriefing(unittest.TestCase):
     def test_the_only_writes_are_logs_and_description_appends(self):
         self.assertEqual(hal_tools(self.text) - {"whoami", "list_sprints", "list_tasks", "list_projects", "get_document"},
                          {"save_document", "update_task"})
+
+
+class TestApplyToOffer(unittest.TestCase):
+    """hal S06 run 20261012-065156: a pasted offer with no link, asked « passe les filtres ? »,
+    never reached the gates — the skill only knew URLs, and answered from the seed instead."""
+
+    def test_pasted_text_is_a_source(self):
+        self.assertIn("**Offer text pasted, no link**", read(APPLY))
+
+    def test_a_stored_summary_is_refused_as_a_jd(self):
+        self.assertIn("500", flat(read(APPLY)).split("**An offer stored in hal**")[1].split("**Nothing resolvable**")[0])
+
+    def test_the_filters_question_runs_the_worker_in_gates_only(self):
+        text, worker = read(APPLY), read(WORKER)
+        self.assertIn("MODE: gates-only", text)
+        self.assertIn("## Step A.7 — Stop here in `MODE: gates-only`", worker)
+
+    def test_the_comp_rejection_names_the_floor(self):
+        self.assertRegex(read(WORKER), r"ÉCARTÉ \| .*< plancher <comp_floor_eur>€")
+
+
+class TestJudgeTour2(unittest.TestCase):
+    """hal S06 s4-juge: a worker that resumed the judge by SendMessage returned before Tour 2."""
+
+    def test_tour_2_is_a_foreground_spawn(self):
+        worker = read(WORKER)
+        self.assertIn("TOUR: 2", worker)
+        self.assertNotIn("SendMessage", worker.split("---")[1])
+        self.assertIn("TOUR_1_VERDICT", read(JUDGE))
+
+
+class TestLogApplication(unittest.TestCase):
+    """hal S06 s5-log: « envoyée » by default, `other` for an unknown source, a contactless relance."""
+
+    def test_a_relance_needs_a_named_contact(self):
+        text = read(LOG_APP)
+        self.assertIn("## Step 3c — Find the named contact (q14)", text)
+        self.assertIn("project_id     = PROJECT_ID", text)
+
+    def test_sent_only_when_renaud_says_so(self):
+        self.assertNotIn("default: ✉️", read(LOG_APP))
+
+    def test_other_is_not_unknown(self):
+        self.assertIn("never `other` as a stand-in", read(LOG_APP))
 
 
 if __name__ == "__main__":

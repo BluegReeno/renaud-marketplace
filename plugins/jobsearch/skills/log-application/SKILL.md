@@ -7,20 +7,21 @@ description: >
   fixed fields (`entreprise`, `statut`, `source`, `target_profile`,
   `date_candidature`, `date_relance`, `lien_offre`, body = pasted offer) and
   create one hal task (relance) tagged `jobsearch` with `due_date: today + 7d`
-  so it surfaces in `/morning-briefing` on its due date. The `opportunite-js` note stays
+  — only when the candidature has a named contact (q14) — so it surfaces in
+  `/morning-briefing` on its due date. The `opportunite-js` note stays
   in the vault; the relance task lives in hal (the workspace of `type: jobsearch`,
   resolved at runtime) like all other tasks. Use when the
   user says "log application", "j'ai postulé", "candidature envoyée", "je viens
   de candidater", "track application", "log apply", or pastes a job offer with
   intent to file it.
-allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log Application — Skill Instructions
 
 ## What this skill does
 
-Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated. Then create one hal task (relance) in the resolved jobsearch workspace (see Step 3b) tagged `jobsearch` with `due_date` 7 days out — consistent with where all other tasks live (mobile, Codex, Dust all read from hal). This skill NEVER touches the vault directly — all vault reads and writes flow through `jobsearch-vault`.
+Take a pasted job offer plus a declared source (LinkedIn / WTTJ / direct / referral / other), classify it against the existing P1–P5 profile taxonomy from `cv-generator`, then invoke the `jobsearch-vault` skill to write the candidature trail into Obsidian: one `opportunite-js` note in `CRM-JobSearch/Opportunites/` with every fixed field populated. Then, when the candidature has a named contact (Step 3c), create one hal task (relance) in the resolved jobsearch workspace (see Step 3b) tagged `jobsearch` with `due_date` 7 days out — consistent with where all other tasks live (mobile, Codex, Dust all read from hal). This skill NEVER touches the vault directly — all vault reads and writes flow through `jobsearch-vault`.
 
 ## Step 0 — Inputs you need from the user
 
@@ -28,7 +29,7 @@ Collect (and confirm) the following before doing anything else:
 
 1. **Pasted offer text** (required) — the job description body. The skill will not fetch URLs; the user pastes the text.
 2. **Company name** and **role title** — extract from the offer body if obvious, otherwise ASK. They drive the candidature title `<Poste> — <Entreprise>` and the `entreprise` frontmatter.
-3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below), and `manual` when that worker ran without a `SENDER_EMAIL`, i.e. an offer Renaud found himself through `apply-to-offer`. **ASK** if not provided and not auto-detectable. No silent default.
+3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below), and `manual` when that worker ran without a `SENDER_EMAIL`, i.e. an offer Renaud found himself through `apply-to-offer`. Invoked directly with the offer's text pasted in the conversation and no sender — the same case, an offer Renaud found himself — **propose** `manual` by name in the Step 0 proposal, so his go settles it or he names another channel. Otherwise **ASK**. No silent default, and never `other` as a stand-in for « unknown »: `other` is a channel outside the list, not a missing answer. A go that leaves `source` unsettled settles nothing — ask again before writing.
 
    **Auto-detection table (sender → source)**:
 
@@ -53,7 +54,7 @@ Collect (and confirm) the following before doing anything else:
 
 5. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
 
-6. **`statut`** (optional, default: `"✉️ Candidature envoyée"`) — pass `"📝 À postuler"` when invoked from the `cv-log-worker` fan-out context (CV generated, not yet sent). **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📝 À postuler"`. Any other value → reject with an explicit error before proceeding.
+6. **`statut`** — `"✉️ Candidature envoyée"` only when Renaud says he sent it (« j'ai postulé », « candidature envoyée », « je viens de candidater »). Every other case is `"📝 À postuler"`: the `cv-log-worker` context (CV generated, not yet sent), « logge la candidature », an offer pasted to be filed. Never propose « envoyée » for an application nobody said was sent — on hal S06 run `20261013-000828` (s5-log) the skill proposed it as a default, the go confirmed it, and the vault recorded an application that was never sent. **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📝 À postuler"`. Any other value → reject with an explicit error before proceeding.
 
 7. **`cv_path`** (optional) — relative path of the generated PDF (e.g. `jobsearch/CV_Poste_Entreprise.pdf`). Provided by `cv-log-worker` when a CV was successfully generated. If present, a `## CV généré` section is appended to the note body. Omit if no CV was generated.
 
@@ -104,7 +105,7 @@ Invoke `jobsearch-vault` and ask it to **create a note** with exactly this struc
   "folder":"CRM-JobSearch/Opportunites",
   "fields":{
     "entreprise":"[[<Entreprise>]]",
-    "statut":"<statut — default: ✉️ Candidature envoyée>",
+    "statut":"<statut — 📝 À postuler unless Renaud said it was sent (Step 0 item 6)>",
     "source":"<linkedin-alert|linkedin-inmail|wttj|freelance|direct-ats|headhunter|referral|manual|other>",
     "source_detail":"<source_detail — OMIT KEY if empty>",
     "date_candidature":"<YYYY-MM-DD>",
@@ -155,7 +156,28 @@ Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep th
 
 **Never fall back to `default_workspace_slug`** — it may be a workspace with a different purpose. Resolution goes exclusively through the workspace `type`.
 
+## Step 3c — Find the named contact (q14)
+
+A relance is created only when the candidature has a named contact — a recruiter, a headhunter, a
+person Renaud can write to. Without one, there is no task: the candidature keeps its
+`date_relance` and nothing else (hal audit q14, Renaud 2026-09-29: the 7-day relance on a
+contactless LinkedIn application is the noise he cancelled in bulk).
+
+The contact is, in this order:
+
+1. a person Renaud names in the message (« le recruteur c'est X »);
+2. the `primary_contact_id` of the opportunity hal already holds for this company and role:
+   `list_projects(workspace_slug=WS, kind="opportunity")`, match on the company and the role,
+   then `list_contacts(workspace_slug=WS)` to read that contact's name and role.
+
+Keep the matched opportunity's `id` as `PROJECT_ID` when there is one. No contact from either →
+skip Step 4 and say so in the Step 5 report (`🔄 Relance : aucune — pas de contact nommé (q14)`).
+Never create a contact or an opportunity from here, and never guess a person from the offer's
+signature or the company row.
+
 ## Step 4 — Create the relance task in hal
+
+Runs only with a named contact (Step 3c).
 
 The relance lives in hal (the workspace resolved as `WS` in Step 3b), not the Obsidian vault. This makes it accessible from any instance (mobile, Codex, Dust) consistent with all other tasks.
 
@@ -173,8 +195,9 @@ Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 ```
 mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug = WS,
-  title          = "Relance — <Entreprise> — <YYYY-MM-DD candidature>",
-  description    = "Relance — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon LinkedIn message au recruteur.",
+  title          = "Relance <Contact> — <Entreprise> — <YYYY-MM-DD candidature>",
+  description    = "Relance <Contact> (<contact role, if known>) — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon lui écrire.",
+  project_id     = PROJECT_ID,   # omit when Step 3c matched no opportunity
   tags           = ["jobsearch"],
   due_date       = "<YYYY-MM-DD +7d>"
 )
@@ -191,7 +214,7 @@ No `sprint_id` — jobsearch tasks track tags, not sprints; `/morning-briefing` 
     Recovery A    : re-run /log-application (Step 3 idempotency court-circuite vers Step 4)
     Recovery B    : créer manuellement une tâche hal dans <WS> avec
                     tags: ["jobsearch"] · due_date: <YYYY-MM-DD +7d>
-                    · title: "Relance — <Entreprise> — <YYYY-MM-DD>"
+                    · title: "Relance <Contact> — <Entreprise> — <YYYY-MM-DD>"
 ```
 
 Do NOT fire Step 5's success report on a half-state.
@@ -204,7 +227,8 @@ Render a concise summary, in French:
 ✅ Candidature loguée — <Poste> chez <Entreprise>
    📁 Note     : CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
-   🔄 Relance  : <YYYY-MM-DD +7d> — tâche hal <WS>/jobsearch créée, apparaîtra dans /morning-briefing
+   🔄 Relance  : <YYYY-MM-DD +7d> auprès de <Contact> — tâche hal <WS>/jobsearch créée, apparaîtra dans /morning-briefing
+                 (or: aucune — pas de contact nommé (q14))
    🔗 Source   : <source> (<source_detail if present, else omit>)
    📌 Statut   : <statut>
 ```
@@ -215,9 +239,10 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__whoami` for Step 3b's workspace resolution, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__whoami` for Step 3b's workspace resolution, `list_projects` and `list_contacts` for Step 3c's contact, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
+- **A relance only with a named contact (q14).** Step 3c; no contact, no task, said in the report.
 - **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (the workspace resolved in Step 3b, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
-- **First-apply `statut` default is `✉️ Candidature envoyée`** (with emoji, verbatim). When called from the `cv-log-worker` fan-out context, use `"📝 À postuler"` instead (CV generated but not yet submitted). Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
+- **`statut` is `📝 À postuler` unless Renaud said the application was sent** — then `✉️ Candidature envoyée` (with emoji, verbatim). Step 0 item 6. Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.
 - **Relance `etat` is `Pas commencée`** (verbatim, including accent).
 - **Wikilinks**: `entreprise` is `"[[<Entreprise>]]"`, the task's `opportunite` is `"[[<Poste> — <Entreprise>]]"` (em-dash with spaces, matching the candidature title exactly).
 - **`target_profile` warning is expected.** It is non-blocking. Do not retry without the field; do not patch the global schema from here.
