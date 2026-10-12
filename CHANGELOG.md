@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.23.0
+
+- cv-log-worker: MODE gates-only, comp ÉCARTÉ line names the floor; judge Tour 2 is a second foreground spawn carrying Tour 1's verdict (SendMessage resume lost the v2 score)
+
 ## briefing 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - morning-briefing rewritten for the target hal contract (hal audit q07, q08, q09, q11, q38): scope from `whoami` alone — live workspaces only, week-end variant on `type: "personal"`, the job-search block only with a live `type: "jobsearch"` workspace; fixed blocks read from the `## Blocs fixes` section of hal's `soul` / `memory`, none written in the skill; one daily log per workspace with a task or an appointment today, appended, never overwritten
