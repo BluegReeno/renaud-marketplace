@@ -237,6 +237,10 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
+## jobsearch 0.23.0
+
+- apply-to-offer: pasted offer text, stored posting refused under 500 characters, « passe les filtres ? » runs the gates only; log-application: À postuler unless sent, `manual` proposed for a pasted offer, relance only with a named contact (q14)
+
 ## jobsearch 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - log-cr: writes the vault (CR note, BANT aggregated on the candidature) and the two hal tasks in the `type: "jobsearch"` workspace, then hands the interaction, the call analysis and the indexing to `gtm:call` with one JSON argument (hal q54: the vault stays the source until cutover); stops before any write when `gtm:call` is not installed, the workspace is missing or archived, or `jobsearch` is not in its `allowed_tags`; a truncated task read is read again whole, a missing prep task is reported, a relance already there is not duplicated; vault scripts run through `jobsearch-vault`
