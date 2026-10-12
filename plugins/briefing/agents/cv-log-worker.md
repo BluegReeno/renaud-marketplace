@@ -11,12 +11,13 @@ description: >
   generates a 1-page PDF CV via cv-generator, runs it through a two-round
   independent judge (cv-judge) before logging, then logs the application via
   log-application with status "📝 À postuler". Returns a one-line summary.
-  Two callers: morning-briefing spawns it over the morning's 🔥
-  offers, apply-to-offer spawns one on a pasted URL. Must run in the foreground
+  With `MODE: gates-only` it runs the two gates and stops on a PASSE or ÉCARTÉ
+  line, writing nothing. Two callers: morning-briefing spawns it over the
+  morning's 🔥 offers, apply-to-offer spawns one on a pasted URL or text. Must run in the foreground
   (`run_in_background: false`) — it spawns cv-judge itself, and a background
   sub-agent has no Agent tool at all. Never auto-applies, never
   sends messages, never generates cover letters.
-allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(log-application) Agent(cv-judge) SendMessage"
+allowed-tools: "Bash WebFetch Skill(read-job-offer) Skill(cv-generator) Skill(log-application) Agent(cv-judge)"
 ---
 
 # CV Log Worker — Sub-agent Instructions
@@ -28,7 +29,8 @@ Two callers spawn you, and you behave identically for both:
 
 - `morning-briefing` — one of the morning's 🔥 offers, usually with `JD_TEXT` and `SENDER_EMAIL`
   already in hand.
-- `apply-to-offer` — an offer Renaud pasted during the day. `JOB_URL` and `DATE`, nothing else.
+- `apply-to-offer` — an offer Renaud pasted during the day: a `JOB_URL`, or the offer's text as
+  `JD_TEXT` with no URL, and a `MODE`.
 
 ## Inputs
 
@@ -36,12 +38,16 @@ Your prompt contains these fields (one per line, `KEY: value` format).
 
 **Required:**
 
-- `JOB_URL` — LinkedIn job URL (`https://www.linkedin.com/jobs/view/<job_id>`) or a bare `job_id`
 - `DATE` — today's date in `YYYY-MM-DD` format (Europe/Paris)
+- `JOB_URL` or `JD_TEXT`, at least one:
+  - `JOB_URL` — LinkedIn job URL (`https://www.linkedin.com/jobs/view/<job_id>`) or a bare `job_id`
+  - `JD_TEXT` — full job description text, when the caller already has it (fetched, or pasted by
+    Renaud with no link)
 
 **Optional** — each has a defined behaviour when absent, see Step 0:
 
-- `JD_TEXT` — full job description text, when the caller already fetched it
+- `MODE` — `full` (default) or `gates-only`. `gates-only` runs Step 0, A.5 and A.6 and stops
+  there with a `PASSE` or `ÉCARTÉ` line: no CV, no judge, no log, nothing written (Step A.7)
 - `JOB_TITLE` — job title, when the caller already has it
 - `COMPANY` — company name, when the caller already has it
 - `SENDER_EMAIL` — address that sent the digest. Absent ⇒ `source` is `manual` (Step A)
@@ -226,9 +232,10 @@ If `COMP_FOUND` is still null AND `JOB_URL` is non-empty:
 
 **If rejected**, return immediately (do not proceed to Steps B or C):
 ```
-ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ vs cible <target_comp_eur>€ | écart <N>%
+ÉCARTÉ | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ < plancher <comp_floor_eur>€ (comp-thresholds.json) | écart <N>% sous la cible <target_comp_eur>€
 ```
-Where `<N>%` = `round((target_comp_eur - COMP_FOUND) / target_comp_eur × 100)`.
+Where `<N>%` = `round((target_comp_eur - COMP_FOUND) / target_comp_eur × 100)`. The floor is the
+figure the offer was rejected on, so it is the one the line names first; the target is context.
 
 ## Step A.6 — Qualitative role gate (content filter)
 
@@ -259,6 +266,16 @@ disqualifier and the concrete JD phrase that triggered it:
 ```
 ÉCARTÉ | <JOB_TITLE> — <COMPANY> | critère qualitatif : <label> — <one-line reason from JD_TEXT>
 ```
+
+## Step A.7 — Stop here in `MODE: gates-only`
+
+Both gates passed. In `MODE: gates-only`, return this line and stop — Steps B to D do not run:
+
+```
+PASSE | <JOB_TITLE> — <COMPANY> | rému <COMP_FOUND>€ ≥ plancher <comp_floor_eur>€ — or — rému non indiquée, la porte de rémunération ne bloque pas | critères qualitatifs : aucun ne s'applique (<n> vérifiés, role-criteria.json)
+```
+
+Never estimate a salary the text does not state to fill the first field. In `MODE: full`, continue.
 
 ## Step B — Generate the CV
 
@@ -299,7 +316,7 @@ PROFILE: <profile/cell detected in Step B, e.g. P4×T5 EN>
 """)
 ```
 
-Keep the returned agent identity — Tour 2 resumes this exact agent, never a new one.
+Keep the judge's Tour 1 answer verbatim — Tour 2 carries it (Step B.6).
 
 **Apply the corrections the judge marked as ready-to-paste** — only the ones that name what they
 displace (a bullet swapped, a claim shortened, a sentence cut). Skip any suggestion that is a net
@@ -318,17 +335,26 @@ at the tightest level. Regenerate again after cutting if needed.
 
 ## Step B.6 — Judge review, Tour 2 (short)
 
-Resume the **same** judge agent from Step B.5 via `SendMessage` — never spawn a second
-`Agent(cv-judge, ...)`; the whole point of Tour 2 is the context (documents already read, Tour 1
-verdict already formed) staying loaded:
+Spawn the judge a second time, **foreground**, with Tour 1's verdict carried in the prompt —
+the call returns Tour 2's answer before you take the next step:
 
 ```
-SendMessage(to: <the cv-judge agent id from Step B.5>, message="""
+Agent(cv-judge, run_in_background: false, prompt="""
+TOUR: 2
+JD_TEXT: <the full job description text>
 CV_PATH: <path to the regenerated PDF>
+JOB_TITLE: <JOB_TITLE>
+COMPANY: <COMPANY>
+TOUR_1_VERDICT: <Tour 1's answer, verbatim — score, the five problems, the rewrites>
 Corrections applied: <list of Tour 1 corrections actually applied>
 Corrections skipped: <list of Tour 1 corrections skipped, with why>
 """)
 ```
+
+Never resume the Tour 1 judge with `SendMessage` instead. Its reply comes back as a message on a
+later turn, and a worker has no later turn: on hal S06 run `20261013-000828` (s4-juge) the worker
+returned its summary while Tour 2 was still running, and the score v1 → v2 never reached Renaud.
+Never write Step D without Tour 2's score.
 
 Apply the same rule as Tour 1 — accepted corrections must be swaps, never additions — and
 regenerate once more via `Skill(cv-generator)` if the judge's Tour 2 response calls for it. This
