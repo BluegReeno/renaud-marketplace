@@ -144,6 +144,12 @@ class TestApplyToOffer(unittest.TestCase):
         self.assertIn("MODE: gates-only", text)
         self.assertIn("## Step A.7 — Stop here in `MODE: gates-only`", worker)
 
+    def test_a_follow_up_never_resumes_the_worker(self):
+        self.assertIn("Never `SendMessage` the\nworker", read(APPLY))
+
+    def test_the_form_field_runs_alone_on_the_rows(self):
+        self.assertIn("Asked on its own, it runs alone", read(APPLY))
+
     def test_the_comp_rejection_names_the_floor(self):
         self.assertRegex(read(WORKER), r"ÉCARTÉ \| .*< plancher <comp_floor_eur>€")
 
