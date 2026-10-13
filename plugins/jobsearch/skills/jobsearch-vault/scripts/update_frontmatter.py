@@ -11,7 +11,7 @@ import argparse
 import json
 import sys
 
-from note_schemas import validate_update
+from note_schemas import coerce_update, validate_update
 from obsidian_api import ObsidianAPI
 
 
@@ -37,21 +37,21 @@ def main():
 
     api = ObsidianAPI()
 
-    # Validate field value against schema
     try:
         note = api.read_note(args.path)
-        fm = note.get("frontmatter", {}) or {}
-        note_type = fm.get("type")
-        if note_type:
-            vr = validate_update(note_type, args.field, value)
-            for w in vr.warnings:
-                print(f"Warning: {w}", file=sys.stderr)
-            if not vr.ok:
-                for e in vr.errors:
-                    print(f"Error: {e}", file=sys.stderr)
-                sys.exit(1)
-    except Exception:
-        pass  # If we can't read the note for validation, proceed anyway
+    except Exception as e:
+        print(f"Error: cannot read {args.path}: {e}", file=sys.stderr)
+        sys.exit(1)
+    note_type = (note.get("frontmatter", {}) or {}).get("type")
+    if note_type:
+        value = coerce_update(note_type, args.field, value)
+        vr = validate_update(note_type, args.field, value)
+        for w in vr.warnings:
+            print(f"Warning: {w}", file=sys.stderr)
+        if not vr.ok:
+            for e in vr.errors:
+                print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
 
     try:
         api.update_field(args.path, args.field, value)

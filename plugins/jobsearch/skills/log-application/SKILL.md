@@ -14,7 +14,7 @@ description: >
   user says "log application", "j'ai postulé", "candidature envoyée", "je viens
   de candidater", "track application", "log apply", or pastes a job offer with
   intent to file it.
-allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log Application — Skill Instructions
@@ -198,12 +198,13 @@ mcp__plugin_hal_hal-mcp__create_task(
   title          = "Relance <Contact> — <Entreprise> — <YYYY-MM-DD candidature>",
   description    = "Relance <Contact> (<contact role, if known>) — <statut_label: 'candidature envoyée' si ✉️, 'à postuler' si 📝> le <YYYY-MM-DD> via <source><, source_detail if present>. Vérifier réponse, sinon lui écrire.",
   project_id     = PROJECT_ID,   # omit when Step 3c matched no opportunity
+  sprint_id      = <sprint of the due date>,   # omit when hors sprint
   tags           = ["jobsearch"],
   due_date       = "<YYYY-MM-DD +7d>"
 )
 ```
 
-No `sprint_id` — jobsearch tasks track tags, not sprints; `/morning-briefing` falls back to open tasks when no active sprint is set on the workspace.
+**Sprint of the task.** When `WS` has `sprints_enabled` (`whoami`), read `list_sprints(workspace_slug=WS)` once and pass as `sprint_id` the sprint whose `starts_at`–`ends_at` contains the task's `due_date` — the current sprint or the next one, never the current one by default (an application logged on Friday has its relance in next week's sprint). No sprint covers the date (the next one is not planned yet) or `sprints_enabled` is false → no `sprint_id`, and the Step 5 report says `hors sprint`.
 
 **Failure handling.** If `mcp__plugin_hal_hal-mcp__create_task` fails (non-zero / exception) but Step 3 succeeded, the vault is in a **half-state**: the candidature note exists, the relance task does not, `/morning-briefing` will silently miss the relance. Report explicitly:
 
@@ -227,7 +228,7 @@ Render a concise summary, in French:
 ✅ Candidature loguée — <Poste> chez <Entreprise>
    📁 Note     : CRM-JobSearch/Opportunites/<Poste> — <Entreprise>.md
    🎯 Profil   : P<n> (<short label, e.g. "CTO" or "Architect">)
-   🔄 Relance  : <YYYY-MM-DD +7d> auprès de <Contact> — tâche hal <WS>/jobsearch créée, apparaîtra dans /morning-briefing
+   🔄 Relance  : <YYYY-MM-DD +7d> auprès de <Contact> — tâche hal <WS>/jobsearch créée (<sprint | hors sprint>), apparaîtra dans /morning-briefing
                  (or: aucune — pas de contact nommé (q14))
    🔗 Source   : <source> (<source_detail if present, else omit>)
    📌 Statut   : <statut>
@@ -239,7 +240,7 @@ If the user has not yet generated a CV for this offer, suggest running `/cv-gene
 
 ## Step 6 — Constraints (load-bearing)
 
-- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__whoami` for Step 3b's workspace resolution, `list_projects` and `list_contacts` for Step 3c's contact, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
+- **All vault I/O via `jobsearch-vault`.** NEVER `Read` or `Write` the vault filesystem directly. `allowed-tools` lists `Skill(jobsearch-vault)` for vault I/O, `mcp__plugin_hal_hal-mcp__whoami` for Step 3b's workspace resolution, `list_projects` and `list_contacts` for Step 3c's contact, `list_sprints` for Step 4's sprint, `mcp__plugin_hal_hal-mcp__list_tasks` for Step 4 idempotency, and `mcp__plugin_hal_hal-mcp__create_task` for the hal relance task — do not work around it.
 - **A relance only with a named contact (q14).** Step 3c; no contact, no task, said in the report.
 - **Relance lives in hal only.** The `opportunite-js` note in `CRM-JobSearch/Opportunites/` is the canonical candidature trail in the vault. The relance task is in hal (the workspace resolved in Step 3b, tag `jobsearch`) — not a vault `tache`. This is consistent with all other tasks (accessible from mobile, Codex, Dust).
 - **`statut` is `📝 À postuler` unless Renaud said the application was sent** — then `✉️ Candidature envoyée` (with emoji, verbatim). Step 0 item 6. Only these two values are accepted — reject any other value explicitly in Step 0. Do NOT set `🔄 Relance à faire` here; the relance is carried by the `tache`, not the candidature `statut`.

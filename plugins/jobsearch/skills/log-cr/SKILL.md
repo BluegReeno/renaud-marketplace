@@ -4,21 +4,21 @@ description: >
   Log a post-interview debrief. Writes the Obsidian side (an `entretien` note with
   `categorie: "Compte-rendu"` in the CR template, the BANT aggregated onto the
   matching `opportunite-js`, the candidature advanced to `🔄 Relance à faire`),
-  closes the prep task and creates the relance task in the job-search hal workspace,
+  closes the prep task and creates the relance and next-step tasks in the job-search hal workspace,
   then delegates the hal knowledge side (interaction, call analysis, indexing) to
   `gtm:call`. Pre-fills the BANT and the questions from the meeting's Granola
   transcript when one exists, so Renaud only supplies his own read. Use when the
   user says "log CR", "compte-rendu entretien", "j'ai passé l'entretien", "retour
   d'entretien", "debrief entretien", "debrief <company>", "j'ai eu l'entretien
   avec", "log debrief".
-allowed-tools: "Skill(jobsearch-vault) Skill(gtm:call) mcp__Granola__list_meetings mcp__Granola__query_granola_meetings mcp__Granola__get_meeting_transcript mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) Skill(gtm:call) mcp__Granola__list_meetings mcp__Granola__query_granola_meetings mcp__Granola__get_meeting_transcript mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__update_task_status mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Log CR
 
 Applications live in the Obsidian vault; what hal holds is the interview as knowledge (an
 interaction, a `call_analysis` document, indexed passages) and the follow-up tasks, all in the
-job-search workspace (`type: "jobsearch"`). This skill writes the vault, writes the two tasks, and hands
+job-search workspace (`type: "jobsearch"`). This skill writes the vault, writes the tasks, and hands
 the knowledge side to `gtm:call`. All vault I/O goes through `jobsearch-vault`; never touch the
 filesystem directly.
 
@@ -59,6 +59,7 @@ dictate what Granola recorded is the waste this skill exists to remove.
 | 8 | BANT, four lines (B comp/budget, A autorité, N besoin précis, T timeline) | transcript → confirm; else ask (prompts in `docs/bant-cr-template.md`) |
 | 9 | Lecture Renaud — Fit (feeling global, ce qui l'a convaincu, ce qui le questionne, questions ouvertes) | user, **never inferred** |
 | 10 | Prochain rendez-vous `YYYY-MM-DD`, only if confirmed | transcript → confirm |
+| 11 | Next steps that are Renaud's own actions, each with its due date when one is said | transcript → confirm, with the BANT |
 
 Do not proceed until `entreprise`, `interlocuteurs` and `feeling` are confirmed. The BANT lines are not
 written in the CR body — they feed Step 6. An unset BANT line stays unset; there is no placeholder.
@@ -88,6 +89,11 @@ Fit section, `type_entretien` or `prochain_rdv`. Rules:
 `jobsearch-vault`: search `CRM-JobSearch/Opportunites/` by entreprise + poste. Capture
 `entreprise` (wikilink), `poste`, `target_profile`. Not found → error pointing at `/log-application`
 first; never create a CR with a broken wikilink.
+
+Then the same candidature in hal: `list_projects(workspace_slug=WS, kind="opportunity")`, matched on
+the company and the role → `PROJECT_ID`. Every task this skill creates carries it. No match → the tasks
+are created without a project and the report says `Projet hal : aucun — tâches non rattachées`; never
+create the opportunity from here.
 
 ## Step 3 — Prep note and idempotency
 
@@ -171,21 +177,39 @@ with `limit=<total>`: Steps 7 and 8 decide on the whole list, never on a page. A
 `update_task_status(workspace_slug=WS, task_id, status="done")`. Not found → the report says `Tâche
 prep : aucune` (a prep is optional). A failing update is reported and the relance is created anyway.
 
-## Step 8 — Create the relance task (hal, `WS`)
+## Step 8 — Create the relance and the next-step tasks (hal, `WS`)
 
-Idempotent: when a non-closed task titled exactly `Relance — <Entreprise> — <YYYY-MM-DD entretien>`
-exists in Step 7's complete list, create nothing and report it as already there. Otherwise one call:
+**Sprint of a task.** When `WS` has `sprints_enabled` (`whoami`), read `list_sprints(workspace_slug=WS)`
+once. A task goes to the sprint whose `starts_at`–`ends_at` contains its `due_date` — the current
+sprint or the next one: a Friday interview's relance, due seven days later, belongs to next week's
+sprint, never to the one closing that afternoon. No sprint covers the date (the next one is not
+planned yet), the task has no due date, or `sprints_enabled` is false → no `sprint_id`, and the report
+says `hors sprint`.
+
+**The relance.** Idempotent: when a non-closed task titled exactly `Relance — <Entreprise> —
+<YYYY-MM-DD entretien>` exists in Step 7's complete list, create nothing and report it as already
+there. Otherwise one call:
 
 ```
 create_task(workspace_slug=WS,
   title="Relance — <Entreprise> — <YYYY-MM-DD entretien>",
   description="Relance post-entretien <type_entretien> avec <Interlocuteurs>. CR : CRM-JobSearch/Entretiens/CR <Entreprise> — <Interlocuteurs> — <DD-MM-YYYY>.md",
+  project_id=PROJECT_ID, sprint_id=<sprint of the due date>,   # each omitted when there is none
   tags=["jobsearch"], due_date="<entretien + 7d>")
 ```
 
 The title carries the **interview** date, which keeps it distinct from the `log-application` relance.
-If `create_task` fails after the CR was written, report the half-state (`CR logué, relance NON créée
-dans hal`) with the manual recovery (same title, tag, due date in `WS`) and skip the success report.
+
+**The next steps.** Each next step confirmed in Step 1 (input 11) becomes one task: the action as its
+title, verb first, ending ` — <Entreprise>` (« Envoyer la note 100 jours — Veridian »), its due date
+when one was said, `project_id=PROJECT_ID`, the sprint of its due date, `tags=["jobsearch"]`. Only
+Renaud's own actions: what the employer will do (« on revient vers vous sous dix jours ») is the
+relance and `prochain_rdv`, not a task. A next step that an open task of the same project already
+carries — same action, whatever its wording — is reported `déjà là`, not created twice.
+
+If a `create_task` fails after the CR was written, report the half-state (`CR logué, <tâche> NON créée
+dans hal`) with the manual recovery (same title, tag, due date, project and sprint in `WS`) and skip the
+success report.
 
 ## Step 9 — Delegate the knowledge side to `gtm:call`
 
@@ -209,7 +233,8 @@ skip it because the knowledge side « looks done » — that judgement is `gtm:c
 }
 ```
 
-`granola_id`, `format` and `heure` are `null` when unknown. Do not re-ask `feeling`, do not pass the
+`granola_id`, `format` and `heure` are `null` when unknown. `heure` is the start alone (`HH:MM`) when the
+end is not known — never the note's `<à compléter>` placeholder, which `gtm:call`'s `render` refuses. Do not re-ask `feeling`, do not pass the
 transcript: `gtm:call` fetches or asks for it. Relay its last line (`gtm:call: OK` or `gtm:call: ÉCHEC
 <raison>`). On `ÉCHEC`, or if the skill cannot be invoked, the vault and the tasks stay written: say so
 plainly and give the recovery — rerun `gtm:call` with the same arguments. Never reimplement its work
@@ -226,7 +251,9 @@ here.
    🏢 BANT agrégé : mis à jour                                   (omit if nothing to add)
    🗓️ Prochain rdv : <YYYY-MM-DD>                                (omit if none)
    ✓  Tâche prep  : clôturée dans hal | aucune
-   📋 Relance     : due <YYYY-MM-DD +7d> — tâche hal <WS> créée | déjà là
+   📋 Relance     : due <YYYY-MM-DD +7d> — tâche hal <WS> créée | déjà là — <sprint | hors sprint>
+   ➡️ Next steps  : <titre> (due <YYYY-MM-DD>, <sprint | hors sprint>) — créée | déjà là, one line each
+   🗂️ Projet hal  : <nom> | aucun — tâches non rattachées
    🧠 gtm:call    : OK | ÉCHEC <raison>
 ```
 

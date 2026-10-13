@@ -10,7 +10,7 @@ description: >
   every interview presents one coherent profile. Use when the user says
   "prépare l'entretien", "interview prep", "préparation entretien", "je passe un
   entretien avec", "prep <company>", "interview avec".
-allowed-tools: "Skill(jobsearch-vault) Read mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
+allowed-tools: "Skill(jobsearch-vault) Read mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__create_task"
 ---
 
 # Interview Prep — Skill Instructions
@@ -206,6 +206,10 @@ Call `mcp__plugin_hal_hal-mcp__whoami`. Among the returned `workspaces`, keep th
 
 Create a hal task in the workspace resolved as `WS` in Step 4a so the upcoming interview surfaces in the `jobsearch` section of `/morning-briefing`. The hal task is the unified-PM mirror; the `entretien` note in Obsidian stays the canonical prep document.
 
+**Project of the task.** `list_projects(workspace_slug=WS, kind="opportunity")`, matched on the company and the role → `PROJECT_ID`. No match → the task is created without a project and the Step 5 report says `projet hal : aucun`; never create the opportunity from here.
+
+**Sprint of the task.** When `WS` has `sprints_enabled` (`whoami`), read `list_sprints(workspace_slug=WS)` once and pass as `sprint_id` the sprint whose `starts_at`–`ends_at` contains the task's `due_date` — the current sprint or the next one, never the current one by default (a prep written on Friday for a Monday interview belongs to next week's sprint). No sprint covers the date (the next one is not planned yet) or `sprints_enabled` is false → no `sprint_id`, and the Step 5 report says `hors sprint`.
+
 Invoke `mcp__plugin_hal_hal-mcp__create_task` exactly once with:
 
 ```
@@ -213,12 +217,12 @@ mcp__plugin_hal_hal-mcp__create_task(
   workspace_slug = WS,
   title          = "Entretien <type_entretien> — <Entreprise> — <DD-MM-YYYY>",
   description    = "Entretien <type_entretien> avec <Interlocuteurs or TBD>. Prep: CRM-JobSearch/Entretiens/Prep <Entreprise> — <Interlocuteurs or TBD> — <DD-MM-YYYY>.md (profil P<n>).",
+  project_id     = PROJECT_ID,    # omit when none
+  sprint_id      = <sprint of the due date>,   # omit when hors sprint
   tags           = ["jobsearch"],
   due_date       = "<YYYY-MM-DD>"   # the interview date itself
 )
 ```
-
-No `sprint_id` — interviews are sprint-less by design (tracked by tag, surfaced in `/morning-briefing` until passed).
 
 **Idempotency on re-prep.** Before creating, call `mcp__plugin_hal_hal-mcp__list_tasks(workspace_slug=WS)` and skip if a non-closed task with the exact same title already exists (re-prepping the same interview slot — the user re-ran `/interview-prep`). The response has the shape `{tasks: [...], total: <n>, returned: <n>, truncated: <bool>}` — match on title equality, not substring, against `.tasks`. Do NOT update the existing task — the prep note in Obsidian carries the refreshed content; the hal task is a thin pointer.
 
@@ -321,7 +325,7 @@ Render a concise summary, in French:
    🎯 Profil    : P<n> (<short label>)
    📌 Pitch     : <one-line load-bearing claim from the profile file>
    🗓️ Date     : <YYYY-MM-DD> · type: <RH|Technique|Manager|Final>
-   📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (<WS>/jobsearch)
+   📋 hal       : tâche "Entretien <type> — <Entreprise> — <DD-MM-YYYY>" créée (<WS>/jobsearch) — <projet | projet hal : aucun> · <sprint | hors sprint>
                   (omettre cette ligne si Step 4b a échoué — voir ⚠️ ci-dessus)
    🗂️ Fiche     : prochain_rdv <YYYY-MM-DD> · statut « 📞 Entretien prévu »
                   (si le statut a été laissé tel quel par la garde de non-régression, écrire
@@ -336,7 +340,7 @@ Render a concise summary, in French:
 - **Pitch MUST be profile-positioned.** Cite concrete proofs from `profiles/p<n>_*.md`. A pitch that doesn't quote the profile file is a failure — it means the skill regressed to free-form prep, which is exactly the bug Loop 4 closes.
 - **`target_profile` missing → ASK.** Never silently pick a profile. (Step 1.)
 - **Candidature missing → ERROR, do NOT create a broken-wikilink prep.** Point at `/log-application` first. (Step 1.)
-- **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__whoami` is allow-listed exclusively for Step 4a's workspace resolution, and `mcp__plugin_hal_hal-mcp__create_task` exclusively for the Step 4b hal mirror.
+- **All vault writes via `jobsearch-vault`.** NEVER `Write` to the vault filesystem directly. `Read` is allow-listed ONLY for `profiles/p*.md` inside this plugin's source tree (via the PLUGIN_DIR resolver) — not for vault content. `mcp__plugin_hal_hal-mcp__whoami` is allow-listed exclusively for Step 4a's workspace resolution; `list_projects`, `list_sprints`, `list_tasks` and `create_task` exclusively for the Step 4b hal mirror.
 - **hal mirror (Step 4b) is intentional and additive.** The Obsidian `entretien` note is the canonical prep document; the hal task is a thin pointer that surfaces in `/morning-briefing`'s `jobsearch` section. Both carry `jobsearch`. If Step 4b fails after Step 4 succeeds, the prep is still safe — degrade gracefully and continue (see Step 4b's failure block).
 - **Every prep is listed on its candidature (Step 4d).** The `## Entretiens` line format is shared with `log-cr` and the backfill script — change it in all three or not at all.
 - **Entretien naming uses em-dash separators (` — `)** with spaces around the em-dash. Hyphens or `--` will not match the vault's expected filename pattern.

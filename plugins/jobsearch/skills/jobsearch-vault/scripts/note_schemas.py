@@ -272,7 +272,7 @@ def _validate_value(field_def: FieldDef, value, result: ValidationResult):
             )
 
     elif ftype == "bool":
-        if value not in (True, False, "true", "false"):
+        if not isinstance(value, bool):
             result.errors.append(
                 f'field "{name}": invalid boolean "{value}". Expected true/false.'
             )
@@ -342,6 +342,18 @@ def validate_update(note_type: str, field_name: str, value) -> ValidationResult:
 
     _validate_value(field_def, value, result)
     return result
+
+
+def coerce_update(note_type: str, field_name: str, value):
+    """Type a CLI string by the field's schema: "true"/"false" on a bool field become booleans.
+
+    A bool field written as the string "false" is truthy in every reader that tests it.
+    """
+    schema = SCHEMAS.get(note_type)
+    field_def = schema.fields.get(field_name) if schema else None
+    if field_def and field_def.ftype == "bool" and value in ("true", "false"):
+        return value == "true"
+    return value
 
 
 def get_schema(note_type: str) -> Optional[NoteSchema]:
@@ -422,6 +434,10 @@ def _self_test():
     check("valid bool true", r.ok)
     r = validate_create("entretien", {"suivi_envoye": "maybe"})
     check("invalid bool → error", not r.ok)
+    r = validate_update("entretien", "suivi_envoye", "false")
+    check("string bool → error (truthy in every reader)", not r.ok)
+    check("coerce \"false\" on a bool field", coerce_update("entretien", "suivi_envoye", "false") is False)
+    check("coerce leaves a string field alone", coerce_update("entretien", "heure", "true") == "true")
 
     # 13. Number validation
     r = validate_create("opportunite-js", {"score_match": "not_a_number"})
