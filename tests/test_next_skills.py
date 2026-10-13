@@ -76,6 +76,11 @@ class TestLogCr(unittest.TestCase):
     def setUp(self):
         self.text = read(LOG_CR)
 
+    def test_a_rerun_still_delegates_to_gtm_call(self):
+        # hal S01 l2-relance, runs 20261013-104247 and 20261013-105520: the replay skipped gtm:call
+        # (« le relancer dupliquerait l'interaction »), so « inchangé » was never checked.
+        self.assertIn("**on a re-run too**", read(LOG_CR))
+
     def test_delegates_to_gtm_call_with_every_key_it_reads(self):
         self.assertIn("Skill(gtm:call)", self.text)
         block = re.search(r'```json\n(\{\n  "caller": "log-cr".*?\})\n```', self.text, re.S)
