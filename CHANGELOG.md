@@ -241,6 +241,10 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
+## jobsearch 0.23.4
+
+- log-cr: a re-run still delegates to gtm:call (idempotent, reports « inchangé »)
+
 ## jobsearch 0.23.3 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - interview-prep: the interview date is asked, never assumed (« tomorrow » was written as prochain_rdv)
