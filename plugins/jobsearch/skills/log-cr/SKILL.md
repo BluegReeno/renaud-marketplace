@@ -190,7 +190,9 @@ dans hal`) with the manual recovery (same title, tag, due date in `WS`) and skip
 ## Step 9 — Delegate the knowledge side to `gtm:call`
 
 Last, because `gtm:call` asks Renaud to confirm its own write plan. Invoke `Skill(gtm:call)` once with
-this JSON as its arguments:
+this JSON as its arguments — **on a re-run too** (Step 3 found the CR): `gtm:call` is idempotent, it
+finds the interaction and the analysis it wrote and reports « inchangé » when nothing differs. Never
+skip it because the knowledge side « looks done » — that judgement is `gtm:call`'s, not this skill's:
 
 ```json
 {
