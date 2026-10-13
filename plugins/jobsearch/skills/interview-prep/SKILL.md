@@ -32,7 +32,7 @@ The Pitch section is grounded in the matching `profiles/p<n>_*.md` narrative fil
 Collect (and confirm) the following before doing anything else:
 
 1. **Candidature reference** (required) — free text like "the Relief CTO one" or "Anthropic Applied AI". The skill searches by `entreprise` + `poste` in `CRM-JobSearch/Opportunites/`.
-2. **Interview date** — default: tomorrow. Format `YYYY-MM-DD` for frontmatter; `DD-MM-YYYY` for the filename suffix.
+2. **Interview date** — required, given by Renaud (« demain », « jeudi » count; resolve them against today). Never assumed: the date becomes the note's filename, the hal task's `due_date` and the candidature's `prochain_rdv` (Step 4c), so an assumed date is written as data in three places. Not given → ask, and write nothing until it is — a « valide » or « continue » without a date is not a date. Format `YYYY-MM-DD` for frontmatter; `DD-MM-YYYY` for the filename suffix.
 3. **`type_entretien`** — default `"RH"`. One of `RH` / `Technique` / `Manager` / `Final` (drives the question set in Step 3, section 5).
 4. **`interlocuteurs`** — default `["TBD"]`. Free-text list of names.
 

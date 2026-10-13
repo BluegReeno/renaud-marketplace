@@ -38,6 +38,7 @@ APPLY = REPO / "plugins/jobsearch/skills/apply-to-offer/SKILL.md"
 WORKER = REPO / "plugins/briefing/agents/cv-log-worker.md"
 JUDGE = REPO / "plugins/briefing/agents/cv-judge.md"
 LOG_APP = REPO / "plugins/jobsearch/skills/log-application/SKILL.md"
+PREP = REPO / "plugins/jobsearch/skills/interview-prep/SKILL.md"
 SKILLS = sorted((REPO / "plugins").glob("*/skills/*/SKILL.md")) + sorted((REPO / "plugins").glob("*/agents/*.md"))
 REAL_SLUGS = ("renaud-newjob", "rosaslaborbe")
 # A workspace slug passed as a literal (`workspace_slug="blue-green"`) rather than a placeholder.
@@ -177,6 +178,15 @@ class TestLogApplication(unittest.TestCase):
 
     def test_other_is_not_unknown(self):
         self.assertIn("never `other` as a stand-in", read(LOG_APP))
+
+
+class TestInterviewPrep(unittest.TestCase):
+    """hal S01 s9-prep-dg: a « valide » with no date became tomorrow's date in three places."""
+
+    def test_the_interview_date_is_never_assumed(self):
+        text = read(PREP)
+        self.assertNotIn("default: tomorrow", text)
+        self.assertIn("a « valide » or « continue » without a date is not a date", text)
 
 
 if __name__ == "__main__":
