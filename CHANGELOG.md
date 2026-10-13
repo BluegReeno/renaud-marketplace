@@ -241,6 +241,10 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
+## jobsearch 0.23.2
+
+- cv-generator: contact links clickable again under WeasyPrint 70 (each link wrapped in a span)
+
 ## jobsearch 0.23.1 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - apply-to-offer: the judge score v1 to v2 is reported and a follow-up is answered from the worker return, never by resuming it; the form field runs alone and rests on the hal company and opportunity rows when no posting is given
