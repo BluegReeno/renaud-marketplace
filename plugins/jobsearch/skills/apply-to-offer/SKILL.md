@@ -14,7 +14,7 @@ description: >
   gates and stops — nothing generated, nothing written. On request it also drafts the short answer an application form asks
   for ("why us", "pourquoi ce poste", a few hundred characters). It never submits an
   application and never writes a full cover letter.
-allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_documents mcp__plugin_hal_hal-mcp__get_document"
+allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_documents mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects"
 ---
 
 # Apply To Offer — Skill Instructions
@@ -119,7 +119,14 @@ passed. Stop there.
 `MODE: full` → add the two things Renaud acts on:
 
 - the **PDF path**, so he can open it;
+- the judge's **score v1 → v2** and what it still reports broken, as the worker returned them;
 - what is still his to do — the candidature is `📝 À postuler`, nothing was submitted.
+
+The worker has ended once it returns: a later question (« qu'en pense le juge ? ») is answered
+from what it returned, saying what that holds and what it does not. Never `SendMessage` the
+worker or the judge for more — the reply would come after your answer, and on hal S06 run
+`20261013-083743` (s4-juge) the question got « je te le restitue dès que la réponse arrive » and
+nothing else.
 
 If the worker returned `ÉCARTÉ` (compensation below the floor, or a qualitative disqualifier
 matched), say so and stop. If it returned
@@ -129,7 +136,9 @@ same failure and costs another BrightData call.
 ## Step 6 — Short form-field answer (only on request)
 
 Run this step only when Renaud asks for it — in the same message as the link ("et le champ
-'why X'"), or after Step 5. Never by default: most applications have no such field.
+'why X'"), after Step 5, or on its own (« pour le formulaire Kaleo, réponds en 200 caractères »).
+Never by default: most applications have no such field. Asked on its own, it runs alone: no
+gate, no worker, no CV — Steps 1–5 do not apply.
 
 Collect, from what Renaud pasted:
 
@@ -145,8 +154,12 @@ Write one answer:
 
 - in the language of the offer (French offer → French, English → English, never a translation);
 - **within the limit**, counted on the final text, and state the count: `(187/200 caractères)`;
-- tied to the offer read in Step 2: one concrete thing about this company or role, one fact from
-  `parcours` that answers it. No formula (« Je me permets… », "I am pleased to apply…"), no
+- tied to the offer: one concrete thing about this company or role, one fact from `parcours` that
+  answers it. The offer is the text Renaud gave (Step 1 or 2); when he gave none, it is what hal
+  holds on the company and its opportunity (`list_companies`, `list_projects` on the same
+  workspace) — say in one line that the answer rests on those rows, not on the posting. A
+  200-character field is not a CV: the « never from a snippet » rule of Step 1 does not block it,
+  but nothing outside those rows is said about the company. No formula (« Je me permets… », "I am pleased to apply…"), no
   greeting, no signature — it is a form field, not a letter.
 
 Output the answer in a code block, so it copies cleanly, and nothing else. It is not saved
