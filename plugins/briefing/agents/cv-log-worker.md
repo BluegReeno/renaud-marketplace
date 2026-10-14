@@ -61,8 +61,22 @@ If `JOB_URL` is empty **and** `JD_TEXT` is empty, you cannot do anything useful:
 
 Every figure you use in the comp gate, and every disqualifier you use in the qualitative role gate,
 lives in one of two files under the same `jobsearch` plugin. Never hardcode one, never carry one
-over from a previous run. Resolve `JOBSEARCH_PLUGIN_DIR` **once**, then read both files from it —
-never run a second, independent resolution cascade for the second file:
+over from a previous run. Resolve the `jobsearch` plugin directory **once**, then read both files
+from it — never run a second, independent resolution cascade for the second file.
+
+The first tier is the plugin as loaded: this agent ships in `briefing`, and `jobsearch` is its
+sibling under the same marketplace, so `${CLAUDE_PLUGIN_ROOT}/../jobsearch` is where the two files
+are, wherever the marketplace was installed or loaded from (a dev checkout, the plugin cache, the
+Cowork sandbox, an eval run). The install-path tiers below only serve a session where that root is
+not set. Before 2026-10-14 the cascade knew only the renaud-marketplace install paths, and a worker
+loaded from anywhere else stopped on `THRESHOLDS_NOT_FOUND` (hal eval `s06-s2-gate-inconnu`).
+
+**Without `Bash`** (an eval run, a session that did not grant it): skip the script and `Read` the two
+files at `${CLAUDE_PLUGIN_ROOT}/../jobsearch/data/comp-thresholds.json` and
+`${CLAUDE_PLUGIN_ROOT}/../jobsearch/data/role-criteria.json`; if that root is unexpanded or the
+files are not there, `Glob` `**/jobsearch/data/comp-thresholds.json` under `~/.claude/plugins`
+and under the marketplace checkouts in `~/Projects`, in that order; nothing found → the
+`_NOT_FOUND` abort below, never a remembered figure.
 
 ```bash
 PLUGIN_FILES=$(python3 - <<'PYEOF'
@@ -70,6 +84,20 @@ import os, pathlib, sys, glob as _glob
 
 def find_plugin_dir():
     home = pathlib.Path.home()
+
+    def has_data(p):
+        return (p / 'data' / 'comp-thresholds.json').exists()
+
+    # Tier 0 — the plugin as loaded. Claude Code sets CLAUDE_PLUGIN_ROOT for a plugin's own
+    # files; the literal below is for the case where it is substituted into this file instead of
+    # the environment. Either form names briefing's root; jobsearch is its sibling.
+    for root in (os.environ.get('CLAUDE_PLUGIN_ROOT', ''), "${CLAUDE_PLUGIN_ROOT}"):
+        if not root or root.startswith('${'):
+            continue
+        root = pathlib.Path(root)
+        for cand in (root.parent / 'jobsearch', root):
+            if has_data(cand):
+                return cand
 
     env = os.environ.get('JOBSEARCH_PLUGIN_DIR', '')
     if env and pathlib.Path(env).exists():
@@ -119,12 +147,12 @@ candidature, and return one of:
 
 ```
 ❌ <company> — <role> : abandon, seuils de rémunération illisibles (THRESHOLDS_NOT_FOUND).
-   Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
+   Le plugin jobsearch n'a pas été résolu — ni ${CLAUDE_PLUGIN_ROOT}/../jobsearch, ni JOBSEARCH_PLUGIN_DIR.
 ```
 
 ```
 ❌ <company> — <role> : abandon, critères qualitatifs illisibles (CRITERIA_NOT_FOUND).
-   Le plugin jobsearch n'a pas été résolu — vérifier JOBSEARCH_PLUGIN_DIR.
+   Le plugin jobsearch n'a pas été résolu — ni ${CLAUDE_PLUGIN_ROOT}/../jobsearch, ni JOBSEARCH_PLUGIN_DIR.
 ```
 
 If both are unreadable, report both reasons on the same line.

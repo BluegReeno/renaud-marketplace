@@ -168,9 +168,12 @@ the mail wins and the gap is written out: `⚠️ tâche hal désynchro : <task 
 files — never write a figure or a disqualifier here:
 
 ```bash
-cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/comp-thresholds.json 2>/dev/null \
+# The plugin as loaded first (jobsearch is briefing's sibling), the install paths after.
+cat "${CLAUDE_PLUGIN_ROOT}/../jobsearch/data/comp-thresholds.json" 2>/dev/null \
+  || cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/comp-thresholds.json 2>/dev/null \
   || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/comp-thresholds.json 2>/dev/null
-cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/role-criteria.json 2>/dev/null \
+cat "${CLAUDE_PLUGIN_ROOT}/../jobsearch/data/role-criteria.json" 2>/dev/null \
+  || cat ~/Projects/renaud-marketplace/plugins/jobsearch/data/role-criteria.json 2>/dev/null \
   || cat ~/.claude/plugins/cache/renaud-marketplace/jobsearch/*/data/role-criteria.json 2>/dev/null
 ```
 
