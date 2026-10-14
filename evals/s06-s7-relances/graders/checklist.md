@@ -15,7 +15,9 @@ Checklist:
 1. The two relances of the rows are listed: « Relancer Pierre Chevalier (J+14) » (Groupe
    Altis, due 2026-09-15) and the references to send to Antoine Lefèvre (Veridian, due
    2026-09-16) — each with its named contact and its due date as the row carries it,
-   and said overdue (the run is later than both).
+   and said overdue (the run is later than both). Calling the references a follow-up
+   rather than a relance is fine as long as both are listed (eval run 2026-10-14, opus:
+   two of three runs listed both, the references under « autres actions », and failed).
 2. No relance is invented: none for Lumio (closed, « Refusé »), none for Kaleo beyond what
    the rows hold (the CV-and-cooptation task, not a relance), none drawn from a mail or a
    LinkedIn thread the bench does not hold.
