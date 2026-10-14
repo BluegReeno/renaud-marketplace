@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.23.1 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+
+- cv-log-worker and morning-briefing resolve `jobsearch/data/comp-thresholds.json` and `role-criteria.json` from the plugin as loaded first (`${CLAUDE_PLUGIN_ROOT}/../jobsearch`), the renaud-marketplace install paths after; the worker reads them without Bash when a session grants none — a worker loaded from an eval run or any other checkout stopped on THRESHOLDS_NOT_FOUND (hal eval s06-s2-gate-inconnu, 2026-10-14)
+
 ## briefing 0.23.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
 
 - cv-log-worker: MODE gates-only, comp ÉCARTÉ line names the floor; judge Tour 2 is a second foreground spawn carrying Tour 1's verdict (SendMessage resume lost the v2 score)
