@@ -194,5 +194,27 @@ class TestInterviewPrep(unittest.TestCase):
         self.assertIn("a « valide » or « continue » without a date is not a date", text)
 
 
+class TestTaskLinks(unittest.TestCase):
+    """hal S01 l1: the relance and the « note 100 jours » carried no project, no sprint (3 runs / 3).
+    Renaud 2026-10-13: every job-search task carries its opportunity and the sprint its due date
+    falls in — current or next, so a Friday debrief's relance lands in next week's sprint."""
+
+    def test_every_task_writer_links_project_and_sprint_of_the_due_date(self):
+        for path in (LOG_CR, PREP, LOG_APP):
+            text = read(path)
+            with self.subTest(skill=path.parent.name):
+                self.assertIn(PREFIX + "list_sprints", text)
+                self.assertIn(PREFIX + "list_projects", text)
+                self.assertIn("contains its `due_date`", text.replace("the task's `due_date`", "its `due_date`"))
+                self.assertIn("PROJECT_ID", text)
+                self.assertNotIn("No `sprint_id`", text)
+                self.assertNotIn("sprint-less", text)
+
+    def test_log_cr_turns_renaud_next_steps_into_tasks(self):
+        text = read(LOG_CR)
+        self.assertIn("**The next steps.**", text)
+        self.assertIn("Only\nRenaud's own actions", text)
+
+
 if __name__ == "__main__":
     unittest.main()
