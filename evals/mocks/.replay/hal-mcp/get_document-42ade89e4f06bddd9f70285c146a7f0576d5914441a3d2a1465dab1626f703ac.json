@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-edifice",
+    "slug": "daily-log-2026-10-13"
+  },
+  "output": "document daily-log-2026-10-13 not found in workspace hal-audit-edifice",
+  "verdict": "tool_error",
+  "recordedAt": "2026-10-14T15:57:12.634Z",
+  "model": "claude-sonnet-5-5"
+}

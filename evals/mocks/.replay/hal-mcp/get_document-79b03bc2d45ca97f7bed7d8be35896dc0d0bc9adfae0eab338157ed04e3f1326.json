@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-pme",
+    "slug": "memory"
+  },
+  "output": "[tool_error] document memory not found in workspace hal-audit-pme",
+  "verdict": "ok",
+  "recordedAt": "2026-10-14T15:57:29.080Z",
+  "model": "claude-sonnet-5-5"
+}

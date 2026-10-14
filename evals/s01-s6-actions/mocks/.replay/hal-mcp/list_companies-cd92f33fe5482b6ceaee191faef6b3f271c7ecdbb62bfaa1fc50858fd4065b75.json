@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "search": "veridian"
+  },
+  "output": "{\"companies\": [], \"total\": 0, \"offset\": 0, \"returned\": 0, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-14T15:52:03.701Z",
+  "model": "claude-sonnet-5-5"
+}

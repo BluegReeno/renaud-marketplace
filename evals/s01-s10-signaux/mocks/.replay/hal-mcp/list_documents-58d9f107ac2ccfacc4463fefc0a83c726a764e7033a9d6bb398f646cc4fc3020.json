@@ -1,0 +1,9 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch"
+  },
+  "output": "{\"documents\": [{\"slug\": \"cv-john-doe-ops-ia-fr\", \"domain\": \"jobsearch\", \"kind\": \"cv\", \"title\": \"CV John Doe — Direction des opérations IA (FR)\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"offre-nexora-dir-ops-ia\", \"domain\": \"jobsearch\", \"kind\": \"job-posting\", \"title\": \"Offre — Directeur des opérations IA, Nexora\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"prep-entretien-nexora\", \"domain\": \"jobsearch\", \"kind\": \"interview-prep\", \"title\": \"Prep entretien Nexora — Sarah Bernard\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"parcours\", \"domain\": \"jobsearch\", \"kind\": \"career-record\", \"title\": \"Parcours — John Doe\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"call-analysis-20025b5a86e943bea5e26eefad5361ba\", \"domain\": \"jobsearch\", \"kind\": \"call_analysis\", \"title\": \"Analyse — Veridian Énergie — Nathalie Garcin, Antoine Lefèvre — 2026-09-10\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": \"audit-jd-pr-veridian\", \"knowledge\": true}], \"total\": 5, \"returned\": 5, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-14T15:52:22.470Z",
+  "model": "claude-sonnet-5-5"
+}

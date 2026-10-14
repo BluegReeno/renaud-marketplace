@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "search": "Kaleo"
+  },
+  "output": "{\n  \"companies\": [\n    {\n      \"id\": \"audit-jd-co-kaleo\",\n      \"workspace_slug\": \"hal-audit-jobsearch\",\n      \"name\": \"Kaleo\",\n      \"ecosystem\": \"target-employer\",\n      \"activity_type\": null,\n      \"address\": \"Paris (hybride)\",\n      \"website\": null,\n      \"notes\": \"Éditeur IA pour la santé, 60 personnes.\",\n      \"created_at\": \"2026-10-14T09:00:00+00:00\",\n      \"updated_at\": \"2026-10-14T09:00:00+00:00\"\n    }\n  ],\n  \"total\": 1,\n  \"offset\": 0,\n  \"returned\": 1,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-14T15:59:28.416Z",
+  "model": "claude-sonnet-5-5"
+}
