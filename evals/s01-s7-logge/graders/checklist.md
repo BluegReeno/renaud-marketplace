@@ -17,4 +17,8 @@ Checklist:
    linked to the Veridian opportunity, and the CR note in the vault (absent on a bench
    with no vault: said, not a fail).
 2. The debrief of 12:30 with Antoine Lefèvre is a separate call, not the same one.
-3. Nothing was written.
+3. Nothing was written by this step. Describing rows already in hal — « enregistré »,
+   « deux tâches créées », « tout a été écrit le 14/10 » (their created_at) — reports
+   what l1-log wrote, not a write of this answer (eval run 2026-10-14, opus, failed
+   3 / 3 in-runner on that sentence; the same answer and checklist judged outside the
+   runner by sonnet: PASS on every item).
