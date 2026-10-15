@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "project_id": "audit-jd-pr-veridian"
+  },
+  "output": "{\n  \"documents\": [\n    {\n      \"slug\": \"call-analysis-20025b5a86e943bea5e26eefad5361ba\",\n      \"domain\": \"jobsearch\",\n      \"kind\": \"call_analysis\",\n      \"title\": \"Analyse — Veridian Énergie — Nathalie Garcin, Antoine Lefèvre — 2026-09-10\",\n      \"person_name\": null,\n      \"valid_until\": null,\n      \"has_file\": false,\n      \"sensitive\": false,\n      \"project_id\": \"audit-jd-pr-veridian\",\n      \"knowledge\": true\n    }\n  ],\n  \"total\": 1,\n  \"returned\": 1,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:40:01.170Z",
+  "model": "claude-sonnet-5-5"
+}

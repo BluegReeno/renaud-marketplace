@@ -1,0 +1,12 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "tags": [
+      "sante"
+    ]
+  },
+  "output": "{\n  \"tasks\": [\n    {\n      \"id\": \"audit-fa-tk-4\",\n      \"workspace_slug\": \"hal-audit-famille\",\n      \"project_id\": null,\n      \"title\": \"Rappel vaccin DTP d'Inès — prendre RDV Dr Aubert\",\n      \"description\": null,\n      \"assignee_user_id\": null,\n      \"assignee_email\": null,\n      \"external_ref\": null,\n      \"tags\": [\n        \"sante\"\n      ],\n      \"due_date\": \"2026-09-30\",\n      \"priority\": \"high\",\n      \"status\": \"todo\",\n      \"cancelled_reason\": null,\n      \"completed_at\": null,\n      \"sprint_id\": null,\n      \"created_at\": \"2026-10-14T09:00:00+00:00\",\n      \"updated_at\": \"2026-10-14T09:00:00+00:00\"\n    }\n  ],\n  \"total\": 1,\n  \"offset\": 0,\n  \"returned\": 1,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:40:29.897Z",
+  "model": "claude-sonnet-5-5"
+}

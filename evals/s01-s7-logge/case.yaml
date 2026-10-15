@@ -30,7 +30,7 @@ graders:
   flags: i
 - name: must-2
   type: regex
-  pattern: (10[:h]00|d[ée]brief|deux heures)
+  pattern: (10[:h]00|d[ée]brief|deux heures|entretien RH|Nathalie Garcin|granola)
   flags: i
 - name: no-create_project
   type: tool_used

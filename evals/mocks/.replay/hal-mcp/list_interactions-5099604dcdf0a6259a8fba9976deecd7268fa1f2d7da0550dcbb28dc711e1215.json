@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-edifice",
+    "since": "2026-10-14T00:00:00Z"
+  },
+  "output": "{\"interactions\": [], \"total\": 0, \"offset\": 0, \"returned\": 0, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:44:08.847Z",
+  "model": "claude-sonnet-5-5"
+}

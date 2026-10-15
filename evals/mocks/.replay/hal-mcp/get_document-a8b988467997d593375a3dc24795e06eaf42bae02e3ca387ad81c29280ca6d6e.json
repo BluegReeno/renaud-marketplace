@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "slug": "soul"
+  },
+  "output": "document soul not found in workspace hal-audit-jobsearch",
+  "verdict": "tool_error",
+  "recordedAt": "2026-10-15T20:45:48.355Z",
+  "model": "claude-sonnet-5-5"
+}

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "status": "suivant"
+  },
+  "output": "[]",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:46:53.604Z",
+  "model": "claude-sonnet-5-5"
+}

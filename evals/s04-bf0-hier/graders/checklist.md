@@ -13,7 +13,10 @@ holds.
 
 Checklist:
 1. No daily log of yesterday exists in any workspace, and the answer says so in one line
-   — then the briefing moves on, it does not stall on it.
+   — then the briefing moves on, it does not stall on it. Asked as a single question (the
+   eval case), there is no briefing to move on to: an answer that says the absence, names
+   what it searched and stops there satisfies this line (eval runs 2026-10-14 and
+   2026-10-15, opus: right answers lost votes on « moves on » alone).
 2. Nothing was invented or recovered from a source hal does not hold: no note, no
    yesterday's plan recalled from memory of the conversation (a fresh session has none).
 3. The answer is built only from in-world sources (the hal bench through the MCP tools,

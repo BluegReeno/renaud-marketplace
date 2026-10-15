@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "slug": "daily-log-2026-10-15"
+  },
+  "output": "{\"error\": \"document daily-log-2026-10-15 not found in workspace hal-audit-jobsearch\"}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:46:00.320Z",
+  "model": "claude-sonnet-5-5"
+}

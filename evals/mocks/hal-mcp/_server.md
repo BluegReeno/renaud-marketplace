@@ -32,9 +32,10 @@ Rules, in order:
    server: a `stage` outside the workspace's `kind_stages`, a `tags` value outside `allowed_tags`,
    a `kind` outside `kinds_enabled`, an unknown `audit-…` `project_id`/`company_id`/`contact_id`
    → `{"error": "<field> <value> is not allowed; allowed: [...]"}` naming the allowed set. A
-   32-hex id is a row created earlier in the same run by a create_* call: accept it as existing
-   (reads cannot return it — each call is stateless, a known limit of the bench — but a write
-   that links to it succeeds).
+   32-hex id that is not in the dataset is a row created earlier in the same run by a create_*
+   call: accept it as existing (reads cannot return it — each call is stateless, a known limit
+   of the bench — but a write that links to it succeeds). A 32-hex id that IS in the dataset is
+   an ordinary row: every read returns it like any other.
 5. JSON only — no prose, no code fence.
 
 ## Response shapes (recorded from the real server)

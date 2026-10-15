@@ -1,0 +1,9 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch"
+  },
+  "output": "{\n  \"documents\": [\n    {\n      \"slug\": \"cv-john-doe-ops-ia-fr\",\n      \"domain\": \"jobsearch\",\n      \"kind\": \"cv\",\n      \"title\": \"CV John Doe — Direction des opérations IA (FR)\",\n      \"person_name\": null,\n      \"valid_until\": null,\n      \"has_file\": false,\n      \"sensitive\": false,\n      \"project_id\": null,\n      \"knowledge\": false\n    },\n    {\n      \"slug\": \"offre-nexora-dir-ops-ia\",\n      \"domain\": \"jobsearch\",\n      \"kind\": \"job-posting\",\n      \"title\": \"Offre — Directeur des opérations IA, Nexora\",\n      \"person_name\": null,\n      \"valid_until\": null,\n      \"has_file\": false,\n      \"sensitive\": false,\n      \"project_id\": null,\n      \"knowledge\": false\n    },\n    {\n      \"slug\": \"prep-entretien-nexora\",\n      \"domain\": \"jobsearch\",\n      \"kind\": \"interview-prep\",\n      \"title\": \"Prep entretien Nexora — Sarah Bernard\",\n      \"person_name\": null,\n      \"valid_until\": null,\n      \"has_file\": false,\n      \"sensitive\": false,\n      \"project_id\": null,\n      \"knowledge\": true\n    },\n    {\n      \"slug\": \"parcours\",\n      \"domain\": \"jobsearch\",\n      \"kind\": \"career-record\",\n      \"title\": \"Parcours — John Doe\",\n      \"person_name\": null,\n      \"valid_until\": null,\n      \"has_file\": false,\n      \"sensitive\": false,\n      \"project_id\": null,\n      \"knowledge\": false\n    }\n  ],\n  \"total\": 4,\n  \"returned\": 4,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:45:05.500Z",
+  "model": "claude-sonnet-5-5"
+}

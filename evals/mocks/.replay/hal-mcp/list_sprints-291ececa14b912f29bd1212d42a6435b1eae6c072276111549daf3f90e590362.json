@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-pme",
+    "status": "suivant"
+  },
+  "output": "[]",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:47:00.301Z",
+  "model": "claude-sonnet-5-5"
+}
