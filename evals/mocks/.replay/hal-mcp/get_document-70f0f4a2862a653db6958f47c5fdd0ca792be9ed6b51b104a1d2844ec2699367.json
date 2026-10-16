@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-edifice",
+    "slug": "memory"
+  },
+  "output": "{\"error\": \"document memory not found in workspace hal-audit-edifice\"}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:45:45.615Z",
+  "model": "claude-sonnet-5-5"
+}

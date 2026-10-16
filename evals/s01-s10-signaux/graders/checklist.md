@@ -14,7 +14,10 @@ holds.
 Checklist:
 1. The sector gap: no energy experience at Veridian (2026-09-10), « trop peu fintech » at
    Lumio (2026-08-22) — each with its date and where it was read (the refusal row, the
-   call analysis or its transcript); naming the row type is enough, an id is not needed.
+   call analysis or its transcript); naming the row type is enough, an id is not needed —
+   « le dossier de la candidature » (the project row) and « l'échange du 22/08 » (the
+   refusal interaction) are both row types (run 20261015-120702 named both for Lumio and
+   was failed as if it named only the first).
    Run 20261013-105520 cited both with dates and « hal, projet et interaction du refus »
    and was failed for a « vague » source — a right answer, the line is reworded.
 2. Two applications, said as two — not presented as a trend or a statistic.

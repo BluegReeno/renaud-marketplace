@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "since": "2026-10-08T00:00:00Z"
+  },
+  "output": "{\n  \"interactions\": [],\n  \"total\": 0,\n  \"offset\": 0,\n  \"returned\": 0,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:01.362Z",
+  "model": "claude-sonnet-5-5"
+}

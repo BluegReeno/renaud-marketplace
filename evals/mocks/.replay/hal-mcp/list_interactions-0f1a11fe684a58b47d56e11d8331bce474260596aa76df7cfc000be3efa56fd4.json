@@ -1,0 +1,11 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "since": "2026-10-14T00:00:00Z",
+    "until": "2026-10-14"
+  },
+  "output": "{\"interactions\": [], \"total\": 0, \"offset\": 0, \"returned\": 0, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:08.663Z",
+  "model": "claude-sonnet-5-5"
+}

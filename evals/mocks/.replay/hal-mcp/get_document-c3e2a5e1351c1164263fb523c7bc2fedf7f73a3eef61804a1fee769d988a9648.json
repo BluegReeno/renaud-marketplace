@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "slug": "memory"
+  },
+  "output": "document memory not found in workspace hal-audit-famille",
+  "verdict": "tool_error",
+  "recordedAt": "2026-10-15T20:45:53.714Z",
+  "model": "claude-sonnet-5-5"
+}

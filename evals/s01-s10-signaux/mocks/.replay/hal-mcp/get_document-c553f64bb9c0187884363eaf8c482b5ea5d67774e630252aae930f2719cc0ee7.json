@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "slug": "prep-entretien-nexora"
+  },
+  "output": "{\n  \"id\": null,\n  \"workspace_slug\": \"hal-audit-jobsearch\",\n  \"slug\": \"prep-entretien-nexora\",\n  \"domain\": \"jobsearch\",\n  \"kind\": \"interview-prep\",\n  \"title\": \"Prep entretien Nexora — Sarah Bernard\",\n  \"person_name\": null,\n  \"project_id\": null,\n  \"content_md\": \"## Pourquoi Nexora\\n## Ce qu'ils cherchent\\n## Mes 3 preuves\\n## Questions à poser\\n## Points de vigilance\",\n  \"facts\": {\n    \"date\": \"2026-09-14T14:00\",\n    \"format\": \"visio 45 min\"\n  },\n  \"storage\": null,\n  \"issued_date\": \"2026-09-13\",\n  \"valid_until\": null,\n  \"sensitive\": false,\n  \"knowledge\": true,\n  \"created_at\": \"2026-10-14T09:00:00+00:00\",\n  \"updated_at\": \"2026-10-14T09:00:00+00:00\"\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:38:52.684Z",
+  "model": "claude-sonnet-5-5"
+}

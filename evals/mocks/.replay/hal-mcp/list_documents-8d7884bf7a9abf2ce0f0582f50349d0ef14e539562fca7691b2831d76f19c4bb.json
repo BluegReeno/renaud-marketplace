@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "search": "kaleo"
+  },
+  "output": "{\"documents\":[],\"total\":0,\"returned\":0,\"truncated\":false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:49:01.140Z",
+  "model": "claude-sonnet-5-5"
+}

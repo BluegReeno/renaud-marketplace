@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-pme",
+    "limit": 30
+  },
+  "output": "{\"documents\": [{\"slug\": \"devis-valdor-agent-support\", \"domain\": \"commercial\", \"kind\": \"proposal\", \"title\": \"Proposition — Agent IA de support, Valdor Énergie\", \"person_name\": null, \"valid_until\": \"2026-10-08\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"attestation-rc-pro-2026\", \"domain\": \"finance\", \"kind\": \"insurance-certificate\", \"title\": \"Attestation RC Pro 2026\", \"person_name\": null, \"valid_until\": \"2026-09-30\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"kbis-blue-green-2026\", \"domain\": \"legal\", \"kind\": \"kbis\", \"title\": \"Extrait Kbis Blue Green\", \"person_name\": null, \"valid_until\": \"2026-10-01\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}], \"total\": 3, \"returned\": 3, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:45.515Z",
+  "model": "claude-sonnet-5-5"
+}

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "limit": 5
+  },
+  "output": "{\"interactions\": [{\"id\": \"audit-fa-in-1\", \"workspace_slug\": \"hal-audit-famille\", \"project_id\": null, \"contact_id\": \"audit-fa-ct-judo\", \"channel\": \"whatsapp\", \"occurred_at\": \"2026-09-09T17:02:00+00:00\", \"summary\": \"Franck réclame le certificat de scolarité de Léo pour la licence avant le 15/09.\", \"transcript\": null, \"tags\": [\"activites\"], \"sensitive\": null, \"created_by\": null, \"created_at\": \"2026-10-14T09:00:00+00:00\", \"updated_at\": \"2026-10-14T09:00:00+00:00\"}, {\"id\": \"audit-fa-in-2\", \"workspace_slug\": \"hal-audit-famille\", \"project_id\": null, \"contact_id\": \"audit-fa-ct-perrin\", \"channel\": \"email\", \"occurred_at\": \"2026-09-08T14:30:00+00:00\", \"summary\": \"Réunion de parents CM1 le mardi 22/09 à 18h. Sortie au musée le 9/10, autorisation à signer.\", \"transcript\": null, \"tags\": [\"ecole\"], \"sensitive\": null, \"created_by\": null, \"created_at\": \"2026-10-14T09:00:00+00:00\", \"updated_at\": \"2026-10-14T09:00:00+00:00\"}, {\"id\": \"audit-fa-in-3\", \"workspace_slug\": \"hal-audit-famille\", \"project_id\": null, \"contact_id\": \"audit-fa-ct-mamie\", \"channel\": \"call\", \"occurred_at\": \"2026-09-06T09:00:00+00:00\", \"summary\": \"Mamie Rose peut garder les enfants pendant la réunion du 22/09.\", \"transcript\": null, \"tags\": [\"social\"], \"sensitive\": null, \"created_by\": null, \"created_at\": \"2026-10-14T09:00:00+00:00\", \"updated_at\": \"2026-10-14T09:00:00+00:00\"}], \"total\": 3, \"offset\": 0, \"returned\": 3, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:42:07.217Z",
+  "model": "claude-sonnet-5-5"
+}

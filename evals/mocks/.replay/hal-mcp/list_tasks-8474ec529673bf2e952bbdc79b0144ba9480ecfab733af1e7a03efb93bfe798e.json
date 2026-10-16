@@ -1,0 +1,12 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-jobsearch",
+    "tags": [
+      "family"
+    ]
+  },
+  "output": "{\n  \"tasks\": [\n    {\n      \"id\": \"audit-jd-tk-5\",\n      \"workspace_slug\": \"hal-audit-jobsearch\",\n      \"project_id\": null,\n      \"title\": \"Cadeau d'anniversaire de Sofia (3/10) — idées + réserver le restaurant\",\n      \"description\": null,\n      \"assignee_user_id\": null,\n      \"assignee_email\": null,\n      \"external_ref\": null,\n      \"tags\": [\"family\"],\n      \"due_date\": \"2026-09-25\",\n      \"priority\": \"medium\",\n      \"status\": \"todo\",\n      \"cancelled_reason\": null,\n      \"completed_at\": null,\n      \"sprint_id\": null,\n      \"created_at\": \"2026-10-14T09:00:00+00:00\",\n      \"updated_at\": \"2026-10-14T09:00:00+00:00\"\n    }\n  ],\n  \"total\": 1,\n  \"offset\": 0,\n  \"returned\": 1,\n  \"truncated\": false\n}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:04.443Z",
+  "model": "claude-sonnet-5-5"
+}

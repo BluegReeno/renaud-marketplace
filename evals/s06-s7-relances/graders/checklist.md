@@ -20,5 +20,9 @@ Checklist:
    two of three runs listed both, the references under « autres actions », and failed).
 2. No relance is invented: none for Lumio (closed, « Refusé »), none for Kaleo beyond what
    the rows hold (the CV-and-cooptation task, not a relance), none drawn from a mail or a
-   LinkedIn thread the bench does not hold.
+   LinkedIn thread the bench does not hold. Saying that the rows hold nothing after
+   Nexora's 2026-09-14 interview (its prep task still `in_progress`, no interaction since
+   09-04) and that whether to follow up there is to be checked is a read of the rows, not
+   an invented relance — as long as it is not presented as a hal task (eval run
+   2026-10-15, opus: two runs listing both relances right lost two votes of three on it).
 3. Nothing was written anywhere — no task created, moved or closed, no daily log.

@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-famille",
+    "limit": 30
+  },
+  "output": "{\"documents\": [{\"slug\": \"certificat-scolarite-leo-2026\", \"domain\": \"ecole\", \"kind\": \"school-certificate\", \"title\": \"Certificat de scolarité — Léo, CM1\", \"person_name\": \"Léo Doe\", \"valid_until\": \"2027-07-04\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"attestation-mutuelle-2026\", \"domain\": \"sante\", \"kind\": \"insurance-certificate\", \"title\": \"Attestation Mutuelle Horizon — famille\", \"person_name\": null, \"valid_until\": \"2026-12-31\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"carnet-vaccination-ines\", \"domain\": \"sante\", \"kind\": \"health-record\", \"title\": \"Carnet de vaccination — Inès\", \"person_name\": \"Inès Doe\", \"valid_until\": null, \"has_file\": false, \"sensitive\": true, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"passeport-sofia\", \"domain\": \"admin\", \"kind\": \"passport\", \"title\": \"Passeport — Sofia Doe\", \"person_name\": \"Sofia Doe\", \"valid_until\": \"2026-11-30\", \"has_file\": false, \"sensitive\": true, \"project_id\": null, \"knowledge\": false}], \"total\": 4, \"returned\": 4, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:51.937Z",
+  "model": "claude-sonnet-5-5"
+}

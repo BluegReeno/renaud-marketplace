@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-edifice",
+    "limit": 30
+  },
+  "output": "{\"documents\": [{\"slug\": \"attestation-decennale-2026\", \"domain\": \"legal\", \"kind\": \"insurance-certificate\", \"title\": \"Attestation d'assurance décennale 2026\", \"person_name\": null, \"valid_until\": \"2026-12-31\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"rapport-grange-morel\", \"domain\": \"client\", \"kind\": \"diagnostic-report\", \"title\": \"Rapport de diagnostic — Grange Morel\", \"person_name\": null, \"valid_until\": null, \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}, {\"slug\": \"devis-tilleuls\", \"domain\": \"commercial\", \"kind\": \"quote\", \"title\": \"Devis — Diagnostic structure Les Tilleuls\", \"person_name\": null, \"valid_until\": \"2026-10-07\", \"has_file\": false, \"sensitive\": false, \"project_id\": null, \"knowledge\": false}], \"total\": 3, \"returned\": 3, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:41:54.653Z",
+  "model": "claude-sonnet-5-5"
+}

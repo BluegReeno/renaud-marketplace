@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-pme",
+    "slug": "daily-log-2026-10-14"
+  },
+  "output": "document daily-log-2026-10-14 not found in workspace hal-audit-pme",
+  "verdict": "tool_error",
+  "recordedAt": "2026-10-15T20:46:03.331Z",
+  "model": "claude-sonnet-5-5"
+}

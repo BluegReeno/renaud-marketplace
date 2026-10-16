@@ -1,0 +1,9 @@
+{
+  "input": {
+    "query": "Veridian entretien compte-rendu"
+  },
+  "output": "{\"error\": \"workspace_slug is required\"}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:39:44.381Z",
+  "model": "claude-sonnet-5-5"
+}

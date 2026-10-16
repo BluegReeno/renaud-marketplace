@@ -16,4 +16,8 @@ Checklist:
    once), the « note cent premiers jours » due 2026-09-18 (a task if l1-log created one,
    else from the CR's next steps — said which), the relance of 2026-09-17.
 2. Booking the DG slot is Nathalie Garcin's, shown as awaited — not as Renaud's action.
+   Every run is past « début octobre », the window the CR gives for that interview: an
+   answer that says the slot's date has passed and asks whether it took place, without
+   presenting the booking as Renaud's task, satisfies this line (run 20261015-120702 was
+   failed for exactly that reading).
 3. Overdue dates said overdue (every run is after 2026-09-18); nothing was written.

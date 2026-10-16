@@ -1,0 +1,10 @@
+{
+  "input": {
+    "workspace_slug": "hal-audit-pme",
+    "search": "veridian"
+  },
+  "output": "{\"companies\": [], \"total\": 0, \"offset\": 0, \"returned\": 0, \"truncated\": false}",
+  "verdict": "ok",
+  "recordedAt": "2026-10-15T20:38:27.313Z",
+  "model": "claude-sonnet-5-5"
+}
