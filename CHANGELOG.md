@@ -29,15 +29,15 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
-## briefing 0.23.1 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## briefing 0.23.1 — released 2026-10-16 (hal migration cutover)
 
 - cv-log-worker and morning-briefing resolve `jobsearch/data/comp-thresholds.json` and `role-criteria.json` from the plugin as loaded first (`${CLAUDE_PLUGIN_ROOT}/../jobsearch`), the renaud-marketplace install paths after; the worker reads them without Bash when a session grants none — a worker loaded from an eval run or any other checkout stopped on THRESHOLDS_NOT_FOUND (hal eval s06-s2-gate-inconnu, 2026-10-14)
 
-## briefing 0.23.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## briefing 0.23.0 — released 2026-10-16 (hal migration cutover)
 
 - cv-log-worker: MODE gates-only, comp ÉCARTÉ line names the floor; judge Tour 2 is a second foreground spawn carrying Tour 1's verdict (SendMessage resume lost the v2 score)
 
-## briefing 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## briefing 0.22.0 — released 2026-10-16 (hal migration cutover)
 
 - morning-briefing rewritten for the target hal contract (hal audit q07, q08, q09, q11, q38): scope from `whoami` alone — live workspaces only, week-end variant on `type: "personal"`, the job-search block only with a live `type: "jobsearch"` workspace; fixed blocks read from the `## Blocs fixes` section of hal's `soul` / `memory`, none written in the skill; one daily log per workspace with a task or an appointment today, appended, never overwritten
 - morning-briefing: a truncated `list_tasks` or `list_projects` read is read again whole (`limit=<total>`) instead of warned about; opportunities are read only where `opportunity` is in `kinds_enabled`
@@ -245,32 +245,32 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
-## jobsearch 0.24.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.24.0 — released 2026-10-16 (hal migration cutover)
 
 - log-cr, interview-prep, log-application: every task carries its opportunity and the sprint of its due date; log-cr turns Renaud's next steps into tasks; suivi_envoye written as a boolean
 
-## jobsearch 0.23.4 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.23.4 — released 2026-10-16 (hal migration cutover)
 
 - log-cr: a re-run still delegates to gtm:call (idempotent, reports « inchangé »)
 
-## jobsearch 0.23.3 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.23.3 — released 2026-10-16 (hal migration cutover)
 
 - interview-prep: the interview date is asked, never assumed (« tomorrow » was written as prochain_rdv)
 
-## jobsearch 0.23.2 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.23.2 — released 2026-10-16 (hal migration cutover)
 
 - cv-generator: contact links clickable again under WeasyPrint 70 (each link wrapped in a span)
 
-## jobsearch 0.23.1 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.23.1 — released 2026-10-16 (hal migration cutover)
 
 - apply-to-offer: the judge score v1 to v2 is reported and a follow-up is answered from the worker return, never by resuming it; the form field runs alone and rests on the hal company and opportunity rows when no posting is given
 
-## jobsearch 0.23.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.23.0 — released 2026-10-16 (hal migration cutover)
 
 - apply-to-offer: pasted offer text, stored posting refused under 500 characters, « passe les filtres ? » runs the gates only (cv-log-worker `MODE: gates-only`)
 - log-application: `📝 À postuler` unless Renaud says it was sent; `manual` proposed for a pasted offer, `other` never stands for unknown; relance only with a named contact, linked to the opportunity (q14)
 
-## jobsearch 0.22.0 (unreleased — on `next` until cutover, hal migration-closing-plan § 5)
+## jobsearch 0.22.0 — released 2026-10-16 (hal migration cutover)
 
 - log-cr: writes the vault (CR note, BANT aggregated on the candidature) and the two hal tasks in the `type: "jobsearch"` workspace, then hands the interaction, the call analysis and the indexing to `gtm:call` with one JSON argument (hal q54: the vault stays the source until cutover); stops before any write when `gtm:call` is not installed, the workspace is missing or archived, or `jobsearch` is not in its `allowed_tags`; a truncated task read is read again whole, a missing prep task is reported, a relance already there is not duplicated; vault scripts run through `jobsearch-vault`
 - log-application, interview-prep: the workspace is resolved by `type: "jobsearch"`, an archived one is refused before any write; log-application records `cv_judge` under `## CV généré`
@@ -628,6 +628,10 @@ All 30 CVs validated — 1 page each.
 - Rétro-compat: `--positioning ai_consulting/cto/business_dev` still works
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
+
+## improve 0.4.3
+
+- map follows the cutover: work replaces pm, gtm:call and knowledge skills added
 
 ## improve 0.4.2
 
