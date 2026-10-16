@@ -20,7 +20,7 @@ Cowork**. The chat apps only call a connector's tools — they can't run a skill
 | Plugin | MCP server | Project ref | Auth model |
 |--------|-----------|-------------|-----------|
 | `briefing` | `gmail-mcp` | `isdyvrwnxqcfalmlkzui` | **Two paths**: shared API key (`?key=` / `apikey` header) **or** OAuth 2.1 user JWT, gated by the `GMAIL_ALLOWED_USER_IDS` allowlist |
-| `briefing` | `hal-mcp` | `zgkvbjqlvebttbnkklpo` | **OAuth 2.1** (full discovery + DCR) — shared with bluegreen-marketplace |
+| `briefing` | `hal-mcp` | self-hosted, `supabase.bluegreen.ai` | **OAuth 2.1** (full discovery + DCR) — shared with bluegreen-marketplace |
 
 Both projects run a Supabase OAuth server. Verified on 2026-08-05 against
 `https://isdyvrwnxqcfalmlkzui.supabase.co/auth/v1/.well-known/oauth-authorization-server`:
@@ -46,7 +46,7 @@ The remaining difference between the two servers:
 
 URLs:
 - `gmail-mcp`: `https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp`
-- `hal-mcp`: `https://zgkvbjqlvebttbnkklpo.supabase.co/functions/v1/hal-mcp`
+- `hal-mcp`: `https://supabase.bluegreen.ai/functions/v1/hal-mcp`
 
 ---
 
@@ -94,8 +94,8 @@ Status: **Preview** — UI labels drift.
 - **`hal-mcp` works** here. Google Cloud console → Gemini Enterprise → **Data stores** →
   **Create data store** → search **Custom MCP Server** → enter the `hal-mcp` URL, **Streamable
   HTTP** transport, and the OAuth fields:
-  - Authorization URI: `https://zgkvbjqlvebttbnkklpo.supabase.co/auth/v1/authorize`
-  - Token URI: `https://zgkvbjqlvebttbnkklpo.supabase.co/auth/v1/token`
+  - Authorization URI: `https://supabase.bluegreen.ai/auth/v1/authorize`
+  - Token URI: `https://supabase.bluegreen.ai/auth/v1/token`
   - Client ID / Secret: from a **pre-registered** Supabase OAuth client (Gemini can't do
     dynamic registration). Register Google's redirect URI
     `https://vertexaisearch.cloud.google.com/oauth-redirect` on the Supabase side.
@@ -182,7 +182,7 @@ never equivalent: authentication says *who*, `GMAIL_ALLOWED_USER_IDS` says *whet
 
 ```bash
 # OAuth discovery (hal-mcp) — must return JSON with authorization_servers
-curl https://zgkvbjqlvebttbnkklpo.supabase.co/functions/v1/hal-mcp/.well-known/oauth-protected-resource
+curl https://supabase.bluegreen.ai/functions/v1/hal-mcp/.well-known/oauth-protected-resource
 
 # gmail-mcp key mode — keyed URL should reach the MCP initialize (200), wrong key → 401
 npx @modelcontextprotocol/inspector \
