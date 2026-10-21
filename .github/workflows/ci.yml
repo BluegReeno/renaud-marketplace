@@ -51,8 +51,8 @@ jobs:
       - name: Run offline tests
         run: bash scripts/test_release.sh
 
-  sync-vault-tools-tests:
-    name: Offline tests — sync_vault_tools.sh
+  vault-reader-tests:
+    name: Offline tests — jobsearch-vault device_bash reader
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run offline tests
-        run: bash tests/test_sync_vault_tools.sh
+        run: python3 tests/test_vault_reader_heredoc.py
 
   marketplace-schema:
     name: Marketplace schema validation
