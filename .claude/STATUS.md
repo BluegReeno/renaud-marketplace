@@ -17,11 +17,15 @@ mandatory judge (#176), then `morning-briefing` reworked around projects (#175).
       opens the brief as « non monté » or « monté mais illisible ». The `_tools/` folder on the
       Synology mount is no longer read by anything: Renaud deletes it by hand.
 
-- [ ] **#176 — one skill « annonce → CV »** — the facts lot shipped (PR #177); left: the skill
-      itself, the judge always run by the caller, the judge checked against `parcours` alone, the
-      FDE About and competency blocks, add/remove-bullet overrides, the bundled font, the HappyRobot
-      replay. `parcours` lives in `renaud-newjob` since 2026-10-21 (indexed); the `renaud` copy is a
-      pointer, to delete once hal can delete a document.
+- [ ] **#176 — one skill « annonce → CV »** — lot 2 in
+      [PR #179](https://github.com/BluegReeno/renaud-marketplace/pull/179), to review and merge:
+      `offer-to-cv` skill run inline by `apply-to-offer` and `morning-briefing` (the `cv-log-worker`
+      agent is gone), judge Tour 1 and Tour 2 every time, `cv-judge` on `parcours` alone, P4 EN
+      cells validated, add/remove-bullet overrides, Roboto + DejaVu bundled, 30 CVs rendered in CI
+      on Linux. HappyRobot replay in scratch: Tour 1 **8/10** in one pass, Tour 2 9/10. Left for
+      Renaud: the `parcours` additions the judge lists as « non vérifié » (Artelia — London, the
+      Edifice Chat-tab removal), and whether the Artelia title / « Full P&L » cleanup stays on every
+      profile. jobsearch **0.25.0**, briefing **0.24.0**, improve **0.4.5** — 2026-10-21
 
 - [ ] **Watch `session:wrap-up` on a real cycle** — a wrap-up that writes a handoff, then a resume
       from it (after `/clear`, and from a fresh session). Unmeasured until then.
