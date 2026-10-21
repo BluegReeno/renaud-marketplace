@@ -1503,7 +1503,7 @@
           },
           "t5": {
             "en": [
-              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.65/10 against expert-validated ground truth; a tender question answered in under a minute instead of hours of analysis",
+              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant over the French and UK tender corpus (Pydantic AI agents on FastAPI, Next.js front end, Supabase pgvector), scored 8.65/10 against expert-validated ground truth; a tender question answered in under a minute instead of hours",
               "Built hal, a TypeScript MCP server (Deno edge functions, Supabase Postgres, OAuth authentication) exposing 27 tools — CRM, projects, documents — plugged into Claude, Dust and n8n with a one-line install; runs Blue Green daily",
               "Shipped a field assistant for a structural engineering firm (diagnostics on €25M + €35M social housing programmes) — onboarded inspectors on site, removed a feature after observing they misread it, iterated until they ran it without support",
               "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European TSO network (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
