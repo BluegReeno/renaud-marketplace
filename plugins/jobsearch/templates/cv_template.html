@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV - Renaud Laborbe</title>
     <style>
+        /* === BUNDLED FONT === */
+        /* Roboto (Apache 2.0, assets/fonts/) is embedded so the Mac and the Linux cloud sandbox
+           render the same face: without it the sandbox fell back to a wider font and every CV
+           dropped to compression level 3/3 (renaud#176 §7). {{FONT_DIR}} is the absolute
+           assets/fonts URL, substituted by generate_cv.py. */
+        @font-face { font-family: 'CV Sans'; font-weight: 300; src: url('{{FONT_DIR}}/Roboto-Light.otf'); }
+        @font-face { font-family: 'CV Sans'; font-weight: 400; src: url('{{FONT_DIR}}/Roboto-Regular.otf'); }
+        @font-face { font-family: 'CV Sans'; font-weight: 500; src: url('{{FONT_DIR}}/Roboto-Medium.otf'); }
+        @font-face { font-family: 'CV Sans'; font-weight: 700; src: url('{{FONT_DIR}}/Roboto-Bold.otf'); }
+        /* Symbol fallback, bundled too: Roboto has no arrow (U+2192 in "0→1", "Discovery → MVP"),
+           and an unbundled fallback is a system font that differs per machine. */
+        @font-face { font-family: 'CV Symbols'; font-weight: normal; src: url('{{FONT_DIR}}/DejaVuSans.ttf'); }
+        @font-face { font-family: 'CV Symbols'; font-weight: bold; src: url('{{FONT_DIR}}/DejaVuSans-Bold.ttf'); }
+
         /* === PAGE SETUP === */
         @page {
             size: A4;
@@ -18,7 +32,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'CV Sans', 'CV Symbols', sans-serif;
             font-size: 10pt;
             line-height: 1.4;
             color: #333;
@@ -174,8 +188,9 @@
             border-top-color: #3C9ED9;
         }
 
+        /* 8.5pt titles, 8pt items: the sizes validated on the HappyRobot CV (renaud#176 §5) */
         .competency-title {
-            font-size: 9pt;
+            font-size: 8.5pt;
             font-weight: 700;
             color: #5a6f7a;
             margin-bottom: 8px;
@@ -188,7 +203,7 @@
         }
 
         .competency-list li {
-            font-size: 8.5pt;
+            font-size: 8pt;
             color: #475569;
             padding: 2px 0;
             padding-left: 12px;

@@ -29,7 +29,7 @@ Collect (and confirm) the following before doing anything else:
 
 1. **Pasted offer text** (required) — the job description body. The skill will not fetch URLs; the user pastes the text.
 2. **Company name** and **role title** — extract from the offer body if obvious, otherwise ASK. They drive the candidature title `<Poste> — <Entreprise>` and the `entreprise` frontmatter.
-3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`) — **auto-detected from sender email** when invoked by the `cv-log-worker` sub-agent (see table below), and `manual` when that worker ran without a `SENDER_EMAIL`, i.e. an offer Renaud found himself through `apply-to-offer`. Invoked directly with the offer's text pasted in the conversation and no sender — the same case, an offer Renaud found himself — **propose** `manual` by name in the Step 0 proposal, so his go settles it or he names another channel. Otherwise **ASK**. No silent default, and never `other` as a stand-in for « unknown »: `other` is a channel outside the list, not a missing answer. A go that leaves `source` unsettled settles nothing — ask again before writing.
+3. **`source`** (required, one of: `linkedin-alert` / `linkedin-inmail` / `wttj` / `freelance` / `direct-ats` / `headhunter` / `referral` / `manual` / `other`) — **auto-detected from sender email** when invoked by the `offer-to-cv` skill (see table below), and `manual` when that skill ran without a `SENDER_EMAIL`, i.e. an offer Renaud found himself through `apply-to-offer`. Invoked directly with the offer's text pasted in the conversation and no sender — the same case, an offer Renaud found himself — **propose** `manual` by name in the Step 0 proposal, so his go settles it or he names another channel. Otherwise **ASK**. No silent default, and never `other` as a stand-in for « unknown »: `other` is a channel outside the list, not a missing answer. A go that leaves `source` unsettled settles nothing — ask again before writing.
 
    **Auto-detection table (sender → source)**:
 
@@ -54,13 +54,13 @@ Collect (and confirm) the following before doing anything else:
 
 5. **`lien_offre`** (optional URL) — **omit the key entirely** if the user has no link (e.g. referral-only). Do NOT pass an empty string `""`: the `url`-typed field warns on it (see Step 3).
 
-6. **`statut`** — `"✉️ Candidature envoyée"` only when Renaud says he sent it (« j'ai postulé », « candidature envoyée », « je viens de candidater »). Every other case is `"📝 À postuler"`: the `cv-log-worker` context (CV generated, not yet sent), « logge la candidature », an offer pasted to be filed. Never propose « envoyée » for an application nobody said was sent — on hal S06 run `20261013-000828` (s5-log) the skill proposed it as a default, the go confirmed it, and the vault recorded an application that was never sent. **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📝 À postuler"`. Any other value → reject with an explicit error before proceeding.
+6. **`statut`** — `"✉️ Candidature envoyée"` only when Renaud says he sent it (« j'ai postulé », « candidature envoyée », « je viens de candidater »). Every other case is `"📝 À postuler"`: the `offer-to-cv` context (CV generated, not yet sent), « logge la candidature », an offer pasted to be filed. Never propose « envoyée » for an application nobody said was sent — on hal S06 run `20261013-000828` (s5-log) the skill proposed it as a default, the go confirmed it, and the vault recorded an application that was never sent. **Only two values are valid**: `"✉️ Candidature envoyée"` and `"📝 À postuler"`. Any other value → reject with an explicit error before proceeding.
 
-7. **`cv_path`** (optional) — relative path of the generated PDF (e.g. `jobsearch/CV_Poste_Entreprise.pdf`). Provided by `cv-log-worker` when a CV was successfully generated. If present, a `## CV généré` section is appended to the note body. Omit if no CV was generated.
+7. **`cv_path`** (optional) — relative path of the generated PDF (e.g. `jobsearch/CV_Poste_Entreprise.pdf`). Provided by `offer-to-cv` when a CV was successfully generated. If present, a `## CV généré` section is appended to the note body. Omit if no CV was generated.
 
-8. **`cv_profile`** (optional) — detected profile slug (e.g. `P4`). Provided alongside `cv_path` by `cv-log-worker`. Omit if no CV was generated.
+8. **`cv_profile`** (optional) — detected profile slug (e.g. `P4`). Provided alongside `cv_path` by `offer-to-cv`. Omit if no CV was generated.
 
-9. **`cv_judge`** (optional) — the judge's score line from `cv-log-worker`, e.g. `7→9/10`. Provided alongside `cv_path`; omit if the judge did not run. `morning-briefing` reads it back to show the score next to each application to do.
+9. **`cv_judge`** (optional) — the judge's score line from `offer-to-cv`, e.g. `7→9/10`. Always provided alongside `cv_path`: since renaud#176 a CV is never logged without a judge score. `morning-briefing` reads it back to show the score next to each application to do.
 
 Do not proceed until `source` and `entreprise` + `poste` are settled.
 
@@ -117,7 +117,7 @@ Invoke `jobsearch-vault` and ask it to **create a note** with exactly this struc
 }
 ```
 
-When `cv_path` is provided (i.e. invoked from `cv-log-worker` after a successful CV generation), append a `## CV généré` section to the body:
+When `cv_path` is provided (i.e. invoked from `offer-to-cv` after a successful, judged CV generation), append a `## CV généré` section to the body:
 
 ```
 ## CV généré

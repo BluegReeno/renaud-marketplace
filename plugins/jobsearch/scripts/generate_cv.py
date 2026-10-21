@@ -10,6 +10,11 @@ Usage:
         --container-titles '["Architecture & agents IA", "Cycle client & deploiement", "Secteurs"]' \
         --bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet personnalise"}'
     python generate_cv.py --positioning cto   # retro-compat
+
+Overrides never touch cv-master.json. Every list edit (--bullet-overrides, --container-items)
+takes the same key grammar: "<index>": "text" replaces, "<index>": null removes, "+": "text"
+appends (a key starting with "+"); --about-override and --containers-override replace a cell's
+about lines and competency blocks whole (renaud#176 §7).
 """
 
 import json
@@ -104,6 +109,68 @@ li { margin-bottom: 1px; }
 def get_skill_dir():
     """Return the plugin root (parent of scripts/)."""
     return Path(__file__).parent.parent
+
+
+# The bundled fonts (assets/fonts): Roboto (Apache 2.0) for the text, DejaVu Sans (Bitstream
+# Vera licence) for the symbols Roboto lacks, such as the arrow in "0→1". The template embeds
+# them through @font-face so the Mac and the Linux cloud sandbox render the same faces: before
+# 2026-10-21 the sandbox fell back to a wider system font and every CV dropped to compact level
+# 3/3 (renaud#176 §7).
+FONT_FILES = ('Roboto-Light.otf', 'Roboto-Regular.otf', 'Roboto-Medium.otf', 'Roboto-Bold.otf',
+              'DejaVuSans.ttf', 'DejaVuSans-Bold.ttf')
+
+
+def get_font_dir():
+    """Return the bundled fonts directory, or exit 1 when a face is missing.
+
+    A missing face would make WeasyPrint fall back to whatever the machine has, and the page
+    would fit here and overflow there — the exact defect the bundle removes. Fail loud instead.
+    """
+    font_dir = get_skill_dir() / 'assets' / 'fonts'
+    missing = [f for f in FONT_FILES if not (font_dir / f).exists()]
+    if missing:
+        print(f"ERROR: bundled font missing in {font_dir}: {', '.join(missing)}")
+        print("       Refusing to render with a fallback font — page fit would differ between machines.")
+        sys.exit(1)
+    return font_dir
+
+
+def apply_line_edits(lines, edits, label):
+    """Edit a list of lines from {key: text_or_None} and return the new list.
+
+    Key grammar (shared by --bullet-overrides and --container-items):
+      "<n>": "text"   replace line n (0-based)
+      "<n>": null     remove line n
+      "+…":  "text"   append a line — any key starting with "+" ("+", "+1", "+2", …)
+
+    Indices refer to the ORIGINAL list, so a removal never shifts a replacement. A malformed or
+    out-of-range key prints a WARNING naming it and is skipped — never silently, so a typo in a
+    key is seen in the run that made it rather than in the PDF a recruiter opens.
+    """
+    lines = list(lines)
+    replacements, removals, appends = {}, set(), []
+    for key, text in edits.items():
+        if key.startswith('+'):
+            if text is None:
+                print(f"WARNING: {label} key '{key}' ignored — an append needs a text, not null.")
+                continue
+            appends.append(text)
+            continue
+        try:
+            idx = int(key)
+        except ValueError:
+            print(f"WARNING: {label} key '{key}' ignored — expected an integer index or a key starting with '+'.")
+            continue
+        if not (0 <= idx < len(lines)):
+            print(f"WARNING: {label} key '{key}' ignored — out of range (0-{len(lines) - 1}, {len(lines)} lines).")
+            continue
+        if text is None:
+            removals.add(idx)
+        else:
+            replacements[idx] = text
+    out = [replacements.get(i, line) for i, line in enumerate(lines) if i not in removals]
+    out.extend(appends)
+    return out
 
 
 # Personal data (contact details, CV profiles) is deliberately NOT shipped with the plugin:
@@ -271,7 +338,7 @@ def count_pdf_pages(pdf_path):
 
 def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
                      output_dir=None, container_titles=None, container_items=None,
-                     bullet_overrides=None,
+                     containers_override=None, bullet_overrides=None,
                      about_override=None, title_override=None,
                      compact_level=0, contact=None):
     """Generate customised HTML from template for the given profile×company_type cell."""
@@ -282,6 +349,9 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     if compact_level > 0 and compact_level <= len(COMPACT_CSS_LEVELS):
         html = html.replace('</head>', COMPACT_CSS_LEVELS[compact_level - 1])
+
+    # === BUNDLED FONT ===
+    html = html.replace('{{FONT_DIR}}', get_font_dir().resolve().as_uri())
 
     cell = resolve_cell_content(cv_data, profile, company_type, lang)
 
@@ -321,7 +391,10 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     html = html.replace('{{ABOUT_3}}', about[2])
 
     # === COMPETENCY CONTAINER TITLES ===
-    containers = cell['containers']
+    # --containers-override replaces the cell's three blocks whole (title + items), the
+    # per-cell "replace the competencies" override of renaud#176 §7; the finer-grained
+    # --container-titles / --container-items then apply on top of it.
+    containers = containers_override if containers_override else cell['containers']
     titles = [c['title'] for c in containers]
     if container_titles:
         for i, t in enumerate(container_titles[:3]):
@@ -333,25 +406,28 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     # === COMPETENCY ITEMS ===
     items = [list(c['items']) for c in containers]
 
-    # Apply container item overrides — key: "{column}.{index}", e.g. "0.1".
-    # Symmetric with --bullet-overrides; without it, fixing one competency bullet meant
-    # copying cv-master.json to /tmp and running with --data-dir (renaud#106).
+    # Apply container item edits — key: "{column}.{index}" replaces, "{column}.{index}": null
+    # removes, "{column}.+" appends (see apply_line_edits). Symmetric with --bullet-overrides;
+    # without it, fixing one competency bullet meant copying cv-master.json to /tmp and running
+    # with --data-dir (renaud#106).
     if container_items:
+        per_column = {}
         for key, new_text in container_items.items():
-            parts = key.split('.')
+            parts = key.split('.', 1)
             if len(parts) != 2:
-                print(f"WARNING: --container-items key '{key}' ignored — expected \"{{column}}.{{index}}\".")
+                print(f"WARNING: --container-items key '{key}' ignored — expected \"{{column}}.{{index}}\" or \"{{column}}.+\".")
                 continue
             try:
-                col, idx = int(parts[0]), int(parts[1])
+                col = int(parts[0])
             except ValueError:
-                print(f"WARNING: --container-items key '{key}' ignored — column and index must be integers.")
+                print(f"WARNING: --container-items key '{key}' ignored — column must be an integer.")
                 continue
-            if not (0 <= col < len(items)) or not (0 <= idx < len(items[col])):
-                print(f"WARNING: --container-items key '{key}' ignored — out of range "
-                      f"(columns 0-{len(items) - 1}, column {col} has {len(items[col]) if 0 <= col < len(items) else 0} items).")
+            if not (0 <= col < len(items)):
+                print(f"WARNING: --container-items key '{key}' ignored — column out of range (0-{len(items) - 1}).")
                 continue
-            items[col][idx] = new_text
+            per_column.setdefault(col, {})[parts[1]] = new_text
+        for col, edits in per_column.items():
+            items[col] = apply_line_edits(items[col], edits, f"--container-items column {col}")
 
     html = html.replace('{{COMP_AI}}',
                         '\n'.join(f'<li>{c}</li>' for c in items[0]))
@@ -364,6 +440,25 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
     experiences = cv_data['experiences']
     job_order = get_job_order(profile, company_type)
 
+    # Bullet edits — key: "{company}.{profile}.{lang}.{index}" replaces, "…{index}": null
+    # removes, "{company}.{profile}.{lang}.+" appends (see apply_line_edits). A key naming
+    # another cell, another language or an unknown company is reported, not swallowed: before
+    # renaud#176 such a key was silently ignored and the CV rendered without the correction.
+    bullet_edits = {}
+    for key, new_text in (bullet_overrides or {}).items():
+        parts = key.split('.', 3)
+        if len(parts) != 4:
+            print(f"WARNING: --bullet-overrides key '{key}' ignored — expected \"{{company}}.{{profile}}.{{lang}}.{{index}}\".")
+            continue
+        b_company, b_profile, b_lang, b_index = parts
+        if b_company not in job_order:
+            print(f"WARNING: --bullet-overrides key '{key}' ignored — unknown company (expected one of {job_order}).")
+            continue
+        if b_profile != profile or b_lang != lang:
+            print(f"WARNING: --bullet-overrides key '{key}' ignored — this CV is {profile}/{lang}.")
+            continue
+        bullet_edits.setdefault(b_company, {})[b_index] = new_text
+
     for slot, job_key in enumerate(job_order, start=1):
         job = experiences[job_key]
         title_key = f"{profile}_{company_type}"
@@ -375,16 +470,8 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
         profile_bullets = job['bullets'][profile]
         bullets = list(profile_bullets.get(company_type, profile_bullets['default'])[lang])
 
-        # Apply bullet overrides — key: "{company}.{profile}.{lang}.{index}"
-        if bullet_overrides:
-            for key, new_text in bullet_overrides.items():
-                parts = key.split('.')
-                if len(parts) == 4:
-                    b_company, b_profile, b_lang, b_index = parts
-                    if b_company == job_key and b_profile == profile and b_lang == lang:
-                        idx = int(b_index)
-                        if 0 <= idx < len(bullets):
-                            bullets[idx] = new_text
+        if job_key in bullet_edits:
+            bullets = apply_line_edits(bullets, bullet_edits[job_key], f"--bullet-overrides {job_key}")
 
         html = html.replace(f'{{{{JOB{slot}_TITLE}}}}', title)
         html = html.replace(f'{{{{JOB{slot}_PERIOD}}}}', period)
@@ -394,21 +481,26 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     # Earlier career
     earlier = experiences['earlier']
+    # "Title — Company: description" — the description itself holds parentheses (WaveWatch III,
+    # A* over wind and current fields), and wrapping it in another pair read as nested noise
+    # (cv-judge on the HappyRobot replay, 2026-10-21).
     earlier_html = '\n'.join(
         '<div class="earlier-item">'
         f'<span class="earlier-content">&#8226; {item.get("title_" + lang, item["title"])} &#8212; {item["company"]}'
-        f' ({item.get("description_" + lang, item.get("description", ""))})</span>'
+        f': {item.get("description_" + lang, item.get("description", ""))}</span>'
         f'<span class="earlier-period">{item["period"]}</span></div>'
         for item in earlier['items']
     )
     html = html.replace('{{EARLIER_CAREER}}', earlier_html)
 
     # === EDUCATION ===
+    # "Degree — School, Place": the separator validated on the HappyRobot CV (renaud#176 §7),
+    # which had to be patched in a copy of this script until it was made the default.
     education_html = '\n'.join(
         '<div class="education-item">'
         '<span class="education-content">'
-        f'<span class="degree">{edu["degree"]}:</span> '
-        f'<span class="school">{edu["school"]}, {edu["location"]}</span>'
+        f'<span class="degree">{edu["degree"]}</span> '
+        f'<span class="school">— {edu["school"]}, {edu["location"]}</span>'
         '</span>'
         f'<span class="education-year">{edu["year"]}</span>'
         '</div>'
@@ -440,7 +532,8 @@ def html_to_pdf(html_path, pdf_path, base_url=None):
 def generate_cv(profile='p1', company_type='t4', lang='en',
                 output_filename=None, output_dir=None, data_dir=None,
                 company=None, job_title=None,
-                container_titles=None, container_items=None, bullet_overrides=None,
+                container_titles=None, container_items=None, containers_override=None,
+                bullet_overrides=None,
                 about_override=None, title_override=None,
                 allow_placeholder=False):
     """Generate a CV PDF for the given profile × company_type cell."""
@@ -489,7 +582,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
     output_pdf = output_dir / output_filename
     output_html = work_dir / 'cv_generated.html'
 
-    generate_cv_html(
+    render = dict(
         output_html_path=output_html,
         cv_data=cv_data,
         profile=profile,
@@ -497,13 +590,14 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
         lang=lang,
         container_titles=container_titles,
         container_items=container_items,
+        containers_override=containers_override,
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=title_override,
-        compact_level=0,
         contact=contact,
     )
 
+    generate_cv_html(compact_level=0, **render)
     html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
 
     # Iterative compact retry — try up to 3 progressively tighter CSS levels
@@ -511,20 +605,7 @@ def generate_cv(profile='p1', company_type='t4', lang='en',
     if pages is not None and pages > 1:
         for level in range(1, len(COMPACT_CSS_LEVELS) + 1):
             print(f"WARNING: CV is {pages} pages — retrying with compact layout level {level}/{len(COMPACT_CSS_LEVELS)}...")
-            generate_cv_html(
-                output_html_path=output_html,
-                cv_data=cv_data,
-                profile=profile,
-                company_type=company_type,
-                lang=lang,
-                container_titles=container_titles,
-                container_items=container_items,
-                bullet_overrides=bullet_overrides,
-                about_override=about_override,
-                title_override=title_override,
-                compact_level=level,
-                contact=contact,
-            )
+            generate_cv_html(compact_level=level, **render)
             html_to_pdf(output_html, output_pdf, base_url=str(work_dir))
             pages = count_pdf_pages(output_pdf)
             if pages is None or pages <= 1:
@@ -572,13 +653,18 @@ Examples:
                         help='JSON array of 3 competency container titles '
                              '(overrides cell defaults), e.g. \'["AI Eng", "Business", "Sectors"]\'')
     parser.add_argument('--bullet-overrides',
-                        help='JSON dict of bullet overrides. '
-                             'Key format: "{company}.{profile}.{lang}.{index}" '
-                             '(e.g. \'{"blue_green.p4.fr.0": "New bullet"}\')')
+                        help='JSON dict of bullet edits. '
+                             'Key format: "{company}.{profile}.{lang}.{index}" replaces '
+                             '(e.g. \'{"blue_green.p4.fr.0": "New bullet"}\'), the same key with a '
+                             'null value removes the bullet, "{company}.{profile}.{lang}.+" appends one')
     parser.add_argument('--container-items',
-                        help='JSON object overriding individual container bullets. '
-                             'Key format: "{column}.{index}" (e.g. \'{"0.1": "New bullet"}\'), '
-                             'applied after the cell is resolved')
+                        help='JSON object editing individual competency bullets, applied after '
+                             'the cell is resolved. Key format: "{column}.{index}" replaces '
+                             '(e.g. \'{"0.1": "New bullet"}\'), null removes, "{column}.+" appends')
+    parser.add_argument('--containers-override',
+                        help='JSON array of exactly 3 {"title": str, "items": [str, ...]} objects — '
+                             'replaces the cell\'s three competency blocks whole '
+                             '(--container-titles / --container-items still apply on top)')
     parser.add_argument('--about-override',
                         help='JSON array of exactly 3 strings — replaces the about section')
     parser.add_argument('--title-override',
@@ -629,6 +715,20 @@ Examples:
         except json.JSONDecodeError as e:
             parser.error(f"--container-items is not valid JSON: {e}")
 
+    containers_override = None
+    if args.containers_override:
+        try:
+            containers_override = json.loads(args.containers_override)
+        except json.JSONDecodeError as e:
+            parser.error(f"--containers-override is not valid JSON: {e}")
+        if (not isinstance(containers_override, list) or len(containers_override) != 3
+                or not all(isinstance(c, dict) and isinstance(c.get('title'), str)
+                           and isinstance(c.get('items'), list) and c['items']
+                           and all(isinstance(i, str) for i in c['items'])
+                           for c in containers_override)):
+            parser.error('--containers-override must be a JSON array of exactly 3 '
+                         '{"title": str, "items": [str, ...]} objects, each with at least one item')
+
     bullet_overrides = None
     if args.bullet_overrides:
         try:
@@ -660,6 +760,7 @@ Examples:
         job_title=args.job_title,
         container_titles=container_titles,
         container_items=container_items,
+        containers_override=containers_override,
         bullet_overrides=bullet_overrides,
         about_override=about_override,
         title_override=args.title_override,

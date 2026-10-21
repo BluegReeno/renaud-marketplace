@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.24.0
+
+- cv-log-worker agent removed — morning-briefing 2c.4 invokes jobsearch's offer-to-cv skill inline, one 🔥 offer after the other, so the judge always runs; cv-judge reads parcours alone (no memory, context or retex), judges toward the interview, never under-sells, routes interview prep to « Notes d'entretien », never proposes « Full P&L », stops on an unreadable parcours (renaud#176)
+
 ## briefing 0.23.2
 
 - morning-briefing: an unread vault opens the brief, 'non monté' vs 'monté mais illisible'; legacy ❌ Abandonné is terminal
@@ -248,6 +252,10 @@ guard therefore belongs on the consumer side.
 - `hal-mcp` http MCP server declaration (deduped at name+endpoint level with `bluegreen-marketplace/plugins/hal`)
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
+
+## jobsearch 0.25.0
+
+- offer-to-cv: one offer → gates, CV, cv-judge Tour 1 and Tour 2 spawned from the caller, log — inline skill replacing the cv-log-worker agent, a CV is never logged unjudged, OUTPUT_DIR renders a replay without logging (renaud#176); cv-master P4 EN cells carry the validated FDE About, the three competency blocks, the hal bullet, Edifice and Artelia in the past tense, the Artelia title of parcours, no « Full P&L »; generate_cv.py: null removes a bullet, + appends, --containers-override replaces a cell's blocks, bad keys warn, « — » education separator, earlier career without nested parentheses; Roboto and DejaVu Sans bundled and embedded so Linux renders like the Mac, batch_validate asserts 1 page and bundled fonts only (HappyRobot replay: judge Tour 1 8/10 in one pass)
 
 ## jobsearch 0.24.2
 
@@ -640,6 +648,10 @@ All 30 CVs validated — 1 page each.
 - Rétro-compat: `--positioning ai_consulting/cto/business_dev` still works
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
+
+## improve 0.4.5
+
+- map: offer-to-cv (jobsearch, renaud-marketplace)
 
 ## improve 0.4.4
 

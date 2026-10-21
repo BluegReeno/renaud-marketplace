@@ -1,5 +1,5 @@
 {
-  "_doc": "Single definition site for every compensation figure used by the offer→CV path. morning-briefing (tier scoring), cv-log-worker (comp gate) and apply-to-offer all read THIS file — none of them may restate a figure inline. Amounts are gross annual base+variable in EUR, for a Paris-based role.",
+  "_doc": "Single definition site for every compensation figure used by the offer→CV path. morning-briefing (tier scoring) and offer-to-cv (comp gate) read THIS file — none of them may restate a figure inline. Amounts are gross annual base+variable in EUR, for a Paris-based role.",
   "_owner": "renaud-marketplace / plugins/jobsearch",
   "target_comp_eur": 90000,
   "target_comp_doc": "The package Renaud is aiming for. Display only — never rejects an offer.",

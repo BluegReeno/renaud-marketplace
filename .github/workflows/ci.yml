@@ -111,6 +111,36 @@ jobs:
         run: python3 tests/test_next_skills.py
       - name: Run cv-master fact guards
         run: python3 tests/test_cv_master_facts.py
+      - name: Run offer-to-cv guards (skill, judge, P4 cells)
+        run: python3 tests/test_offer_to_cv.py
+
+  test-cv-generator:
+    name: Offline tests — generate_cv.py overrides and bundled font
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run offline tests
+        run: python3 tests/test_generate_cv_overrides.py
+
+  cv-batch-render:
+    name: Render the 30 CVs on Linux — 1 page each, bundled font only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Pango for WeasyPrint
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
+      - name: Install WeasyPrint and pikepdf
+        run: python3 -m pip install --quiet weasyprint pikepdf
+      - name: Render and validate
+        # The Linux render is the one that matters: the Cowork sandbox is Linux, and before the
+        # font was bundled every CV dropped to compact level 3/3 there (renaud#176 §7).
+        run: python3 plugins/jobsearch/scripts/batch_validate.py
 
   test-command-center:
     name: Offline tests — Command Center parser

@@ -1,5 +1,5 @@
 {
-  "_doc": "Single definition site for every qualitative disqualifier used by the offer→CV path. morning-briefing (Step 1g scoring) and cv-log-worker (Step A.6 gate) both read THIS file — none of them may restate a disqualifier inline or in prose. Each entry is a content judgment against the JD, not a keyword regex: read `detect` and decide whether the actual JD_TEXT matches it. Compensation figures are a separate concern and stay in comp-thresholds.json — do not add one here.",
+  "_doc": "Single definition site for every qualitative disqualifier used by the offer→CV path. morning-briefing (Step 2c scoring) and offer-to-cv (Step A.6 gate) both read THIS file — none of them may restate a disqualifier inline or in prose. Each entry is a content judgment against the JD, not a keyword regex: read `detect` and decide whether the actual JD_TEXT matches it. Compensation figures are a separate concern and stay in comp-thresholds.json — do not add one here.",
   "_owner": "renaud-marketplace / plugins/jobsearch",
   "disqualifiers": [
     {

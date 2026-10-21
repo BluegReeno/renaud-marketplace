@@ -51,7 +51,7 @@
       "Stakeholder & Client Engagement",
       "Cross-functional Team Management",
       "Agile Product Delivery",
-      "Full P&L responsibility for a business unit",
+      "P&L responsibility for a business unit",
       "C-level negotiations",
       "Investor Relations & Fundraising",
       "Lab-to-Industrial Scale-up",
@@ -354,7 +354,7 @@
               "items": [
                 "Stakeholder & Client Engagement",
                 "Cross-functional Team Management",
-                "Full P&L responsibility for a business unit"
+                "P&L responsibility for a business unit"
               ]
             },
             {
@@ -381,7 +381,7 @@
               "items": [
                 "Engagement clients & parties prenantes",
                 "Management transverse",
-                "Responsabilité P&L complète d'une business unit"
+                "Responsabilité P&L d'une business unit"
               ]
             },
             {
@@ -600,7 +600,7 @@
               "title": "Team & P&L Leadership",
               "items": [
                 "Team Leadership (12 people)",
-                "Full P&L responsibility for a business unit",
+                "P&L responsibility for a business unit",
                 "Enterprise Sales",
                 "C-level negotiations"
               ]
@@ -627,7 +627,7 @@
               "title": "Direction équipe & P&L",
               "items": [
                 "Leadership d'équipe (12 pers.)",
-                "Responsabilité P&L complète d'une business unit",
+                "Responsabilité P&L d'une business unit",
                 "Vente grands comptes",
                 "Négociations C-level"
               ]
@@ -660,7 +660,7 @@
           "en": [
             "15+ years in energy & engineering, incl. international group experience (London).",
             "Took AI from strategy to production for energy players.",
-            "Led cross-functional teams and a business unit's full P&L."
+            "Led cross-functional teams and a business unit's P&L."
           ],
           "fr": [
             "Directeur transformation IA avec 20 ans en énergie et ingénierie, dont 4 ans avec P&L direct d'une business unit en groupe international (Artelia, Londres).",
@@ -683,7 +683,7 @@
               "items": [
                 "Cross-functional Team Management",
                 "Stakeholder & Client Engagement",
-                "Full P&L responsibility for a business unit",
+                "P&L responsibility for a business unit",
                 "AI Awareness Training"
               ]
             },
@@ -710,7 +710,7 @@
               "items": [
                 "Management transverse",
                 "Engagement clients & parties prenantes",
-                "Responsabilité P&L complète d'une business unit",
+                "Responsabilité P&L d'une business unit",
                 "Formation & sensibilisation à l'IA"
               ]
             },
@@ -849,7 +849,7 @@
                 "R&D Team Leadership (12 people)",
                 "Investor Relations & Fundraising",
                 "Lab-to-Industrial Scale-up",
-                "Full P&L responsibility for a business unit"
+                "P&L responsibility for a business unit"
               ]
             },
             {
@@ -877,7 +877,7 @@
                 "Direction équipe R&D (12 pers.)",
                 "Relations investisseurs & levée de fonds",
                 "Scale-up labo → industriel",
-                "Responsabilité P&L complète d'une business unit"
+                "Responsabilité P&L d'une business unit"
               ]
             },
             {
@@ -990,9 +990,9 @@
         },
         "about": {
           "en": [
-            "15+ years deploying technical solutions with industrial clients (energy, marine, infrastructure).",
-            "Hands-on AI integration: RAG, agents, workflow automation.",
-            "Trusted by operations: speaks engineering, not just software."
+            "Forward Deployed Engineer who turns a client's operational problem into a shipped AI system — from the first discovery workshop to the day their team runs it without me.",
+            "Built and run production AI agents end to end — RAG over regulatory corpora, ML price forecasting, an on-site field assistant — and the stack beneath them: MCP servers, OAuth, skills and agent harnesses, FastAPI, Supabase / pgvector, React / Next.js.",
+            "Co-founder & CTO of a marine data intelligence platform through its acquisition by an international engineering group, then four years signing and renewing its enterprise subscriptions (SBM Offshore, Nexans, ASN)."
           ],
           "fr": [
             "15 ans de déploiement de solutions techniques chez des industriels (énergie, offshore, ingénierie) — la confiance opérationnelle est acquise.",
@@ -1003,27 +1003,27 @@
         "containers": {
           "en": [
             {
-              "title": "Solution Deployment",
+              "title": "Agent Platform & Stack",
               "items": [
-                "LLMs, RAG, AI Agents",
-                "Workflow Automation",
-                "Process Automation"
+                "MCP servers (tools, resources, prompts), OAuth 2.1",
+                "Python (FastAPI, Pydantic AI) · TypeScript (React / Next.js, Node / Deno)",
+                "Supabase Postgres, pgvector, Docker — in production"
               ]
             },
             {
-              "title": "Client Engagement",
+              "title": "AI Agents & LLM Systems",
               "items": [
-                "Stakeholder & Client Engagement",
-                "AI Awareness Training",
-                "Customer Onboarding & Adoption"
+                "RAG: document ingestion, hybrid search, cited answers",
+                "Skills, agent harnesses, multi-agent orchestration",
+                "Prompt iteration and evals against expert ground truth; ML forecasting"
               ]
             },
             {
-              "title": "Energy & Industry",
+              "title": "Client Delivery & Industry",
               "items": [
-                "Renewable Energy (15+ yrs)",
-                "Engineering & Infrastructure",
-                "Marine & Environmental Data"
+                "Discovery → MVP → autonomous adoption with energy, offshore and engineering clients",
+                "Third-party integrations: grid, market, weather APIs, CRMs",
+                "International: US, UK, Brazil — native French, fluent English & Portuguese"
               ]
             }
           ],
@@ -1070,9 +1070,9 @@
         },
         "about": {
           "en": [
-            "Twenty years of engineering on energy and environmental data, now spent deploying AI systems inside industrial companies — from the first workshop to the day the client runs it alone.",
-            "Built and shipped a regulatory assistant, live in production, that turns weeks of tender analysis into an afternoon for offshore wind developers, and a field assistant that let building inspectors leave a site with the report already drafted.",
-            "Four years inside the IT division of a 6,000-person engineering group — cloud selection committees, IS governance, budget cycles: the reasons enterprise AI projects stall, seen from the inside."
+            "Forward Deployed Engineer who turns a client's operational problem into a shipped AI system — from the first discovery workshop to the day their team runs it without me.",
+            "Built and run production AI agents end to end — RAG over regulatory corpora, ML price forecasting, an on-site field assistant — and the stack beneath them: MCP servers, OAuth, skills and agent harnesses, FastAPI, Supabase / pgvector, React / Next.js.",
+            "Co-founder & CTO of a marine data intelligence platform through its acquisition by an international engineering group, then four years signing and renewing its enterprise subscriptions (SBM Offshore, Nexans, ASN)."
           ],
           "fr": [
             "15 ans dans le secteur énergie — conception, développement et déploiement de solutions digitales pour répondre aux besoins métier.",
@@ -1083,27 +1083,27 @@
         "containers": {
           "en": [
             {
-              "title": "Engineering & Production",
+              "title": "Agent Platform & Stack",
               "items": [
-                "Python, TypeScript, SQL — production code, shipped and maintained",
-                "Data pipelines and REST APIs (FastAPI, Next.js)",
-                "Deployment and operations (Docker, Supabase, CI)"
+                "MCP servers (tools, resources, prompts), OAuth 2.1",
+                "Python (FastAPI, Pydantic AI) · TypeScript (React / Next.js, Node / Deno)",
+                "Supabase Postgres, pgvector, Docker — in production"
               ]
             },
             {
-              "title": "LLM & Agent Systems",
+              "title": "AI Agents & LLM Systems",
               "items": [
-                "Multi-agent systems in production (Pydantic AI, Claude)",
-                "Document ingestion and hybrid retrieval (semantic + keyword)",
-                "MCP servers, tool design, evaluation against expert ground truth"
+                "RAG: document ingestion, hybrid search, cited answers",
+                "Skills, agent harnesses, multi-agent orchestration",
+                "Prompt iteration and evals against expert ground truth; ML forecasting"
               ]
             },
             {
-              "title": "Field Delivery",
+              "title": "Client Delivery & Industry",
               "items": [
-                "Discovery workshop → POC → handover to autonomous daily use",
-                "Third-party system integration: grid, market and weather APIs",
-                "Sectors: offshore energy, infrastructure, construction"
+                "Discovery → MVP → autonomous adoption with energy, offshore and engineering clients",
+                "Third-party integrations: grid, market, weather APIs, CRMs",
+                "International: US, UK, Brazil — native French, fluent English & Portuguese"
               ]
             }
           ],
@@ -1180,7 +1180,7 @@
                 "Enterprise Sales",
                 "C-level negotiations",
                 "Business Development",
-                "Full P&L responsibility for a business unit"
+                "P&L responsibility for a business unit"
               ]
             },
             {
@@ -1207,7 +1207,7 @@
                 "Vente grands comptes",
                 "Négociations C-level",
                 "Business Development",
-                "Responsabilité P&L complète d'une business unit"
+                "Responsabilité P&L d'une business unit"
               ]
             },
             {
@@ -1493,8 +1493,8 @@
           "default": {
             "en": [
               "Build and deploy BlueWind Companion — AI regulatory intelligence platform for offshore wind (5 specialized agents over the FR+UK regulatory corpus): a tender question answered in under a minute instead of hours, 8.65/10 against expert ground truth — live in production, client EnBW France",
-              "Led the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous handover",
-              "Built HAL — 27-tool MCP platform (Claude Code marketplace install) and BlueWind's document ingestion pipeline: core production infrastructure reused across all client deliveries"
+              "Shipped a field assistant for a structural engineering firm (diagnostics on €25M + €35M social housing programmes) — onboarded inspectors on site, removed a feature after observing they misread it, iterated until they ran it without support",
+              "Built hal, a TypeScript MCP server (Deno edge functions, Supabase Postgres, OAuth authentication) exposing 27 tools — CRM, projects, documents — plugged into Claude, Dust and n8n with a one-line install; runs Blue Green daily"
             ],
             "fr": [
               "Concevoir et déployer des solutions IA en production : assistant réglementaire offshore wind (EnBW France) · assistant diagnostic bâtiment terrain (IC Ingénieurs Conseils) · framework ML prévision renouvelable (Weathernews)",
@@ -1503,9 +1503,10 @@
           },
           "t5": {
             "en": [
-              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.65/10 against expert-validated ground truth — and for a renewable energy producer",
-              "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery until inspectors ran it on site without support",
-              "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European grid operator (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
+              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant over the French and UK tender corpus (Pydantic AI agents on FastAPI, Next.js front end, Supabase pgvector), scored 8.65/10 against expert-validated ground truth; a tender question answered in under a minute instead of hours",
+              "Built hal, a TypeScript MCP server (Deno edge functions, Supabase Postgres, OAuth authentication) exposing 27 tools — CRM, projects, documents — plugged into Claude, Dust and n8n with a one-line install; runs Blue Green daily",
+              "Shipped a field assistant for a structural engineering firm (diagnostics on €25M + €35M social housing programmes) — onboarded inspectors on site, removed a feature after observing they misread it, iterated until they ran it without support",
+              "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European TSO network (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
             ],
             "fr": [
               "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,65/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
@@ -1535,31 +1536,31 @@
       "period": "2019 – 2023",
       "titles": {
         "p1": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p2": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p3": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p4": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p5": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         }
       },
       "bullets": {
         "p1": {
           "default": {
             "en": [
-              "Full P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
+              "P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
               "Directed offshore wind and marine infrastructure projects from scoping to delivery — technical and commercial governance",
               "Led product roadmap adaptation for offshore wind data platform — aligned engineering priorities with enterprise needs"
             ],
@@ -1572,7 +1573,7 @@
           "t5": {
             "en": [
               "Grew renewable energy client portfolio 15% YOY — SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler",
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Contributed to offshore wind marine data platform roadmap — enterprise client needs into engineering specs"
             ],
             "fr": [
@@ -1583,7 +1584,7 @@
           },
           "t4": {
             "en": [
-              "Full P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
+              "P&L responsibility for a business unit; 15% YOY portfolio growth — SBM Offshore, Nexans, ASN, Cadeler",
               "Directed offshore wind and marine infrastructure projects from scoping to delivery — technical and commercial governance",
               "Led product roadmap adaptation for offshore wind data platform — aligned engineering priorities with enterprise needs"
             ],
@@ -1597,7 +1598,7 @@
             "en": [
               "C-level client management and framework contracts — SBM Offshore, Nexans, ASN, Cadeler — +15% YOY revenue growth",
               "Contributed to offshore wind data platform roadmap — enterprise client requirements into prioritised engineering specs",
-              "Full P&L responsibility for a business unit"
+              "P&L responsibility for a business unit"
             ],
             "fr": [
               "Gérer les relations C-level et contrats-cadres — SBM Offshore, Nexans, ASN, Cadeler — +15% de croissance annuelle",
@@ -1611,7 +1612,7 @@
             "en": [
               "Managed cross-functional teams delivering offshore wind data services to major European clients",
               "Drove 15% YOY revenue growth through strategic client engagement and C-level negotiations",
-              "Full P&L responsibility for a business unit"
+              "P&L responsibility for a business unit"
             ],
             "fr": [
               "Diriger des équipes transverses livrant des services data éolien offshore à de grands clients européens",
@@ -1633,7 +1634,7 @@
           },
           "t4": {
             "en": [
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Grew client portfolio 15% YOY: C-level negotiations, framework renewals with SBM Offshore, Nexans, ASN, Cadeler",
               "Led digital product strategy — adapted marine data platform to enterprise maritime clients across Europe"
             ],
@@ -1646,7 +1647,7 @@
           "t5": {
             "en": [
               "Business Development & Project Director — grew offshore wind data portfolio 15% YOY at Artelia (6,000-person group)",
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Contributed to marine data platform product roadmap: engineering strategy at group level"
             ],
             "fr": [
@@ -1660,7 +1661,7 @@
           "default": {
             "en": [
               "Directed product strategy for marine data intelligence platform within Artelia (6,000-person engineering group)",
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
             ],
             "fr": [
@@ -1672,7 +1673,7 @@
           "t1": {
             "en": [
               "Directed marine data intelligence product strategy within Artelia (6,000-person engineering group) — London-based",
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Managed delivery for SBM Offshore, Nexans, Alcatel Submarine Networks, Cadeler — long-term framework clients"
             ],
             "fr": [
@@ -1684,7 +1685,7 @@
           "t5": {
             "en": [
               "Led product direction for marine data intelligence platform within Artelia (6,000-person engineering group)",
-              "Full P&L responsibility for a business unit",
+              "P&L responsibility for a business unit",
               "Drove SaaS adaptation strategy for maritime industry: coordinated R&D, product, and commercial functions"
             ],
             "fr": [
@@ -1697,8 +1698,7 @@
         "p4": {
           "default": {
             "en": [
-              "Take over the enterprise sales pipeline autonomously after the commercial director's departure — mid-market focus, SBM Offshore moved to premium subscription, framework contracts coordinated with legal (T&Cs, multi-department tenders)",
-              "Participate from the inside in Artelia IT committees (6,000 people): cloud selection (AWS/GCP/Azure), Géoportail project — native understanding of technology adoption friction in a large enterprise"
+              "Took over the enterprise sales pipeline after the commercial director left — moved SBM Offshore to premium subscription, grew Nexans and ASN accounts +15%, signed framework contracts with legal"
             ],
             "fr": [
               "Prendre en charge le développement commercial grands comptes en autonomie — passage en abonnement premium (SBM Offshore, Nexans, ASN, Cadeler)",
@@ -1711,12 +1711,12 @@
             "en": [
               "Managed offshore wind enterprise portfolio generating 15% YOY revenue growth",
               "Negotiated complex enterprise contracts with C-level executives across Europe",
-              "Created powerful presentations for Investor Days and C-Level meetings; full P&L responsibility for a business unit"
+              "Created powerful presentations for Investor Days and C-Level meetings; P&L responsibility for a business unit"
             ],
             "fr": [
               "Gérer un portefeuille enterprise éolien offshore générant +15% de croissance annuelle",
               "Négocier des contrats enterprise complexes avec des dirigeants C-level à travers l'Europe",
-              "Créer des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; assumer le P&L complet d'une business unit"
+              "Créer des présentations percutantes pour les Journées Investisseurs et réunions C-Level ; assumer le P&L d'une business unit"
             ]
           }
         }
@@ -1901,7 +1901,7 @@
           },
           "t5": {
             "en": [
-              "Co-founded and built a marine data SaaS as CTO — deployed at Naval Group, RTE (national grid, framework contract) and SBM Offshore. Owned the architecture, the R&D programme and the technical relationship from first demo to autonomous production use. Exit via Artelia acquisition 2019."
+              "Co-founded and built a marine data SaaS as CTO — deployed at Naval Group, RTE (national grid, framework contract) and SBM Offshore. Owned architecture, the R&D programme and client onboarding to autonomous use; raised €2M, grew the team to 12. Exit via Artelia acquisition 2019."
             ],
             "fr": [
               "Co-fonder et construire une plateforme SaaS de données marines — de l'architecture au déploiement industriel chez Naval Group (ex-DCNS), RTE (contrat cadre), SBM Offshore",
