@@ -73,9 +73,14 @@ class TestCallersRunTheSkillInline(unittest.TestCase):
         self.assertIn("one offer after the\nother", text)
         self.assertNotIn("Agent(cv-log-worker", text)
 
-    def test_headless_still_skips_the_fan_out(self):
-        # Out of scope for #176: a scheduled run has no vault; the brief says so.
-        self.assertIn("CV pre-generation: skipped (headless mode)", read(BRIEFING))
+    def test_headless_runs_the_fan_out_too(self):
+        # renaud#175 lot 3: « Briefing quotidien » is a local Claude Desktop scheduled task with the
+        # vault mounted, so the scheduled run enriches and generates like an interactive one. Until
+        # briefing 0.24.0 the fan-out was skipped in --headless and the 21/10 🔥 had no CV.
+        text = read(BRIEFING)
+        self.assertNotIn("skipped (headless mode)", text)
+        self.assertNotIn("skipped in `--headless`", text)
+        self.assertIn("**4. CV fan-out** — in both modes.", text)
 
 
 class TestOfferToCv(unittest.TestCase):

@@ -131,8 +131,69 @@ class TestMorningBriefing(unittest.TestCase):
         self.assertIn('slug="daily-log-<YYYY-MM-DD>"', self.text)
 
     def test_the_only_writes_are_logs_and_description_appends(self):
-        self.assertEqual(hal_tools(self.text) - {"whoami", "list_sprints", "list_tasks", "list_projects", "get_document"},
+        self.assertEqual(hal_tools(self.text) - {"whoami", "list_sprints", "list_tasks", "list_projects",
+                                                 "list_documents", "get_document"},
                          {"save_document", "update_task"})
+
+    # --- renaud#175 lot 3: the job-search half of Step 2c is a deterministic pipeline -------------
+
+    def step_2c(self):
+        start = self.text.index("### 2c — Job search")
+        return self.text[start:self.text.index("### 2d — ", start)]
+
+    def test_the_mail_window_is_since_the_last_daily_log_not_one_day(self):
+        # 2026-10-21: the run was at 06:19 UTC, the six-offer digest came at 07:40 UTC, and
+        # `newer_than:1d` never covered it. The window now starts at the last log's created_at.
+        step = self.step_2c()
+        # No search query of 2c carries the one-day window any more (the prose that explains why
+        # it went may still name it).
+        self.assertIsNone(re.search(r"linkedin\.com[^`]*newer_than:1d", step))
+        self.assertIsNone(re.search(r"\(recruteur[^`]*newer_than:2d", step))
+        self.assertIn('kind="daily-log"', step)
+        self.assertIn("`created_at`", step)
+        self.assertIn("after:<SINCE>", step)
+        self.assertIn("now − 3 days", step)
+        self.assertIn("list_documents", allowed := re.search(r'allowed-tools: "([^"]+)"', self.text).group(1))
+        self.assertIn("mcp__plugin_hal_hal-mcp__list_documents", allowed)
+
+    def test_every_job_id_of_a_digest_body_is_extracted(self):
+        step = self.step_2c()
+        self.assertIn("`jobs/view/(\\d+)` on the body", step)
+        # The regex the skill names, run on a digest body shaped like LinkedIn's: the subject names
+        # one offer, the body carries six, each id twice (card link + footer list).
+        regex = re.search(r"regex `(jobs/view/\(\\d\+\))`", step).group(1)
+        body = (
+            "Forward Deployed Engineer\r\nMLabs\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4481566043/?trackingId=a\r\n"
+            "Forward Deployed Engineer\r\nNeev\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4481552682/?trackingId=b\r\n"
+            "Forward Deployed Engineer\r\nmonday.com\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4464377709/?trackingId=c\r\n"
+            "Forward Deployed Engineer\r\nFDE Times\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4478929145/?trackingId=d\r\n"
+            "Founding Forward Deployed Engineer - French Speaking\r\nHappyRobot\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4478939792/?trackingId=e\r\n"
+            "Applied AI Engineer, Digital Natives\r\nOpenAI\r\nParis\r\nView job: https://www.linkedin.com/comm/jobs/view/4480470021/?trackingId=f\r\n"
+            "See all jobs: https://www.linkedin.com/comm/jobs/search-results/?originToLandingJobPostings=4481566043,4481552682,4464377709,4478929145,4478939792,4480470021\r\n"
+        )
+        ids = list(dict.fromkeys(re.findall(regex, body)))
+        self.assertEqual(ids, ["4481566043", "4481552682", "4464377709", "4478929145", "4478939792", "4480470021"])
+
+    def test_dedup_runs_on_the_job_id_before_any_enrichment(self):
+        step = self.step_2c()
+        self.assertIn("Dedup on the job id, before any enrichment", step)
+        self.assertIn("`Offres vues ce run :`", step)
+        self.assertIn("A **company** match without an id match is\nnot a dedup", step)
+        # The log carries the ids the next run must not enrich again.
+        self.assertIn("Offres vues ce run : <id> <id> <id> …", self.text)
+
+    def test_every_target_offer_is_enriched_in_headless_too(self):
+        step = self.step_2c()
+        self.assertIn("in both modes", step)
+        self.assertIn("**Safety bound: 20 invocations per run.**", step)
+        self.assertNotIn("8 invocations per run at most", step)
+        self.assertIn("**Score on the full JD.**", step)
+        self.assertIn("**4. CV fan-out** — in both modes.", step)
+        self.assertNotIn("skipped in `--headless`", step)
+        # The headless table lists differences only; the fan-out is no longer one of them.
+        modes = self.text[self.text.index("## Modes"):self.text.index("## Step 0")]
+        self.assertNotIn("CV fan-out (Step 2c.4)", modes)
+        self.assertNotIn("skipped (headless mode)", self.text)
 
 
 class TestApplyToOffer(unittest.TestCase):
