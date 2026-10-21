@@ -633,6 +633,10 @@ All 30 CVs validated — 1 page each.
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
 
+## improve 0.4.4
+
+- map regenerated: docs plugin (brand, proposal, study-report) from bluegreen-marketplace
+
 ## improve 0.4.3
 
 - map follows the cutover: work replaces pm, gtm:call and knowledge skills added
