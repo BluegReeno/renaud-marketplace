@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.25.0
+
+- morning-briefing: the job-search mail window is « since the last daily-log » (after:<created_at>, 3 days when none) instead of newer_than:1d; every job id of every LinkedIn digest body is extracted and deduplicated on the vault and on the new « Offres vues ce run » daily-log line; every in-target offer is enriched through read-job-offer (bound 8 → 20) and scored on the full JD; the offer-to-cv fan-out runs in --headless too — the scheduled run is a local Claude Desktop task with the vault mounted (renaud#175, lot 3)
+
 ## briefing 0.24.0
 
 - cv-log-worker agent removed — morning-briefing 2c.4 invokes jobsearch's offer-to-cv skill inline, one 🔥 offer after the other, so the judge always runs; cv-judge reads parcours alone (no memory, context or retex), judges toward the interview, never under-sells, routes interview prep to « Notes d'entretien », never proposes « Full P&L », stops on an unreadable parcours (renaud#176)
