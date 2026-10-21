@@ -649,6 +649,10 @@ All 30 CVs validated — 1 page each.
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
 
+## improve 0.4.5
+
+- map: offer-to-cv (jobsearch, renaud-marketplace)
+
 ## improve 0.4.4
 
 - map regenerated: docs plugin (brand, proposal, study-report) from bluegreen-marketplace
