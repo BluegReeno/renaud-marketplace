@@ -48,7 +48,7 @@ done < <(git ls-files -- "${SCOPE[@]}")
 scan() {  # scan <regex> <message> [extra-filter-regex-to-drop]
   local hits
   [ "${#FILES[@]}" -eq 0 ] && return 0
-  hits=$(grep -nHE "$1" "${FILES[@]}" 2>/dev/null | grep -vE "$EXCLUDE_FILES" || true)
+  hits=$(grep -nHIE "$1" "${FILES[@]}" 2>/dev/null | grep -vE "$EXCLUDE_FILES" || true)
   if [ -n "${3:-}" ]; then
     hits=$(printf '%s\n' "$hits" | grep -vE "$3" || true)
   fi

@@ -4,12 +4,15 @@ description: >
   Produce one morning briefing: today's calendars (declared by your hal
   workspaces), current-sprint hal tasks across every live workspace you belong to,
   a job-search paragraph (applications to do with offer link, CV path and judge
-  score; new offers; processes in flight), the Blue Green commercial pass, an
+  score; every offer of every LinkedIn digest received since the last briefing,
+  read in full through read-job-offer and scored on the job description; a judged
+  CV for each 🔥 offer; processes in flight), the Blue Green commercial pass, an
   ordered plan du jour — then one daily-log document per workspace that has a task
-  or an appointment today. On weekends it runs a personal-only variant. Use when
+  or an appointment today. The enrichment and the CV fan-out run in scheduled
+  (`--headless`) runs too. On weekends it runs a personal-only variant. Use when
   the user asks "what's up for today", "ma journée", "briefing du jour", "quel est
   mon planning", or any similar daily-overview trigger.
-allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge)"
+allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_documents mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge)"
 ---
 
 # Morning Briefing
@@ -35,10 +38,17 @@ why.
 
 | Aspect | Interactive | `--headless` |
 |---|---|---|
-| CV fan-out (Step 2c.4) | runs | skipped; the brief says `CV pre-generation: skipped (headless mode)` |
 | Plan du jour | user validates or edits it | marked `[proposé — non validé]`, not asked about |
 | hal unreachable | `hal:DOWN`, brief still renders | **abort with an error** — the daily log is the run's purpose |
 | Connector failure | `⚠️ <source> DOWN — <reason>` | `<source>: UNAVAILABLE (<error>)`, run continues |
+
+Everything else is identical — in particular the job-search pipeline of Step 2c: the offers are
+enriched through `read-job-offer` and every 🔥 gets a judged CV through `offer-to-cv` **in both
+modes**. Until briefing 0.24.0 a scheduled run skipped the fan-out, because it had no vault; since
+2026-10-21 « Briefing quotidien » is a local Claude Desktop scheduled task (Auto
+permissions, Synology folder mounted), so the run reads and writes the vault through
+`jobsearch-vault` Case B exactly like an interactive one (renaud#175). A headless run whose vault
+is unreadable still skips the fan-out, for the reason 2c.1 prints — never silently.
 
 **Week-end variant** — Saturday and Sunday, Europe/Paris, in either mode. Personal only: see Step 0.
 Nothing in it asks for validation: the daily log is written as soon as the brief is built.
@@ -159,24 +169,89 @@ named by `jobsearch-vault` (its Case C), never merged into one vague line:
 
 Either way skip the vault parts, and the 2c.2 per-candidature mail searches with them.
 
-**2. Mail (perso inbox)**, three searches, skipped on `gmail-perso:DOWN`:
-- LinkedIn digests: `from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com
-  newer_than:1d`, `maxResults=20`. `read_email` each and extract **every** title / company / location /
-  snippet; the job id is the regex `jobs/view/(\d+)` on the plain-text body, the URL
-  `https://www.linkedin.com/jobs/view/<id>`.
+**2. Mail (perso inbox)** — first the window, then three searches, skipped on `gmail-perso:DOWN`.
+
+**The window is « since the last briefing », never `newer_than:1d`.** Compute `SINCE` once, before
+any search, from the job-search workspace's own logs:
+
+- `list_documents(workspace_slug=<job-search workspace>, kind="daily-log")` → the highest
+  `daily-log-<YYYY-MM-DD>` slug. `get_document` it (when it is `daily-log-<yesterday>`, Step 1
+  already holds it) and take its **`created_at`**: `SINCE` = that instant, as UTC epoch seconds.
+  `created_at` and not `updated_at`: a second run the same day must start where the morning run
+  started, not where a cleanup session appended.
+- No daily-log at all → `SINCE` = now − 3 days.
+- Say which in the brief: `Fenêtre : depuis le daily-log du <date> <HH:MM> (Europe/Paris)` or
+  `Fenêtre : 3 jours (aucun daily-log)`.
+
+Why: `newer_than:1d` is « the last 24 hours on the run's clock » (checked on 2026-10-21: it is
+rolling, not midnight-aligned). It only holds while every run happens, on time, every day: a run
+that slips, fails or is skipped loses what arrived in the gap, and nothing records what the
+previous run actually saw. On 2026-10-21 the 06:19 UTC run could not see the six-offer digest
+carrying HappyRobot (07:40 UTC); the next run would have — only because it ran within 24 hours,
+and without knowing those offers were new to it (renaud#175). `after:<SINCE>` ties the window to
+the last log actually written: whatever arrived after it is read by the next run, however late
+that run comes, and the log's `Offres vues ce run` line (Step 4) says what was seen. Only the
+job-search workspace's logs count, and Step 0 writes none for it on a week-end, so Monday's window
+spans Friday → Monday; a run that failed to write its log widens the next window instead of losing
+mail.
+
+- LinkedIn digests: `(from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com OR
+  from:jobs-noreply@linkedin.com) after:<SINCE>`, `maxResults=50`. Gmail's `after:` accepts epoch
+  seconds, which is what gives the window its precision. 50 results back → `⚠️ digests tronqués à
+  50` (the search tool has no next page). `read_email` **each** digest and work on its plain-text
+  **body**, never on its subject: the subject names one offer, the body carries up to six. The job
+  ids are **every** match of the regex `jobs/view/(\d+)` on the body (the digest links read
+  `linkedin.com/comm/jobs/view/<id>/?trackingId=…`, and the same id repeats in the footer's
+  `originToLandingJobPostings=` list — deduplicate inside the digest). For each id keep the title,
+  the company and the location: the three lines above its `View job:` line. The URL is
+  `https://www.linkedin.com/jobs/view/<id>`. On 2026-10-21 the 07:40 UTC digest's subject said
+  « MLabs »; its body carried six ids, HappyRobot and OpenAI among them.
 - Active-candidature threads: company names of the active candidatures, **OR-groups of at most 10**
   (a 20-name query returns `[]` without an error), `newer_than:14d -from:*linkedin.com
-  -from:*substack.com -from:*skool.com`, `maxResults=25`. `read_email` the **newest** message of each
-  matched thread and keep its id. `fetchError:true` is a partial read, kept and marked degraded.
-  Skipped, with `⚠️ recherches mails par candidature NON exécutées`, when the vault is unreadable.
+  -from:*substack.com -from:*skool.com`, `maxResults=25` — a 14-day look-back on purpose: this
+  search reads the *state* of a process from its last mail, it does not look for new mail.
+  `read_email` the **newest** message of each matched thread and keep its id. `fetchError:true` is a
+  partial read, kept and marked degraded. Skipped, with `⚠️ recherches mails par candidature NON
+  exécutées`, when the vault is unreadable.
 - Inbound recruiters: `(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position)
-  newer_than:2d -from:jobalerts-noreply@linkedin.com`, `maxResults=10`; keep genuine outreach only.
+  after:<SINCE> -from:jobalerts-noreply@linkedin.com`, `maxResults=10`; keep genuine outreach only.
 
 **A process's stage comes from its last mail, never from a hal task description.** When they disagree,
 the mail wins and the gap is written out: `⚠️ tâche hal désynchro : <task says> vs <last mail says>`.
 
-**3. Score the new offers.** Dedup against the active candidatures (company + role). Read the two data
-files — never write a figure or a disqualifier here:
+**3. Dedup, enrich, score** — in that order, so no BrightData call is spent on a known offer.
+
+**Dedup on the job id, before any enrichment.** An id is already known when:
+- a vault candidature's `lien_offre` carries it — the Opportunites list read in 2c.1 (`--limit 500`),
+  compared on the id (`jobs/view/(\d+)` on `lien_offre`), never on the URL string; or
+- it appears in the `Offres vues ce run :` line of a daily-log of the last 7 days: the latest log is
+  in hand from the window computation, the others come from the same `list_documents` answer
+  (slugs dated within 7 days, `get_document` each). LinkedIn repeats an offer across digests for
+  days — HappyRobot was in both the 07:40 and the 13:40 digests of 2026-10-21.
+
+A known id is counted (`K déjà vues`), never enriched, never scored again; when its vault status is
+active it is a process in flight, shown there as usual. A **company** match without an id match is
+not a dedup: the offer stays, scored on its own JD, with `⚠️ <company> : <vault status> sur
+<role> (<date>)` so Renaud sees the history (on 2026-10-22: monday.com refused the Forward Deployed
+Consultant application two weeks before posting a Forward Deployed Engineer).
+
+**Title pre-screen, no BrightData.** An offer is **in target** when its digest title names a role
+family of the 🔥 or 🟡 rows below and its digest location is Paris, Île-de-France or remote.
+Anything else is **hors cible**: counted (`H hors cible`), listed by title in one line, never
+enriched — a 3-day window after a week-end carries dozens of « ingénieur SCADA Montpellier » lines
+that no JD read would turn into a candidature.
+
+**Enrich every in-target offer** with `Skill(read-job-offer)` (job id in; `jd_text`, `location`,
+`freshness`, `applicant_count` out), in both modes, 🔥-looking titles first, then 🟡 by closest
+location. Never read a LinkedIn JD any other way (no scrape, no built-in browser: the login wall
+raises a keychain prompt). `status: unavailable` → that offer is scored on title+snippet and marked
+`(JD non lue)`. **Safety bound: 20 invocations per run.** It was 8 — set on 2026-09-04 for a one-day
+window and a three-offer product cap; with a window that can span a week-end and a fan-out that
+runs every day, the pre-screen leaves 5–10 in-target offers on an ordinary morning, so 20 covers
+a long window with margin and still caps a runaway digest day. Offers beyond the bound are scored
+on title+snippet and surfaced **without a CV**; say `N offres enrichies, M scorées sur titre seul`.
+
+**Score on the full JD.** Read the two data files — never write a figure or a disqualifier here:
 
 ```bash
 # The plugin as loaded first (jobsearch is briefing's sibling), the install paths after.
@@ -192,29 +267,31 @@ cat "${CLAUDE_PLUGIN_ROOT}/../jobsearch/data/role-criteria.json" 2>/dev/null \
 unreadable file renders `⚠️ seuils rému illisibles` / `⚠️ critères qualitatifs illisibles` and the
 related tier is not applied — never a remembered value.
 
+The location, the compensation and the disqualifier read come from the JD, not from the digest line:
+
 | Score | Criteria |
 |---|---|
-| 🔥 | Solution Architect IA / Solutions Engineer / FDE / Applied AI Architect / Head of AI Eng, at an AI lab / AI vendor / scale-up, Paris, stated comp ≥ `fire_tier_min_eur`, hands-on builder |
-| 🟡 | CTO / EM / Senior AI Eng / Head of Data&AI depending on context; Paris or remote-ok, or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
-| ❌ | stated comp < `comp_floor_eur`, or title+snippet clearly matches `disqualifiers[]` |
+| 🔥 | builder role — Solution Architect IA / Solutions Engineer / FDE / Applied AI Engineer or Architect / Head of AI Eng — at an AI lab, an AI vendor or an AI-native scale-up; Paris or hybrid Paris; the JD asks for hands-on building; no disqualifier; stated comp ≥ `fire_tier_min_eur` **or no figure stated** |
+| 🟡 | the same families at a consultancy, an ESN, a recruitment intermediary or a corporate; CTO / EM / Senior AI Eng / Head of Data&AI depending on context; remote-ok from outside Paris; a contract / CDD; or stated comp between `comp_floor_eur` and `fire_tier_min_eur` |
+| ❌ | stated comp < `comp_floor_eur`, or the JD clearly matches a `disqualifiers[]` entry |
+| — | hors cible (pre-screen): neither family, or outside Paris with no remote |
 
-No stated compensation is never ❌ on that ground. Prefer builder AI-native over COMEX roles.
-
-Enrich with `Skill(read-job-offer)` (job id in; `jd_text`, `freshness`, `applicant_count` out): every
-🔥, then 🟡 by closest location, **8 invocations per run at most**. Never read a LinkedIn JD any other
-way (no scrape, no built-in browser: the login wall raises a keychain prompt). `status: unavailable` →
-skip that offer. Offers beyond the bound are scored on title+snippet and surfaced **without a CV**;
-say `N offres enrichies, M scorées sur titre seul`.
+No stated compensation is never ❌, and never a downgrade from 🔥 either: an unstated figure is
+neutral (HappyRobot wrote « competitive salary + equity » and is 🔥). Prefer builder AI-native over
+COMEX roles. An offer scored on title+snippet only (bound reached, JD unavailable) is marked so.
 
 Order: tier first, never crossed; inside a tier, fresher (< 24 h) and less contested (< 30 applicants)
 first. Surface the top 2-3 with a one-line "pourquoi" citing a concrete JD signal.
 
-**4. CV fan-out** (skipped in `--headless`). For **every** 🔥 offer not already in the vault and
+**4. CV fan-out** — in both modes. For **every** 🔥 offer not already in the vault and
 enriched, in the order above, invoke the `offer-to-cv` skill **inline, one offer after the
 other** — it runs in this context, so it has the `Agent` tool and spawns `cv-judge` itself. Until
 2026-10-21 this step spawned a `cv-log-worker` agent per offer; the runtime launched it in the
 background, where no `Agent` tool exists, and the CV was logged « ⚠️ CV non jugé » (renaud#176).
-Sequential is the price of a judged CV every time.
+Sequential is the price of a judged CV every time. A scheduled run generates and logs exactly
+like an interactive one: the candidature lands at `📝 À postuler` and Renaud finds it in the
+morning's « À postuler » list. A 🔥 whose company carries a `⚠️` history line still gets its CV —
+the decision to send is Renaud's, at the « À postuler » stage, with the history in front of him.
 
 ```
 Skill(offer-to-cv)
@@ -228,8 +305,9 @@ DATE: <YYYY-MM-DD Europe/Paris>
 
 The judge runs after every generation, Tour 1 then Tour 2: that is the skill's own contract,
 nothing to add here. Never invoke it without a real `jd_text` (a CV built on a digest snippet is
-plausible, hollow and unmarked). Safety bound 8 invocations, never silent: `11 offres 🔥 — 8
-traitées, 3 listées sans CV`. Collect each returned line verbatim (`CV_préparé | … | Juge :
+plausible, hollow and unmarked). Safety bound 8 CVs per run (each one costs a generation and two
+judge spawns; the enrichment bound above is the separate, cheaper one), never silent: `11 offres
+🔥 — 8 traitées, 3 listées sans CV`. Collect each returned line verbatim (`CV_préparé | … | Juge :
 <v1>→<v2>/10`, or with a trailing `| ⚠️ …`, or `ÉCHEC | …`) — never strip a marker.
 
 ### 2d — Blue Green commercial pass (weekday, per live `company` workspace)
@@ -273,9 +351,12 @@ HH:MM–HH:MM — <title> [<workspace>]
    judge score is written `Juge : non noté`, a missing CV `CV : à générer`, a missing link `Offre : —`)
 (aucune candidature à faire)
 ### Nouvelles offres
-🔥|🟡 <title> — <company> — <location>
+Fenêtre : depuis le daily-log du <date> <HH:MM> (Europe/Paris) | 3 jours (aucun daily-log) · <n> digests
+🔥|🟡 <title> — <company> — <location> · <freshness>, <applicant_count> candidats
    → <pourquoi>
-N offres enrichies, M scorées sur titre seul
+   ⚠️ <company> : <vault status> sur <role> (<date>)          ← only on a company match
+Hors cible : <title — company>, …
+N offres enrichies, M scorées sur titre seul, K déjà vues, H hors cible
 ### Process en cours
 - **<company>** (<role>) — stage : <vault stage>
   → Mail récent : <subject> [<date>] — <one line, from the LAST message>
@@ -285,7 +366,7 @@ Autres mails jobsearch : <subjects not matched>
 ### CVs préparés ce run
 - ✅ <title> — <company> (P<n>) → <cv> · Juge <v1>→<v2>/10
 - ⚠️ ÉCHEC <title> — <company> → <reason>
-(headless: CV pre-generation: skipped (headless mode))
+(aucune offre 🔥 ce run)
 
 ## 💼 Commercial                                  ← only with a live company workspace, weekday
 - **<company/contact>** — <opportunity> — stage : <stage>
@@ -376,6 +457,7 @@ HH:MM — <event>  · Meet : `<hangoutLink>`
 ## 🎯 Jobsearch — Offres & process        ← only in the type=jobsearch workspace's log
 <per application to do: Offre / CV / Juge, then 🔥/🟡 offers, then processes in flight —
  each with Liens + ▶️ prochaines actions>
+Offres vues ce run : <id> <id> <id> …
 
 ## Notes
 (vide — idea captured during the day: a reference to a dedicated hal task, not the text)
@@ -383,6 +465,13 @@ HH:MM — <event>  · Meet : `<hangoutLink>`
 
 Commercial threads matched in 2d render as extra entries under the company workspace's sprint section,
 with their `Gmail` / `réf. hal` links.
+
+**`Offres vues ce run :`** — the job-search log carries, on one line, **every** job id extracted
+from the window's digests (in target or not, enriched or not, 🔥 to hors cible), space-separated,
+bare ids. It is the dedup memory of 2c.3: the next runs read it back with `\d{9,}` on that line and
+never enrich those ids again. Until 2026-10-21 the log listed only the surfaced offers, by Gmail
+message id, so nothing told the next run which offers it had already seen (renaud#175). The line
+is written even when the run surfaced nothing; the log's `## Notes` stays reserved for ideas.
 
 ---
 
