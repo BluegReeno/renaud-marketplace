@@ -142,11 +142,22 @@ calendar, keep `hangoutLink`.
 ### 2c — Job search (weekday, only when the job-search block exists)
 
 **1. Vault** via `Skill(jobsearch-vault)`, read-only: interviews in the next 7 days; relances due or
-overdue; active candidatures (always `--limit 500`; active = any status not in `❌ Refus`, `🗄️ Sans
-suite` / `❌ Sans suite (mort)`, `⛔ Abandonné`, `✅ Offre reçue` / `Gagné`); and every candidature at
-`📝 À postuler`, with its `lien_offre`, the `Fichier` and `Juge` lines of its `## CV généré` section,
-and its note path (for the `obsidian://open?vault=SecondLife&file=<url-encoded path>` link). Vault
-unreadable → `jobsearch:DOWN vault illisible`: skip the vault parts and say so in the footer.
+overdue (the candidatures' `date_relance`; relance tasks are hal tasks, already read in 2a — never
+`Taches/`); active candidatures (always `--limit 500`; active = any status not in `❌ Refus`, `🗄️ Sans
+suite` / `❌ Sans suite (mort)`, `⛔ Abandonné` / `❌ Abandonné`, `✅ Offre reçue` / `Gagné`); and every
+candidature at `📝 À postuler`, with its `lien_offre`, the `Fichier` and `Juge` lines of its `## CV
+généré` section, and its note path (for the `obsidian://open?vault=SecondLife&file=<url-encoded
+path>` link).
+
+The vault not read is never a footer detail: it opens the brief (Step 3, `⚠️ Vault`). Two cases,
+named by `jobsearch-vault` (its Case C), never merged into one vague line:
+- **not mounted** — no linked device, or the Synology folder is absent: `⚠️ vault non monté —
+  <what the skill printed>`;
+- **mounted but not read** — the vault was found and the call failed, or `CRM-JobSearch` came back
+  with unreadable files: `⚠️ vault monté mais illisible — <the error or the unreadable count,
+  verbatim>`.
+
+Either way skip the vault parts, and the 2c.2 per-candidature mail searches with them.
 
 **2. Mail (perso inbox)**, three searches, skipped on `gmail-perso:DOWN`:
 - LinkedIn digests: `from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com
@@ -240,6 +251,9 @@ scope is omitted.
 ```
 # Briefing — <date en français>
 Mode : <semaine | week-end perso (…)>
+
+> ⚠️ Vault : <vault non monté | vault monté mais illisible> — <detail, verbatim>   ← only when 2c.1 did not read it
+> Candidatures, entretiens et relances ci-dessous incomplets.
 
 ## 📅 RDV du jour
 HH:MM–HH:MM — <title> [<workspace>]

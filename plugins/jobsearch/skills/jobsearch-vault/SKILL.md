@@ -58,56 +58,146 @@ is available to the current session.
 
 - **`mcp__remote-devices__device_bash` is available** (a cloud session linked to
   Renaud's Mac via the desktop app — it sits next to `device_list_dir`,
-  `device_stage_files`, `device_commit_files`) → **Case A** below. Read-only
-  (list / read / search); write operations are out of scope in this case.
+  `device_stage_files`, `device_commit_files`) → **Case A** below: a self-contained
+  reader sent in the command. Read-only (list / read / search).
 - **Otherwise** → **Case B**, the local self-resolver (unchanged): plain `Bash`,
   because this is Cowork running directly on the Mac and the vault is mounted
   locally. Full read/write.
-- **Neither reaches the vault** (Case A's `find` comes back empty and Case B's
-  resolver prints `SCRIPTS_NOT_FOUND`) → render `⚠️ vault illisible`. Never skip
-  the vault silently.
+- **Neither reaches the vault** (Case A exits `VAULT_NOT_FOUND`, or Case B's
+  resolver prints `SCRIPTS_NOT_FOUND`) → Case C. Never skip the vault silently.
 
 ### Case A — `device_bash` (cloud session, Mac linked remotely)
 
-`device_bash` executes on the physical Mac, not in the cloud sandbox — the
-plugin's own synced scripts (cloud-side, under `~/.claude/plugins/...`) are
-**not reachable from there**. Use the dedicated read-only mirror kept under the
-mounted Synology folder instead: `_tools/jobsearch-vault/scripts/`. The repo's
-`scripts/sync_vault_tools.sh` refreshes it from `main` after each merged
-`jobsearch` release, and stamps it with a `VERSION` file.
+`device_bash` executes on the physical Mac, not in the cloud sandbox — the plugin's own scripts
+(cloud-side, under `~/.claude/plugins/...`) are **not reachable from there**, and nothing is
+installed on the Mac for this case. The reader below is therefore **sent whole, in the command
+itself**: a stdlib-only Python script passed as a heredoc. There is no copy to keep in sync and no
+version to compare.
 
-Every `device_bash` call is a fresh shell — nothing, including env vars,
-persists between calls. Each command below is therefore self-contained.
+Every `device_bash` call is a fresh shell — nothing, including env vars, persists between calls.
+Each call carries the full script. Read-only: `list`, `read`, `search`. A caller that needs a write
+(`create_note.py`, `update_frontmatter.py`, `upsert_section.py`) in a `device_bash`-only session
+cannot be served from here — writes to the Synology File Provider are not atomic and can collide
+with Obsidian or the sync. Say so; for a jobsearch task, write it in hal instead.
 
-1. **Locate the mounted folder** (name varies — never hardcode it):
-   ```bash
-   device_bash("find $HOME/mnt -maxdepth 4 -path '*jobsearch-vault/scripts/list_notes.py'")
-   ```
-   The match is `$HOME/mnt/<folder-name>/_tools/jobsearch-vault/scripts/list_notes.py`.
-   Four levels up from that file is the mount root — call it `$MOUNT`. Empty
-   result ⇒ Case A does not reach the vault; fall through to Case C.
+The vault is found by the script itself: `OBSIDIAN_VAULT_PATH` if set, otherwise the first
+`~/mnt/*/SecondLife-vault/SecondLife` (or `~/mnt/*/*/SecondLife`). None → it exits with
+`VAULT_NOT_FOUND`, which is Case C below.
 
-2. **Check freshness.** Read `$MOUNT/_tools/jobsearch-vault/scripts/VERSION`
-   (one more `device_bash` call, e.g. `cat $MOUNT/_tools/jobsearch-vault/scripts/VERSION`)
-   and compare it to this plugin's own running version — read via the normal
-   `Bash` tool (cloud sandbox, not `device_bash`) from whichever `plugin.json`
-   the Step-1 Case-B cache/sandbox search below would resolve to (its
-   marketplace-cache branch keeps the plugin root one level above
-   `skills/jobsearch-vault/`). If the `_tools` version is older, or the file is
-   missing, render `⚠️ copie _tools périmée (<v_tools> < <v_running>)` (or
-   `⚠️ copie _tools introuvable`) — the read still proceeds, this is a loud
-   warning, not a hard failure.
+Replace the first line's arguments with the operation:
 
-3. **Run a script.** Export `OBSIDIAN_VAULT_PATH` in the **same** `device_bash`
-   command as the script call (no env survives between calls):
-   ```bash
-   device_bash("OBSIDIAN_VAULT_PATH=$MOUNT/SecondLife-vault/SecondLife python3 $MOUNT/_tools/jobsearch-vault/scripts/list_notes.py 'CRM-JobSearch/Opportunites' --limit 500")
-   ```
-   Only `list_notes.py`, `read_note.py`, and `search_vault.py` are available in
-   this case — the `_tools` mirror is read-only by design. A caller that needs
-   `create_note.py` / `update_frontmatter.py` / `upsert_section.py` in a
-   `device_bash`-only session cannot be served from here; say so rather than
-   attempting a write through the read-only mirror.
+| Operation | First line |
+|---|---|
+| list a folder (optionally filtered on one field) | `python3 - list "CRM-JobSearch/Opportunites" 500 [<field> <value>] <<'PY'` |
+| read one note (parsed, or `--raw` markdown) | `python3 - read "CRM-JobSearch/Opportunites/<Title>.md" [--raw] <<'PY'` |
+| full-text search (default root `CRM-JobSearch`) | `python3 - search "<text>" [<limit>] [<root>...] <<'PY'` |
+
+```bash
+python3 - list "CRM-JobSearch/Opportunites" 500 <<'PY'
+import sys, os, re, json, glob, unicodedata, time
+from pathlib import Path
+# list <folder> [limit] [field value] | read <path> [--raw] | search <query> [limit] [root...]
+V = os.environ.get("OBSIDIAN_VAULT_PATH") or next(iter(sorted(glob.glob(os.path.expanduser("~/mnt/*/SecondLife-vault/SecondLife")) + glob.glob(os.path.expanduser("~/mnt/*/*/SecondLife")))), "")
+if not os.path.isdir(V): sys.exit("VAULT_NOT_FOUND (no ~/mnt/*/SecondLife-vault/SecondLife)")
+V = Path(V); N = lambda s: unicodedata.normalize("NFC", s)
+def scalar(s):
+    if not s: return None
+    if len(s) > 1 and s[0] == s[-1] and s[0] in "\"'": return s[1:-1].replace('\\"', '"').replace("\\'", "'")
+    if s.lower() in ("true", "false"): return s.lower() == "true"
+    if s.lower() == "null": return None
+    try: return float(s) if "." in s else int(s)
+    except ValueError: return s
+def split_inline(s):
+    out, cur, q = [], "", None
+    for c in s:
+        if q is None and c in "\"'": q = c
+        elif c == q: q = None
+        if c == "," and q is None: out.append(cur.strip()); cur = ""
+        else: cur += c
+    if cur.strip(): out.append(cur.strip())
+    return out
+def parse(fm):
+    r, L, i = {}, fm.split("\n"), 0
+    while i < len(L):
+        m = re.match(r'^([A-Za-z_][\w_-]*)\s*:\s*(.*)', L[i]); i += 1
+        if not m: continue
+        k, v = m.group(1), m.group(2).strip()
+        if v in ("", "|"):
+            items, blk = [], []
+            while i < len(L) and L[i].startswith("  "):
+                t = L[i].strip(); i += 1; blk.append(t)
+                if t.startswith("- "): items.append(scalar(t[2:].strip()))
+            r[k] = items or ("\n".join(blk) if v == "|" and blk else None)
+        elif v.startswith("[") and v.endswith("]"):
+            r[k] = [scalar(x.strip()) for x in split_inline(v[1:-1])]
+        else: r[k] = scalar(v)
+    return r
+def rt(fp, n=4):  # Synology/File Provider can throw EDEADLK (35): retry a few times
+    for i in range(n):
+        try: return fp.read_text(encoding="utf-8")
+        except OSError as ex:
+            if ex.errno not in (11, 35) or i == n - 1: raise
+            time.sleep(0.3 * (i + 1))
+def read(rel):
+    t = rt(V / N(rel))
+    fm, body = "", t
+    if t.startswith("---") and t.find("\n---", 3) != -1:
+        e = t.find("\n---", 3); fm, body = t[4:e], t[e+4:]
+        if body.startswith("\n"): body = body[1:]
+    return parse(fm), body
+cmd, a = sys.argv[1], sys.argv[2:]
+if cmd == "list":
+    folder, lim = a[0], int(a[1]) if len(a) > 1 else 50
+    fld, val = (a[2], a[3]) if len(a) > 3 else (None, None)
+    files = sorted(f.name for f in (V / N(folder)).iterdir() if f.suffix == ".md")
+    res, bad = [], []
+    for f in files:
+        if len(res) >= lim: break
+        p = f"{folder}/{f}"
+        try: fm, _ = read(p)
+        except Exception as ex: bad.append(f"{p}: {type(ex).__name__}: {ex}"); continue
+        if fld:
+            x = fm.get(fld)
+            if x is None or (val not in x if isinstance(x, list) else str(x) != val): continue
+        res.append({"path": p, "frontmatter": fm})
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    print(f"# {len(res)} notes returned (of {len(files)} in folder), {len(bad)} unreadable", file=sys.stderr)
+    for b in bad[:5]: print("# UNREADABLE " + b, file=sys.stderr)
+elif cmd == "read":
+    if "--raw" in a: print((V / N(a[0])).read_text(encoding="utf-8"))
+    else:
+        fm, body = read(a[0]); print(json.dumps({"frontmatter": fm, "content": body, "path": a[0]}, ensure_ascii=False, indent=2))
+elif cmd == "search":
+    q, lim, out, bad = a[0].lower(), int(a[1]) if len(a) > 1 else 20, [], []
+    roots = [V / r for r in (a[2:] or ["CRM-JobSearch"])]
+    for fp in (f for r in roots if r.is_dir() for f in r.rglob("*.md")):
+        rel = fp.relative_to(V)
+        if any(p.startswith(".") for p in rel.parts): continue
+        try: t = rt(fp, 1)
+        except Exception as ex: bad.append(f"{rel}: {type(ex).__name__}: {ex}"); continue
+        tl = t.lower(); pos = tl.find(q)
+        if pos < 0: continue
+        out.append({"filename": str(rel), "score": min(tl.count(q), 5), "first_match": t[max(0, pos-100):pos+len(q)+100][:300]})
+    out.sort(key=lambda r: -r["score"]); print(json.dumps(out[:lim], ensure_ascii=False, indent=2))
+    print(f"# {len(bad)} unreadable", file=sys.stderr)
+    for b in bad[:5]: print("# UNREADABLE " + b, file=sys.stderr)
+PY
+```
+
+Output is the same JSON shape as `list_notes.py` / `read_note.py` / `search_vault.py` (Case B). The
+one difference: a `|` block scalar comes back as its text, where the plugin parser returns `"|"`.
+
+**Unreadable files are counted, never hidden.** On the Mac, Synology's File Provider refuses some
+files that are not materialised locally (`Resource deadlock avoided`, errno 35). Measured
+2026-10-21 over the real vault: `CRM-JobSearch` 0 unreadable of 407; `Taches`, `Projets`,
+`Sprints`, `_config` 100 % unreadable; `CRM-BlueGreen` 665 of 666. Hence:
+
+- every call prints on stderr `# N unreadable` and the first five paths with their error — a
+  non-zero count is a degraded read, and the caller says so;
+- `list` and `read` retry a locked file three times (0.3 s, 0.6 s, 0.9 s); `search` does not — with
+  retries a search crossed the 120 s `device_bash` timeout, without it ran in 0.3 s;
+- `search` covers `CRM-JobSearch` by default; jobsearch tasks (`Taches/`) are read with hal's
+  `list_tasks`, never through this reader.
 
 ### Case B — local `Bash` self-resolver (unchanged)
 
@@ -167,21 +257,26 @@ other by relative module name, so always invoke them from their own directory or
 with `$SCRIPTS` on the path (running `python3 "$SCRIPTS/foo.py"` already puts
 `$SCRIPTS` first on `sys.path`, so the imports resolve).
 
-### Case C — neither reaches the vault
+### Case C — the vault is not read
 
-Case A's `find` came back empty (no linked device, or the Synology folder isn't
-mounted on it) **and** Case B's resolver printed `SCRIPTS_NOT_FOUND`. Render
-`⚠️ vault illisible` in whichever block was asking for vault data and continue
-the rest of the run — this mirrors the existing DOWN-source contract (never omit
-a source silently, see `morning-briefing` Step 0/Step 5).
+Two different situations, and the caller must render them differently — never one vague line:
+
+- **Not mounted** — Case A exited `VAULT_NOT_FOUND` (no linked device, or the Synology folder is
+  not mounted on it), or Case B printed `SCRIPTS_NOT_FOUND`: `⚠️ vault non monté — <which case,
+  what it printed>`.
+- **Mounted but not read** — the vault was found but the call failed (non-zero exit, a Python
+  error, a `device_bash` timeout), or `list` returned unreadable files in `CRM-JobSearch`:
+  `⚠️ vault monté mais illisible — <the error or the stderr count, verbatim>`.
+
+Continue the rest of the run either way — this mirrors the DOWN-source contract (never omit a
+source silently, see `morning-briefing` Step 0/Step 5).
 
 ## Step 2 — Vault path resolution (no secret)
 
 The scripts resolve the vault folder themselves, in this order:
 
 1. **`OBSIDIAN_VAULT_PATH`** env var (set this in Cowork, where the vault is
-   mounted at a session path; in Case A above, export it inline on the same
-   `device_bash` call as `$MOUNT/SecondLife-vault/SecondLife`).
+   mounted at a session path). Case A's reader finds the vault by itself.
 2. Known macOS path `…/SecondLife-vault/SecondLife`.
 3. Last resort: `vault_path` from `~/.claude/skills/obsidian-crm/scripts/config.json`
    (only the path is read — never any key).

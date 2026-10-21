@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.23.2
+
+- morning-briefing: an unread vault opens the brief, 'non monté' vs 'monté mais illisible'; legacy ❌ Abandonné is terminal
+
 ## briefing 0.23.1 — released 2026-10-16 (hal migration cutover)
 
 - cv-log-worker and morning-briefing resolve `jobsearch/data/comp-thresholds.json` and `role-criteria.json` from the plugin as loaded first (`${CLAUDE_PLUGIN_ROOT}/../jobsearch`), the renaud-marketplace install paths after; the worker reads them without Bash when a session grants none — a worker loaded from an eval run or any other checkout stopped on THRESHOLDS_NOT_FOUND (hal eval s06-s2-gate-inconnu, 2026-10-14)
@@ -244,6 +248,10 @@ guard therefore belongs on the consumer side.
 - `hal-mcp` http MCP server declaration (deduped at name+endpoint level with `bluegreen-marketplace/plugins/hal`)
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
+
+## jobsearch 0.24.2
+
+- jobsearch-vault: device_bash reader sent whole in the command (no _tools mirror); unreadable files counted and named
 
 ## jobsearch 0.24.1
 
