@@ -165,12 +165,12 @@
         "about": {
           "en": [
             "15+ years in engineering consultancies and offshore wind before going AI-first.",
-            "Ships GenAI tools used daily by engineering firms (automated diagnostics, tender analysis).",
+            "Shipped GenAI tools to engineering firms and energy developers (automated diagnostics, tender analysis).",
             "Fluent in both worlds: engineering deliverables and production AI systems."
           ],
           "fr": [
             "Architecte IA formé à l'ingénierie de terrain : 15 ans en données énergie & bâtiment avant de concevoir les outils qui automatisent ces mêmes métiers.",
-            "Outils GenAI déployés et utilisés au quotidien par des bureaux d'études : diagnostics automatisés, analyse d'appels d'offres, rapports terrain.",
+            "Outils GenAI livrés à des bureaux d'études et des développeurs EnR : diagnostics automatisés, analyse d'appels d'offres, rapports terrain.",
             "Maîtrise des deux langues — celle de l'ingénieur et celle du système IA en production."
           ]
         },
@@ -313,8 +313,8 @@
           ]
         },
         "credibility_note": {
-          "en": "The combo consultancies charge a premium for: a senior architect who ships (BWC, Edifice, WattCast in production) AND can run pre-sales — scoping, proposals, demos, C-level negotiation (Artelia, Open Ocean: owned 100% of sales cycles). He also brings a differentiating vertical (energy/infrastructure) where generalist consultancies lack legitimacy.",
-          "fr": "Le combo qu'une ESN vend cher : un architecte senior qui produit (BWC, Edifice, WattCast en prod) ET qui sait tenir un cycle avant-vente — cadrage, propale, démo, négociation C-level (Artelia, Open Ocean : 100% des cycles de vente). Il apporte aussi un secteur différenciant (énergie/infrastructure)."
+          "en": "The combo consultancies charge a premium for: a senior architect who ships (BWC and WattCast in production, Edifice shipped) AND can run pre-sales — scoping, proposals, demos, C-level negotiation (Artelia, Open Ocean: owned 100% of sales cycles). He also brings a differentiating vertical (energy/infrastructure) where generalist consultancies lack legitimacy.",
+          "fr": "Le combo qu'une ESN vend cher : un architecte senior qui produit (BWC et WattCast en prod, Edifice livré) ET qui sait tenir un cycle avant-vente — cadrage, propale, démo, négociation C-level (Artelia, Open Ocean : 100% des cycles de vente). Il apporte aussi un secteur différenciant (énergie/infrastructure)."
         }
       },
       "t4": {
@@ -416,7 +416,7 @@
           ],
           "fr": [
             "Applied AI Architect : systèmes frontier-model en production chez des clients enterprise énergie & ingénierie — pas des POC.",
-            "Stack LLM-native maîtrisée de bout en bout : RAG, multi-agents, MCP, evals — BlueWind Companion v2.2 live.",
+            "Stack LLM-native maîtrisée de bout en bout : RAG, multi-agents, MCP, evals — BlueWind Companion v4 live.",
             "Fondateur-CTO à l'exit : équipe de 12, €2M levés auprès d'institutionnels (Seventure Partners, Cap Décisif/FNA), cession à Artelia (2019)."
           ]
         },
@@ -973,8 +973,8 @@
           ]
         },
         "credibility_note": {
-          "en": "For an early-stage vendor, the CTO risk is the paper architect. He brings the opposite proof: BWC v2.2 live (Next.js + FastAPI + Pydantic AI + Supabase pgvector, hosted in France), built solo at maximum velocity — after proving he can grow a team when the product takes off (Open Ocean).",
-          "fr": "Pour un éditeur early-stage, le risque CTO c'est l'architecte de papier. Lui apporte la preuve inverse : BWC v2.2 live, construit seul en mode produit — après avoir prouvé qu'il sait faire grandir une équipe quand le produit décolle (Open Ocean)."
+          "en": "For an early-stage vendor, the CTO risk is the paper architect. He brings the opposite proof: BWC v4 live (Next.js + FastAPI + Pydantic AI + Supabase pgvector, hosted in France), built solo at maximum velocity — after proving he can grow a team when the product takes off (Open Ocean).",
+          "fr": "Pour un éditeur early-stage, le risque CTO c'est l'architecte de papier. Lui apporte la preuve inverse : BWC v4 live, construit seul en mode produit — après avoir prouvé qu'il sait faire grandir une équipe quand le produit décolle (Open Ocean)."
         }
       }
     },
@@ -1071,7 +1071,7 @@
         "about": {
           "en": [
             "Twenty years of engineering on energy and environmental data, now spent deploying AI systems inside industrial companies — from the first workshop to the day the client runs it alone.",
-            "Built and shipped a regulatory assistant that turns weeks of tender analysis into an afternoon for offshore wind developers, and a field assistant that lets building inspectors leave a site with the report already drafted — both live and used daily in production.",
+            "Built and shipped a regulatory assistant, live in production, that turns weeks of tender analysis into an afternoon for offshore wind developers, and a field assistant that let building inspectors leave a site with the report already drafted.",
             "Four years inside the IT division of a 6,000-person engineering group — cloud selection committees, IS governance, budget cycles: the reasons enterprise AI projects stall, seen from the inside."
           ],
           "fr": [
@@ -1137,8 +1137,8 @@
           ]
         },
         "credibility_note": {
-          "en": "The ideal AI Solutions Engineer has three legs: technical (builds and ships — HAL MCP platform live with 27 tools, BlueWind Companion multi-agent system benchmarked 8.6/10 in production), delivery (demos, POCs, handover — full cycles at Open Ocean and Blue Green with named industrial clients) and enterprise-insider empathy (4 years inside Artelia's IT division: cloud selection committees, IS governance, adoption friction seen from the inside).",
-          "fr": "Le Solutions Engineer IA idéal a trois jambes : technique (il construit et livre — plateforme MCP HAL live avec 27 outils, BlueWind Companion multi-agents benchmarké 8,6/10 en production), delivery (démos, POC, transfert — cycles complets chez Open Ocean et Blue Green avec clients industriels nommés) et empathie enterprise insider (4 ans dans la DSI d'Artelia : comités de sélection cloud, gouvernance SI, freins d'adoption vus de l'intérieur)."
+          "en": "The ideal AI Solutions Engineer has three legs: technical (builds and ships — HAL MCP platform live with 27 tools, BlueWind Companion multi-agent system benchmarked 8.65/10 in production), delivery (demos, POCs, handover — full cycles at Open Ocean and Blue Green with named industrial clients) and enterprise-insider empathy (4 years inside Artelia's IT division: cloud selection committees, IS governance, adoption friction seen from the inside).",
+          "fr": "Le Solutions Engineer IA idéal a trois jambes : technique (il construit et livre — plateforme MCP HAL live avec 27 outils, BlueWind Companion multi-agents benchmarké 8,65/10 en production), delivery (démos, POC, transfert — cycles complets chez Open Ocean et Blue Green avec clients industriels nommés) et empathie enterprise insider (4 ans dans la DSI d'Artelia : comités de sélection cloud, gouvernance SI, freins d'adoption vus de l'intérieur)."
         }
       }
     },
@@ -1343,12 +1343,12 @@
           "default": {
             "en": [
               "Designed and deployed end-to-end AI solutions for EnBW France (offshore wind tender analysis) and Valorem (urban planning automation)",
-              "Architected production GenAI systems: RAG (22,800-chunk pgvector index), 5 Pydantic AI agents, MCP servers — BlueWind Companion v2.2 live",
+              "Architected production GenAI systems: RAG (22,800-chunk pgvector index), 5 Pydantic AI agents, MCP servers — BlueWind Companion v4 live",
               "Deployed Edifice for IC Ingénieurs Conseils — AI-assisted building diagnostics for 2 social housing renovation projects (€25M + €35M)"
             ],
             "fr": [
               "Concevoir et déployer des solutions IA bout en bout pour EnBW France (analyse d'AO éolien offshore) et Valorem (analyse PLU éolien terrestre)",
-              "Architecturer des systèmes GenAI en production : RAG multi-sources, agents IA, serveurs MCP — BlueWind Companion v2.2 live",
+              "Architecturer des systèmes GenAI en production : RAG multi-sources, agents IA, serveurs MCP — BlueWind Companion v4 live",
               "Déployer Edifice pour IC Ingénieurs Conseils — diagnostics bâtiment IA pour 2 rénovations de logements sociaux (25 M€ + 35 M€)"
             ]
           },
@@ -1356,36 +1356,36 @@
             "en": [
               "Delivered GenAI in production for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis for wind siting)",
               "Deployed Edifice for IC Ingénieurs Conseils — AI building diagnostics for 2 social housing projects (€25M + €35M)",
-              "Built BlueWind Companion v2.2 (MCP servers, pgvector) and WattCast (D+1 MAE 12.42 EUR/MWh); led GenAI workshops for energy developer teams"
+              "Built BlueWind Companion v4 (MCP servers, pgvector) and WattCast (D+1 MAE 12.42 EUR/MWh); led GenAI workshops for energy developer teams"
             ],
             "fr": [
               "Livrer de la GenAI en production pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents IA) et Valorem (analyse PLU éolien terrestre)",
               "Déployer Edifice pour IC Ingénieurs Conseils — diagnostics bâtiment IA, 2 rénovations logement social (€25M + €35M)",
-              "Livrer BlueWind Companion v2.2 (MCP, pgvector) + WattCast (MAE J+1 : 12,42 €/MWh) ; animer des ateliers GenAI pour développeurs EnR"
+              "Livrer BlueWind Companion v4 (MCP, pgvector) + WattCast (MAE J+1 : 12,42 €/MWh) ; animer des ateliers GenAI pour développeurs EnR"
             ]
           },
           "t4": {
             "en": [
               "Deployed agentic AI in production for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis)",
               "Deployed Edifice for IC Ingénieurs Conseils — AI diagnostic reports for 2 social housing projects (€25M + €35M)",
-              "Architected BlueWind Companion v2.2 (FastAPI + pgvector, MCP servers, multi-agent, France-hosted) and WattCast"
+              "Architected BlueWind Companion v4 (FastAPI + pgvector, MCP servers, multi-agent, France-hosted) and WattCast"
             ],
             "fr": [
               "Déployer l'IA agentique en production pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents) et Valorem (analyse PLU éolien terrestre)",
               "Déployer Edifice pour IC Ingénieurs Conseils — rapports diagnostics IA pour 2 rénovations logement social (€25M + €35M)",
-              "Architecturer BlueWind Companion v2.2 (FastAPI + pgvector, serveurs MCP, multi-agents, hébergement France) et WattCast"
+              "Architecturer BlueWind Companion v4 (FastAPI + pgvector, serveurs MCP, multi-agents, hébergement France) et WattCast"
             ]
           },
           "t3": {
             "en": [
               "Delivered GenAI end-to-end for EnBW France (wind tender RAG, 22,800 chunks, 5 agents) and Valorem (PLU analysis for wind siting)",
               "Deployed Edifice for IC Ingénieurs Conseils — AI diagnostic reports for 2 renovation projects (€25M + €35M)",
-              "Architected BlueWind Companion v2.2 (RAG, MCP servers, agentic) and led GenAI workshops for energy developer teams"
+              "Architected BlueWind Companion v4 (RAG, MCP servers, agentic) and led GenAI workshops for energy developer teams"
             ],
             "fr": [
               "Livrer de la GenAI bout en bout pour EnBW France (RAG AO éolien, 22 800 chunks, 5 agents IA) et Valorem (analyse PLU pour l'éolien terrestre)",
               "Déployer Edifice pour IC Ingénieurs Conseils — diagnostics IA automatisés pour 2 rénovations (€25M + €35M)",
-              "Concevoir BlueWind Companion v2.2 (RAG, serveurs MCP, agentique) et animer des ateliers GenAI pour développeurs de projets EnR"
+              "Concevoir BlueWind Companion v4 (RAG, serveurs MCP, agentique) et animer des ateliers GenAI pour développeurs de projets EnR"
             ]
           },
           "t2": {
@@ -1405,48 +1405,48 @@
           "default": {
             "en": [
               "Led end-to-end AI delivery for enterprise clients (EnBW France, Valorem): scoping, architecture, production deployment",
-              "Architected multi-agent GenAI platform (BlueWind Companion v2.2): RAG, 5 AI agents, MCP servers — live in production",
+              "Architected multi-agent GenAI platform (BlueWind Companion v4): RAG, 5 AI agents, MCP servers — live in production",
               "Conducted AI awareness workshops and facilitated cross-functional adoption"
             ],
             "fr": [
               "Piloter la livraison IA complète pour des clients enterprise (EnBW France, Valorem) : cadrage, architecture, mise en production",
-              "Architecturer une plateforme GenAI multi-agents (BlueWind Companion v2.2) : RAG, agents IA, serveurs MCP — live en production",
+              "Architecturer une plateforme GenAI multi-agents (BlueWind Companion v4) : RAG, agents IA, serveurs MCP — live en production",
               "Animer des ateliers de sensibilisation à l'IA et faciliter l'adoption cross-fonctionnelle"
             ]
           },
           "t3": {
             "en": [
               "Delivered GenAI solutions for EnBW France and Valorem: from scoping to production handover, on time",
-              "Designed BlueWind v2.2 architecture (RAG, 5 Pydantic AI agents, MCP) — live in production, reused across clients",
+              "Designed BlueWind v4 architecture (RAG, 5 Pydantic AI agents, MCP) — live in production, reused across clients",
               "Trained renewable energy developers on GenAI adoption: workshops, tooling, and ongoing advisory"
             ],
             "fr": [
               "Livrer des solutions GenAI pour EnBW France et Valorem : cycle complet, de la conception à la mise en production",
-              "Architecturer BlueWind Companion v2.2 (RAG, 5 agents Pydantic AI, MCP) — en production, réutilisé multi-clients",
+              "Architecturer BlueWind Companion v4 (RAG, 5 agents Pydantic AI, MCP) — en production, réutilisé multi-clients",
               "Former des développeurs de projets EnR à la GenAI : ateliers, outillage, accompagnement continu"
             ]
           },
           "t4": {
             "en": [
               "Delivered production-grade AI for EnBW France and Valorem: compliance-ready, full auditability",
-              "Architected BlueWind Companion v2.2 for regulated energy environments: France-hosted, full traceability, pgvector",
+              "Architected BlueWind Companion v4 for regulated energy environments: France-hosted, full traceability, pgvector",
               "Ran GenAI adoption programs for senior stakeholders and project development teams across energy sector"
             ],
             "fr": [
               "Déployer des systèmes IA en production pour EnBW France et Valorem : conformité réglementaire, traçabilité, hébergement France",
-              "Architecturer BlueWind v2.2 en environnement réglementé : hébergement France, auditabilité, pipeline RAG maîtrisé",
+              "Architecturer BlueWind v4 en environnement réglementé : hébergement France, auditabilité, pipeline RAG maîtrisé",
               "Animer des programmes d'adoption IA pour cadres dirigeants et équipes développement de projets EnR"
             ]
           },
           "t5": {
             "en": [
               "Shipped production GenAI systems for enterprise clients (EnBW France, Valorem) — zero to production in under 3 months",
-              "Built BlueWind Companion v2.2: LLM-native architecture (MCP, pgvector, Pydantic AI agents) — live and battle-tested",
+              "Built BlueWind Companion v4: LLM-native architecture (MCP, pgvector, Pydantic AI agents) — live and battle-tested",
               "Delivered GenAI literacy programs and adoption workshops for energy sector development teams"
             ],
             "fr": [
               "Déployer des systèmes GenAI en production pour EnBW France et Valorem — zéro à prod en moins de 3 mois",
-              "Livrer BlueWind Companion v2.2 : architecture LLM-native (MCP, pgvector, agents Pydantic AI) — live et éprouvé",
+              "Livrer BlueWind Companion v4 : architecture LLM-native (MCP, pgvector, agents Pydantic AI) — live et éprouvé",
               "Animer des programmes GenAI et ateliers d'adoption pour équipes de développement de projets EnR"
             ]
           }
@@ -1454,12 +1454,12 @@
         "p3": {
           "default": {
             "en": [
-              "Built and shipped full-stack AI SaaS platform (BlueWind Companion v2.2): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
+              "Built and shipped full-stack AI SaaS platform (BlueWind Companion v4): Next.js, FastAPI, Pydantic AI, pgvector — live in France",
               "Architected and deployed production GenAI systems for enterprise clients (EnBW France, Valorem)",
               "Defined technical roadmap, selected the full stack, and shipped production systems end to end"
             ],
             "fr": [
-              "Construire et livrer une plateforme SaaS IA full-stack (BlueWind Companion v2.2) — live en France",
+              "Construire et livrer une plateforme SaaS IA full-stack (BlueWind Companion v4) — live en France",
               "Architecturer et déployer des systèmes GenAI en production pour des clients enterprise (EnBW France, Valorem)",
               "Définir la roadmap technique, choisir le stack, livrer des systèmes en production de bout en bout"
             ]
@@ -1467,33 +1467,33 @@
           "t1": {
             "en": [
               "Architected production AI stack for energy: Next.js, FastAPI, Supabase pgvector, Pydantic AI agents",
-              "Shipped BlueWind Companion v2.2 (22,800-chunk RAG, 5 specialized AI agents) — full technical ownership, live in France",
+              "Shipped BlueWind Companion v4 (22,800-chunk RAG, 5 specialized AI agents) — full technical ownership, live in France",
               "Designed technical roadmap for AI product suite: Edifice (building diagnostics), WattCast (price forecasting), EnerCast"
             ],
             "fr": [
               "Construire le stack IA production pour l'énergie : Next.js, FastAPI, Supabase pgvector, agents Pydantic AI",
-              "Livrer BlueWind Companion v2.2 (RAG 22 800 chunks, 5 agents IA) — propriété technique complète, live en France",
+              "Livrer BlueWind Companion v4 (RAG 22 800 chunks, 5 agents IA) — propriété technique complète, live en France",
               "Définir la roadmap produit IA : Edifice (diagnostics bâtiment), WattCast (prévision prix), EnerCast (ML énergie)"
             ]
           },
           "t5": {
             "en": [
-              "Built and shipped production LLM systems (BlueWind v2.2) in under 3 months: RAG, MCP, Pydantic AI — battle-tested",
+              "Built and shipped production LLM systems (BlueWind v4) in under 3 months: RAG, MCP, Pydantic AI — battle-tested",
               "Full-stack technical ownership: architecture, stack selection, core development, production deployment — end to end",
-              "Running WattCast (ML price forecasting), EnerCast (ML framework), Edifice (AI diagnostics) simultaneously in production"
+              "Shipped WattCast (ML price forecasting), EnerCast (ML framework) and Edifice (AI field diagnostics) in parallel"
             ],
             "fr": [
-              "Livrer des systèmes LLM en production en moins de 3 mois (BlueWind v2.2) : RAG, MCP, agents Pydantic AI — éprouvés",
+              "Livrer des systèmes LLM en production en moins de 3 mois (BlueWind v4) : RAG, MCP, agents Pydantic AI — éprouvés",
               "Assurer la propriété technique complète : architecture, stack, développement cœur, déploiement prod — de bout en bout",
-              "Opérer WattCast (prévision prix ML), EnerCast (framework ML), Edifice (diagnostics IA) en production simultanément"
+              "Livrer en parallèle WattCast (prévision prix ML), EnerCast (framework ML) et Edifice (diagnostics IA terrain)"
             ]
           }
         },
         "p4": {
           "default": {
             "en": [
-              "Build and deploy BlueWind Companion v4.0 — AI regulatory intelligence platform for offshore wind (5 specialized agents across FR+UK regulatory corpus, LLM-judged benchmarks 8.6/10) — live in production, client EnBW France",
-              "Lead the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous production handover",
+              "Build and deploy BlueWind Companion v4 — AI regulatory intelligence platform for offshore wind (5 specialized agents across FR+UK regulatory corpus, LLM-judged benchmarks up to 8.65/10) — live in production, client EnBW France",
+              "Led the full cycle at IC Ingénieurs Conseils (Edifice, building diagnostics €25M + €35M) and Valorem — from requirement discovery to autonomous handover",
               "Built HAL — 27-tool MCP platform (Claude Code marketplace install) and BlueWind ingestion pipeline (91 docs → 22,812 pgvector chunks): core production infrastructure reused across all client deliveries"
             ],
             "fr": [
@@ -1503,12 +1503,12 @@
           },
           "t5": {
             "en": [
-              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.6/10 against expert-validated ground truth — and for a renewable energy producer",
-              "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery to autonomous daily production use",
+              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.65/10 against expert-validated ground truth — and for a renewable energy producer",
+              "Deployed Edifice for IC Ingénieurs Conseils (building diagnostics, €25M + €35M social housing projects) — from field-constraint discovery until inspectors ran it on site without support",
               "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European grid operator (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
             ],
             "fr": [
-              "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,6/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
+              "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,65/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
               "Livrer le prototype, itérer avec les utilisateurs terrain, transférer l'autonomie — IC Ingénieurs Conseils (diagnostics bâtiment), Valorem"
             ]
           }

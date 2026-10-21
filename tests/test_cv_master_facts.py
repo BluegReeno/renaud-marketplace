@@ -2,7 +2,9 @@
 
 The source of truth is the hal document `parcours` (workspace `renaud`). These guards pin the
 facts that have shipped wrong on real CVs, so they cannot come back through the data file:
-a Bachelor degree Renaud does not hold, and Artelia dated 2019 – 2022 instead of 2019 – 2023.
+a Bachelor degree Renaud does not hold, Artelia dated 2019 – 2022 instead of 2019 – 2023,
+Edifice described as live or used daily (stopped October 2026), BlueWind at v2.2 (it is v4),
+and the Tender agent's 8.65/10 rounded to 8.6, which is the Strategy agent's score.
 
 Run: python3 tests/test_cv_master_facts.py
 """
@@ -14,6 +16,7 @@ import unittest
 REPO = pathlib.Path(__file__).resolve().parent.parent
 MASTER = REPO / "plugins" / "jobsearch" / "data" / "cv-master.json"
 FORBIDDEN = re.compile(r"\bbachelor|coastal engineering|génie côtier|\bb\.?sc\b", re.IGNORECASE)
+STALE = re.compile(r"used daily|au quotidien|v2\.2|\b8[.,]6/10", re.IGNORECASE)
 
 
 class CvMasterFacts(unittest.TestCase):
@@ -30,6 +33,15 @@ class CvMasterFacts(unittest.TestCase):
         self.assertEqual(len(degrees), 2)
         self.assertTrue(degrees[0].startswith("DEA"), degrees[0])
         self.assertTrue(degrees[1].startswith("Maîtrise in Mechanics"), degrees[1])
+
+    def test_no_stale_product_claims(self):
+        hits = sorted({m.group() for m in STALE.finditer(self.text)})
+        self.assertEqual(hits, [], f"cv-master.json carries stale product claims: {hits}")
+
+    def test_edifice_never_live(self):
+        for line in self.text.splitlines():
+            if "Edifice" in line or "field assistant" in line:
+                self.assertNotRegex(line.lower(), r"edifice[^.;]*\b(live|in production|en production|en prod)\b", line.strip())
 
     def test_artelia_period(self):
         self.assertEqual(self.data["experiences"]["artelia"]["period"], "2019 – 2023")
