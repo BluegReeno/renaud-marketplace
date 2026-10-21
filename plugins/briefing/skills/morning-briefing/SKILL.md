@@ -9,7 +9,7 @@ description: >
   or an appointment today. On weekends it runs a personal-only variant. Use when
   the user asks "what's up for today", "ma journée", "briefing du jour", "quel est
   mon planning", or any similar daily-overview trigger.
-allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker)"
+allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge)"
 ---
 
 # Morning Briefing
@@ -210,26 +210,27 @@ Order: tier first, never crossed; inside a tier, fresher (< 24 h) and less conte
 first. Surface the top 2-3 with a one-line "pourquoi" citing a concrete JD signal.
 
 **4. CV fan-out** (skipped in `--headless`). For **every** 🔥 offer not already in the vault and
-enriched, in the order above, spawn one worker, all calls in the same message, **foreground**
-(`run_in_background: false` — the worker spawns `cv-judge` itself and a background agent has no
-`Agent` tool):
+enriched, in the order above, invoke the `offer-to-cv` skill **inline, one offer after the
+other** — it runs in this context, so it has the `Agent` tool and spawns `cv-judge` itself. Until
+2026-10-21 this step spawned a `cv-log-worker` agent per offer; the runtime launched it in the
+background, where no `Agent` tool exists, and the CV was logged « ⚠️ CV non jugé » (renaud#176).
+Sequential is the price of a judged CV every time.
 
 ```
-Agent(cv-log-worker, run_in_background: false, prompt="""
+Skill(offer-to-cv)
 JOB_TITLE: <title>
 COMPANY: <company>
 JD_TEXT: <jd_text from read-job-offer>
 SENDER_EMAIL: <from address of the digest that carried the offer>
 JOB_URL: <https://www.linkedin.com/jobs/view/<id> or empty>
 DATE: <YYYY-MM-DD Europe/Paris>
-""")
 ```
 
-The judge runs after every generation: that is the worker's own contract, nothing to add here. Never
-spawn a worker without a real `jd_text` (a CV built on a digest snippet is plausible, hollow and
-unmarked). Safety bound 8 workers, never silent: `11 offres 🔥 — 8 traitées, 3 listées sans CV`.
-Collect each worker's line verbatim (`CV_préparé | … | Juge : <v1>→<v2>/10`, or with a trailing
-`| ⚠️ …`, or `ÉCHEC | …`) — never strip a marker.
+The judge runs after every generation, Tour 1 then Tour 2: that is the skill's own contract,
+nothing to add here. Never invoke it without a real `jd_text` (a CV built on a digest snippet is
+plausible, hollow and unmarked). Safety bound 8 invocations, never silent: `11 offres 🔥 — 8
+traitées, 3 listées sans CV`. Collect each returned line verbatim (`CV_préparé | … | Juge :
+<v1>→<v2>/10`, or with a trailing `| ⚠️ …`, or `ÉCHEC | …`) — never strip a marker.
 
 ### 2d — Blue Green commercial pass (weekday, per live `company` workspace)
 

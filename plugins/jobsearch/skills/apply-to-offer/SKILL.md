@@ -3,18 +3,18 @@ name: apply-to-offer
 description: >
   Turn a job offer Renaud found himself into a CV and a logged candidature, in
   one step. Give it a LinkedIn URL, a job id or the offer's text: it reads the
-  job description via read-job-offer when there is no text, checks the offer is not already in the vault, and spawns the
-  cv-log-worker agent, which runs the comp gate and the qualitative role gate,
-  generates the 1-page PDF CV and logs the candidature as "📝 À postuler". This
-  is the daytime counterpart of the
-  morning-briefing fan-out — same worker, same output, manual trigger. Use when
+  job description via read-job-offer when there is no text, checks the offer is not already in the vault, and invokes the
+  offer-to-cv skill inline, which runs the comp gate and the qualitative role gate,
+  generates the 1-page PDF CV, has it judged twice by cv-judge and logs the
+  candidature as "📝 À postuler" with the judge's score. This is the daytime
+  counterpart of the morning-briefing fan-out — same skill, same output, manual trigger. Use when
   Renaud says "postule à cette annonce", "génère le CV pour", "je veux postuler",
   "prépare ma candidature", or simply pastes a `linkedin.com/jobs/view/` URL and
   asks for a CV. Asked only whether an offer passes the filters, it runs the two
   gates and stops — nothing generated, nothing written. On request it also drafts the short answer an application form asks
   for ("why us", "pourquoi ce poste", a few hundred characters). It never submits an
   application and never writes a full cover letter.
-allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_documents mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects"
+allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge) mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_documents mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects"
 ---
 
 # Apply To Offer — Skill Instructions
@@ -24,7 +24,7 @@ allowed-tools: "Skill(read-job-offer) Skill(jobsearch-vault) Agent(cv-log-worker
 One offer in, one CV and one logged candidature out — for an offer Renaud found during the day
 rather than in the morning digest.
 
-It is deliberately **thin**. It owns no judgement: `read-job-offer` reads, `cv-log-worker` decides
+It is deliberately **thin**. It owns no judgement: `read-job-offer` reads, `offer-to-cv` decides
 and produces, `log-application` records. Its value is being a trigger and a dedup gate. Anything
 else it starts doing is duplication of the morning path, which is the exact drift this skill exists
 to prevent.
@@ -55,14 +55,14 @@ offer already stored in hal.
 ## Step 1.5 — What Renaud asked: the filters only, or the whole flow
 
 - **The filters only** — « est-ce que l'offre passe les filtres ? », « est-ce que je postule ? »,
-  « elle passe le plancher ? » → the worker of Step 4 runs with `MODE: gates-only`: it reads the
+  « elle passe le plancher ? » → the skill of Step 4 runs with `MODE: gates-only`: it reads the
   thresholds and the disqualifiers, runs both gates, and stops — no CV, no log, nothing written.
   Report its line (Step 5). Offer to continue to the CV only if it passed; never continue
   unprompted.
 - **Anything else** (« génère le CV », « postule », a bare link) → the whole flow, `MODE: full`.
 
-The gates are the worker's, in both modes — this skill never reads `comp-thresholds.json` or
-`role-criteria.json` itself, and never answers « does it pass? » without the worker's line.
+The gates are the skill's, in both modes — this skill never reads `comp-thresholds.json` or
+`role-criteria.json` itself, and never answers « does it pass? » without the skill's line.
 
 ## Step 2 — Read the offer
 
@@ -79,7 +79,7 @@ partial read.
 
 Invoke `Skill(jobsearch-vault)` to list active candidatures, and compare on **company + role**.
 
-- **Match found** → do not spawn anything. Report the existing candidature: its status, its date,
+- **Match found** → do not invoke anything. Report the existing candidature: its status, its date,
   and the path of its note, so Renaud can pick up the existing process rather than start a second
   one. Ask before proceeding anyway.
 - **No match** → continue.
@@ -87,48 +87,49 @@ Invoke `Skill(jobsearch-vault)` to list active candidatures, and compare on **co
 This is the same dedup rule as `morning-briefing` Step 1g. An offer already logged is never
 re-processed silently.
 
-## Step 4 — Spawn the worker
+## Step 4 — Invoke the skill
 
-Spawn exactly one `cv-log-worker` agent, in the foreground (`run_in_background: false`), with:
+Invoke `Skill(offer-to-cv)` **inline** — never as an agent, never in the background — with:
 
 ```
 MODE: <gates-only | full, from Step 1.5>
 JOB_URL: <resolved URL — omit the line when Step 1 holds pasted text and no link>
 DATE: <today, YYYY-MM-DD, Europe/Paris>
-JD_TEXT: <the text from Step 1 or Step 2 — omit the line only when Step 2 was skipped for a link the worker reads itself>
+JD_TEXT: <the text from Step 1 or Step 2 — omit the line only when Step 2 was skipped for a link the skill reads itself>
 JOB_TITLE: <title, if known>
 COMPANY: <company, if known>
 ```
 
-Do **not** pass `SENDER_EMAIL`: its absence is what makes the worker record `source: manual`, which
+Do **not** pass `SENDER_EMAIL`: its absence is what makes the skill record `source: manual`, which
 is how a daytime application is told apart from a digest one in the vault.
 
-<!-- TODO: verify in Cowork — `cv-log-worker` is defined in the `briefing` plugin and spawned here
-     from `jobsearch`. Cross-plugin Agent() resolution is unverified; if it fails, the worker
-     definition moves to `jobsearch` and `morning-briefing` spawns it across the same boundary
-     (it already calls Skill(jobsearch-vault) that way). -->
+Inline is the whole point. Until 2026-10-21 this step spawned a `cv-log-worker` agent; the runtime
+launched it asynchronously, a background sub-agent has no `Agent` tool, so it could not spawn
+`cv-judge` and the CV was logged « ⚠️ CV non jugé » (renaud#176 §2). Running the skill in this
+context, the judge is spawned from here — Tour 1, corrections, Tour 2 — and a CV is never logged
+without its score.
 
 ## Step 5 — Report
 
-Relay the worker's one-line summary verbatim.
+Relay the skill's one-line summary verbatim.
 
 `MODE: gates-only` → the line is `PASSE` or `ÉCARTÉ`, with the offer's figure and the floor it was
-held against, both as the worker read them. Say nothing was written, and offer the CV if it
+held against, both as the skill read them. Say nothing was written, and offer the CV if it
 passed. Stop there.
 
 `MODE: full` → add the two things Renaud acts on:
 
 - the **PDF path**, so he can open it;
-- the judge's **score v1 → v2** and what it still reports broken, as the worker returned them;
+- the judge's **score v1 → v2** and what it still reports broken, as the skill returned them;
 - what is still his to do — the candidature is `📝 À postuler`, nothing was submitted.
 
-The worker has ended once it returns: a later question (« qu'en pense le juge ? ») is answered
-from what it returned, saying what that holds and what it does not. Never `SendMessage` the
-worker or the judge for more — the reply would come after your answer, and on hal S06 run
+The judge has ended once the skill returns: a later question (« qu'en pense le juge ? ») is
+answered from what the skill returned, saying what that holds and what it does not. Never
+`SendMessage` the judge for more — the reply would come after your answer, and on hal S06 run
 `20261013-083743` (s4-juge) the question got « je te le restitue dès que la réponse arrive » and
 nothing else.
 
-If the worker returned `ÉCARTÉ` (compensation below the floor, or a qualitative disqualifier
+If the skill returned `ÉCARTÉ` (compensation below the floor, or a qualitative disqualifier
 matched), say so and stop. If it returned
 `ÉCHEC`, relay the reason without retrying: a second attempt on the same failing read produces the
 same failure and costs another BrightData call.
@@ -138,7 +139,7 @@ same failure and costs another BrightData call.
 Run this step only when Renaud asks for it — in the same message as the link ("et le champ
 'why X'"), after Step 5, or on its own (« pour le formulaire Kaleo, réponds en 200 caractères »).
 Never by default: most applications have no such field. Asked on its own, it runs alone: no
-gate, no worker, no CV — Steps 1–5 do not apply.
+gate, no offer-to-cv, no CV — Steps 1–5 do not apply.
 
 Collect, from what Renaud pasted:
 
@@ -176,8 +177,8 @@ anywhere: if Renaud asks to keep it, it goes to the candidature note via
   which one you are on — never fan out from here. Parallel fan-out belongs to `morning-briefing`.
 - **Never build a CV from a snippet.** If the JD could not be read, the answer is "give me the
   text", never a CV written from a title.
-- **Status is `📝 À postuler`** — the worker logs it; Renaud moves the card himself once he has
+- **Status is `📝 À postuler`** — `offer-to-cv` logs it; Renaud moves the card himself once he has
   actually applied.
 - **Compose, do not reimplement.** The read, the comp gate, the CV and the log all live in skills
-  that already exist. This skill resolves, dedups, spawns, reports — and, on request, writes the
+  that already exist. This skill resolves, dedups, invokes, reports — and, on request, writes the
   short form-field answer of Step 6, which no other skill owns.

@@ -35,7 +35,7 @@ GTM_CALL_KEYS = ("caller", "company", "contacts", "date", "granola_id", "format"
 LOG_CR = REPO / "plugins/jobsearch/skills/log-cr/SKILL.md"
 BRIEFING = REPO / "plugins/briefing/skills/morning-briefing/SKILL.md"
 APPLY = REPO / "plugins/jobsearch/skills/apply-to-offer/SKILL.md"
-WORKER = REPO / "plugins/briefing/agents/cv-log-worker.md"
+OFFER = REPO / "plugins/jobsearch/skills/offer-to-cv/SKILL.md"  # replaced the cv-log-worker agent, renaud#176
 JUDGE = REPO / "plugins/briefing/agents/cv-judge.md"
 LOG_APP = REPO / "plugins/jobsearch/skills/log-application/SKILL.md"
 PREP = REPO / "plugins/jobsearch/skills/interview-prep/SKILL.md"
@@ -145,28 +145,28 @@ class TestApplyToOffer(unittest.TestCase):
     def test_a_stored_summary_is_refused_as_a_jd(self):
         self.assertIn("500", flat(read(APPLY)).split("**An offer stored in hal**")[1].split("**Nothing resolvable**")[0])
 
-    def test_the_filters_question_runs_the_worker_in_gates_only(self):
-        text, worker = read(APPLY), read(WORKER)
+    def test_the_filters_question_runs_the_skill_in_gates_only(self):
+        text, offer = read(APPLY), read(OFFER)
         self.assertIn("MODE: gates-only", text)
-        self.assertIn("## Step A.7 — Stop here in `MODE: gates-only`", worker)
+        self.assertIn("## Step A.7 — Stop here in `MODE: gates-only`", offer)
 
-    def test_a_follow_up_never_resumes_the_worker(self):
-        self.assertIn("Never `SendMessage` the\nworker", read(APPLY))
+    def test_a_follow_up_never_resumes_the_judge(self):
+        self.assertIn("Never\n`SendMessage` the judge", read(APPLY))
 
     def test_the_form_field_runs_alone_on_the_rows(self):
         self.assertIn("Asked on its own, it runs alone", read(APPLY))
 
     def test_the_comp_rejection_names_the_floor(self):
-        self.assertRegex(read(WORKER), r"ÉCARTÉ \| .*< plancher <comp_floor_eur>€")
+        self.assertRegex(read(OFFER), r"ÉCARTÉ \| .*< plancher <comp_floor_eur>€")
 
 
 class TestJudgeTour2(unittest.TestCase):
     """hal S06 s4-juge: a worker that resumed the judge by SendMessage returned before Tour 2."""
 
     def test_tour_2_is_a_foreground_spawn(self):
-        worker = read(WORKER)
-        self.assertIn("TOUR: 2", worker)
-        self.assertNotIn("SendMessage", worker.split("---")[1])
+        offer = read(OFFER)
+        self.assertIn("TOUR: 2", offer)
+        self.assertNotIn("SendMessage", offer.split("---")[1])
         self.assertIn("TOUR_1_VERDICT", read(JUDGE))
 
 

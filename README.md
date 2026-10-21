@@ -27,7 +27,8 @@ renaud-marketplace/
 │   │   │   ├── log-cr/SKILL.md             ← post-interview debrief (BANT template)
 │   │   │   ├── jobsearch-vault/SKILL.md    ← filesystem-only vault I/O (shared library)
 │   │   │   ├── read-job-offer/SKILL.md     ← LinkedIn JD reader (shared primitive, no browser)
-│   │   │   └── apply-to-offer/SKILL.md     ← manual offer → CV + logged candidature
+│   │   │   ├── apply-to-offer/SKILL.md     ← manual offer → CV + logged candidature
+│   │   │   └── offer-to-cv/SKILL.md        ← one offer → gates, CV, two-round judge, log (inline)
 │   │   ├── commands/             ← slash commands
 │   │   │   ├── interview-prep.md
 │   │   │   └── log-application.md
@@ -35,7 +36,7 @@ renaud-marketplace/
 │   │   ├── scripts/              ← Python - generate_cv.py, batch_validate.py
 │   │   ├── data/                 ← cv-master.json, comp-thresholds.json (the only definition
 │   │   │                            site of comp_floor_eur / target_comp_eur / fire_tier_min_eur,
-│   │   │                            read by cv-log-worker and morning-briefing)
+│   │   │                            read by offer-to-cv and morning-briefing)
 │   │   └── templates/            ← cv_template.html
 │   ├── briefing/                 ← daily briefing plugin
 │   │   ├── .claude-plugin/
@@ -46,7 +47,7 @@ renaud-marketplace/
 │   │   │   ├── mail-triage/SKILL.md        ← skill
 │   │   │   └── book-appointment/SKILL.md   ← calendar write (create-only, interactive)
 │   │   ├── agents/
-│   │   │   └── cv-log-worker.md  ← fan-out subagent called by morning-briefing
+│   │   │   └── cv-judge.md       ← independent CV reviewer, spawned by jobsearch's offer-to-cv
 │   │   └── commands/
 │   │       └── briefing.md       ← trigger slash command
 │   ├── improve/                  ← capture an observation → GitHub Issue
@@ -123,14 +124,14 @@ which `scripts/check_version_sync.sh` keeps identical.
 
 | Plugin | Skills | MCP server | Description |
 |--------|--------|-------------|-------------|
-| `jobsearch` | `cv-generator`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault`, `read-job-offer`, `apply-to-offer` | `hal-mcp` **through the `hal` plugin** | CV generation, application logging, interview prep, debrief logging, job-search vault I/O (filesystem-only, shared library), LinkedIn job-description reading, and the manual offer→CV route (with a short form-field answer on request) |
-| `briefing` | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-log-worker`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
+| `jobsearch` | `cv-generator`, `log-application`, `interview-prep`, `log-cr`, `jobsearch-vault`, `read-job-offer`, `apply-to-offer`, `offer-to-cv` | `hal-mcp` **through the `hal` plugin** | CV generation, application logging, interview prep, debrief logging, job-search vault I/O (filesystem-only, shared library), LinkedIn job-description reading, the manual offer→CV route (with a short form-field answer on request), and the judged offer→CV skill both routes run inline |
+| `briefing` | `morning-briefing`, `mail-triage`, `book-appointment` (+ agent `cv-judge`) | `gmail-mcp` (declared here), `hal-mcp` **through the `hal` plugin** | Daily briefing, mail triage and appointment booking (calendars resolved from the hal workspaces, hal tasks, jobsearch-vault). Since 0.12.0, `sprint-planner` and `sprint-review` live in `pm@bluegreen-marketplace` |
 | `improve` | `improve` | — | Capture an observation about a skill → GitHub Issue in ≤30 s from Cowork (`/improve`) |
 | `mycoach` | `mycoach` | `hal-mcp` **through the `hal` plugin** | Weekly personal-development check-in — a structured CBT/SFBT session backed by a private OKF knowledge base |
 
 `briefing`, `mycoach` and `jobsearch` **require the `hal` plugin** (`bluegreen-marketplace`) to be
 installed for their `mcp__plugin_hal_hal-mcp__*` calls — none declares that server. `jobsearch`
-also requires the `briefing` plugin, for the `cv-log-worker` agent that `apply-to-offer` spawns;
+also requires the `briefing` plugin, for the `cv-judge` agent that `offer-to-cv` spawns;
 it calls no gmail-mcp tool since `cover-letter` was retired.
 
 ---

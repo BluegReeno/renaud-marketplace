@@ -156,7 +156,7 @@ Example:
 
 **Rules — never violate:**
 - Only rewrite bullets — never invent new facts, metrics, client names, or dates
-- Keep all verifiable anchors: client names (EnBW, Valorem, Naval Group, SBM Offshore, RTE), metrics (22 800 chunks, ÷10, +15%), dates, team sizes
+- Keep all verifiable anchors: client names (EnBW, Valorem, Naval Group, SBM Offshore, RTE), outcomes (a tender question answered in under a minute instead of hours, +15%), dates, team sizes — never a product version number or a chunk count: recruiters want the client outcome (renaud#176)
 - If the offer mentions a specific tech (n8n, LangChain, Pydantic AI), surface it **only if it exists** in the factual anchors — do not add if it doesn't
 - Limit: **max 2 bullets changed per company** — don't rewrite everything
 - Banned phrases (DCNS, Business Angels, "urban planning automation", etc.) still apply
@@ -184,17 +184,20 @@ Replace `{profile}`, `{company_type}`, `{lang}`, `{company_name}`, `{job_title}`
 
 **Optional flags:**
 
-`--container-items '{"0.1": "New bullet"}'`
-Override individual competency bullets, keyed `{column}.{index}` (columns 0-2, zero-based index within the column) — symmetric with `--bullet-overrides`. Use it to correct a competency line for one offer; before renaud#106 that meant copying `cv-master.json` to `/tmp`, patching it and passing `--data-dir`, so the correction died with the session. An out-of-range or malformed key is skipped with a `WARNING:` and the CV still renders.
+`--container-items '{"0.1": "New bullet", "0.2": null, "1.+": "Added bullet"}'`
+Edit individual competency bullets, keyed `{column}.{index}` (columns 0-2, zero-based index within the column) — symmetric with `--bullet-overrides`. A text **replaces** the bullet, `null` **removes** it, and a key ending in `.+` **appends** one to the column (several appends: `"1.+"`, `"1.+2"`, …). Indices refer to the cell as stored, so a removal never shifts a replacement. Use it to correct a competency line for one offer; before renaud#106 that meant copying `cv-master.json` to `/tmp`, patching it and passing `--data-dir`, so the correction died with the session. An out-of-range or malformed key is skipped with a `WARNING:` naming it and the CV still renders.
+
+`--containers-override '[{"title": "…", "items": ["…", "…"]}, {…}, {…}]'`
+Replace the cell's three competency blocks whole — titles and items — for one offer, without touching `cv-master.json`. Exactly three objects, each with a `title` and at least one item; `--container-titles` and `--container-items` still apply on top. This is the per-cell « replace the competencies » override of renaud#176 §7.
 
 `--container-titles '["Title 1", "Title 2", "Title 3"]'`
 Override the 3 competency block titles. Use when cell defaults don't fit the offer framing. The agent can propose better titles if it sees a stronger angle — defaults from cv-master.json are a starting point, not a constraint. P4×T5 defaults: `["Architecture & agents IA", "Cycle client & déploiement", "Secteurs d'expertise"]`.
 
-`--bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet..."}'`
-Inject personalised bullets without modifying cv-master.json. Built from Step 3b personalization. Key: `"{company}.{profile}.{lang}.{index}"`.
+`--bullet-overrides '{"blue_green.p4.fr.0": "Nouveau bullet...", "blue_green.p4.fr.1": null, "artelia.p4.fr.+": "Puce ajoutée"}'`
+Inject personalised bullets without modifying cv-master.json. Built from Step 3b personalization. Key: `"{company}.{profile}.{lang}.{index}"` replaces, the same key with `null` **removes** the bullet, `"{company}.{profile}.{lang}.+"` **appends** one. A key naming another cell or language, or an unknown company, prints a `WARNING:` instead of being silently dropped.
 
 `--about-override '["Line 1", "Line 2", "Line 3"]'`
-Override all 3 about lines. Use for killer CVs tailored to a specific company. JSON array of exactly 3 strings. See EN readability rules below before writing.
+Override all 3 about lines. JSON array of exactly 3 strings. See EN readability rules below before writing. **P4 EN cells ship the validated FDE About** (renaud#176 §4: the bridge between the client's need and the product; the AI expertise and the whole stack; the founder and the international enterprise accounts) and the three validated competency blocks (§5) — do not override them for style, only when the offer plainly calls for another framing.
 
 `--title-override "Applied AI Engineer — Enterprise GenAI Deployment"`
 Override the headline title under the candidate name. Use when the job title wording differs significantly from the cell default.
@@ -208,6 +211,8 @@ Load cv-master.json from a custom directory (useful if the plugin dir is read-on
 > ```bash
 > uv run --with weasyprint --with pikepdf python3 -c "import weasyprint, pikepdf; print('warm')"
 > ```
+
+> **Font**: bundled at `assets/fonts/` (Roboto, Apache 2.0) and embedded through `@font-face`, so the Mac and the Linux cloud sandbox render the same face and a CV that fits one page here fits one page there — before 2026-10-21 the sandbox fell back to a wider system font and every CV dropped to compact level 3/3 (renaud#176 §7). A missing font file stops the script (exit 1) rather than rendering with a fallback.
 
 > **Photo**: bundled at `assets/photo.jpeg` (already public, committed) and used automatically. If it's ever missing, the script falls back to `~/.claude/assets/photo.jpeg`, and renders without a photo if neither exists.
 
@@ -409,7 +414,7 @@ Format: `[Action verb] + [what you built / for whom] — [result in plain Englis
 
 ✅ **Always:**
 - The business problem in plain English ("reads hundreds of regulatory documents and generates reports in minutes")
-- The result stated simply ("live in production, used daily" / "accurate within target threshold" / "+15% ACV")
+- The result stated simply ("live in production" / "ran it on site without support" / "accurate within target threshold" / "+15% ACV") — and in the tense that is true: a product stopped (Edifice, October 2026) is "shipped", never "live" or "used daily"; a version number or a chunk count is never a result
 - Named clients when recognizable (Naval Group, RTE, EnBW France are OK; obscure names → describe sector)
 
 ---
@@ -453,7 +458,7 @@ Format: `[Action verb] + [what you built / for whom] — [result in plain Englis
 The `cv-master.json` experience bullets are cell-specific. Each cell tells a different story with the same three companies.
 
 ### Experience order
-Always chronological reverse: Blue Green (2023–present) → Artelia (2019–2022) → Open Ocean (2011–2019).
+Always chronological reverse: Blue Green (2023–present) → Artelia (2019–2023) → Open Ocean (2011–2019).
 No exceptions.
 
 ### Signal per company type (T)
@@ -488,13 +493,13 @@ No exceptions.
 
 ### Signal per profile (P)
 
-**P1 — AI Architect**: Technical depth + delivery. Never just slides — always a system in production (BWC v2.2).
+**P1 — AI Architect**: Technical depth + delivery. Never just slides — always a system in production (BlueWind Companion, live).
 
 **P2 — Lead/Manager**: Management proof = Open Ocean (12-person team, 8 years). Blue Green shows technical currency (still ships). For T5: counter solopreneur via OO team story.
 
-**P3 — CTO**: Open Ocean IS the proof (start to exit). Must show current stack is live (BWC v2.2). For T5: velocity + team-building combo. For T1: scaling experience, fundraising, technical maturity.
+**P3 — CTO**: Open Ocean IS the proof (start to exit). Must show current stack is live (BlueWind Companion). For T5: velocity + team-building combo. For T1: scaling experience, fundraising, technical maturity.
 
-**P4 — CS/FDE**: 15 years in energy/offshore/engineering as **founder & builder**, carrying the full client cycle **from the vendor side** — onboarding (Open Ocean: DCNS, RTE, SBM Offshore), renewals & expansion (Artelia: ASN, Nexans, Cadeler), GenAI deployment (Blue Green: EnBW France, Valorem). He knows what the industrial operator buys, integrates, and expects, because he has delivered it to them.
+**P4 — CS/FDE**: 15 years in energy/offshore/engineering as **founder & builder**, carrying the full client cycle **from the vendor side** — onboarding (Open Ocean: DCNS, RTE, SBM Offshore), renewals & expansion (Artelia: ASN, Nexans, Cadeler), GenAI deployment (Blue Green: EnBW France, Valorem). He knows what the industrial operator buys, integrates, and expects, because he has delivered it to them. The EN cells carry the FDE structure Renaud validated on the HappyRobot application (renaud#176): a three-line About (client need → product; AI expertise + whole stack; founder + enterprise accounts), three competency blocks (Agent Platform & Stack · AI Agents & LLM Systems · Client Delivery & Industry), the hal bullet as the TypeScript / integration / auth proof, Edifice and Artelia in the past tense.
 
 **P5 — Sales/BizDev**: Technical enough to run live demos and scope with engineering teams. For T5: builds with the product he sells (uses Claude/Mistral daily in production).
 
@@ -502,11 +507,12 @@ No exceptions.
 
 | Company | Key verifiable facts |
 |---------|---------------------|
-| Blue Green — EnBW France | RAG 22,800 chunks, 5 Pydantic AI agents, offshore wind tender analysis |
-| Blue Green — Valorem | RAG-based PLU analysis for onshore wind farm siting |
-| Blue Green — IC Ingénieurs Conseils | AI-assisted building diagnostics, Aulnay (€25M) + La Ferme du Temple (€35M) |
+| Blue Green — EnBW France | offshore wind tender analysis: a tender question answered in under a minute instead of hours, Tender agent 8.65/10 against expert ground truth |
+| Blue Green — Valorem | AI workshop for an onshore wind developer's teams (`parcours`: Atelier IA); PLU analysis for wind farm siting |
+| Blue Green — hal | TypeScript MCP server on Deno edge functions, Supabase Postgres, OAuth; 27 tools (CRM, projects, documents); plugged into Claude, Dust, n8n; runs Blue Green daily |
+| Blue Green — IC Ingénieurs Conseils | AI-assisted building diagnostics (Edifice), Aulnay (€25M) + La Ferme du Temple (€35M) — collaboration ended August 2026, platform stopped October 2026: past tense only |
 | Blue Green — WattCast | D+1 MAE 12.42 EUR/MWh, LEAR + XGBoost, EPEX SPOT France |
-| Blue Green — BlueWind Companion v2.2 | 91 regulatory docs, 22,800 RAG chunks, 5 agents, Next.js + FastAPI + Supabase pgvector |
+| Blue Green — BlueWind Companion (live) | FR + UK regulatory corpus, specialised agents, Next.js + FastAPI + Supabase pgvector — never a version number or a chunk count on the CV |
 | Artelia | P&L responsibility for **a business unit** (never name it — fall back to "Offshore Digital" only if a sentence cannot stand without a name), clients: SBM Offshore, Nexans, Alcatel Submarine Networks (ASN), Cadeler |
 | Open Ocean | Team of 12, €2M from Seventure Partners + Cap Décisif/FNA (institutional VCs), acquired by Artelia (2019) |
 | Open Ocean clients | Naval Group (ex-DCNS), RTE (framework contract), Doris Engineering |
@@ -519,3 +525,4 @@ No exceptions.
 - "Business Angels" → use "institutional investors (Seventure Partners, Cap Décisif/FNA)"
 - "DCNS" → use "Naval Group (ex-DCNS)"
 - "en solo à vélocité maximale" → always counter solopreneur framing
+- "Full P&L" / "P&L complet" → use "P&L responsibility for a business unit" — Renaud's standing rule; `parcours` says the unit was run with full autonomy, and the judge is forbidden to propose the phrase (renaud#176 §6)
