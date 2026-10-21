@@ -48,6 +48,18 @@ class CvMasterFacts(unittest.TestCase):
     def test_artelia_period(self):
         self.assertEqual(self.data["experiences"]["artelia"]["period"], "2019 – 2023")
 
+    def test_artelia_title_is_the_parcours_one(self):
+        # parcours: « Directeur de Projet & Responsable BU ». The CV said « Business Development &
+        # Project Director » and cv-judge flagged the conflict on the HappyRobot replay (2026-10-21).
+        for profile, title in self.data["experiences"]["artelia"]["titles"].items():
+            with self.subTest(profile=profile):
+                self.assertEqual(title["en"], "Project Director & Business Unit Head")
+                self.assertEqual(title["fr"], "Directeur de Projet & Responsable BU")
+
+    def test_no_full_pnl_wording(self):
+        # Renaud's standing rule: « P&L responsibility », never « Full P&L » (renaud#176 §6).
+        self.assertNotRegex(self.text, re.compile(r"full p&l|p&l complet", re.I))
+
 
 if __name__ == "__main__":
     unittest.main()

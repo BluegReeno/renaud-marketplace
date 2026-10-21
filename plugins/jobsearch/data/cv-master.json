@@ -1503,10 +1503,10 @@
           },
           "t5": {
             "en": [
-              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.65/10 against expert-validated ground truth — and for a renewable energy producer",
+              "Lead discovery-to-production cycles for offshore wind developers — a regulatory assistant that reads the French and UK tender corpus and drafts the compliance report, scored 8.65/10 against expert-validated ground truth; a tender question answered in under a minute instead of hours of analysis",
               "Built hal, a TypeScript MCP server (Deno edge functions, Supabase Postgres, OAuth authentication) exposing 27 tools — CRM, projects, documents — plugged into Claude, Dust and n8n with a one-line install; runs Blue Green daily",
               "Shipped a field assistant for a structural engineering firm (diagnostics on €25M + €35M social housing programmes) — onboarded inspectors on site, removed a feature after observing they misread it, iterated until they ran it without support",
-              "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European grid operator (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
+              "Built a day-ahead price forecasting pipeline for a weather-services client on public data only — integrating the European TSO network (ENTSO-E), the French TSO (RTE) and open weather feeds — accurate within the client's target threshold"
             ],
             "fr": [
               "Diagnostiquer le besoin réel et choisir l'architecture adaptée : RAG réglementaire (BlueWind Companion, 8,65/10 LLM-judged), agent terrain pour techniciens (Edifice, IC Ingénieurs Conseils), pipeline ML prévision spot (EnerCast)",
@@ -1536,24 +1536,24 @@
       "period": "2019 – 2023",
       "titles": {
         "p1": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p2": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p3": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p4": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         },
         "p5": {
-          "en": "Business Development & Project Director",
-          "fr": "Directeur Développement & Projets"
+          "en": "Project Director & Business Unit Head",
+          "fr": "Directeur de Projet & Responsable BU"
         }
       },
       "bullets": {
@@ -1901,7 +1901,7 @@
           },
           "t5": {
             "en": [
-              "Co-founded and built a marine data SaaS as CTO — deployed at Naval Group, RTE (national grid, framework contract) and SBM Offshore. Owned the architecture, the R&D programme and the technical relationship from first demo to autonomous production use. Exit via Artelia acquisition 2019."
+              "Co-founded and built a marine data SaaS as CTO — deployed at Naval Group, RTE (national grid, framework contract) and SBM Offshore. Owned architecture, the R&D programme and client onboarding to autonomous use; raised €2M, grew the team to 12. Exit via Artelia acquisition 2019."
             ],
             "fr": [
               "Co-fonder et construire une plateforme SaaS de données marines — de l'architecture au déploiement industriel chez Naval Group (ex-DCNS), RTE (contrat cadre), SBM Offshore",

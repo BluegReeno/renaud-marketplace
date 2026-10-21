@@ -481,10 +481,13 @@ def generate_cv_html(output_html_path, cv_data, profile, company_type, lang,
 
     # Earlier career
     earlier = experiences['earlier']
+    # "Title — Company: description" — the description itself holds parentheses (WaveWatch III,
+    # A* over wind and current fields), and wrapping it in another pair read as nested noise
+    # (cv-judge on the HappyRobot replay, 2026-10-21).
     earlier_html = '\n'.join(
         '<div class="earlier-item">'
         f'<span class="earlier-content">&#8226; {item.get("title_" + lang, item["title"])} &#8212; {item["company"]}'
-        f' ({item.get("description_" + lang, item.get("description", ""))})</span>'
+        f': {item.get("description_" + lang, item.get("description", ""))}</span>'
         f'<span class="earlier-period">{item["period"]}</span></div>'
         for item in earlier['items']
     )
