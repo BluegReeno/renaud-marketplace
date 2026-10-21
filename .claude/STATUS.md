@@ -1,21 +1,27 @@
 # STATUS — renaud-marketplace
 
-Last updated: 2026-10-07
+Last updated: 2026-10-21
 
 > History up to 2026-08-29 lives in [`STATUS-ARCHIVE.md`](./STATUS-ARCHIVE.md), verbatim.
 > Nothing below repeats it.
 
 ## Current Focus
 
-`#148` shipped (PR #149). Next: a `morning-briefing` run in a cloud session linked to the Mac, to
-see the `device_bash` vault path and the per-candidature mail search at work.
+CV pipeline, after the HappyRobot application of 2026-10-21: one skill « annonce → CV » with a
+mandatory judge (#176), then `morning-briefing` reworked around projects (#175).
 
 ## In Progress
 
-- [ ] **Validate PR #149 in a real cloud session** — `device_bash` finds the mount, `list_notes.py
-      --limit 500` returns the active candidatures, 1e.2 batches ≤10-name OR queries and the
-      "Process en cours" block follows each thread's last mail. The four points PR #149 lists under
-      "Cowork validation needed" are unobserved until then.
+- [ ] **Validate PR #178 in a real cloud session** — the `device_bash` reader sent in the command
+      lists `CRM-JobSearch/Opportunites` (`list … 500`, 0 unreadable expected), and an unread vault
+      opens the brief as « non monté » or « monté mais illisible ». The `_tools/` folder on the
+      Synology mount is no longer read by anything: Renaud deletes it by hand.
+
+- [ ] **#176 — one skill « annonce → CV »** — the facts lot shipped (PR #177); left: the skill
+      itself, the judge always run by the caller, the judge checked against `parcours` alone, the
+      FDE About and competency blocks, add/remove-bullet overrides, the bundled font, the HappyRobot
+      replay. `parcours` lives in `renaud-newjob` since 2026-10-21 (indexed); the `renaud` copy is a
+      pointer, to delete once hal can delete a document.
 
 - [ ] **Watch `session:wrap-up` on a real cycle** — a wrap-up that writes a handoff, then a resume
       from it (after `/clear`, and from a fresh session). Unmeasured until then.
@@ -70,6 +76,18 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] [PR #178](https://github.com/BluegReeno/renaud-marketplace/pull/178), closes #174 —
+      `jobsearch-vault` Case A sends a self-contained stdlib reader in the `device_bash` command;
+      the `_tools` mirror, `sync_vault_tools.sh` and its CI job are retired (this supersedes the
+      mirror of #148 below). Unreadable Synology files are counted and named; `morning-briefing`
+      opens the brief on an unread vault. jobsearch **0.24.2**, briefing **0.23.2** — 2026-10-21
+- [x] [PR #177](https://github.com/BluegReeno/renaud-marketplace/pull/177), refs #176 — `cv-master`
+      facts aligned on `parcours` (no Bachelor, Artelia 2019 – 2023, P4 title Founder & AI Architect,
+      Edifice in the past tense, Tender 8.65); BlueWind lines carry the client outcome — a tender
+      question in under a minute instead of hours — never a version or a chunk count; guarded by
+      `tests/test_cv_master_facts.py` in CI. jobsearch **0.24.1**, improve **0.4.4** (map: the
+      `docs` plugin of bluegreen-marketplace) — 2026-10-21
 
 - [x] [#148](https://github.com/BluegReeno/renaud-marketplace/issues/148) — PR #149: `jobsearch-vault`
       reaches the vault through `device_bash` in a cloud session linked to the Mac, via the
