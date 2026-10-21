@@ -109,6 +109,8 @@ jobs:
           python-version: "3.12"
       - name: Run text tests
         run: python3 tests/test_next_skills.py
+      - name: Run cv-master fact guards
+        run: python3 tests/test_cv_master_facts.py
 
   test-command-center:
     name: Offline tests — Command Center parser

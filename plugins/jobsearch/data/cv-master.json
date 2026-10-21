@@ -17,13 +17,13 @@
   },
   "education": [
     {
-      "degree": "MSc in Oceanography & Climatology",
-      "school": "Sorbonne University",
+      "degree": "DEA (Master's) in Oceanography, Climatology & Environment",
+      "school": "Université Pierre et Marie Curie (now Sorbonne University)",
       "location": "Paris, France",
       "year": "2003"
     },
     {
-      "degree": "Bachelor of Engineering in Coastal Engineering",
+      "degree": "Maîtrise in Mechanics, exchange year",
       "school": "San Diego State University",
       "location": "California, USA",
       "year": "2002"
@@ -1326,8 +1326,8 @@
           "fr": "Directeur IA & Technologie"
         },
         "p4": {
-          "en": "AI Solutions Engineer",
-          "fr": "Solutions Engineer IA"
+          "en": "Founder & AI Architect",
+          "fr": "Fondateur & Architecte IA"
         },
         "p5": {
           "en": "AI Business Developer",
@@ -1532,7 +1532,7 @@
     "artelia": {
       "company": "Artelia",
       "location": "London, UK",
-      "period": "2019 – 2022",
+      "period": "2019 – 2023",
       "titles": {
         "p1": {
           "en": "Business Development & Project Director",
