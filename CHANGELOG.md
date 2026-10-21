@@ -245,6 +245,10 @@ guard therefore belongs on the consumer side.
 - `morning-briefing` skill: composes hal tasks (both workspaces, current sprint + fallback to open tasks), Obsidian jobsearch via the global `obsidian-crm` skill, and 3 Google Calendars via the claude.ai Google Calendar MCP connector — read-only, with loud per-source failure notices
 - `/briefing` slash command (self-contained trigger)
 
+## jobsearch 0.24.1
+
+- cv-master facts aligned on parcours: no Bachelor, Artelia 2019 – 2023, P4 title Founder & AI Architect, Edifice in the past tense, Tender 8.65; BlueWind lines carry the client outcome (a tender question in under a minute instead of hours), never a version number or a chunk count — guarded in CI
+
 ## jobsearch 0.24.0 — released 2026-10-16 (hal migration cutover)
 
 - log-cr, interview-prep, log-application: every task carries its opportunity and the sprint of its due date; log-cr turns Renaud's next steps into tasks; suivi_envoye written as a boolean
@@ -628,6 +632,10 @@ All 30 CVs validated — 1 page each.
 - Rétro-compat: `--positioning ai_consulting/cto/business_dev` still works
 - Plugin directory resolver in SKILL.md (env var → cache → Cowork → dev path)
 - Cowork-compliant: WeasyPrint loaded via `uv run --with`, no pre-install
+
+## improve 0.4.4
+
+- map regenerated: docs plugin (brand, proposal, study-report) from bluegreen-marketplace
 
 ## improve 0.4.3
 
