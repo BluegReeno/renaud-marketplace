@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.25.0
+
+- mail-triage: a household bill in the perso inbox becomes a « payer la facture » task proposal in the personal workspace, created on one yes
+
 ## briefing 0.24.0
 
 - cv-log-worker agent removed — morning-briefing 2c.4 invokes jobsearch's offer-to-cv skill inline, one 🔥 offer after the other, so the judge always runs; cv-judge reads parcours alone (no memory, context or retex), judges toward the interview, never under-sells, routes interview prep to « Notes d'entretien », never proposes « Full P&L », stops on an unreadable parcours (renaud#176)
