@@ -1,0 +1,665 @@
+{
+ "tools": [
+  {
+   "name": "google_connect",
+   "title": "Connect a Google account",
+   "description": "Returns the Google consent link that connects one Google account to the caller in a hal workspace (Gmail and Drive). The user opens it in a browser, chooses the account and accepts; the link is valid ten minutes, once. Calling it on a workspace already connected replaces that account after the new consent.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     }
+    },
+    "required": [
+     "workspace_slug"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "google_disconnect",
+   "title": "Disconnect a Google account",
+   "description": "Revokes at Google the account the caller connected to a hal workspace, then deletes its stored token. Refused by name when the workspace has no connected account.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     }
+    },
+    "required": [
+     "workspace_slug"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "destructiveHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_search",
+   "title": "Search Drive",
+   "description": "Files whose name contains `query`, optionally only the children of `parent_id` and only of `mime_type`; trashed files never. The Drive query is built here from these parameters and returned as `q`. Every file carries md5Checksum, size, mimeType, parents, driveId and webViewLink (md5Checksum and size are absent on a Google-native file).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "query": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A fragment of the file name"
+     },
+     "parent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Only the direct children of this folder"
+     },
+     "mime_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Only this MIME type, e.g. application/pdf or application/vnd.google-apps.folder"
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "default": 50
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "query"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_get",
+   "title": "Get a Drive file",
+   "description": "One file's metadata — md5Checksum, size, mimeType, parents, driveId, webViewLink — and whether this account may move it (capabilities.canMoveItemWithinDrive, canMoveItemOutOfDrive). No md5Checksum and no size: a Google-native file.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "file_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "file_id"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_resolve_path",
+   "title": "Resolve a folder path",
+   "description": "The folder ids along `path` (folder names, as get_filing_path returns them), from the workspace's storage.root (whoami → storage). Names match with case, accents and surrounding blanks ignored; two matching folders are refused with both. Without create_missing, missing folders are returned in `missing` and nothing is created: show them to the user, and after their yes call again with create_missing=true.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "path": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "minItems": 1,
+      "description": "Folder names from the top-level folder down"
+     },
+     "create_missing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Create the missing folders — only after the user said yes"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "path"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_find_duplicate",
+   "title": "Find a duplicate in a folder",
+   "description": "Before filing a file into `folder_id`: `identical` (a file there has this md5 — write nothing, link the record), `same_name_other_content` (a file there has this name but other bytes — stop and ask), or `none`. Without md5 (a Google-native file) only the name, and the size when given, can be compared, and the answer says so.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "folder_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     },
+     "md5": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "The file's md5Checksum (drive_get)"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The name the file will have in the folder"
+     },
+     "size": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d+$"
+       },
+       {
+        "type": "integer",
+        "minimum": 0
+       }
+      ],
+      "description": "The file's size in bytes (drive_get)"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "folder_id",
+     "name"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_move",
+   "title": "Move a Drive file",
+   "description": "Moves a file (never a folder) into `to_folder_id`, renamed to `new_name` when given, in one call: it is never in two places. Refused by name when Google does not let this account move it, when the file or the folder lies outside the drive of the workspace's storage.root, and when the folder already holds the same bytes or the same name (drive_find_duplicate's verdict). Returns the file with its webViewLink and md5Checksum.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "file_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file id — a folder is refused"
+     },
+     "to_folder_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     },
+     "new_name": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "file_id",
+     "to_folder_id"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_rename",
+   "title": "Rename a Drive file",
+   "description": "Renames a file or folder in place.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "file_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "file_id",
+     "name"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_create_folder",
+   "title": "Create a Drive folder",
+   "description": "Creates the folder `name` in `parent_id`, after searching the parent again: a folder already matching it (case, accents and blanks ignored) is refused with its id.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "parent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "parent_id",
+     "name"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_trash",
+   "title": "Trash a duplicate",
+   "description": "Puts `file_id` in Drive's trash (recoverable 30 days) — only when `same_as_file_id` is another file with byte-identical content (same md5Checksum). Refused by name otherwise, and for a Google-native file, which has no md5.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "file_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Drive file or folder id"
+     },
+     "same_as_file_id": {
+      "$ref": "#/properties/file_id"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "file_id",
+     "same_as_file_id"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "destructiveHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "search_emails",
+   "title": "Search Gmail",
+   "description": "Messages matching a Gmail search query, newest first: id, threadId, subject, from, date, snippet.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "query": {
+      "type": "string",
+      "description": "Gmail search syntax, e.g. 'from:qonto has:attachment newer_than:30d'"
+     },
+     "max_results": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 20
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "query"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "read_email",
+   "title": "Read an e-mail",
+   "description": "One message: headers, labels, the plain-text body (the HTML one when the message has no plain text, as body_mime_type says), and its attachments with attachmentId, filename, mimeType and size — the bytes stay at Gmail (get_attachment, drive_upload_from_gmail).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Gmail message id (search_emails, read_email)"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "message_id"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "draft_email",
+   "title": "Draft an e-mail",
+   "description": "Creates a Gmail draft — nothing is sent. With reply_to_message_id it sits in that message's thread. A header value holding a line break is refused.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "to": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Recipient address(es), as a To header"
+     },
+     "subject": {
+      "type": "string"
+     },
+     "body": {
+      "type": "string",
+      "description": "Plain-text body"
+     },
+     "reply_to_message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Gmail message id this draft answers"
+     },
+     "attachments": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "filename": {
+         "type": "string",
+         "minLength": 1,
+         "description": "With its extension, e.g. CV_Renaud_Laborbe.pdf"
+        },
+        "mimeType": {
+         "type": "string",
+         "minLength": 1,
+         "description": "e.g. application/pdf"
+        },
+        "content": {
+         "type": "string",
+         "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+         "description": "The file as standard base64, no line breaks"
+        }
+       },
+       "required": [
+        "filename",
+        "mimeType",
+        "content"
+       ],
+       "additionalProperties": false
+      },
+      "description": "At most 25 MB of base64 in all (~18.5 MB of bytes); share a larger file as a Drive link in the body"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "to",
+     "subject",
+     "body"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "list_labels",
+   "title": "List Gmail labels",
+   "description": "Every Gmail label, system and user: id, name, type.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     }
+    },
+    "required": [
+     "workspace_slug"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "get_attachment",
+   "title": "Get an attachment",
+   "description": "An attachment's bytes as standard base64, with its size and md5 (computed here — the md5Checksum drive_find_duplicate compares). To file an attachment in Drive, call drive_upload_from_gmail instead: the bytes then never pass through the conversation.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Gmail message id (search_emails, read_email)"
+     },
+     "attachment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "An attachment's attachmentId, as read_email lists it"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "message_id",
+     "attachment_id"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "readOnlyHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "drive_upload_from_gmail",
+   "title": "File a Gmail attachment in Drive",
+   "description": "Copies an attachment from Gmail into the Drive folder `folder_id` under `name`, server-side: the bytes never reach the caller. drive_find_duplicate runs first on the attachment's md5, name and size, and the upload is refused by name on `identical` (link the record to the file there) and on `same_name_other_content` (stop and ask). Returns the md5 and the new file with its webViewLink and md5Checksum.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Gmail message id (search_emails, read_email)"
+     },
+     "attachment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "An attachment's attachmentId, as read_email lists it"
+     },
+     "folder_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The destination folder (drive_resolve_path gives it)"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The file's name in Drive (get_filing_path gives it)"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "message_id",
+     "attachment_id",
+     "folder_id",
+     "name"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  },
+  {
+   "name": "forward",
+   "title": "Forward an e-mail",
+   "description": "SENDS the message to `to` at once — there is no draft and no undo. Before calling it, show the user the recipient, the subject and every attachment (read_email) and wait for their explicit go. The forward carries `note`, the « Forwarded message » block (From, Date, Subject, To, Cc), the original body and every original attachment byte for byte, and sits in the original's thread. A header value holding a line break is refused.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "workspace_slug": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The hal workspace, as `whoami` lists it"
+     },
+     "message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A Gmail message id (search_emails, read_email)"
+     },
+     "to": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Recipient address(es), as a To header"
+     },
+     "note": {
+      "type": "string",
+      "description": "Text written above the forwarded message"
+     }
+    },
+    "required": [
+     "workspace_slug",
+     "message_id",
+     "to"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+   },
+   "annotations": {
+    "destructiveHint": true
+   },
+   "execution": {
+    "taskSupport": "forbidden"
+   }
+  }
+ ]
+}
