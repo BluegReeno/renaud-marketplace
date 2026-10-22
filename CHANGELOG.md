@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.25.1
+
+- mail-triage: the newsletters and promotions the search filter leaves out are named in the report
+
 ## briefing 0.25.0
 
 - mail-triage: a household bill in the perso inbox becomes a « payer la facture » task proposal in the personal workspace, created on one yes
