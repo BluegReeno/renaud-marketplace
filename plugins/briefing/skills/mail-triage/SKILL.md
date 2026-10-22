@@ -4,9 +4,11 @@ description: >
   Scan both mail inboxes (Gmail perso + Gmail pro) over a configurable window
   (default 7 days), cross-reference senders against HAL CRM contacts, companies,
   and projects plus the Obsidian jobsearch vault, then classify each thread into
-  domain-specific categories and recommend a concrete action per thread. Trigger: /mail,
+  domain-specific categories and recommend a concrete action per thread. A household bill in the
+  perso inbox is proposed as a « payer la facture » task in the personal workspace, created on
+  one yes. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
 ---
 
 # Mail Triage — Skill Instructions
@@ -15,7 +17,9 @@ allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_co
 
 Exhaustive triage of both mail inboxes over a configurable window (default **7 days**). For
 each thread: resolve the sender/subject against HAL CRM context and the Obsidian jobsearch
-vault, classify into a domain-specific category, and recommend a concrete action.
+vault, classify into a domain-specific category, and recommend a concrete action. Household bills
+are the one category that leads to a write: one « payer la facture » task each, in the personal
+workspace, proposed in the report and created on one yes (Step 5b).
 
 **Parameter**: `N=<days>` in the prompt overrides the default window (e.g. "trie mes mails des 3 derniers jours").
 
@@ -138,6 +142,14 @@ Collect: `pro_threads[]` (id, sender_email, subject, snippet, date).
 
 For each thread in `perso_threads[]` and `pro_threads[]`, apply the following resolution in order:
 
+0. **Household bill** (perso inbox only): the mail asks the household to pay a stated amount — an
+   invoice, a payment request, a due notice (school, canteen, insurer, utility, tax, rent, a club)
+   — and is not addressed to a company (no company name or SIREN as the billed party) → household
+   domain, `facture_à_payer`. This test runs before the others: a bill is never job search, and
+   never `personnel` or `non_classifié`. A receipt, a payment confirmation, or a debit already
+   made (« prélèvement effectué », « aucune action requise ») is not a bill to pay → household
+   domain, `facture_réglée`. A perso-inbox invoice billed to the company (Blue Green SAS, its
+   SIREN) is a business invoice → Blue Green domain, `administratif`, never household.
 1. **CRM lookup**: match `sender_email` against the merged HAL contacts map (Step 1a). A match → candidate for the Blue Green (business) domain even if the thread arrived in the perso inbox (forward/CC scenario).
 2. **Vault lookup**: match `sender_email` or company name extracted from subject/snippet against `active_candidatures[]` (Step 1b). A match → jobsearch domain.
 3. **Inbox signal (default)**: perso inbox threads not matched to CRM → jobsearch domain. Pro inbox threads not matched to vault → Blue Green (business) domain.
@@ -162,6 +174,18 @@ For each thread in `perso_threads[]` and `pro_threads[]`, apply the following re
 | `silence_propale` | Thread matched to a BG opportunity where a proposal was sent (stage ≈ "propale envoyée") with no client reply for > 14 days |
 | `administratif` | Invoice, contract notice, subscription, admin communication — not mapped to a CRM opportunity |
 
+### Household categories (Gmail perso)
+
+| Category | Classification signal |
+|----------|-----------------------|
+| `facture_à_payer` | A bill or payment request addressed to the household, with an amount still to pay — read the amount, the deadline (« à régler avant », « date limite », « échéance ») and the reference from the body |
+| `facture_réglée` | A receipt or payment confirmation — the amount is already paid or debited, nothing to do |
+
+The household workspace is the one `whoami` returns with `type: "personal"` and `archived: false`
+— resolved from the type, never from a slug. None → no task is proposed and the report says
+`⚠️ aucun workspace personnel dans whoami — tâches non proposées`. More than one → the proposal
+asks which one.
+
 ### Fallback categories (either inbox)
 
 | Category | Classification signal |
@@ -185,6 +209,13 @@ For each classified thread, attach one concrete action recommendation.
 | `silence` | Évaluer si une relance est pertinente (délai, contexte, type de poste). Pas d'action automatique. |
 | `relance_possible` | Rédiger une relance courte, à partir de la note de candidature du vault. |
 | `nouvelle_opportunité` | Évaluer le fit (🔥/🟡/❌). Si positif : lancer `/log-application` pour créer la fiche vault. |
+
+### Household actions
+
+| Category | Recommended action |
+|----------|--------------------|
+| `facture_à_payer` | Payer avant l'échéance. Proposer une tâche « Payer la facture <émetteur> — <montant> » dans le workspace personnel (Step 5b). |
+| `facture_réglée` | Aucune action, à archiver. Pas de tâche. |
 
 ### Blue Green actions
 
@@ -244,6 +275,16 @@ empty sub-sections (do not render a section header if it has zero threads).
 
 (aucun mail BG classifié  |  ou : ⚠️ Gmail pro DOWN — <reason>)
 
+## 🏠 Foyer — Gmail perso
+
+### facture_à_payer (<count>)
+- **<issuer>** — <subject> [<date>]
+  → <montant> à régler avant le <échéance> (réf. <reference>)
+  → **Action** : payer — tâche proposée ci-dessous
+
+### facture_réglée (<count>)
+- **<issuer>** — <subject> [<date>] — <montant> déjà réglé, rien à faire
+
 ## 📌 Non classifié / Personnel / Newsletter
 - <sender> — <subject> [<date>] — <category>
 (skip section entirely if empty)
@@ -259,12 +300,38 @@ The "Source status" footer is mandatory and ALWAYS renders all four lines — ev
 
 ---
 
+## Step 5b — Propose the household tasks, create them on one yes
+
+When at least one thread is `facture_à_payer` and the household workspace resolved (Step 3),
+end the report with the proposal — one line per bill, then one question:
+
+```
+## Tâches proposées — <household workspace name> (`<slug>`)
+- Payer la facture <issuer> — <amount> · échéance <due date> · tag `finance` · réf. <reference>
+...
+Je crée ces <n> tâches dans <household workspace name> ? (oui / non / à corriger)
+```
+
+- **Dedup first.** A bill already carried by an open task of that workspace (`tasks_by_ws`, Step
+  1a — same issuer and amount, or its reference, in the title or description) is not proposed
+  again; the report names the existing task instead.
+- **On « oui »**: one `mcp__plugin_hal_hal-mcp__create_task` per proposed line, `workspace_slug`
+  = the household workspace, `title` « Payer la facture <issuer> — <amount> », `due_date` = the
+  mail's deadline (ISO date; omitted when the mail states none), `tags` = `["finance"]` when
+  `finance` is in that workspace's `allowed_tags` (else `["other"]`), `description` = the
+  reference, the payment means the mail names and the sender. Then list what was created.
+- **On « non »** nothing is written; on a correction, apply it and create on the corrected list.
+- Never in another workspace: not a `company` workspace, not a `jobsearch` one — whatever the
+  bill's subject.
+
+---
+
 ## Step 6 — Constraints (load-bearing)
 
 - **Read-only for all mail** — no draft, send, label, or delete calls. Never invoke `create_draft`, `label_thread`, `label_message`, or any write tool on either Gmail connector.
 - **Read-only for vault** — never write to `jobsearch-vault`.
-- **No automatic action execution** — this skill classifies and recommends. The user decides and acts. Never auto-call `/log-application`, `/interview-prep`, or any HAL write tool without explicit user confirmation.
-- **HAL reads are allowed** — `list_contacts`, `list_companies`, `list_projects`, `list_tasks`, `list_sprints` are safe reads. `log_interaction` and other write tools require explicit user request in the conversation.
+- **No automatic action execution** — this skill classifies and recommends. The user decides and acts. Never auto-call `/log-application`, `/interview-prep`, or any HAL write tool without explicit user confirmation. The one write the skill proposes itself is Step 5b's household tasks, and it waits for the yes too: nothing is created before it.
+- **HAL reads are allowed** — `list_contacts`, `list_companies`, `list_projects`, `list_tasks`, `list_sprints` are safe reads. `create_task` runs only in Step 5b, after the yes. `log_interaction` and other write tools require explicit user request in the conversation.
 - **Classify every thread** — no thread is silently dropped. Unclassifiable threads go to `non_classifié`.
 - **Never silently omit a source** — any probe or scan failure renders `⚠️` in the relevant section AND in the source-status footer.
 - **Compose, do not bypass** — call `Skill(jobsearch-vault)` for vault access. Never read the Obsidian filesystem directly.
