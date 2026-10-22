@@ -9,7 +9,7 @@ description: >
   or an appointment today. On weekends it runs a personal-only variant. Use when
   the user asks "what's up for today", "ma journée", "briefing du jour", "quel est
   mon planning", or any similar daily-overview trigger.
-allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge)"
+allowed-tools: "Bash mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__get_document mcp__plugin_hal_hal-mcp__save_document mcp__plugin_hal_hal-mcp__update_task mcp__claude_ai_Google_Calendar__list_calendars mcp__claude_ai_Google_Calendar__list_events mcp__plugin_hal_google-mcp__search_emails mcp__plugin_hal_google-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(read-job-offer) Skill(jobsearch-vault) Skill(offer-to-cv) Agent(cv-judge)"
 ---
 
 # Morning Briefing
@@ -67,8 +67,12 @@ Probe the remaining sources independently; one failure never stops the others:
 
 - **Google Calendar**: `list_calendars`. Failure → `gcal:DOWN <reason>` (OAuth error → add
   "reconnect at claude.ai/connectors").
-- **Gmail perso** (`mcp__plugin_briefing_gmail-mcp__*`) and **Gmail pro** (`mcp__claude_ai_Gmail__*`),
-  weekday only: a minimal search each. The server called decides the inbox, never an address string.
+- **Gmail perso** (`mcp__plugin_hal_google-mcp__*`, only when the job-search block exists, with
+  `workspace_slug` = the `jobsearch` workspace — the Google account connected to it is the inbox that
+  receives the job mail) and **Gmail pro** (`mcp__claude_ai_Gmail__*`), weekday only: a minimal search
+  each. The workspace (perso) or the server (pro) decides the inbox, never an address string. A
+  « No Google identity connected » refusal → `gmail-perso:DOWN` with the reason, and the
+  `google_connect('<slug>')` call to make once, by hand.
 - **Vault**, only when the job-search block exists: a small `jobsearch-vault` read.
 
 Print one header line under the title: `Mode : semaine` or `Mode : week-end perso (<names of the
@@ -161,16 +165,16 @@ Either way skip the vault parts, and the 2c.2 per-candidature mail searches with
 
 **2. Mail (perso inbox)**, three searches, skipped on `gmail-perso:DOWN`:
 - LinkedIn digests: `from:jobalerts-noreply@linkedin.com OR from:jobs-listings@linkedin.com
-  newer_than:1d`, `maxResults=20`. `read_email` each and extract **every** title / company / location /
+  newer_than:1d`, `max_results=20`. `read_email` each and extract **every** title / company / location /
   snippet; the job id is the regex `jobs/view/(\d+)` on the plain-text body, the URL
   `https://www.linkedin.com/jobs/view/<id>`.
 - Active-candidature threads: company names of the active candidatures, **OR-groups of at most 10**
   (a 20-name query returns `[]` without an error), `newer_than:14d -from:*linkedin.com
-  -from:*substack.com -from:*skool.com`, `maxResults=25`. `read_email` the **newest** message of each
-  matched thread and keep its id. `fetchError:true` is a partial read, kept and marked degraded.
+  -from:*substack.com -from:*skool.com`, `max_results=25`. `read_email` the **newest** message of each
+  matched thread and keep its id. A read that fails is an error, named in Source status.
   Skipped, with `⚠️ recherches mails par candidature NON exécutées`, when the vault is unreadable.
 - Inbound recruiters: `(recruteur OR recruiter OR opportunité OR opportunity OR poste OR position)
-  newer_than:2d -from:jobalerts-noreply@linkedin.com`, `maxResults=10`; keep genuine outreach only.
+  newer_than:2d -from:jobalerts-noreply@linkedin.com`, `max_results=10`; keep genuine outreach only.
 
 **A process's stage comes from its last mail, never from a hal task description.** When they disagree,
 the mail wins and the gap is written out: `⚠️ tâche hal désynchro : <task says> vs <last mail says>`.
@@ -237,9 +241,9 @@ traitées, 3 listées sans CV`. Collect each returned line verbatim (`CV_prépar
 Only when `opportunity` is in the workspace's `kinds_enabled` (a disabled kind is refused by name):
 `list_projects(workspace_slug, kind="opportunity")`, `truncated: true` → again with `limit=<total>`,
 keeping stages in `kind_stages.opportunity.active`.
-Pro inbox, two searches: `newer_than:7d -label:newsletters` (`maxResults=20`) matched against the
+Pro inbox, two searches: `newer_than:7d -label:newsletters` (`max_results=20`) matched against the
 projects' `company` / `contact` (name, email domain) and read; `newer_than:2d -label:newsletters
--label:promotional` (`maxResults=10`) for new commercial inbound matching nothing. Keep every thread
+-label:promotional` (`max_results=10`) for new commercial inbound matching nothing. Keep every thread
 id. Skipped on `gmail-pro:DOWN`.
 
 ---
@@ -303,8 +307,8 @@ jobsearch-vault : ✅ | ⚠️ …   ·   Gmail perso : ✅ | ⚠️ …   ·   
 ```
 
 `Gmail perso : ✅` requires the three searches of 2c.2 to have run; name the sub-steps that did not
-(`⚠️ sous-étapes non exécutées : 2c.2 candidatures`), and `⚠️ lecture partielle (fetchError sur <n>
-mail(s))` when a result carried `fetchError`.
+(`⚠️ sous-étapes non exécutées : 2c.2 candidatures`), and `⚠️ <n> mail(s) illisible(s) : <the error>`
+for each `read_email` that failed.
 
 ### Plan du jour
 
