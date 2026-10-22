@@ -7,25 +7,26 @@ Last updated: 2026-10-21
 
 ## Current Focus
 
-CV pipeline, after the HappyRobot application of 2026-10-21: one skill « annonce → CV » with a
-mandatory judge (#176), then `morning-briefing` reworked around projects (#175).
+CV lot 2 shipped (PR #179, `offer-to-cv` + mandatory judge). Next: `morning-briefing` lot 3 — the
+deterministic jobsearch half of #175 (window since the last daily-log, every digest job id,
+enrichment and CV fan-out in `--headless`, which runs locally with the vault), then the mail half.
 
 ## In Progress
 
 - [ ] **Validate PR #178 in a real cloud session** — the `device_bash` reader sent in the command
       lists `CRM-JobSearch/Opportunites` (`list … 500`, 0 unreadable expected), and an unread vault
-      opens the brief as « non monté » or « monté mais illisible ». The `_tools/` folder on the
-      Synology mount is no longer read by anything: Renaud deletes it by hand.
+      opens the brief as « non monté » or « monté mais illisible ». The `_tools/` mirror never
+      existed on the Synology mount (checked 2026-10-21): nothing to delete.
 
-- [ ] **#176 — one skill « annonce → CV »** — lot 2 in
-      [PR #179](https://github.com/BluegReeno/renaud-marketplace/pull/179), to review and merge:
-      `offer-to-cv` skill run inline by `apply-to-offer` and `morning-briefing` (the `cv-log-worker`
-      agent is gone), judge Tour 1 and Tour 2 every time, `cv-judge` on `parcours` alone, P4 EN
-      cells validated, add/remove-bullet overrides, Roboto + DejaVu bundled, 30 CVs rendered in CI
-      on Linux. HappyRobot replay in scratch: Tour 1 **8/10** in one pass, Tour 2 9/10. Left for
-      Renaud: the `parcours` additions the judge lists as « non vérifié » (Artelia — London, the
-      Edifice Chat-tab removal), and whether the Artelia title / « Full P&L » cleanup stays on every
-      profile. jobsearch **0.25.0**, briefing **0.24.0**, improve **0.4.5** — 2026-10-21
+- [ ] **Prove `offer-to-cv` for real** — the first `apply-to-offer` from a Cowork session logs a
+      candidature **with** a judge score, and the first real briefing run reaches step 2c.4 through
+      the skill. PR #179 proved it on text tests and a scratch replay only (HappyRobot: judge 8/10
+      one pass, 9/10 after Tour 2).
+
+- [ ] **Renaud decides** whether the Artelia title of `parcours` and the removal of « Full P&L »
+      stay on every profile (PR #179 did both, P1–P3/P5 included). The `parcours` gaps the judge
+      flagged (Artelia London, the Edifice Chat tab, OAuth 2.1, languages) were added to the hal
+      document on 2026-10-21 by the lot-2 session.
 
 - [ ] **Watch `session:wrap-up` on a real cycle** — a wrap-up that writes a handoff, then a resume
       from it (after `/clear`, and from a fresh session). Unmeasured until then.
@@ -80,6 +81,11 @@ unchanged. Each lot is one release per plugin touched. Do not reorder without a 
   — publish it from a Cowork session before reopening the question.
 
 ## Done (current sprint)
+
+- [x] #176 lot 2 — PR #179: skill `jobsearch/offer-to-cv` replaces the `cv-log-worker` agent, judge
+      run inline every time (never « CV non jugé »), P4 EN cells with the FDE About and blocks,
+      `generate_cv.py` add/remove-bullet and `--containers-override`, bundled Roboto/DejaVu, `cv-judge`
+      on `parcours` alone; jobsearch 0.25.0, briefing 0.24.0, improve 0.4.5 — 2026-10-21
 
 - [x] [PR #178](https://github.com/BluegReeno/renaud-marketplace/pull/178), closes #174 —
       `jobsearch-vault` Case A sends a self-contained stdlib reader in the `device_bash` command;
