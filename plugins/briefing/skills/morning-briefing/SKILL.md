@@ -72,7 +72,9 @@ Probe the remaining sources independently; one failure never stops the others:
   receives the job mail) and **Gmail pro** (`mcp__claude_ai_Gmail__*`), weekday only: a minimal search
   each. The workspace (perso) or the server (pro) decides the inbox, never an address string. A
   « No Google identity connected » refusal → `gmail-perso:DOWN` with the reason, and the
-  `google_connect('<slug>')` call to make once, by hand.
+  `google_connect('<slug>')` call to make once, by hand. No `jobsearch` workspace resolved (hal
+  DOWN, or none in `whoami`) → `gmail-perso:DOWN — no workspace resolved`: the inbox is **not
+  probed**, never reported as empty.
 - **Vault**, only when the job-search block exists: a small `jobsearch-vault` read.
 
 Print one header line under the title: `Mode : semaine` or `Mode : week-end perso (<names of the
@@ -241,9 +243,9 @@ traitées, 3 listées sans CV`. Collect each returned line verbatim (`CV_prépar
 Only when `opportunity` is in the workspace's `kinds_enabled` (a disabled kind is refused by name):
 `list_projects(workspace_slug, kind="opportunity")`, `truncated: true` → again with `limit=<total>`,
 keeping stages in `kind_stages.opportunity.active`.
-Pro inbox, two searches: `newer_than:7d -label:newsletters` (`max_results=20`) matched against the
+Pro inbox, two searches: `newer_than:7d -label:newsletters` (`pageSize=20`) matched against the
 projects' `company` / `contact` (name, email domain) and read; `newer_than:2d -label:newsletters
--label:promotional` (`max_results=10`) for new commercial inbound matching nothing. Keep every thread
+-label:promotional` (`pageSize=10`) for new commercial inbound matching nothing. Keep every thread
 id. Skipped on `gmail-pro:DOWN`.
 
 ---
@@ -306,7 +308,8 @@ jobsearch-vault : ✅ | ⚠️ …   ·   Gmail perso : ✅ | ⚠️ …   ·   
 (only the sources in scope; a source out of scope is listed as « hors périmètre (week-end) »)
 ```
 
-`Gmail perso : ✅` requires the three searches of 2c.2 to have run; name the sub-steps that did not
+`Gmail perso : ⚠️ non sondée — aucun workspace résolu` when no `jobsearch` workspace resolved: the
+inbox was not read, which is not an empty inbox. `Gmail perso : ✅` requires the three searches of 2c.2 to have run; name the sub-steps that did not
 (`⚠️ sous-étapes non exécutées : 2c.2 candidatures`), and `⚠️ <n> mail(s) illisible(s) : <the error>`
 for each `read_email` that failed.
 

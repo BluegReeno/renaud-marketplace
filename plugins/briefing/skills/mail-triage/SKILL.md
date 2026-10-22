@@ -41,7 +41,7 @@ omission is a critical failure.
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
 
 - **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip Steps 1a-1c: with no workspace there is no CRM context to load. Never assert a specific email or slug — Step 1 iterates on whatever `whoami` returns.
-- **Gmail perso probe**: resolve the perso workspace from `whoami` — the live workspace of `type: "jobsearch"`, else the one of `type: "personal"` (several → ask which) — and call `mcp__plugin_hal_google-mcp__search_emails(workspace_slug=<it>, query="after:2000/01/01", max_results=1)`. The Google account connected to that workspace is the perso inbox. On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a; a « No Google identity connected » refusal also names the `google_connect('<slug>')` call to make once, by hand.
+- **Gmail perso probe**: resolve the perso workspace from `whoami` — the live workspace of `type: "jobsearch"`, else the one of `type: "personal"` (several → ask which) — and call `mcp__plugin_hal_google-mcp__search_emails(workspace_slug=<it>, query="after:2000/01/01", max_results=1)`. The Google account connected to that workspace is the perso inbox. On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a; a « No Google identity connected » refusal also names the `google_connect('<slug>')` call to make once, by hand. No workspace resolved (`hal:DOWN`, or no live `jobsearch` or `personal` workspace) → `gmail-perso:DOWN — no workspace resolved`, Step 2a skipped: the inbox was not probed, which is not an empty inbox.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 2b.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures via `Skill(jobsearch-vault)`). On failure → mark `jobsearch:DOWN <reason>`, skip vault matching in Step 3.
 
@@ -141,7 +141,7 @@ Skip if `gmail-pro:DOWN`.
 ```
 mcp__claude_ai_Gmail__search_threads(
   query="newer_than:<N>d -label:newsletters -label:promotional",
-  maxResults=50
+  pageSize=50
 )
 ```
 
@@ -149,7 +149,7 @@ For each result, call `mcp__claude_ai_Gmail__get_thread(id=<thread_id>)` to get 
 subject, and first-message snippet.
 
 Then the same listing of what the query filtered out:
-`mcp__claude_ai_Gmail__search_threads(query="newer_than:<N>d (label:newsletters OR label:promotional)", maxResults=50)`
+`mcp__claude_ai_Gmail__search_threads(query="newer_than:<N>d (label:newsletters OR label:promotional)", pageSize=50)`
 → `newsletter`, metadata only, marked `écarté par le filtre`.
 
 Collect: `pro_threads[]` (id, sender_email, subject, snippet, date) and `pro_filtered[]`.
