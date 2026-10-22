@@ -5,7 +5,7 @@ description: >
   (default 7 days), cross-reference senders against HAL CRM contacts, companies,
   and projects plus the Obsidian jobsearch vault, then classify each thread into
   domain-specific categories and recommend a concrete action per thread. A household bill in the
-  perso inbox is proposed as a « payer la facture » task in the personal workspace, created on
+  perso inbox is proposed as a « payer la facture » task in the household workspace, created on
   one yes. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
 allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_google-mcp__search_emails mcp__plugin_hal_google-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
@@ -18,7 +18,7 @@ allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_co
 Exhaustive triage of both mail inboxes over a configurable window (default **7 days**). For
 each thread: resolve the sender/subject against HAL CRM context and the Obsidian jobsearch
 vault, classify into a domain-specific category, and recommend a concrete action. Household bills
-are the one category that leads to a write: one « payer la facture » task each, in the personal
+are the one category that leads to a write: one « payer la facture » task each, in the household
 workspace, proposed in the report and created on one yes (Step 5b).
 
 **Parameter**: `N=<days>` in the prompt overrides the default window (e.g. "trie mes mails des 3 derniers jours").
@@ -199,10 +199,11 @@ For each thread in `perso_threads[]` and `pro_threads[]`, apply the following re
 | `facture_à_payer` | A bill or payment request addressed to the household, with an amount still to pay — read the amount, the deadline (« à régler avant », « date limite », « échéance ») and the reference from the body |
 | `facture_réglée` | A receipt or payment confirmation — the amount is already paid or debited, nothing to do |
 
-The household workspace is the one `whoami` returns with `type: "personal"` and `archived: false`
-— resolved from the type, never from a slug. None → no task is proposed and the report says
-`⚠️ aucun workspace personnel dans whoami — tâches non proposées`. More than one → the proposal
-asks which one.
+The household workspace is the one `whoami` returns with `household: true` and `archived: false`
+(hal q69: a personal workspace marked as its members' household) — resolved from that marker,
+never from a slug nor from `type` alone: a person's own `personal` workspace is not the household.
+None → no task is proposed and the report says `⚠️ aucun workspace foyer dans whoami (household)
+— tâches non proposées`. More than one → the proposal asks which one.
 
 ### Fallback categories (either inbox)
 
