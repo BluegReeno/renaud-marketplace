@@ -125,7 +125,8 @@ type: fixed
       "sprints_enabled": false,
       "knowledge_enabled": true,
       "calendar_id": null,
-      "member_calendar_id": null
+      "member_calendar_id": null,
+      "household": false
     },
     {
       "workspace_slug": "hal-audit-famille",
@@ -201,7 +202,8 @@ type: fixed
       "sprints_enabled": false,
       "knowledge_enabled": true,
       "calendar_id": null,
-      "member_calendar_id": null
+      "member_calendar_id": null,
+      "household": true
     },
     {
       "workspace_slug": "hal-audit-jobsearch",
@@ -278,7 +280,8 @@ type: fixed
       "sprints_enabled": true,
       "knowledge_enabled": true,
       "calendar_id": null,
-      "member_calendar_id": null
+      "member_calendar_id": null,
+      "household": false
     },
     {
       "workspace_slug": "hal-audit-pme",
@@ -401,7 +404,8 @@ type: fixed
       "sprints_enabled": true,
       "knowledge_enabled": true,
       "calendar_id": null,
-      "member_calendar_id": null
+      "member_calendar_id": null,
+      "household": false
     }
   ],
   "default_workspace_slug": null

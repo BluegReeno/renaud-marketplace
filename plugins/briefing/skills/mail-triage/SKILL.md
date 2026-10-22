@@ -5,10 +5,10 @@ description: >
   (default 7 days), cross-reference senders against HAL CRM contacts, companies,
   and projects plus the Obsidian jobsearch vault, then classify each thread into
   domain-specific categories and recommend a concrete action per thread. A household bill in the
-  perso inbox is proposed as a « payer la facture » task in the personal workspace, created on
+  perso inbox is proposed as a « payer la facture » task in the household workspace, created on
   one yes. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__plugin_briefing_gmail-mcp__search_emails mcp__plugin_briefing_gmail-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_google-mcp__search_emails mcp__plugin_hal_google-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
 ---
 
 # Mail Triage — Skill Instructions
@@ -18,7 +18,7 @@ allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_co
 Exhaustive triage of both mail inboxes over a configurable window (default **7 days**). For
 each thread: resolve the sender/subject against HAL CRM context and the Obsidian jobsearch
 vault, classify into a domain-specific category, and recommend a concrete action. Household bills
-are the one category that leads to a write: one « payer la facture » task each, in the personal
+are the one category that leads to a write: one « payer la facture » task each, in the household
 workspace, proposed in the report and created on one yes (Step 5b).
 
 **Parameter**: `N=<days>` in the prompt overrides the default window (e.g. "trie mes mails des 3 derniers jours").
@@ -41,7 +41,7 @@ omission is a critical failure.
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
 
 - **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip Steps 1a-1c: with no workspace there is no CRM context to load. Never assert a specific email or slug — Step 1 iterates on whatever `whoami` returns.
-- **Gmail perso probe**: call `mcp__plugin_briefing_gmail-mcp__search_emails` with a minimal query (`after:2000/01/01 maxResults:1`). On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a.
+- **Gmail perso probe**: resolve the perso workspace from `whoami` — the live workspace of `type: "jobsearch"`, else the one of `type: "personal"` (several → ask which) — and call `mcp__plugin_hal_google-mcp__search_emails(workspace_slug=<it>, query="after:2000/01/01", max_results=1)`. The Google account connected to that workspace is the perso inbox. On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a; a « No Google identity connected » refusal also names the `google_connect('<slug>')` call to make once, by hand. No workspace resolved (`hal:DOWN`, or no live `jobsearch` or `personal` workspace) → `gmail-perso:DOWN — no workspace resolved`, Step 2a skipped: the inbox was not probed, which is not an empty inbox.
 - **Gmail pro probe**: call `mcp__claude_ai_Gmail__search_threads` with a minimal query. On failure → mark `gmail-pro:DOWN <reason>`, skip Step 2b.
 - **jobsearch-vault probe**: attempt a small read (list active candidatures via `Skill(jobsearch-vault)`). On failure → mark `jobsearch:DOWN <reason>`, skip vault matching in Step 3.
 
@@ -99,29 +99,31 @@ Collect: `active_candidatures[]` (company, role, stage, recruiter_email if any).
 
 Run 2a and 2b in parallel.
 
-### 2a — Gmail perso (via `mcp__plugin_briefing_gmail-mcp__*`)
+### 2a — Gmail perso (via `mcp__plugin_hal_google-mcp__*`)
 
-Which inbox is scanned is decided by **which MCP server is called**, never by an address string — this block always targets the perso inbox because it calls `mcp__plugin_briefing_gmail-mcp__*`.
+Which inbox is scanned is decided by **the `workspace_slug` passed** — the perso workspace of Step 0 — never by an address string: google-mcp reads the Google account connected to that workspace.
 
 Skip if `gmail-perso:DOWN`.
 
 ```
-mcp__plugin_briefing_gmail-mcp__search_emails(
+mcp__plugin_hal_google-mcp__search_emails(
+  workspace_slug=<perso workspace>,
   query="newer_than:<N>d -label:newsletters -category:promotions",
-  maxResults=50
+  max_results=50
 )
 ```
 
-For each result, call `mcp__plugin_briefing_gmail-mcp__read_email(id=<email_id>)` to get sender,
+For each result, call `mcp__plugin_hal_google-mcp__read_email(workspace_slug=<perso workspace>, message_id=<id>)` to get sender,
 subject, snippet, and body. Automated digests (from no-reply addresses) — subject + sender +
 snippet is sufficient for classification; skip full body read.
 
 Then list what the query filtered out, so that no mail is dropped unseen:
 
 ```
-mcp__plugin_briefing_gmail-mcp__search_emails(
+mcp__plugin_hal_google-mcp__search_emails(
+  workspace_slug=<perso workspace>,
   query="newer_than:<N>d (label:newsletters OR category:promotions)",
-  maxResults=50
+  max_results=50
 )
 ```
 
@@ -139,7 +141,7 @@ Skip if `gmail-pro:DOWN`.
 ```
 mcp__claude_ai_Gmail__search_threads(
   query="newer_than:<N>d -label:newsletters -label:promotional",
-  maxResults=50
+  pageSize=50
 )
 ```
 
@@ -147,7 +149,7 @@ For each result, call `mcp__claude_ai_Gmail__get_thread(id=<thread_id>)` to get 
 subject, and first-message snippet.
 
 Then the same listing of what the query filtered out:
-`mcp__claude_ai_Gmail__search_threads(query="newer_than:<N>d (label:newsletters OR label:promotional)", maxResults=50)`
+`mcp__claude_ai_Gmail__search_threads(query="newer_than:<N>d (label:newsletters OR label:promotional)", pageSize=50)`
 → `newsletter`, metadata only, marked `écarté par le filtre`.
 
 Collect: `pro_threads[]` (id, sender_email, subject, snippet, date) and `pro_filtered[]`.
@@ -197,10 +199,11 @@ For each thread in `perso_threads[]` and `pro_threads[]`, apply the following re
 | `facture_à_payer` | A bill or payment request addressed to the household, with an amount still to pay — read the amount, the deadline (« à régler avant », « date limite », « échéance ») and the reference from the body |
 | `facture_réglée` | A receipt or payment confirmation — the amount is already paid or debited, nothing to do |
 
-The household workspace is the one `whoami` returns with `type: "personal"` and `archived: false`
-— resolved from the type, never from a slug. None → no task is proposed and the report says
-`⚠️ aucun workspace personnel dans whoami — tâches non proposées`. More than one → the proposal
-asks which one.
+The household workspace is the one `whoami` returns with `household: true` and `archived: false`
+(hal q69: a personal workspace marked as its members' household) — resolved from that marker,
+never from a slug nor from `type` alone: a person's own `personal` workspace is not the household.
+None → no task is proposed and the report says `⚠️ aucun workspace foyer dans whoami (household)
+— tâches non proposées`. More than one → the proposal asks which one.
 
 ### Fallback categories (either inbox)
 
@@ -345,7 +348,7 @@ Je crée ces <n> tâches dans <household workspace name> ? (oui / non / à corri
 
 ## Step 6 — Constraints (load-bearing)
 
-- **Read-only for all mail** — no draft, send, label, or delete calls. Never invoke `create_draft`, `label_thread`, `label_message`, or any write tool on either Gmail connector.
+- **Read-only for all mail** — no draft, send, label, or delete calls. Never invoke `draft_email`, `forward`, `create_draft`, `label_thread`, `label_message`, or any write tool on either Gmail connector.
 - **Read-only for vault** — never write to `jobsearch-vault`.
 - **No automatic action execution** — this skill classifies and recommends. The user decides and acts. Never auto-call `/log-application`, `/interview-prep`, or any HAL write tool without explicit user confirmation. The one write the skill proposes itself is Step 5b's household tasks, and it waits for the yes too: nothing is created before it.
 - **HAL reads are allowed** — `list_contacts`, `list_companies`, `list_projects`, `list_tasks`, `list_sprints` are safe reads. `create_task` runs only in Step 5b, after the yes. `log_interaction` and other write tools require explicit user request in the conversation.

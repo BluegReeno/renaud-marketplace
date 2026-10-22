@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "gmail-mcp": {
-      "type": "http",
-      "url": "https://isdyvrwnxqcfalmlkzui.supabase.co/functions/v1/gmail-mcp",
-      "version": "0.2.1"
-    }
-  }
-}
