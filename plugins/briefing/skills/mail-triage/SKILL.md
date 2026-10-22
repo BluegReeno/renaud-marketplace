@@ -116,7 +116,19 @@ For each result, call `mcp__plugin_briefing_gmail-mcp__read_email(id=<email_id>)
 subject, snippet, and body. Automated digests (from no-reply addresses) — subject + sender +
 snippet is sufficient for classification; skip full body read.
 
-Collect: `perso_threads[]` (id, sender_email, subject, snippet, date).
+Then list what the query filtered out, so that no mail is dropped unseen:
+
+```
+mcp__plugin_briefing_gmail-mcp__search_emails(
+  query="newer_than:<N>d (label:newsletters OR category:promotions)",
+  maxResults=50
+)
+```
+
+Each result is classified `newsletter` from its metadata alone (no `read_email`) and rendered in
+the 📌 section, marked `écarté par le filtre`.
+
+Collect: `perso_threads[]` (id, sender_email, subject, snippet, date) and `perso_filtered[]`.
 
 ### 2b — Gmail pro (via `mcp__claude_ai_Gmail__*`)
 
@@ -134,7 +146,11 @@ mcp__claude_ai_Gmail__search_threads(
 For each result, call `mcp__claude_ai_Gmail__get_thread(id=<thread_id>)` to get sender,
 subject, and first-message snippet.
 
-Collect: `pro_threads[]` (id, sender_email, subject, snippet, date).
+Then the same listing of what the query filtered out:
+`mcp__claude_ai_Gmail__search_threads(query="newer_than:<N>d (label:newsletters OR label:promotional)", maxResults=50)`
+→ `newsletter`, metadata only, marked `écarté par le filtre`.
+
+Collect: `pro_threads[]` (id, sender_email, subject, snippet, date) and `pro_filtered[]`.
 
 ---
 
@@ -287,6 +303,7 @@ empty sub-sections (do not render a section header if it has zero threads).
 
 ## 📌 Non classifié / Personnel / Newsletter
 - <sender> — <subject> [<date>] — <category>
+- <sender> — <subject> [<date>] — newsletter, écarté par le filtre
 (skip section entirely if empty)
 
 ## Source status
@@ -332,7 +349,7 @@ Je crée ces <n> tâches dans <household workspace name> ? (oui / non / à corri
 - **Read-only for vault** — never write to `jobsearch-vault`.
 - **No automatic action execution** — this skill classifies and recommends. The user decides and acts. Never auto-call `/log-application`, `/interview-prep`, or any HAL write tool without explicit user confirmation. The one write the skill proposes itself is Step 5b's household tasks, and it waits for the yes too: nothing is created before it.
 - **HAL reads are allowed** — `list_contacts`, `list_companies`, `list_projects`, `list_tasks`, `list_sprints` are safe reads. `create_task` runs only in Step 5b, after the yes. `log_interaction` and other write tools require explicit user request in the conversation.
-- **Classify every thread** — no thread is silently dropped. Unclassifiable threads go to `non_classifié`.
+- **Classify every thread** — no thread is silently dropped. Unclassifiable threads go to `non_classifié`; a thread the search filter left out (newsletters, promotions) is still named, as `newsletter`, from the second search of Step 2a/2b.
 - **Never silently omit a source** — any probe or scan failure renders `⚠️` in the relevant section AND in the source-status footer.
 - **Compose, do not bypass** — call `Skill(jobsearch-vault)` for vault access. Never read the Obsidian filesystem directly.
 - **Window parameter** — default is 7 days. Accept `N=<days>` override from the user's prompt.
