@@ -16,8 +16,9 @@ Rules, in order:
    dataset → the real server's error: `{"error": "workspace <slug> not found or not a member"}`.
 2. Apply every filter the input carries exactly as SQL would (`kind`, `stage`, `status`,
    `project_id`, `contact_id`, `company_id`, `sprint_id`, `search` = case-insensitive substring
-   on the name, `since`/`until` on dates, `limit`/`offset`). No filter → every row. Never invent
-   a row, never alter a field, never drop a matching one.
+   on the name, `since`/`until` on dates, `limit`/`offset`). `list_tasks` with `status: "open"`
+   = the rows whose status is `todo`, `in_progress` or `blocked`. No filter → every row. Never
+   invent a row, never alter a field, never drop a matching one.
 3. Answer in the real tool's JSON shape (examples below, recorded from the real server). Fill the
    fields the seed row does not carry with `null` (ids keep the seed's `audit-…` ids;
    `created_at`/`updated_at` = "2026-10-14T09:00:00+00:00"). `list_projects` nests `company`
@@ -708,7 +709,7 @@ input: `{"workspace_slug": "hal-audit-jobsearch", "slug": "call-analysis-20025b5
 
 #### hal_sprints (0 rows)
 
-#### hal_tasks (7 rows)
+#### hal_tasks (10 rows)
 {"id": "audit-bs-tk-1", "project_id": "audit-bs-pr-belvedere", "title": "Visite terrain Le Belvédère — balcons façade sud", "status": "todo", "priority": "high", "due_date": "2026-09-16", "tags": ["client"], "workspace_slug": "hal-audit-edifice"}
 {"id": "audit-bs-tk-2", "project_id": "audit-bs-pr-belvedere", "title": "Prévenir les copropriétaires de l'accès aux balcons", "status": "done", "priority": "medium", "tags": ["client"], "completed_at": "2026-09-10", "workspace_slug": "hal-audit-edifice"}
 {"id": "audit-bs-tk-3", "project_id": "audit-bs-pr-ecole", "title": "Rédiger le rapport École Jean-Moulin", "status": "in_progress", "priority": "high", "due_date": "2026-09-22", "tags": ["client"], "workspace_slug": "hal-audit-edifice"}
@@ -716,6 +717,9 @@ input: `{"workspace_slug": "hal-audit-jobsearch", "slug": "call-analysis-20025b5
 {"id": "audit-bs-tk-5", "project_id": "audit-bs-pr-platanes", "title": "Relancer Anne Vidal sur le devis", "status": "todo", "priority": "medium", "due_date": "2026-09-17", "tags": ["commercial"], "workspace_slug": "hal-audit-edifice"}
 {"id": "audit-bs-tk-6", "project_id": "audit-bs-pr-morel", "title": "Facturer la Grange Morel", "status": "todo", "priority": "high", "due_date": "2026-09-15", "tags": ["finance"], "workspace_slug": "hal-audit-edifice"}
 {"id": "audit-bs-tk-7", "title": "Renouveler l'attestation décennale", "status": "todo", "priority": "medium", "due_date": "2026-12-15", "tags": ["legal"], "workspace_slug": "hal-audit-edifice"}
+{"id": "audit-bs-tk-8", "title": "Déposer les comptes annuels 2025 au greffe", "description": "Dépôt en ligne sur Infogreffe : bilan, compte de résultat, annexe et procès-verbal d'AG approuvant les comptes 2025.", "status": "in_progress", "priority": "high", "due_date": "2026-09-30", "tags": ["finance"], "workspace_slug": "hal-audit-edifice"}
+{"id": "audit-bs-tk-9", "title": "Transmettre les comptes 2025 à la banque", "description": "Pour le renouvellement de la ligne de crédit : envoyer à la Banque Populaire les comptes 2025 tels que déposés et l'accusé de dépôt du greffe. Attend le dépôt lui-même, suivi dans la tâche audit-bs-tk-8.", "status": "todo", "priority": "medium", "due_date": "2026-10-15", "tags": ["finance"], "workspace_slug": "hal-audit-edifice"}
+{"id": "audit-bs-tk-10", "title": "Impôts — prendre RDV au SIE pour demander la remise de la majoration de 250 €", "description": "Majoration de 250 € pour dépôt tardif de la déclaration de TVA de juillet. Prendre rendez-vous au service des impôts des entreprises (SIE) de Valence pour en demander la remise gracieuse.", "status": "todo", "priority": "medium", "due_date": "2026-09-25", "tags": ["finance"], "workspace_slug": "hal-audit-edifice"}
 
 #### hal_interactions (4 rows)
 {"id": "audit-bs-in-1", "project_id": "audit-bs-pr-belvedere", "contact_id": "audit-bs-ct-garnier", "channel": "email", "occurred_at": "2026-09-09T09:05:00+02:00", "summary": "Isabelle confirme l'accès mercredi 16/09 à 9h, gardien prévenu. Veut le rapport avant l'AG du 8/10.", "tags": ["client"], "workspace_slug": "hal-audit-edifice"}
