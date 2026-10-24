@@ -29,6 +29,10 @@ the versions those files never covered were written afterwards from their releas
 
 - New plugin: `wrap-up` closes a session in one pass — inventory of what is not yet on the remote, then either a clean close or a per-branch handoff in `.git/claude-handoffs/` that the SessionStart hook injects into the next session
 
+## briefing 0.26.1
+
+- morning-briefing and mail-triage name hal-mcp and google-mcp under the three surface prefixes (plugin, Cowork connector, routine connector): in a cloud routine every server is a connector, and the perso inbox is google-mcp or DOWN, never another mail server (the 2026-10-23 run fell back to gmail-mcp)
+
 ## briefing 0.26.0
 
 - Gmail perso through the hal plugin's google-mcp (hal#348); household workspace by whoami's household marker (q69)

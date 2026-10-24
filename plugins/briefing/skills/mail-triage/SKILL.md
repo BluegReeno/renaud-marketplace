@@ -8,7 +8,7 @@ description: >
   perso inbox is proposed as a « payer la facture » task in the household workspace, created on
   one yes. Trigger: /mail,
   "scan mes mails", "quoi dans ma boîte", "trie mes mails", "classifie mes mails".
-allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__plugin_hal_google-mcp__search_emails mcp__plugin_hal_google-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__claude_ai_Gmail__get_thread Skill(jobsearch-vault)"
+allowed-tools: "mcp__plugin_hal_hal-mcp__whoami mcp__claude_ai_hal-mcp__whoami mcp__hal-mcp__whoami mcp__plugin_hal_hal-mcp__list_contacts mcp__claude_ai_hal-mcp__list_contacts mcp__hal-mcp__list_contacts mcp__plugin_hal_hal-mcp__list_companies mcp__claude_ai_hal-mcp__list_companies mcp__hal-mcp__list_companies mcp__plugin_hal_hal-mcp__list_projects mcp__claude_ai_hal-mcp__list_projects mcp__hal-mcp__list_projects mcp__plugin_hal_hal-mcp__list_tasks mcp__claude_ai_hal-mcp__list_tasks mcp__hal-mcp__list_tasks mcp__plugin_hal_hal-mcp__list_sprints mcp__claude_ai_hal-mcp__list_sprints mcp__hal-mcp__list_sprints mcp__plugin_hal_hal-mcp__create_task mcp__claude_ai_hal-mcp__create_task mcp__hal-mcp__create_task mcp__plugin_hal_google-mcp__search_emails mcp__claude_ai_google-mcp__search_emails mcp__google-mcp__search_emails mcp__plugin_hal_google-mcp__read_email mcp__claude_ai_google-mcp__read_email mcp__google-mcp__read_email mcp__claude_ai_Gmail__search_threads mcp__Gmail__search_threads mcp__claude_ai_Gmail__get_thread mcp__Gmail__get_thread Skill(jobsearch-vault)"
 ---
 
 # Mail Triage — Skill Instructions
@@ -39,6 +39,19 @@ omission is a critical failure.
 ## Step 0 — Pre-flight
 
 Probe each backend independently. Do NOT bail on the first failure — all probes run regardless.
+
+**Tool names by surface.** This skill names every tool in its plugin form —
+`mcp__plugin_hal_<server>__<tool>` for the hal plugin's servers (`hal-mcp`, `google-mcp`) — and
+the claude.ai connectors as `mcp__claude_ai_<server>__<tool>` (`Gmail`, `Google_Calendar`). The same
+tools arrive under other prefixes depending on where the skill runs: in Cowork and Claude Desktop a
+server synced from claude.ai is `mcp__claude_ai_<server>__<tool>`; in a cloud routine (scheduled
+task) no plugin server is loaded — every server, the hal plugin's included, arrives as a claude.ai
+connector, `mcp__<server>__<tool>` (`mcp__hal-mcp__whoami`, `mcp__google-mcp__search_emails`,
+`mcp__Gmail__search_threads`, `mcp__Google_Calendar__list_events`). Resolve a tool by its server and
+tool name, whatever the prefix; the inputs are identical. A server reachable under no prefix is DOWN
+with that reason — `google-mcp not attached: attach the hal plugin's google-mcp connector to the
+routine` — and is never replaced by another server that reads mail: the perso inbox is google-mcp or
+nothing.
 
 - **hal-mcp probe**: call `mcp__plugin_hal_hal-mcp__whoami`. Assert **resolvability, not identity**: it must answer and return at least one workspace in `workspaces[]`. On call failure → mark `hal:DOWN <reason>`, skip Steps 1a-1c. If it answers but `workspaces[]` is empty → mark `hal:DOWN no workspace — whoami returned <the actual payload received>` and skip Steps 1a-1c: with no workspace there is no CRM context to load. Never assert a specific email or slug — Step 1 iterates on whatever `whoami` returns.
 - **Gmail perso probe**: resolve the perso workspace from `whoami` — the live workspace of `type: "jobsearch"`, else the one of `type: "personal"` (several → ask which) — and call `mcp__plugin_hal_google-mcp__search_emails(workspace_slug=<it>, query="after:2000/01/01", max_results=1)`. The Google account connected to that workspace is the perso inbox. On failure → mark `gmail-perso:DOWN <reason>`, skip Step 2a; a « No Google identity connected » refusal also names the `google_connect('<slug>')` call to make once, by hand. No workspace resolved (`hal:DOWN`, or no live `jobsearch` or `personal` workspace) → `gmail-perso:DOWN — no workspace resolved`, Step 2a skipped: the inbox was not probed, which is not an empty inbox.
